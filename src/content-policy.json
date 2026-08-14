@@ -1,0 +1,115 @@
+{
+  "GQ": {
+    "capitalAliases": ["Cidade da Paz"],
+    "formerCapitalNames": ["Malabo"],
+    "capitalNote": "Ciudad de la Paz é a capital oficial desde 2 de janeiro de 2026; Malabo é a antiga capital."
+  },
+  "PS": {
+    "capitalAliases": [],
+    "otherSeats": ["Ramallah"],
+    "capitalType": "claimed-disputed",
+    "capitalNote": "O Estado da Palestina reivindica Jerusalém Oriental como capital; Ramallah funciona como sede administrativa. O estatuto de Jerusalém permanece disputado internacionalmente."
+  },
+  "IL": {
+    "capitalNote": "Israel declara Jerusalém sua capital; o estatuto da cidade permanece disputado internacionalmente."
+  },
+  "ZA": {
+    "capitalAliases": [],
+    "alternateCapitals": ["Cidade do Cabo", "Bloemfontein"],
+    "capitalNote": "Pretória é a capital administrativa, Cidade do Cabo a legislativa e Bloemfontein a judicial."
+  },
+  "BJ": {
+    "capitalAliases": [],
+    "otherSeats": ["Cotonou"],
+    "capitalNote": "Porto-Novo é a capital constitucional; a sede do governo fica em Cotonou."
+  },
+  "BO": {
+    "capitalAliases": [],
+    "otherSeats": ["La Paz"],
+    "capitalNote": "Sucre é a capital constitucional; Executivo e Legislativo funcionam em La Paz."
+  },
+  "KZ": {
+    "capitalAliases": [],
+    "formerCapitalNames": ["Nur-Sultan"]
+  },
+  "CI": {
+    "capitalAliases": [],
+    "otherSeats": ["Abidjan", "Abidja"],
+    "capitalNote": "Yamoussoukro é a capital oficial; Abidjan permanece o principal centro econômico e abriga órgãos governamentais."
+  },
+  "SZ": {
+    "nameAliases": ["Eswatini"],
+    "countryHistoricNames": ["Suazilândia"],
+    "capitalAliases": [],
+    "alternateCapitals": ["Mbabane"],
+    "capitalNote": "Lobamba é a capital real e legislativa; Mbabane é a capital administrativa."
+  },
+  "NL": {
+    "nameAliases": ["Países Baixos"],
+    "countryColloquialisms": ["Holanda"],
+    "capitalAliases": ["Amsterda"],
+    "otherSeats": ["Haia"],
+    "capitalNote": "Amsterdã é a capital constitucional; governo e parlamento ficam em Haia."
+  },
+  "GB": {
+    "nameAliases": ["Reino Unido"],
+    "countryMistakes": ["Inglaterra", "Grã-Bretanha"]
+  },
+  "LK": {
+    "capitalAliases": ["Kotte"],
+    "otherSeats": ["Colombo"],
+    "capitalNote": "Sri Jayawardenapura Kotte é a capital legislativa; Colombo é o principal centro comercial e ainda concentra órgãos executivos e judiciais."
+  },
+  "VA": {
+    "nameAliases": ["Cidade do Vaticano"],
+    "countryAmbiguousNames": ["Santa Sé"],
+    "capitalAliases": [],
+    "capitalMistakes": ["Roma"]
+  },
+  "NR": {
+    "capitalType": "government-seat",
+    "capitalNote": "Nauru não possui capital oficial; Yaren é o distrito onde ficam o parlamento e os principais órgãos do governo."
+  },
+  "CH": {
+    "capitalType": "de-facto",
+    "capitalNote": "Berna é a cidade federal e exerce a função de capital de facto; a Suíça não possui capital de jure."
+  },
+  "MY": {
+    "otherSeats": ["Putrajaya"],
+    "capitalNote": "Kuala Lumpur é a capital nacional; Putrajaya é o centro administrativo federal."
+  },
+  "BI": {
+    "capitalNote": "Gitega é a capital política; Bujumbura é a capital econômica e maior cidade."
+  },
+  "YE": {
+    "otherSeats": ["Áden", "Aden"],
+    "capitalNote": "Sanaá é a capital constitucional; Áden funciona como sede temporária do governo internacionalmente reconhecido."
+  },
+  "BF": {
+    "nameAliases": [],
+    "countryHistoricNames": ["Alto Volta"]
+  },
+  "MK": {
+    "nameAliases": [],
+    "countryHistoricNames": ["Macedônia"]
+  },
+  "CG": {
+    "nameAliases": ["Congo-Brazzaville"],
+    "countryAmbiguousNames": ["Congo"]
+  },
+  "TL": {
+    "nameAliases": ["Timor Leste"],
+    "countryAmbiguousNames": ["Timor"]
+  },
+  "CV": {
+    "nameAliases": ["Cabo Verde"],
+    "countryHistoricNames": ["Cape Verde"]
+  },
+  "MM": {
+    "nameAliases": ["Mianmar"],
+    "countryHistoricNames": ["Birmânia", "Birmania"]
+  },
+  "CY": {
+    "region": "Ásia"
+  }
+}

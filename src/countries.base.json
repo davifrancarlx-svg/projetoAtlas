@@ -1,0 +1,1564 @@
+[
+  {
+    "id": "AF",
+    "n": "Afeganistão",
+    "cap": "Cabul",
+    "r": "Ásia",
+    "ar": 652230
+  },
+  {
+    "id": "ZA",
+    "n": "África do Sul",
+    "cap": "Pretória",
+    "r": "África",
+    "ar": 1221037,
+    "calt": [
+      "cidade do cabo",
+      "bloemfontein"
+    ],
+    "note": "Três capitais: Pretória (executiva), Cidade do Cabo (legislativa) e Bloemfontein (judiciária)."
+  },
+  {
+    "id": "AL",
+    "n": "Albânia",
+    "cap": "Tirana",
+    "r": "Europa",
+    "ar": 28748
+  },
+  {
+    "id": "DE",
+    "n": "Alemanha",
+    "cap": "Berlim",
+    "r": "Europa",
+    "ar": 357114
+  },
+  {
+    "id": "AD",
+    "n": "Andorra",
+    "cap": "Andorra la Vella",
+    "r": "Europa",
+    "ar": 468
+  },
+  {
+    "id": "AO",
+    "n": "Angola",
+    "cap": "Luanda",
+    "r": "África",
+    "ar": 1246700
+  },
+  {
+    "id": "AG",
+    "n": "Antígua e Barbuda",
+    "cap": "Saint John's",
+    "r": "América do Norte e Central",
+    "ar": 442
+  },
+  {
+    "id": "SA",
+    "n": "Arábia Saudita",
+    "cap": "Riade",
+    "r": "Ásia",
+    "ar": 2149690
+  },
+  {
+    "id": "DZ",
+    "n": "Argélia",
+    "cap": "Argel",
+    "r": "África",
+    "ar": 2381741
+  },
+  {
+    "id": "AR",
+    "n": "Argentina",
+    "cap": "Buenos Aires",
+    "r": "América do Sul",
+    "ar": 2780400
+  },
+  {
+    "id": "AM",
+    "n": "Armênia",
+    "cap": "Yerevan",
+    "r": "Ásia",
+    "ar": 29743,
+    "calt": [
+      "erevan"
+    ]
+  },
+  {
+    "id": "AU",
+    "n": "Austrália",
+    "cap": "Canberra",
+    "r": "Oceania",
+    "ar": 7692024
+  },
+  {
+    "id": "AT",
+    "n": "Áustria",
+    "cap": "Viena",
+    "r": "Europa",
+    "ar": 83871
+  },
+  {
+    "id": "AZ",
+    "n": "Azerbaijão",
+    "cap": "Baku",
+    "r": "Ásia",
+    "ar": 86600
+  },
+  {
+    "id": "BS",
+    "n": "Bahamas",
+    "cap": "Nassau",
+    "r": "América do Norte e Central",
+    "ar": 13943
+  },
+  {
+    "id": "BH",
+    "n": "Bahrein",
+    "cap": "Manama",
+    "r": "Ásia",
+    "ar": 765
+  },
+  {
+    "id": "BD",
+    "n": "Bangladesh",
+    "cap": "Daca",
+    "r": "Ásia",
+    "ar": 147570
+  },
+  {
+    "id": "BB",
+    "n": "Barbados",
+    "cap": "Bridgetown",
+    "r": "América do Norte e Central",
+    "ar": 430
+  },
+  {
+    "id": "BE",
+    "n": "Bélgica",
+    "cap": "Bruxelas",
+    "r": "Europa",
+    "ar": 30528
+  },
+  {
+    "id": "BZ",
+    "n": "Belize",
+    "cap": "Belmopan",
+    "r": "América do Norte e Central",
+    "ar": 22966
+  },
+  {
+    "id": "BJ",
+    "n": "Benin",
+    "cap": "Porto-Novo",
+    "r": "África",
+    "ar": 112622,
+    "calt": [
+      "cotonou"
+    ],
+    "note": "Porto-Novo é a capital oficial. Cotonou é a sede do governo."
+  },
+  {
+    "id": "BY",
+    "n": "Bielorússia",
+    "cap": "Minsk",
+    "r": "Europa",
+    "ar": 207600,
+    "calt": [
+      "minsque"
+    ],
+    "alt": [
+      "belarus"
+    ]
+  },
+  {
+    "id": "BO",
+    "n": "Bolívia",
+    "cap": "Sucre",
+    "r": "América do Sul",
+    "ar": 1098581,
+    "calt": [
+      "la paz"
+    ],
+    "note": "Sucre é a capital constitucional. La Paz é a sede do governo."
+  },
+  {
+    "id": "BA",
+    "n": "Bósnia e Herzegovina",
+    "cap": "Sarajevo",
+    "r": "Europa",
+    "ar": 51209
+  },
+  {
+    "id": "BW",
+    "n": "Botsuana",
+    "cap": "Gaborone",
+    "r": "África",
+    "ar": 582000,
+    "alt": [
+      "botswana"
+    ]
+  },
+  {
+    "id": "BR",
+    "n": "Brasil",
+    "cap": "Brasília",
+    "r": "América do Sul",
+    "ar": 8515767
+  },
+  {
+    "id": "BN",
+    "n": "Brunei",
+    "cap": "Bandar Seri Begawan",
+    "r": "Ásia",
+    "ar": 5765
+  },
+  {
+    "id": "BG",
+    "n": "Bulgária",
+    "cap": "Sófia",
+    "r": "Europa",
+    "ar": 110879
+  },
+  {
+    "id": "BF",
+    "n": "Burkina Faso",
+    "cap": "Ouagadougou",
+    "r": "África",
+    "ar": 272967,
+    "alt": [
+      "alto volta"
+    ]
+  },
+  {
+    "id": "BI",
+    "n": "Burundi",
+    "cap": "Gitega",
+    "r": "África",
+    "ar": 27834
+  },
+  {
+    "id": "BT",
+    "n": "Butão",
+    "cap": "Thimphu",
+    "r": "Ásia",
+    "ar": 38394
+  },
+  {
+    "id": "CV",
+    "n": "Cabo Verde",
+    "cap": "Praia",
+    "r": "África",
+    "ar": 4033,
+    "alt": [
+      "cabo verde",
+      "cape verde"
+    ]
+  },
+  {
+    "id": "CM",
+    "n": "Camarões",
+    "cap": "Yaoundé",
+    "r": "África",
+    "ar": 475442
+  },
+  {
+    "id": "KH",
+    "n": "Camboja",
+    "cap": "Phnom Penh",
+    "r": "Ásia",
+    "ar": 181035
+  },
+  {
+    "id": "CA",
+    "n": "Canadá",
+    "cap": "Ottawa",
+    "r": "América do Norte e Central",
+    "ar": 9984670
+  },
+  {
+    "id": "QA",
+    "n": "Catar",
+    "cap": "Doha",
+    "r": "Ásia",
+    "ar": 11586
+  },
+  {
+    "id": "KZ",
+    "n": "Cazaquistão",
+    "cap": "Astana",
+    "r": "Ásia",
+    "ar": 2724900,
+    "calt": [
+      "nur sultan"
+    ]
+  },
+  {
+    "id": "TD",
+    "n": "Chade",
+    "cap": "Ndjamena",
+    "r": "África",
+    "ar": 1284000
+  },
+  {
+    "id": "CL",
+    "n": "Chile",
+    "cap": "Santiago",
+    "r": "América do Sul",
+    "ar": 756102
+  },
+  {
+    "id": "CN",
+    "n": "China",
+    "cap": "Pequim",
+    "r": "Ásia",
+    "ar": 9706961
+  },
+  {
+    "id": "CY",
+    "n": "Chipre",
+    "cap": "Nicósia",
+    "r": "Europa",
+    "ar": 9251
+  },
+  {
+    "id": "CO",
+    "n": "Colômbia",
+    "cap": "Bogotá",
+    "r": "América do Sul",
+    "ar": 1141748
+  },
+  {
+    "id": "KM",
+    "n": "Comores",
+    "cap": "Moroni",
+    "r": "África",
+    "ar": 1862
+  },
+  {
+    "id": "KP",
+    "n": "Coreia do Norte",
+    "cap": "Pyongyang",
+    "r": "Ásia",
+    "ar": 120538,
+    "alt": [
+      "coreia do norte"
+    ]
+  },
+  {
+    "id": "KR",
+    "n": "Coreia do Sul",
+    "cap": "Seul",
+    "r": "Ásia",
+    "ar": 100210,
+    "alt": [
+      "coreia do sul"
+    ]
+  },
+  {
+    "id": "CI",
+    "n": "Costa do Marfim",
+    "cap": "Yamoussoukro",
+    "r": "África",
+    "ar": 322463,
+    "calt": [
+      "abidja",
+      "abidjan"
+    ],
+    "note": "Yamoussoukro é a capital oficial. Abidjan concentra o governo de fato."
+  },
+  {
+    "id": "CR",
+    "n": "Costa Rica",
+    "cap": "San José",
+    "r": "América do Norte e Central",
+    "ar": 51100
+  },
+  {
+    "id": "HR",
+    "n": "Croácia",
+    "cap": "Zagreb",
+    "r": "Europa",
+    "ar": 56594
+  },
+  {
+    "id": "CU",
+    "n": "Cuba",
+    "cap": "Havana",
+    "r": "América do Norte e Central",
+    "ar": 109884
+  },
+  {
+    "id": "DK",
+    "n": "Dinamarca",
+    "cap": "Copenhague",
+    "r": "Europa",
+    "ar": 43094
+  },
+  {
+    "id": "DJ",
+    "n": "Djibuti",
+    "cap": "Djibuti",
+    "r": "África",
+    "ar": 23200
+  },
+  {
+    "id": "DM",
+    "n": "Dominica",
+    "cap": "Roseau",
+    "r": "América do Norte e Central",
+    "ar": 751
+  },
+  {
+    "id": "EG",
+    "n": "Egito",
+    "cap": "Cairo",
+    "r": "África",
+    "ar": 1002450
+  },
+  {
+    "id": "SV",
+    "n": "El Salvador",
+    "cap": "San Salvador",
+    "r": "América do Norte e Central",
+    "ar": 21041
+  },
+  {
+    "id": "AE",
+    "n": "Emirados Árabes Unidos",
+    "cap": "Abu Dhabi",
+    "r": "Ásia",
+    "ar": 83600,
+    "alt": [
+      "emirados arabes"
+    ],
+    "calt": [
+      "abu dabi"
+    ]
+  },
+  {
+    "id": "EC",
+    "n": "Equador",
+    "cap": "Quito",
+    "r": "América do Sul",
+    "ar": 276841
+  },
+  {
+    "id": "ER",
+    "n": "Eritreia",
+    "cap": "Asmara",
+    "r": "África",
+    "ar": 117600
+  },
+  {
+    "id": "SK",
+    "n": "Eslováquia",
+    "cap": "Bratislava",
+    "r": "Europa",
+    "ar": 49037
+  },
+  {
+    "id": "SI",
+    "n": "Eslovênia",
+    "cap": "Ljubljana",
+    "r": "Europa",
+    "ar": 20273
+  },
+  {
+    "id": "ES",
+    "n": "Espanha",
+    "cap": "Madri",
+    "r": "Europa",
+    "ar": 505992,
+    "calt": [
+      "madrid"
+    ]
+  },
+  {
+    "id": "SZ",
+    "n": "Essuatíni",
+    "cap": "Lobamba",
+    "r": "África",
+    "ar": 17364,
+    "alt": [
+      "suazilandia",
+      "eswatini"
+    ],
+    "calt": [
+      "mbabane"
+    ],
+    "note": "Lobamba é a capital legislativa. Mbabane é a administrativa."
+  },
+  {
+    "id": "US",
+    "n": "Estados Unidos",
+    "cap": "Washington, D.C.",
+    "r": "América do Norte e Central",
+    "ar": 9372610,
+    "alt": [
+      "eua",
+      "estados unidos da america"
+    ],
+    "calt": [
+      "washington"
+    ]
+  },
+  {
+    "id": "EE",
+    "n": "Estônia",
+    "cap": "Tallinn",
+    "r": "Europa",
+    "ar": 45227
+  },
+  {
+    "id": "ET",
+    "n": "Etiópia",
+    "cap": "Adis Abeba",
+    "r": "África",
+    "ar": 1104300
+  },
+  {
+    "id": "FJ",
+    "n": "Fiji",
+    "cap": "Suva",
+    "r": "Oceania",
+    "ar": 18272
+  },
+  {
+    "id": "PH",
+    "n": "Filipinas",
+    "cap": "Manila",
+    "r": "Ásia",
+    "ar": 342353
+  },
+  {
+    "id": "FI",
+    "n": "Finlândia",
+    "cap": "Helsinque",
+    "r": "Europa",
+    "ar": 338424
+  },
+  {
+    "id": "FR",
+    "n": "França",
+    "cap": "Paris",
+    "r": "Europa",
+    "ar": 551695
+  },
+  {
+    "id": "GA",
+    "n": "Gabão",
+    "cap": "Libreville",
+    "r": "África",
+    "ar": 267668
+  },
+  {
+    "id": "GM",
+    "n": "Gâmbia",
+    "cap": "Banjul",
+    "r": "África",
+    "ar": 10689
+  },
+  {
+    "id": "GH",
+    "n": "Gana",
+    "cap": "Acra",
+    "r": "África",
+    "ar": 238533
+  },
+  {
+    "id": "GE",
+    "n": "Geórgia",
+    "cap": "Tbilisi",
+    "r": "Ásia",
+    "ar": 69700
+  },
+  {
+    "id": "GD",
+    "n": "Granada",
+    "cap": "St. George's",
+    "r": "América do Norte e Central",
+    "ar": 344
+  },
+  {
+    "id": "GR",
+    "n": "Grécia",
+    "cap": "Atenas",
+    "r": "Europa",
+    "ar": 131990
+  },
+  {
+    "id": "GT",
+    "n": "Guatemala",
+    "cap": "Cidade da Guatemala",
+    "r": "América do Norte e Central",
+    "ar": 108889
+  },
+  {
+    "id": "GY",
+    "n": "Guiana",
+    "cap": "Georgetown",
+    "r": "América do Sul",
+    "ar": 214969
+  },
+  {
+    "id": "GN",
+    "n": "Guiné",
+    "cap": "Conacri",
+    "r": "África",
+    "ar": 245857
+  },
+  {
+    "id": "GQ",
+    "n": "Guiné Equatorial",
+    "cap": "Ciudad de la Paz",
+    "r": "África",
+    "ar": 28051
+  },
+  {
+    "id": "GW",
+    "n": "Guiné-Bissau",
+    "cap": "Bissau",
+    "r": "África",
+    "ar": 36125
+  },
+  {
+    "id": "HT",
+    "n": "Haiti",
+    "cap": "Porto Príncipe",
+    "r": "América do Norte e Central",
+    "ar": 27750,
+    "calt": [
+      "port au prince"
+    ]
+  },
+  {
+    "id": "HN",
+    "n": "Honduras",
+    "cap": "Tegucigalpa",
+    "r": "América do Norte e Central",
+    "ar": 112492
+  },
+  {
+    "id": "HU",
+    "n": "Hungria",
+    "cap": "Budapeste",
+    "r": "Europa",
+    "ar": 93028
+  },
+  {
+    "id": "YE",
+    "n": "Iêmen",
+    "cap": "Sanaa",
+    "r": "Ásia",
+    "ar": 527968
+  },
+  {
+    "id": "MH",
+    "n": "Ilhas Marshall",
+    "cap": "Majuro",
+    "r": "Oceania",
+    "ar": 181
+  },
+  {
+    "id": "SB",
+    "n": "Ilhas Salomão",
+    "cap": "Honiara",
+    "r": "Oceania",
+    "ar": 28896
+  },
+  {
+    "id": "IN",
+    "n": "Índia",
+    "cap": "Nova Délhi",
+    "r": "Ásia",
+    "ar": 3287590
+  },
+  {
+    "id": "ID",
+    "n": "Indonésia",
+    "cap": "Jacarta",
+    "r": "Ásia",
+    "ar": 1904569
+  },
+  {
+    "id": "IR",
+    "n": "Irã",
+    "cap": "Teerã",
+    "r": "Ásia",
+    "ar": 1648195
+  },
+  {
+    "id": "IQ",
+    "n": "Iraque",
+    "cap": "Bagdá",
+    "r": "Ásia",
+    "ar": 438317,
+    "calt": [
+      "bagda"
+    ]
+  },
+  {
+    "id": "IE",
+    "n": "Irlanda",
+    "cap": "Dublin",
+    "r": "Europa",
+    "ar": 70273
+  },
+  {
+    "id": "IS",
+    "n": "Islândia",
+    "cap": "Reykjavík",
+    "r": "Europa",
+    "ar": 103000,
+    "calt": [
+      "reiquiavique"
+    ]
+  },
+  {
+    "id": "IL",
+    "n": "Israel",
+    "cap": "Jerusalém",
+    "r": "Ásia",
+    "ar": 20770,
+    "note": "Jerusalém é reivindicada como capital, mas o reconhecimento internacional é disputado."
+  },
+  {
+    "id": "IT",
+    "n": "Itália",
+    "cap": "Roma",
+    "r": "Europa",
+    "ar": 301336
+  },
+  {
+    "id": "JM",
+    "n": "Jamaica",
+    "cap": "Kingston",
+    "r": "América do Norte e Central",
+    "ar": 10991
+  },
+  {
+    "id": "JP",
+    "n": "Japão",
+    "cap": "Tóquio",
+    "r": "Ásia",
+    "ar": 377930
+  },
+  {
+    "id": "JO",
+    "n": "Jordânia",
+    "cap": "Amã",
+    "r": "Ásia",
+    "ar": 89342
+  },
+  {
+    "id": "KI",
+    "n": "Kiribati",
+    "cap": "South Tarawa",
+    "r": "Oceania",
+    "ar": 811
+  },
+  {
+    "id": "KW",
+    "n": "Kuwait",
+    "cap": "Cidade do Kuwait",
+    "r": "Ásia",
+    "ar": 17818
+  },
+  {
+    "id": "LA",
+    "n": "Laos",
+    "cap": "Vientiane",
+    "r": "Ásia",
+    "ar": 236800
+  },
+  {
+    "id": "LS",
+    "n": "Lesoto",
+    "cap": "Maseru",
+    "r": "África",
+    "ar": 30355
+  },
+  {
+    "id": "LV",
+    "n": "Letônia",
+    "cap": "Riga",
+    "r": "Europa",
+    "ar": 64559
+  },
+  {
+    "id": "LB",
+    "n": "Líbano",
+    "cap": "Beirute",
+    "r": "Ásia",
+    "ar": 10452
+  },
+  {
+    "id": "LR",
+    "n": "Libéria",
+    "cap": "Monrovia",
+    "r": "África",
+    "ar": 111369
+  },
+  {
+    "id": "LY",
+    "n": "Líbia",
+    "cap": "Trípoli",
+    "r": "África",
+    "ar": 1759540
+  },
+  {
+    "id": "LI",
+    "n": "Liechtenstein",
+    "cap": "Vaduz",
+    "r": "Europa",
+    "ar": 160
+  },
+  {
+    "id": "LT",
+    "n": "Lituânia",
+    "cap": "Vilnius",
+    "r": "Europa",
+    "ar": 65300
+  },
+  {
+    "id": "LU",
+    "n": "Luxemburgo",
+    "cap": "Luxemburgo",
+    "r": "Europa",
+    "ar": 2586
+  },
+  {
+    "id": "MK",
+    "n": "Macedônia do Norte",
+    "cap": "Skopje",
+    "r": "Europa",
+    "ar": 25713,
+    "alt": [
+      "macedonia"
+    ]
+  },
+  {
+    "id": "MG",
+    "n": "Madagascar",
+    "cap": "Antananarivo",
+    "r": "África",
+    "ar": 587041
+  },
+  {
+    "id": "MY",
+    "n": "Malásia",
+    "cap": "Kuala Lumpur",
+    "r": "Ásia",
+    "ar": 330803
+  },
+  {
+    "id": "MW",
+    "n": "Malawi",
+    "cap": "Lilongwe",
+    "r": "África",
+    "ar": 118484,
+    "alt": [
+      "malaui"
+    ]
+  },
+  {
+    "id": "MV",
+    "n": "Maldivas",
+    "cap": "Malé",
+    "r": "Ásia",
+    "ar": 300,
+    "calt": [
+      "male"
+    ]
+  },
+  {
+    "id": "ML",
+    "n": "Mali",
+    "cap": "Bamako",
+    "r": "África",
+    "ar": 1240192
+  },
+  {
+    "id": "MT",
+    "n": "Malta",
+    "cap": "Valeta",
+    "r": "Europa",
+    "ar": 316,
+    "calt": [
+      "valletta"
+    ]
+  },
+  {
+    "id": "MA",
+    "n": "Marrocos",
+    "cap": "Rabat",
+    "r": "África",
+    "ar": 446550
+  },
+  {
+    "id": "MU",
+    "n": "Maurício",
+    "cap": "Port Louis",
+    "r": "África",
+    "ar": 2040,
+    "alt": [
+      "mauricio",
+      "ilhas mauricio"
+    ]
+  },
+  {
+    "id": "MR",
+    "n": "Mauritânia",
+    "cap": "Nouakchott",
+    "r": "África",
+    "ar": 1030700
+  },
+  {
+    "id": "MX",
+    "n": "México",
+    "cap": "Cidade do México",
+    "r": "América do Norte e Central",
+    "ar": 1964375
+  },
+  {
+    "id": "FM",
+    "n": "Micronésia",
+    "cap": "Palikir",
+    "r": "Oceania",
+    "ar": 702
+  },
+  {
+    "id": "MZ",
+    "n": "Moçambique",
+    "cap": "Maputo",
+    "r": "África",
+    "ar": 801590
+  },
+  {
+    "id": "MD",
+    "n": "Moldávia",
+    "cap": "Chisinau",
+    "r": "Europa",
+    "ar": 33846,
+    "alt": [
+      "moldova"
+    ]
+  },
+  {
+    "id": "MC",
+    "n": "Mônaco",
+    "cap": "Mônaco",
+    "r": "Europa",
+    "ar": 2.02
+  },
+  {
+    "id": "MN",
+    "n": "Mongólia",
+    "cap": "Ulan Bator",
+    "r": "Ásia",
+    "ar": 1564110
+  },
+  {
+    "id": "ME",
+    "n": "Montenegro",
+    "cap": "Podgorica",
+    "r": "Europa",
+    "ar": 13812
+  },
+  {
+    "id": "MM",
+    "n": "Myanmar",
+    "cap": "Naypyidaw",
+    "r": "Ásia",
+    "ar": 676578,
+    "alt": [
+      "mianmar",
+      "birmania"
+    ],
+    "calt": [
+      "nay pyi taw",
+      "naipidau"
+    ],
+    "note": "Naypyidaw substituiu Yangon (Rangum) em 2006."
+  },
+  {
+    "id": "NA",
+    "n": "Namíbia",
+    "cap": "Windhoek",
+    "r": "África",
+    "ar": 825615
+  },
+  {
+    "id": "NR",
+    "n": "Nauru",
+    "cap": "Yaren",
+    "r": "Oceania",
+    "ar": 21,
+    "note": "Nauru não tem capital oficial. Yaren é o distrito onde fica o governo."
+  },
+  {
+    "id": "NP",
+    "n": "Nepal",
+    "cap": "Katmandu",
+    "r": "Ásia",
+    "ar": 147181
+  },
+  {
+    "id": "NI",
+    "n": "Nicarágua",
+    "cap": "Managua",
+    "r": "América do Norte e Central",
+    "ar": 130373
+  },
+  {
+    "id": "NE",
+    "n": "Níger",
+    "cap": "Niamey",
+    "r": "África",
+    "ar": 1267000
+  },
+  {
+    "id": "NG",
+    "n": "Nigéria",
+    "cap": "Abuja",
+    "r": "África",
+    "ar": 923768
+  },
+  {
+    "id": "NO",
+    "n": "Noruega",
+    "cap": "Oslo",
+    "r": "Europa",
+    "ar": 323802
+  },
+  {
+    "id": "NZ",
+    "n": "Nova Zelândia",
+    "cap": "Wellington",
+    "r": "Oceania",
+    "ar": 270467
+  },
+  {
+    "id": "OM",
+    "n": "Omã",
+    "cap": "Mascate",
+    "r": "Ásia",
+    "ar": 309500
+  },
+  {
+    "id": "NL",
+    "n": "Países Baixos",
+    "cap": "Amsterdã",
+    "r": "Europa",
+    "ar": 41850,
+    "alt": [
+      "holanda",
+      "paises baixos"
+    ],
+    "calt": [
+      "amsterda",
+      "haia"
+    ],
+    "note": "Amsterdã é a capital constitucional. Haia sedia o governo e a corte."
+  },
+  {
+    "id": "PW",
+    "n": "Palau",
+    "cap": "Ngerulmud",
+    "r": "Oceania",
+    "ar": 459
+  },
+  {
+    "id": "PS",
+    "n": "Palestina",
+    "cap": "Jerusalém Oriental",
+    "r": "Ásia",
+    "ar": 6220,
+    "note": "Ramallah é a sede administrativa. Jerusalém Oriental é reivindicada como capital."
+  },
+  {
+    "id": "PA",
+    "n": "Panamá",
+    "cap": "Cidade do Panamá",
+    "r": "América do Norte e Central",
+    "ar": 75417
+  },
+  {
+    "id": "PG",
+    "n": "Papua Nova Guiné",
+    "cap": "Port Moresby",
+    "r": "Oceania",
+    "ar": 462840
+  },
+  {
+    "id": "PK",
+    "n": "Paquistão",
+    "cap": "Islamabad",
+    "r": "Ásia",
+    "ar": 881912
+  },
+  {
+    "id": "PY",
+    "n": "Paraguai",
+    "cap": "Assunção",
+    "r": "América do Sul",
+    "ar": 406752
+  },
+  {
+    "id": "PE",
+    "n": "Peru",
+    "cap": "Lima",
+    "r": "América do Sul",
+    "ar": 1285216
+  },
+  {
+    "id": "PL",
+    "n": "Polônia",
+    "cap": "Varsóvia",
+    "r": "Europa",
+    "ar": 312679
+  },
+  {
+    "id": "PT",
+    "n": "Portugal",
+    "cap": "Lisboa",
+    "r": "Europa",
+    "ar": 92090
+  },
+  {
+    "id": "KE",
+    "n": "Quênia",
+    "cap": "Nairobi",
+    "r": "África",
+    "ar": 580367
+  },
+  {
+    "id": "KG",
+    "n": "Quirguistão",
+    "cap": "Bishkek",
+    "r": "Ásia",
+    "ar": 199951
+  },
+  {
+    "id": "GB",
+    "n": "Reino Unido",
+    "cap": "Londres",
+    "r": "Europa",
+    "ar": 242900,
+    "alt": [
+      "inglaterra",
+      "gra bretanha",
+      "reino unido"
+    ]
+  },
+  {
+    "id": "CF",
+    "n": "República Centro-Africana",
+    "cap": "Bangui",
+    "r": "África",
+    "ar": 622984,
+    "alt": [
+      "republica centro africana",
+      "centro africana"
+    ]
+  },
+  {
+    "id": "CD",
+    "n": "República Democrática do Congo",
+    "cap": "Kinshasa",
+    "r": "África",
+    "ar": 2344858,
+    "alt": [
+      "congo kinshasa",
+      "rdc",
+      "congo democratico"
+    ],
+    "calt": [
+      "quinxassa"
+    ]
+  },
+  {
+    "id": "CG",
+    "n": "República do Congo",
+    "cap": "Brazzaville",
+    "r": "África",
+    "ar": 342000,
+    "alt": [
+      "congo",
+      "congo brazzaville"
+    ]
+  },
+  {
+    "id": "DO",
+    "n": "República Dominicana",
+    "cap": "Santo Domingo",
+    "r": "América do Norte e Central",
+    "ar": 48671,
+    "alt": [
+      "republica dominicana"
+    ]
+  },
+  {
+    "id": "RO",
+    "n": "Romênia",
+    "cap": "Bucareste",
+    "r": "Europa",
+    "ar": 238391
+  },
+  {
+    "id": "RW",
+    "n": "Ruanda",
+    "cap": "Kigali",
+    "r": "África",
+    "ar": 26338
+  },
+  {
+    "id": "RU",
+    "n": "Rússia",
+    "cap": "Moscou",
+    "r": "Europa",
+    "ar": 17098242
+  },
+  {
+    "id": "WS",
+    "n": "Samoa",
+    "cap": "Apia",
+    "r": "Oceania",
+    "ar": 2842
+  },
+  {
+    "id": "SM",
+    "n": "San Marino",
+    "cap": "San Marino",
+    "r": "Europa",
+    "ar": 61,
+    "calt": [
+      "cidade de san marino"
+    ]
+  },
+  {
+    "id": "LC",
+    "n": "Santa Lúcia",
+    "cap": "Castries",
+    "r": "América do Norte e Central",
+    "ar": 616
+  },
+  {
+    "id": "KN",
+    "n": "São Cristóvão e Nevis",
+    "cap": "Basseterre",
+    "r": "América do Norte e Central",
+    "ar": 261,
+    "alt": [
+      "sao cristovao e neves"
+    ]
+  },
+  {
+    "id": "ST",
+    "n": "São Tomé e Príncipe",
+    "cap": "São Tomé",
+    "r": "África",
+    "ar": 964
+  },
+  {
+    "id": "VC",
+    "n": "São Vicente e Granadinas",
+    "cap": "Kingstown",
+    "r": "América do Norte e Central",
+    "ar": 389
+  },
+  {
+    "id": "SC",
+    "n": "Seicheles",
+    "cap": "Victoria",
+    "r": "África",
+    "ar": 452,
+    "alt": [
+      "seychelles"
+    ]
+  },
+  {
+    "id": "SN",
+    "n": "Senegal",
+    "cap": "Dakar",
+    "r": "África",
+    "ar": 196722,
+    "calt": [
+      "dacar"
+    ]
+  },
+  {
+    "id": "SL",
+    "n": "Serra Leoa",
+    "cap": "Freetown",
+    "r": "África",
+    "ar": 71740
+  },
+  {
+    "id": "RS",
+    "n": "Sérvia",
+    "cap": "Belgrado",
+    "r": "Europa",
+    "ar": 88361
+  },
+  {
+    "id": "SG",
+    "n": "Singapura",
+    "cap": "Singapura",
+    "r": "Ásia",
+    "ar": 710
+  },
+  {
+    "id": "SY",
+    "n": "Síria",
+    "cap": "Damasco",
+    "r": "Ásia",
+    "ar": 185180
+  },
+  {
+    "id": "SO",
+    "n": "Somália",
+    "cap": "Mogadíscio",
+    "r": "África",
+    "ar": 637657
+  },
+  {
+    "id": "LK",
+    "n": "Sri Lanka",
+    "cap": "Sri Jayawardenapura Kotte",
+    "r": "Ásia",
+    "ar": 65610,
+    "calt": [
+      "colombo",
+      "kotte"
+    ],
+    "note": "Nome completo: Sri Jayawardenapura Kotte. Colombo é a capital comercial."
+  },
+  {
+    "id": "SD",
+    "n": "Sudão",
+    "cap": "Cartum",
+    "r": "África",
+    "ar": 1886068
+  },
+  {
+    "id": "SS",
+    "n": "Sudão do Sul",
+    "cap": "Juba",
+    "r": "África",
+    "ar": 619745
+  },
+  {
+    "id": "SE",
+    "n": "Suécia",
+    "cap": "Estocolmo",
+    "r": "Europa",
+    "ar": 450295
+  },
+  {
+    "id": "CH",
+    "n": "Suíça",
+    "cap": "Berna",
+    "r": "Europa",
+    "ar": 41284,
+    "alt": [
+      "suica"
+    ]
+  },
+  {
+    "id": "SR",
+    "n": "Suriname",
+    "cap": "Paramaribo",
+    "r": "América do Sul",
+    "ar": 163820
+  },
+  {
+    "id": "TH",
+    "n": "Tailândia",
+    "cap": "Bangkok",
+    "r": "Ásia",
+    "ar": 513120,
+    "calt": [
+      "bangcoc",
+      "bangkok"
+    ]
+  },
+  {
+    "id": "TJ",
+    "n": "Tajiquistão",
+    "cap": "Dushanbe",
+    "r": "Ásia",
+    "ar": 143100
+  },
+  {
+    "id": "TZ",
+    "n": "Tanzânia",
+    "cap": "Dodoma",
+    "r": "África",
+    "ar": 945087,
+    "note": "Dodoma substituiu Dar es Salaam como capital."
+  },
+  {
+    "id": "CZ",
+    "n": "Tchéquia",
+    "cap": "Praga",
+    "r": "Europa",
+    "ar": 78865,
+    "alt": [
+      "republica tcheca",
+      "chequia",
+      "tcheca"
+    ]
+  },
+  {
+    "id": "TL",
+    "n": "Timor-Leste",
+    "cap": "Dili",
+    "r": "Ásia",
+    "ar": 14874,
+    "alt": [
+      "timor leste",
+      "timor"
+    ]
+  },
+  {
+    "id": "TG",
+    "n": "Togo",
+    "cap": "Lomé",
+    "r": "África",
+    "ar": 56785
+  },
+  {
+    "id": "TO",
+    "n": "Tonga",
+    "cap": "Nuku'alofa",
+    "r": "Oceania",
+    "ar": 747
+  },
+  {
+    "id": "TT",
+    "n": "Trinidad e Tobago",
+    "cap": "Port of Spain",
+    "r": "América do Norte e Central",
+    "ar": 5130,
+    "calt": [
+      "porto de espanha"
+    ]
+  },
+  {
+    "id": "TN",
+    "n": "Tunísia",
+    "cap": "Túnis",
+    "r": "África",
+    "ar": 163610
+  },
+  {
+    "id": "TM",
+    "n": "Turquemenistão",
+    "cap": "Ashgabat",
+    "r": "Ásia",
+    "ar": 488100
+  },
+  {
+    "id": "TR",
+    "n": "Turquia",
+    "cap": "Ancara",
+    "r": "Ásia",
+    "ar": 783562,
+    "alt": [
+      "turkiye"
+    ]
+  },
+  {
+    "id": "TV",
+    "n": "Tuvalu",
+    "cap": "Funafuti",
+    "r": "Oceania",
+    "ar": 26
+  },
+  {
+    "id": "UA",
+    "n": "Ucrânia",
+    "cap": "Kiev",
+    "r": "Europa",
+    "ar": 603500,
+    "calt": [
+      "kyiv"
+    ]
+  },
+  {
+    "id": "UG",
+    "n": "Uganda",
+    "cap": "Kampala",
+    "r": "África",
+    "ar": 241550
+  },
+  {
+    "id": "UY",
+    "n": "Uruguai",
+    "cap": "Montevidéu",
+    "r": "América do Sul",
+    "ar": 181034
+  },
+  {
+    "id": "UZ",
+    "n": "Uzbequistão",
+    "cap": "Tashkent",
+    "r": "Ásia",
+    "ar": 447400,
+    "calt": [
+      "tasquente"
+    ]
+  },
+  {
+    "id": "VU",
+    "n": "Vanuatu",
+    "cap": "Port Vila",
+    "r": "Oceania",
+    "ar": 12189
+  },
+  {
+    "id": "VA",
+    "n": "Vaticano",
+    "cap": "Cidade do Vaticano",
+    "r": "Europa",
+    "ar": 0.44,
+    "alt": [
+      "cidade do vaticano",
+      "santa se"
+    ],
+    "calt": [
+      "roma"
+    ],
+    "note": "Menor país do mundo, com cerca de 0,44 km²."
+  },
+  {
+    "id": "VE",
+    "n": "Venezuela",
+    "cap": "Caracas",
+    "r": "América do Sul",
+    "ar": 916445
+  },
+  {
+    "id": "VN",
+    "n": "Vietnã",
+    "cap": "Hanói",
+    "r": "Ásia",
+    "ar": 331212
+  },
+  {
+    "id": "ZM",
+    "n": "Zâmbia",
+    "cap": "Lusaka",
+    "r": "África",
+    "ar": 752612
+  },
+  {
+    "id": "ZW",
+    "n": "Zimbábue",
+    "cap": "Harare",
+    "r": "África",
+    "ar": 390757
+  }
+]

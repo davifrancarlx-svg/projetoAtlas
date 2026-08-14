@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0d222e">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+  <title>Atlas 195 — bandeiras, capitais e localização</title>
+  <style data-atlas-slot="css">
+{{CSS}}
+  </style>
+</head>
+<body data-view="quiz">
+  <a class="skip-link" href="#main-content">Pular para o conteúdo principal</a>
+
+  <div class="shell" id="appShell" data-view="quiz">
+    <header class="topbar">
+      <h1 class="brand" id="appTitle">
+        Atlas <em>195</em>
+        <span class="brand-sub">bandeiras · capitais · lugares</span>
+      </h1>
+
+      <button
+        class="filter-toggle"
+        id="filterToggle"
+        type="button"
+        aria-controls="controls"
+        aria-expanded="true"
+      >
+        <span>Filtros</span>
+        <span class="filter-toggle-icon" aria-hidden="true">−</span>
+      </button>
+
+      <nav class="tabs" aria-label="Seções principais">
+        <button class="tab" type="button" data-view="quiz" aria-current="page">Treinar</button>
+        <button class="tab" type="button" data-view="atlas">Atlas</button>
+        <button class="tab" type="button" data-view="prog">Progresso</button>
+      </nav>
+    </header>
+
+    <section class="controls" id="controls" aria-labelledby="controlsTitle">
+      <h2 class="controls-title" id="controlsTitle">Opções de treino</h2>
+
+      <fieldset class="ctrl" id="modeControl">
+        <legend class="ctrl-label" id="modeLabel">Modo</legend>
+        <div class="seg" id="modeSeg" role="group" aria-labelledby="modeLabel">
+          <button type="button" data-mode="mix" aria-pressed="true">Misto</button>
+          <button type="button" data-mode="flag" aria-pressed="false">Bandeiras</button>
+          <button type="button" data-mode="cap" aria-pressed="false">Capitais</button>
+          <button type="button" data-mode="loc" aria-pressed="false">Localização</button>
+        </div>
+      </fieldset>
+
+      <div class="ctrl" id="regionControl">
+        <label class="ctrl-label" id="regionLabel" for="regSel">Região</label>
+        <select id="regSel" name="region" aria-labelledby="regionLabel">
+          <option value="">Carregando regiões…</option>
+        </select>
+      </div>
+
+      <fieldset class="ctrl" id="answerControl">
+        <legend class="ctrl-label" id="answerLabel">Resposta</legend>
+        <div class="seg" id="ansSeg" role="group" aria-labelledby="answerLabel">
+          <button type="button" data-ans="pick" aria-pressed="true">Escolher</button>
+          <button type="button" data-ans="type" aria-pressed="false">Digitar</button>
+        </div>
+      </fieldset>
+
+      <div class="ctrl ctrl-check" id="visualControl">
+        <label class="check-control" for="visualToggle">
+          <input id="visualToggle" name="includeVisualQuestions" type="checkbox" checked>
+          <span>Incluir perguntas visuais</span>
+        </label>
+      </div>
+    </section>
+
+    <div class="app-status" aria-label="Estado do aplicativo">
+      <p class="storage-status" id="storageStatus"></p>
+    </div>
+
+    <main class="stage" id="main-content" tabindex="-1">
+      <section class="map-region" id="mapRegion" aria-labelledby="mapRegionTitle">
+        <header class="map-heading">
+          <h2 class="map-heading-title" id="mapRegionTitle">Mapa-múndi interativo</h2>
+          <div class="map-actions">
+            <button class="map-action" id="skipVisualBtn" type="button" hidden>
+              Pular pergunta visual
+            </button>
+            <button
+              class="map-toggle"
+              id="mapToggle"
+              type="button"
+              aria-controls="mapwrap"
+              aria-expanded="true"
+            >
+              <span class="map-toggle-label">Recolher mapa</span>
+              <span class="map-toggle-icon" aria-hidden="true">−</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="mapwrap" id="mapwrap">
+          <p class="sr-only" id="mapInstructions">
+            Foque o mapa e use as setas para percorrer os países; ative um país com Enter ou Espaço. Use mais, menos ou zero para controlar o zoom.
+          </p>
+          <svg
+            id="map"
+            xmlns="http://www.w3.org/2000/svg"
+            role="listbox"
+            tabindex="0"
+            aria-labelledby="mapSvgTitle"
+            aria-describedby="mapInstructions"
+          >
+            <title id="mapSvgTitle">Mapa-múndi com países interativos</title>
+          </svg>
+          <div class="hovername" id="hoverName" aria-hidden="true"></div>
+          <output class="readout" id="readout" aria-label="Coordenadas e escala do mapa"></output>
+          <div class="zoomer" role="group" aria-label="Controles de zoom do mapa">
+            <button id="zIn" type="button" title="Aproximar" aria-label="Aproximar mapa">+</button>
+            <button id="zOut" type="button" title="Afastar" aria-label="Afastar mapa">−</button>
+            <button id="zRst" type="button" title="Ver o mundo inteiro" aria-label="Restaurar visão do mundo">◍</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side" aria-labelledby="workspaceTitle">
+        <h2 class="sr-only" id="workspaceTitle">Área de estudo</h2>
+        <div class="side-body" id="panel" tabindex="-1"></div>
+        <section class="scorebar" id="scorebar" aria-label="Desempenho nesta sessão"></section>
+      </aside>
+    </main>
+
+    <div class="sr-only" id="liveStatus" role="status" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <noscript>
+    <p class="no-script">O Atlas 195 precisa de JavaScript para carregar os exercícios e o mapa interativo.</p>
+  </noscript>
+
+  <!--
+{{LICENSES}}
+  -->
+
+  <script data-atlas-slot="data">
+{{DATA}}
+  </script>
+  <script data-atlas-slot="core">
+{{CORE}}
+  </script>
+  <script data-atlas-slot="app">
+{{APP}}
+  </script>
+</body>
+</html>

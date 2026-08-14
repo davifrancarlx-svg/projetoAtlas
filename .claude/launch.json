@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "atlas-195",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/serve.cjs"],
+      "port": 8743
+    }
+  ]
+}
