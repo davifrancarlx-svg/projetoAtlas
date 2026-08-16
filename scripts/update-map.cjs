@@ -75,6 +75,11 @@ const DEFAULT_PRECISION = 3;
 const PROTECTED_RING_AREA = 0.25;
 const MINIMUM_OUTER_SYMBOL_RADIUS = 0.04;
 const HIT_COMPONENT_AREA = 6;
+// Distância projetada que ainda une dois componentes no mesmo aglomerado. O
+// estreito de Cook (Nova Zelândia) tem cerca de 1 unidade e a Córsega fica a
+// cerca de 2 da França continental; Havaí, Guiana Francesa, Svalbard e Páscoa
+// estão dezenas de unidades além, e é isso que o enquadramento precisa excluir.
+const CLUSTER_MERGE_DISTANCE = 6;
 const EQUATOR_KM_PER_PROJECTED_UNIT = 40075.016686 / (2 * X_FACTOR * RADIUS * Math.PI);
 
 // Deliberately pinned so identical inputs produce byte-identical output.
@@ -533,12 +538,69 @@ function featureCenter(feature, largestOuterRing) {
   return polygonCentroid(largestOuterRing);
 }
 
+function boxGap(left, right) {
+  const dx = Math.max(0, left[0] - right[2], right[0] - left[2]);
+  const dy = Math.max(0, left[1] - right[3], right[1] - left[3]);
+  return Math.hypot(dx, dy);
+}
+
+function boxContains(box, point) {
+  return point[0] >= box[0] && point[0] <= box[2] && point[1] >= box[1] && point[1] <= box[3];
+}
+
+/**
+ * Bounds of the territorial cluster a learner should actually look at.
+ *
+ * A country's full bounding box is useless for framing whenever one component
+ * sits an ocean away: the United States box spans Guam to Puerto Rico and
+ * France's reaches from the Caribbean to the Indian Ocean, so fitting it shows
+ * the whole world. The cluster starts at the component holding the Natural
+ * Earth label point and absorbs every component within CLUSTER_MERGE_DISTANCE,
+ * repeatedly, so archipelagos stay whole while distant territories drop out.
+ */
+function primaryClusterBounds(components, center) {
+  if (!components.length) throw new Error('Cluster requires at least one component');
+  const seedIndex = components.reduce((best, component, index) => {
+    const holdsCenter = boxContains(component.bounds, center);
+    if (!holdsCenter) return best;
+    if (best < 0 || component.area > components[best].area) return index;
+    return best;
+  }, -1);
+  const startIndex = seedIndex >= 0 ? seedIndex : components.reduce(
+    (best, component, index) => (component.area > components[best].area ? index : best), 0,
+  );
+
+  const cluster = components[startIndex].bounds.slice();
+  const absorbed = new Set([startIndex]);
+  let growing = true;
+  while (growing) {
+    growing = false;
+    components.forEach((component, index) => {
+      if (absorbed.has(index)) return;
+      if (boxGap(cluster, component.bounds) > CLUSTER_MERGE_DISTANCE) return;
+      cluster[0] = Math.min(cluster[0], component.bounds[0]);
+      cluster[1] = Math.min(cluster[1], component.bounds[1]);
+      cluster[2] = Math.max(cluster[2], component.bounds[2]);
+      cluster[3] = Math.max(cluster[3], component.bounds[3]);
+      absorbed.add(index);
+      growing = true;
+    });
+  }
+  // O ponto de rótulo precisa continuar dentro do quadro exibido mesmo quando
+  // cai fora de qualquer componente por causa da simplificação.
+  return [
+    Math.min(cluster[0], center[0]), Math.min(cluster[1], center[1]),
+    Math.max(cluster[2], center[0]), Math.max(cluster[3], center[1]),
+  ];
+}
+
 function buildCountryGeometry(countryId, feature, geometryFeatures, settings, stats) {
   const polygons = geometryFeatures.flatMap((geometryFeature) => (
     geometryPolygons(geometryFeature.geometry, countryId)
   ));
   const outputRings = [];
   const componentHitPoints = [];
+  const components = [];
   const bounds = [Infinity, Infinity, -Infinity, -Infinity];
   let fullArea = 0;
   let simplifiedArea = 0;
@@ -559,12 +621,14 @@ function buildCountryGeometry(countryId, feature, geometryFeatures, settings, st
   for (const polygon of polygons) {
     if (!Array.isArray(polygon) || polygon.length === 0) throw new Error(`${countryId}: empty polygon`);
     const projectedPolygon = polygon.map((ring) => cleanSourceRing(ring, countryId));
+    const componentBounds = [Infinity, Infinity, -Infinity, -Infinity];
     let polygonArea = 0;
     let simplifiedPolygonArea = 0;
     for (let ringIndex = 0; ringIndex < projectedPolygon.length; ringIndex += 1) {
       const sourceRing = projectedPolygon[ringIndex];
       const sourceArea = Math.abs(signedArea(sourceRing));
       for (const point of sourceRing) extendBounds(bounds, point);
+      if (ringIndex === 0) for (const point of sourceRing) extendBounds(componentBounds, point);
 
       stats.sourceRings += 1;
       stats.sourcePoints += sourceRing.length;
@@ -608,6 +672,7 @@ function buildCountryGeometry(countryId, feature, geometryFeatures, settings, st
         representativePoint(projectedPolygon).map((value) => quantize(value, settings.precision)),
       );
     }
+    components.push({ bounds: componentBounds, area: actualPolygonArea });
     fullArea += actualPolygonArea;
     simplifiedArea += Math.max(0, simplifiedPolygonArea);
   }
@@ -618,6 +683,12 @@ function buildCountryGeometry(countryId, feature, geometryFeatures, settings, st
 
   const center = featureCenter(feature, largestOuterRing).map((value) => quantize(value, settings.precision));
   const roundedBounds = bounds.map((value) => quantize(value, settings.precision));
+  const clusterBounds = primaryClusterBounds(components, center).map((value) => quantize(value, settings.precision));
+  const clusterWidth = clusterBounds[2] - clusterBounds[0];
+  const fullWidth = roundedBounds[2] - roundedBounds[0];
+  if (clusterWidth < fullWidth - 1e-9 || clusterBounds[3] - clusterBounds[1] < roundedBounds[3] - roundedBounds[1] - 1e-9) {
+    stats.countriesWithDistantTerritories += 1;
+  }
   const hitPointKeys = new Set();
   const hitPoints = componentHitPoints.filter((point) => {
     const key = `${point[0]},${point[1]}`;
@@ -644,6 +715,7 @@ function buildCountryGeometry(countryId, feature, geometryFeatures, settings, st
     fullArea,
     polygons.length,
     hitPoints,
+    clusterBounds,
   );
   stats.hitPoints += hitPoints.length;
   if (hitPoints.length) stats.countriesWithHitPoints += 1;
@@ -652,6 +724,7 @@ function buildCountryGeometry(countryId, feature, geometryFeatures, settings, st
     d: pathData,
     c: center,
     b: roundedBounds,
+    pb: clusterBounds,
     a: quantize(fullArea, 3),
     parts: polygons.length,
     ...(hitPoints.length ? { hitPoints } : {}),
@@ -789,7 +862,25 @@ function buildContextLand(contextFeatures, minorIslands, settings) {
   };
 }
 
-function validateCountryGeometry(countryId, pathData, center, bounds, area, polygonCount, hitPoints) {
+function validateCountryGeometry(countryId, pathData, center, bounds, area, polygonCount, hitPoints, clusterBounds) {
+  if (clusterBounds.length !== 4 || clusterBounds.some((value) => !Number.isFinite(value))) {
+    throw new Error(`${countryId}: invalid primary cluster bounds`);
+  }
+  if (clusterBounds[0] > clusterBounds[2] || clusterBounds[1] > clusterBounds[3]) {
+    throw new Error(`${countryId}: inverted primary cluster bounds`);
+  }
+  if (
+    clusterBounds[0] < bounds[0] || clusterBounds[2] > bounds[2] ||
+    clusterBounds[1] < bounds[1] || clusterBounds[3] > bounds[3]
+  ) {
+    throw new Error(`${countryId}: primary cluster escapes the country bounds`);
+  }
+  if (
+    center[0] < clusterBounds[0] || center[0] > clusterBounds[2] ||
+    center[1] < clusterBounds[1] || center[1] > clusterBounds[3]
+  ) {
+    throw new Error(`${countryId}: label point falls outside the primary cluster`);
+  }
   if (!pathData || /(?:NaN|Infinity|undefined)/.test(pathData)) throw new Error(`${countryId}: invalid SVG path`);
   const moveCount = (pathData.match(/M/g) || []).length;
   if (moveCount < polygonCount) throw new Error(`${countryId}: polygon component was lost`);
@@ -864,6 +955,7 @@ function buildPayload(baseCountries, naturalEarth, minorIslands, settings) {
     maximumAreaErrorCountry: null,
     hitPoints: 0,
     countriesWithHitPoints: 0,
+    countriesWithDistantTerritories: 0,
     countriesWithoutGeometry: [],
   };
 

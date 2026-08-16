@@ -10,13 +10,17 @@
   var SCHEMA_VERSION = 2;
   var MAX_LEVEL = 5;
   var QUESTION_DIRECTIONS = Object.freeze([
-    'flag', 'flagOf', 'cap', 'capOf', 'locate', 'mapId'
+    'flag', 'flagOf', 'cap', 'capOf', 'locate', 'mapId', 'reg'
   ]);
   var DIRECTION_FAMILY = Object.freeze({
     flag: 'flag', flagOf: 'flag',
     cap: 'capital', capOf: 'capital',
-    locate: 'location', mapId: 'location'
+    locate: 'location', mapId: 'location',
+    reg: 'region'
   });
+  // A região é sempre escolha: digitar "América do Sul" com acento e artigo
+  // punia grafia, não conhecimento geográfico.
+  var PICK_ONLY_DIRECTIONS = Object.freeze(['flagOf', 'locate', 'reg']);
   var LEGACY_FAMILY_DIRECTIONS = Object.freeze({
     f: Object.freeze(['flag', 'flagOf']),
     c: Object.freeze(['cap', 'capOf']),
@@ -26,6 +30,7 @@
     flag: Object.freeze(['flag', 'flagOf']),
     cap: Object.freeze(['cap', 'capOf']),
     loc: Object.freeze(['locate', 'mapId']),
+    reg: Object.freeze(['reg']),
     mix: QUESTION_DIRECTIONS
   });
   var ALIAS_TYPES = Object.freeze({
@@ -901,6 +906,25 @@
     return candidates.slice(0, count);
   }
 
+  function regionsOf(countries) {
+    var seen = Object.create(null);
+    var regions = [];
+    countries.forEach(function (country) {
+      var region = country && country.r;
+      if (typeof region !== 'string' || !region || seen[region]) return;
+      seen[region] = true;
+      regions.push(region);
+    });
+    return regions;
+  }
+
+  function regionOptions(target, countries, rng) {
+    var regions = regionsOf(countries);
+    if (regions.indexOf(target.r) === -1) throw new RangeError('Target region is absent from the dataset');
+    var others = shuffled(regions.filter(function (region) { return region !== target.r; }), rng);
+    return shuffled([target.r].concat(others.slice(0, 3)), rng);
+  }
+
   function createQuestion(options) {
     options = options || {};
     var countries = options.countries;
@@ -920,7 +944,7 @@
     }
     if (options.answerMode === 'type') {
       directions = directions.filter(function (direction) {
-        return direction !== 'flagOf' && direction !== 'locate';
+        return PICK_ONLY_DIRECTIONS.indexOf(direction) === -1;
       });
     }
     if (!directions.length) directions = ['flag'];
@@ -942,7 +966,11 @@
       target = pickWeighted(pool, direction, options.progress, pickOptions);
     }
     var question = { kind: direction, direction: direction, id: target.id, opts: null };
-    if (options.answerMode === 'pick' || direction === 'flagOf' || direction === 'locate') {
+    if (direction === 'reg') {
+      // As alternativas de região vêm do dataset inteiro, não do pool filtrado:
+      // num treino restrito a um continente a resposta seria a única opção.
+      question.opts = regionOptions(target, countries, options.rng);
+    } else if (options.answerMode === 'pick' || direction === 'flagOf' || direction === 'locate') {
       if (direction !== 'locate') {
         question.opts = shuffled(
           [target].concat(distractors(target, 3, pool, countries, options.rng)),
@@ -1017,6 +1045,160 @@
     return result;
   }
 
+  /* ------------------------------------------------------------------ *
+   * Geometria de exibição
+   *
+   * Projeção, zoom e enquadramento são regras puras: recebem números e
+   * devolvem números. Ficam aqui para serem testadas sem DOM e para não
+   * existirem em três cópias divergentes (app, gerador cartográfico e testes).
+   * ------------------------------------------------------------------ */
+
+  var ROBINSON_TABLE = Object.freeze([
+    [0, 1, 0], [5, 0.9986, 0.062], [10, 0.9954, 0.124], [15, 0.99, 0.186],
+    [20, 0.9822, 0.248], [25, 0.973, 0.31], [30, 0.96, 0.372], [35, 0.9427, 0.434],
+    [40, 0.9216, 0.4958], [45, 0.8962, 0.5571], [50, 0.8679, 0.6176], [55, 0.835, 0.6769],
+    [60, 0.7986, 0.7346], [65, 0.7597, 0.7903], [70, 0.7186, 0.8435], [75, 0.6732, 0.8936],
+    [80, 0.6213, 0.9394], [85, 0.5722, 0.9761], [90, 0.5322, 1]
+  ]);
+  var DEFAULT_PROJECTION = Object.freeze({ radius: 190, xFactor: 0.8487, yFactor: 1.3523 });
+
+  function projectionOf(projection) {
+    if (!isPlainObject(projection)) return DEFAULT_PROJECTION;
+    return {
+      radius: Number.isFinite(projection.radius) ? projection.radius : DEFAULT_PROJECTION.radius,
+      xFactor: Number.isFinite(projection.xFactor) ? projection.xFactor : DEFAULT_PROJECTION.xFactor,
+      yFactor: Number.isFinite(projection.yFactor) ? projection.yFactor : DEFAULT_PROJECTION.yFactor
+    };
+  }
+
+  function robinsonCoefficients(absoluteLatitude) {
+    var index = Math.min(Math.floor(absoluteLatitude / 5), 17);
+    var ratio = (absoluteLatitude - ROBINSON_TABLE[index][0]) / 5;
+    return [
+      ROBINSON_TABLE[index][1] + (ROBINSON_TABLE[index + 1][1] - ROBINSON_TABLE[index][1]) * ratio,
+      ROBINSON_TABLE[index][2] + (ROBINSON_TABLE[index + 1][2] - ROBINSON_TABLE[index][2]) * ratio
+    ];
+  }
+
+  function project(longitude, latitude, projection) {
+    if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) {
+      throw new RangeError('project requires finite coordinates');
+    }
+    var settings = projectionOf(projection);
+    var sign = latitude < 0 ? -1 : 1;
+    var coefficients = robinsonCoefficients(Math.min(Math.abs(latitude), 90));
+    return [
+      settings.xFactor * settings.radius * coefficients[0] * longitude * Math.PI / 180,
+      -sign * settings.yFactor * settings.radius * coefficients[1]
+    ];
+  }
+
+  function unproject(x, y, projection) {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) throw new RangeError('unproject requires finite coordinates');
+    var settings = projectionOf(projection);
+    var sign = y > 0 ? -1 : 1;
+    var absoluteY = Math.abs(y) / (settings.yFactor * settings.radius);
+    var latitude = 90;
+    for (var index = 0; index < 18; index += 1) {
+      if (absoluteY <= ROBINSON_TABLE[index + 1][2]) {
+        var span = ROBINSON_TABLE[index + 1][2] - ROBINSON_TABLE[index][2] || 1;
+        latitude = ROBINSON_TABLE[index][0] + 5 * (absoluteY - ROBINSON_TABLE[index][2]) / span;
+        break;
+      }
+    }
+    latitude *= sign;
+    var coefficients = robinsonCoefficients(Math.abs(latitude));
+    return [
+      clampNumber(x / (settings.xFactor * settings.radius * coefficients[0]) * 180 / Math.PI, -180, 180),
+      clampNumber(latitude, -90, 90)
+    ];
+  }
+
+  function clampNumber(value, minimum, maximum) {
+    return Math.max(minimum, Math.min(maximum, value));
+  }
+
+  function viewLimits(world, options) {
+    options = options || {};
+    var maxZoom = Number.isFinite(options.maxZoom) && options.maxZoom > 1 ? options.maxZoom : 1;
+    return {
+      minimumWidth: Number.isFinite(options.minimumWidth) ? options.minimumWidth : world.w / maxZoom,
+      maximumWidth: world.w
+    };
+  }
+
+  function clampView(view, world, options) {
+    var limits = viewLimits(world, options);
+    var width = clampNumber(view.w, limits.minimumWidth, limits.maximumWidth);
+    var height = width * world.h / world.w;
+    return {
+      x: clampNumber(view.x, world.x, world.x + world.w - width),
+      y: clampNumber(view.y, world.y, world.y + world.h - height),
+      w: width,
+      h: height
+    };
+  }
+
+  /**
+   * Zoom ancorado num ponto do mundo.
+   *
+   * O fator é limitado ANTES de reposicionar a janela. Nos extremos a largura
+   * não muda, e recentralizar com a razão pedida faria o mapa deslizar sob o
+   * cursor a cada gesto — o defeito que essa ordem evita.
+   */
+  function zoomView(view, factor, center, world, options) {
+    if (!Number.isFinite(factor) || factor <= 0) throw new RangeError('factor must be a positive number');
+    var limits = viewLimits(world, options);
+    var width = clampNumber(view.w / factor, limits.minimumWidth, limits.maximumWidth);
+    var ratio = width / view.w;
+    if (ratio === 1) return clampView(view, world, options);
+    var anchor = Array.isArray(center) && center.length === 2 && center.every(Number.isFinite)
+      ? center
+      : [view.x + view.w / 2, view.y + view.h / 2];
+    return clampView({
+      x: anchor[0] - (anchor[0] - view.x) * ratio,
+      y: anchor[1] - (anchor[1] - view.y) * ratio,
+      w: width,
+      h: width * world.h / world.w
+    }, world, options);
+  }
+
+  function fitBox(box, world, options) {
+    options = options || {};
+    if (!Array.isArray(box) || box.length !== 4 || !box.every(Number.isFinite)) {
+      throw new RangeError('box must be four finite numbers');
+    }
+    var padding = Number.isFinite(options.padding) && options.padding > 0 ? options.padding : 3.1;
+    var floor = Number.isFinite(options.floorWidth) ? options.floorWidth : 0;
+    var width = Math.max(0, box[2] - box[0]) * padding;
+    var height = Math.max(0, box[3] - box[1]) * padding * world.w / world.h;
+    var desired = Math.max(width, height, floor);
+    var view = clampView({ x: 0, y: 0, w: desired, h: 0 }, world, options);
+    var centerX = (box[0] + box[2]) / 2;
+    var centerY = (box[1] + box[3]) / 2;
+    return clampView({
+      x: centerX - view.w / 2,
+      y: centerY - view.h / 2,
+      w: view.w,
+      h: view.h
+    }, world, options);
+  }
+
+  function territoryForPoint(territories, countryId, longitude, latitude) {
+    if (!Array.isArray(territories) || !countryId) return null;
+    if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) return null;
+    for (var index = 0; index < territories.length; index += 1) {
+      var territory = territories[index];
+      if (!isPlainObject(territory) || territory.of !== countryId) continue;
+      var box = territory.box;
+      if (!Array.isArray(box) || box.length !== 4) continue;
+      if (longitude >= box[0] && longitude <= box[2] && latitude >= box[1] && latitude <= box[3]) {
+        return territory;
+      }
+    }
+    return null;
+  }
+
   function inspectQuestion(question, countries) {
     var errors = [];
     if (!isPlainObject(question)) return { valid: false, errors: ['question must be a plain object'] };
@@ -1026,7 +1208,18 @@
     if (!ids[question.id]) errors.push('unknown target id');
     if (question.opts !== null && question.opts !== undefined) {
       if (!Array.isArray(question.opts)) errors.push('opts must be null or an array');
-      else {
+      else if ((question.direction || question.kind) === 'reg') {
+        // As alternativas de região são nomes, não IDs: a validação compara
+        // com a região do país-alvo em vez do índice de IDs.
+        var regions = Object.create(null);
+        (countries || []).forEach(function (country) { regions[country.r] = true; });
+        var target = (countries || []).find(function (country) { return country.id === question.id; });
+        if (uniqueStrings(question.opts).length !== question.opts.length) errors.push('opts must be unique');
+        if (target && question.opts.indexOf(target.r) === -1) errors.push('opts must contain the target region');
+        question.opts.forEach(function (region) {
+          if (!regions[region]) errors.push('unknown option region: ' + region);
+        });
+      } else {
         if (uniqueStrings(question.opts).length !== question.opts.length) errors.push('opts must be unique');
         if (question.opts.indexOf(question.id) === -1) errors.push('opts must contain the target');
         question.opts.forEach(function (id) { if (!ids[id]) errors.push('unknown option id: ' + id); });
@@ -1064,6 +1257,15 @@
     QUESTION_DIRECTIONS: QUESTION_DIRECTIONS,
     DIRECTION_FAMILY: DIRECTION_FAMILY,
     MODE_DIRECTIONS: MODE_DIRECTIONS,
+    PICK_ONLY_DIRECTIONS: PICK_ONLY_DIRECTIONS,
+    regionsOf: regionsOf,
+    project: project,
+    unproject: unproject,
+    clampNumber: clampNumber,
+    clampView: clampView,
+    zoomView: zoomView,
+    fitBox: fitBox,
+    territoryForPoint: territoryForPoint,
     ALIAS_TYPES: ALIAS_TYPES,
     SAFE_ALIAS_TYPES: SAFE_ALIAS_TYPES,
     REVIEW_INTERVAL_DAYS: REVIEW_INTERVAL_DAYS,

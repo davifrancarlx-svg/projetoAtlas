@@ -11,6 +11,8 @@
 
 A saída contém 195 países interativos (6.222 componentes, dos quais 2.596 vêm da camada de ilhas menores) e uma camada contextual neutra com as outras 63 feições Admin-0. Juntas, elas preservam 7.045 polígonos e 7.064 anéis. A camada contextual não recebe IDs, foco ou elegibilidade para perguntas.
 
+Cada país também carrega `pb`, os limites do aglomerado principal: o componente que contém o ponto de rótulo do Natural Earth, mais todo componente a menos de seis unidades projetadas do aglomerado, repetidamente. É o retângulo usado para enquadrar o país sem que um território a um oceano de distância force a visão do mundo inteiro — 29 dos 195 países têm componentes fora desse aglomerado. O gerador valida que `pb` cabe dentro de `b` e contém o ponto de rótulo.
+
 O script de atualização registra a versão e a URL exatas no próprio arquivo de geometria. O produto exibe essa procedência na interface.
 
 ## Países e capitais
@@ -18,6 +20,27 @@ O script de atualização registra a versão e a URL exatas no próprio arquivo 
 O conteúdo anterior foi preservado como base e passa por validações automáticas de IDs, aliases e colisões de resposta. Sedes administrativas e nomes coloquiais não devem ser tratados como sinônimos da capital ou do país; devem aparecer apenas em notas explicativas.
 
 Decisões editoriais sensíveis são explícitas em `src/content-policy.json`. Entre elas estão a capital da Guiné Equatorial conforme o Decreto-Lei 1/2026, a classificação M49 do Chipre na Ásia Ocidental e a distinção entre capitais, sedes de governo e nomes históricos.
+
+## Territórios dentro de um soberano
+
+Vários territórios chegam do Natural Earth dentro do polígono do país a que pertencem: a Guiana Francesa é parte do polígono Admin-0 da França porque é um departamento ultramarino francês, o Alasca é um estado dos Estados Unidos e as Canárias são uma comunidade autônoma espanhola. Chamar essas áreas apenas de "França", "Estados Unidos" ou "Espanha" no mapa esconde uma capital regional, uma região e uma história próprias.
+
+`src/territories.json` registra 16 casos com nome, capital regional, região, área, natureza jurídica, um box geográfico em graus, um ponto de rótulo e notas explicativas:
+
+| Soberano | Territórios |
+| --- | --- |
+| França | Guiana Francesa, Guadalupe, Martinica, Reunião, Mayotte |
+| Estados Unidos | Alasca, Havaí |
+| Portugal | Açores, Madeira |
+| Países Baixos | Bonaire, Saba, Santo Eustáquio |
+| Espanha | Ilhas Canárias |
+| Equador | Galápagos |
+| Chile | Ilha de Páscoa |
+| Noruega | Svalbard |
+
+Eles **não** entram no sorteio de perguntas, não recebem bandeira própria e não alteram a resposta esperada: a resposta da França continua sendo Paris, e clicar na Guiana Francesa continua valendo como França. O registro serve para o mapa dizer o que está sob o cursor (`Guiana Francesa (França)`), para o Atlas exibir a ficha do território com um botão que o enquadra, e para a busca encontrar quem procura por "Guiana Francesa", "Caiena" ou "Longyearbyen".
+
+O box é área de captação do cursor, não contorno: ele é consultado apenas **depois** que a geometria sob o ponteiro já resolveu o soberano, então um vizinho dentro do retângulo é inofensivo — clicar na Grande Diomedes continua respondendo Rússia, mesmo estando dentro do box do Alasca. O que os testes proíbem é um box engolir o ponto de rótulo ou o aglomerado principal do próprio soberano.
 
 ## Bandeiras
 

@@ -520,6 +520,33 @@ select {
   vector-effect: non-scaling-stroke;
 }
 
+.micro {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease-out;
+}
+
+.shows-micro .micro {
+  opacity: 1;
+}
+
+.micro-ring {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.micro-dot {
+  fill: var(--gold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .micro {
+    transition: none;
+  }
+}
+
 .context-land {
   fill: #395865;
   stroke: var(--ocean-deep);
@@ -682,9 +709,13 @@ select {
   box-shadow: 0 2px 7px rgba(0, 0, 0, 0.28);
 }
 
-.zoomer button:hover {
+.zoomer button:hover:not(:disabled) {
   border-color: var(--gold);
   background: var(--panel-2);
+}
+
+.zoomer button:disabled {
+  opacity: 0.42;
 }
 
 .map-region.is-collapsed,
@@ -1034,6 +1065,73 @@ body.view-prog .side-body {
   font-size: 13px;
 }
 
+.note-error {
+  border-inline-start-color: var(--coral);
+}
+
+.timerrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-block-start: 10px;
+}
+
+.timer-bar {
+  flex: 1;
+  height: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--panel-2);
+  appearance: none;
+}
+
+.timer-bar::-webkit-progress-bar {
+  border-radius: 999px;
+  background: var(--panel-2);
+}
+
+.timer-bar::-webkit-progress-value {
+  border-radius: 999px;
+  background: var(--gold);
+}
+
+.timer-bar::-moz-progress-bar {
+  border-radius: 999px;
+  background: var(--gold);
+}
+
+.timer-bar[data-low="true"]::-webkit-progress-value {
+  background: var(--coral);
+}
+
+.timer-bar[data-low="true"]::-moz-progress-bar {
+  background: var(--coral);
+}
+
+.timer-label {
+  min-width: 34px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: end;
+}
+
+.file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.file-input:focus-visible + .btn,
+label.btn:focus-within {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
 .hintline {
   margin-block-start: 12px;
   color: var(--muted-2);
@@ -1340,6 +1438,48 @@ a.chip {
   margin: 2px 0;
   color: var(--muted);
   font-size: 12px;
+}
+
+.territory-card {
+  grid-column: 1 / -1;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--line-soft);
+}
+
+.territory-card.is-focused {
+  border-block-start-color: var(--gold);
+}
+
+.territory-card h4 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  font-family: var(--display);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.territory-tag {
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.atlas-detail .territory-card .note {
+  margin-block-start: 8px;
+  font-size: 12px;
+}
+
+.territory-card .btn {
+  margin-block-start: 12px;
 }
 
 .source-card,

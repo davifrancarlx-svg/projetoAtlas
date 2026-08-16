@@ -49,6 +49,7 @@
           <button type="button" data-mode="flag" aria-pressed="false">Bandeiras</button>
           <button type="button" data-mode="cap" aria-pressed="false">Capitais</button>
           <button type="button" data-mode="loc" aria-pressed="false">Localização</button>
+          <button type="button" data-mode="reg" aria-pressed="false">Regiões</button>
         </div>
       </fieldset>
 
@@ -64,6 +65,15 @@
         <div class="seg" id="ansSeg" role="group" aria-labelledby="answerLabel">
           <button type="button" data-ans="pick" aria-pressed="true">Escolher</button>
           <button type="button" data-ans="type" aria-pressed="false">Digitar</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="ctrl" id="timerControl">
+        <legend class="ctrl-label" id="timerLabel">Tempo</legend>
+        <div class="seg" id="timeSeg" role="group" aria-labelledby="timerLabel">
+          <button type="button" data-time="0" aria-pressed="true">Livre</button>
+          <button type="button" data-time="30" aria-pressed="false">30s</button>
+          <button type="button" data-time="15" aria-pressed="false">15s</button>
         </div>
       </fieldset>
 

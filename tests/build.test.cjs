@@ -41,7 +41,7 @@ function readBuiltData(html) {
   const source = extractInline(html, 'script', 'data');
   const context = Object.create(null);
   vm.runInNewContext(
-    `${source}\n;globalThis.__ATLAS_BUILD_DATA__ = { MAP_META, DATA };`,
+    `${source}\n;globalThis.__ATLAS_BUILD_DATA__ = { MAP_META, DATA, TERRITORIES };`,
     context,
     { filename: 'atlas-195.html#data', timeout: 5_000 }
   );
@@ -126,6 +126,30 @@ test('a geometria sob o ponteiro vence alvos ampliados e o offset é relido por 
     /function screenToWorld\([^)]+\) \{\s*const metrics = providedMetrics \|\| mapMetrics\(true\);/,
     'Cliques após rolagem ou mudança de layout precisam reler a posição do mapa.'
   );
+});
+
+test('os territórios embarcam ao lado dos países sem virar resposta do quiz', () => {
+  assert.equal(Array.isArray(built.TERRITORIES), true, 'TERRITORIES não foi embarcado.');
+  const ids = new Set(built.DATA.map(country => country.id));
+  for (const territory of built.TERRITORIES) {
+    assert.equal(ids.has(territory.id), false, `${territory.id} não pode ser um dos 195 países.`);
+    assert.equal(ids.has(territory.of), true, `${territory.id}: soberano ausente do dataset.`);
+    assert.equal(territory.box.length, 4);
+    assert.equal(territory.p.length, 2);
+  }
+  assert.match(buildResult.stdout, /\d+ territórios?/i);
+  assert.ok(built.TERRITORIES.length >= 1);
+});
+
+test('a camada visual delega zoom, projeção e enquadramento ao núcleo testado', () => {
+  const appSource = extractInline(html, 'script', 'app');
+  // O comportamento é coberto em tests/map-view.test.cjs; aqui só se garante
+  // que o app não voltou a manter uma cópia própria dessas regras.
+  assert.match(appSource, /Core\.zoomView\(/, 'o zoom precisa vir do núcleo');
+  assert.match(appSource, /Core\.clampView\(/, 'o limite da janela precisa vir do núcleo');
+  assert.match(appSource, /Core\.fitBox\(/, 'o enquadramento precisa vir do núcleo');
+  assert.match(appSource, /Core\.project\(|Core\.unproject\(/, 'a projeção precisa vir do núcleo');
+  assert.doesNotMatch(appSource, /ROBINSON_TABLE\s*=/, 'a tabela Robinson não pode ser duplicada no app.');
 });
 
 test('a CSP autoriza exatamente o conteúdo inline emitido pelo build', () => {

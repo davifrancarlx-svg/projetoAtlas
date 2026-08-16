@@ -83,6 +83,7 @@ function loadCountries() {
       d: map.d,
       c: map.c,
       b: map.b,
+      pb: Array.isArray(map.pb) && map.pb.length === 4 ? map.pb : map.b,
       a: Number.isFinite(map.a) ? map.a : country.a,
       geomParts: map.parts || 1,
       hitPoints: Array.isArray(map.hitPoints) ? map.hitPoints : [],
@@ -93,7 +94,41 @@ function loadCountries() {
   if (merged.length !== 195 || new Set(merged.map((c) => c.id)).size !== 195) {
     throw new Error('O dataset final precisa conter exatamente 195 IDs únicos.');
   }
-  return { countries: merged, mapMeta: geometry.meta || {} };
+  return { countries: merged, mapMeta: geometry.meta || {}, territories: loadTerritories(merged) };
+}
+
+// Territórios não soberanos que o Natural Earth entrega dentro do polígono de
+// outro país. Eles nunca viram resposta do quiz: servem para o mapa e o Atlas
+// dizerem o que está sob o cursor em vez de chamar tudo pelo nome do soberano.
+function loadTerritories(countries) {
+  const territories = readJson('src/territories.json');
+  if (!Array.isArray(territories)) throw new Error('src/territories.json precisa ser uma lista.');
+  const known = new Set(countries.map((country) => country.id));
+  const ids = new Set();
+  territories.forEach((territory) => {
+    const label = territory.id || territory.n || '(sem id)';
+    if (!/^[A-Z]{2,3}$/.test(territory.id || '')) throw new Error(`Território com ID inválido: ${label}.`);
+    if (ids.has(territory.id)) throw new Error(`Território duplicado: ${label}.`);
+    ids.add(territory.id);
+    if (known.has(territory.id)) throw new Error(`${label} é um dos 195 países e não pode ser território.`);
+    if (!known.has(territory.of)) throw new Error(`${label} aponta para um soberano inexistente: ${territory.of}.`);
+    if (!territory.n || !territory.cap || !territory.r) throw new Error(`${label} precisa de nome, capital e região.`);
+    const box = territory.box;
+    if (!Array.isArray(box) || box.length !== 4 || !box.every(Number.isFinite)) {
+      throw new Error(`${label} precisa de um box [oeste, sul, leste, norte] em graus.`);
+    }
+    if (box[0] >= box[2] || box[1] >= box[3] || box[0] < -180 || box[2] > 180 || box[1] < -90 || box[3] > 90) {
+      throw new Error(`${label} tem um box geográfico inválido.`);
+    }
+    const point = territory.p;
+    if (!Array.isArray(point) || point.length !== 2 || !point.every(Number.isFinite)) {
+      throw new Error(`${label} precisa de um ponto de rótulo [longitude, latitude].`);
+    }
+    if (point[0] < box[0] || point[0] > box[2] || point[1] < box[1] || point[1] > box[3]) {
+      throw new Error(`${label} tem o ponto de rótulo fora do próprio box.`);
+    }
+  });
+  return territories;
 }
 
 function replace(template, marker, value) {
@@ -105,8 +140,10 @@ const template = read('src/index.template.html');
 const css = read('src/styles.css').trim();
 const core = read('src/core.js').trim();
 const app = read('src/app.js').trim();
-const { countries, mapMeta } = loadCountries();
-const data = `const MAP_META = ${JSON.stringify(mapMeta)};\nconst DATA = ${JSON.stringify(countries)};`;
+const { countries, mapMeta, territories } = loadCountries();
+const data = `const MAP_META = ${JSON.stringify(mapMeta)};\n`
+  + `const DATA = ${JSON.stringify(countries)};\n`
+  + `const TERRITORIES = ${JSON.stringify(territories)};`;
 const flagLicense = read('data/flag-icons/LICENSE').trim().replace(/--/g, '—');
 const licenses = `flag-icons 7.5.0 — MIT license\n\n${flagLicense}`;
 let output = template;
@@ -134,4 +171,7 @@ if (/\{\{[A-Z_]+\}\}/.test(output)) throw new Error('Há placeholders não resol
 
 fs.writeFileSync(path.join(root, 'atlas-195.html'), `${output.trim()}\n`, 'utf8');
 const stats = fs.statSync(path.join(root, 'atlas-195.html'));
-console.log(`atlas-195.html gerado: ${countries.length} países, ${(stats.size / 1024).toFixed(1)} KiB.`);
+console.log(
+  `atlas-195.html gerado: ${countries.length} países, ${territories.length} `
+  + `${territories.length === 1 ? 'território' : 'territórios'}, ${(stats.size / 1024).toFixed(1)} KiB.`,
+);

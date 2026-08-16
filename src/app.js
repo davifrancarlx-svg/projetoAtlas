@@ -6,24 +6,38 @@
 
   const IDS = DATA.map((country) => country.id);
   const byId = Object.fromEntries(DATA.map((country) => [country.id, country]));
+  // Territórios que a cartografia entrega dentro do polígono de um soberano.
+  // Não entram no sorteio nem viram resposta: apenas dão nome ao que está sob
+  // o cursor e ganham ficha própria no Atlas.
+  const TERRITORY_LIST = (typeof TERRITORIES === 'undefined' ? [] : TERRITORIES)
+    .filter((territory) => byId[territory.of]);
+  const territoriesByCountry = new Map();
+  TERRITORY_LIST.forEach((territory) => {
+    if (!territoriesByCountry.has(territory.of)) territoriesByCountry.set(territory.of, []);
+    territoriesByCountry.get(territory.of).push(territory);
+  });
   const REGIONS = ['Mundo inteiro', ...new Set(DATA.map((country) => country.r))];
-  const DIRECTIONS = ['flag', 'flagOf', 'cap', 'capOf', 'locate', 'mapId'];
+  const DIRECTIONS = Core.QUESTION_DIRECTIONS.slice();
   const MODE_DIRECTIONS = {
     mix: DIRECTIONS,
     flag: ['flag', 'flagOf'],
     cap: ['cap', 'capOf'],
     loc: ['locate', 'mapId'],
+    reg: ['reg'],
   };
   const VISUAL_DIRECTIONS = new Set(['flag', 'flagOf', 'locate', 'mapId']);
+  const PICK_ONLY = new Set(Core.PICK_ONLY_DIRECTIONS);
   const FAMILY_DIRECTIONS = {
     Bandeiras: ['flag', 'flagOf'],
     Capitais: ['cap', 'capOf'],
     Localização: ['locate', 'mapId'],
+    Regiões: ['reg'],
   };
   const DIRECTION_LABEL = {
     flag: 'bandeira → país', flagOf: 'país → bandeira',
     cap: 'país → capital', capOf: 'capital → país',
     locate: 'país → mapa', mapId: 'mapa → país',
+    reg: 'país → região',
   };
   const STORAGE_KEY = 'atlas195:v2';
   const PREFS_KEY = 'atlas195:prefs:v2';
@@ -36,6 +50,15 @@
     x: numberOr(metaView.x, -508), y: numberOr(metaView.y, -256),
     w: numberOr(metaView.w, 1018), h: numberOr(metaView.h, 440),
   };
+  // 60× deixa o Vaticano e Mônaco com alguns pixels reais; a tolerância de
+  // simplificação da geometria (0,06 unidade) só começa a aparecer bem acima
+  // disso, então o teto é o que a cartografia sustenta.
+  const MAX_ZOOM = 60;
+  const MIN_VIEW_WIDTH = WORLD.w / MAX_ZOOM;
+  // Área projetada abaixo da qual o país não rende nem um punhado de pixels,
+  // e o zoom a partir do qual o marcador dele passa a valer a pena.
+  const MICRO_AREA = 0.06;
+  const MICRO_MARKER_ZOOM = 6;
   const HIT_GRID_SIZE = 24;
 
   const dom = {
@@ -47,6 +70,7 @@
     modeSeg: document.getElementById('modeSeg'),
     region: document.getElementById('regSel'),
     ansSeg: document.getElementById('ansSeg'),
+    timeSeg: document.getElementById('timeSeg'),
     visualToggle: document.getElementById('visualToggle'),
     mapRegion: document.getElementById('mapRegion'),
     mapToggle: document.getElementById('mapToggle'),
@@ -65,14 +89,25 @@
     storageStatus: document.getElementById('storageStatus'),
   };
 
+  const TIME_LIMITS = [0, 30, 15];
+  // Sentinela de resposta: nunca é igual a um ID, região ou capital, então o
+  // estouro de tempo não pode ser confundido com uma resposta do jogador.
+  const EXPIRED_ANSWER = Symbol('tempo esgotado');
   const state = {
     ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro', answerMode: 'pick',
     includeVisual: true, mapCollapsed: false, question: null, questionAnswerMode: 'pick', answered: false,
-    selectedAnswer: null, answerMatch: null, hits: 0, misses: 0, streak: 0,
+    selectedAnswer: null, answerMatch: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
     atlasSelected: 'BR', atlasQuery: '', atlasLimit: 60, resetArmed: false, resetPending: false,
     mapCursorId: 'BR',
+    timeLimit: 0, askedAt: 0, expired: false,
+    sessionAnswers: [], reviewQueue: [], fromDeck: false, deckPending: false, importStatus: null,
   };
+
+  // Relógio da pergunta: um intervalo curto move a barra, e o estouro entra
+  // como erro pela mesma porta de uma resposta comum, para o progresso e a
+  // revisão espaçada não enxergarem nada de diferente.
+  const timer = { handle: 0, deadline: 0 };
 
   let progress = Core.createProgress();
   let saveTimer = 0;
@@ -142,6 +177,7 @@
     const safe = {
       mode: state.mode, region: state.region, answerMode: state.answerMode,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
+      timeLimit: state.timeLimit,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
   }
@@ -155,6 +191,7 @@
       if (parsed.answerMode === 'pick' || parsed.answerMode === 'type') state.answerMode = parsed.answerMode;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
+      if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
     } catch (_) { /* preferência corrompida é ignorada */ }
   }
@@ -305,51 +342,15 @@
 
   const mapState = {
     root: null, land: null, markers: null, effects: null, view: { ...WORLD },
-    nodesById: new Map(), hitGrid: new Map(), reticle: null, reticleId: null,
+    nodesById: new Map(), hitGrid: new Map(), reticle: null, reticleId: null, reticlePoint: null,
+    microMarkers: [],
     pointers: new Map(), gesture: null, pendingPan: null, panFrame: 0,
     metrics: null, hoverFrame: 0, pendingHover: null,
   };
 
-  const ROBINSON_TABLE = [[0, 1, 0], [5, .9986, .062], [10, .9954, .124], [15, .99, .186], [20, .9822, .248], [25, .973, .31], [30, .96, .372], [35, .9427, .434], [40, .9216, .4958], [45, .8962, .5571], [50, .8679, .6176], [55, .835, .6769], [60, .7986, .7346], [65, .7597, .7903], [70, .7186, .8435], [75, .6732, .8936], [80, .6213, .9394], [85, .5722, .9761], [90, .5322, 1]];
-
-  function robinson(lon, lat) {
-    const projection = MAP_META && MAP_META.projection || {};
-    const radius = numberOr(projection.radius, 190);
-    const xFactor = numberOr(projection.xFactor, .8487);
-    const yFactor = numberOr(projection.yFactor, 1.3523);
-    const sign = lat < 0 ? -1 : 1;
-    const absolute = Math.min(Math.abs(lat), 90);
-    const index = Math.min(Math.floor(absolute / 5), 17);
-    const ratio = (absolute - ROBINSON_TABLE[index][0]) / 5;
-    const xCoefficient = ROBINSON_TABLE[index][1] + (ROBINSON_TABLE[index + 1][1] - ROBINSON_TABLE[index][1]) * ratio;
-    const yCoefficient = ROBINSON_TABLE[index][2] + (ROBINSON_TABLE[index + 1][2] - ROBINSON_TABLE[index][2]) * ratio;
-    return [xFactor * radius * xCoefficient * lon * Math.PI / 180, -sign * yFactor * radius * yCoefficient];
-  }
-
-  function inverseRobinson(x, y) {
-    const projection = MAP_META && MAP_META.projection || {};
-    const radius = numberOr(projection.radius, 190);
-    const xFactor = numberOr(projection.xFactor, .8487);
-    const yFactor = numberOr(projection.yFactor, 1.3523);
-    const sign = y > 0 ? -1 : 1;
-    const absoluteY = Math.abs(y) / (yFactor * radius);
-    let latitude = 90;
-    for (let index = 0; index < 18; index += 1) {
-      if (absoluteY <= ROBINSON_TABLE[index + 1][2]) {
-        const span = ROBINSON_TABLE[index + 1][2] - ROBINSON_TABLE[index][2] || 1;
-        latitude = ROBINSON_TABLE[index][0] + 5 * (absoluteY - ROBINSON_TABLE[index][2]) / span;
-        break;
-      }
-    }
-    latitude *= sign;
-    const index = Math.min(Math.floor(Math.abs(latitude) / 5), 17);
-    const ratio = (Math.abs(latitude) - ROBINSON_TABLE[index][0]) / 5;
-    const xCoefficient = ROBINSON_TABLE[index][1] + (ROBINSON_TABLE[index + 1][1] - ROBINSON_TABLE[index][1]) * ratio;
-    return [
-      Math.max(-180, Math.min(180, x / (xFactor * radius * xCoefficient) * 180 / Math.PI)),
-      Math.max(-90, Math.min(90, latitude)),
-    ];
-  }
+  const PROJECTION = MAP_META && MAP_META.projection ? MAP_META.projection : null;
+  function robinson(lon, lat) { return Core.project(lon, lat, PROJECTION); }
+  function inverseRobinson(x, y) { return Core.unproject(x, y, PROJECTION); }
 
   function buildMap() {
     dom.map.setAttribute('viewBox', `${WORLD.x} ${WORLD.y} ${WORLD.w} ${WORLD.h}`);
@@ -399,6 +400,18 @@
       mapState.nodesById.set(country.id, [path]);
       (country.hitPoints || []).forEach((point) => addHitPoint(country.id, point));
     });
+    // Vaticano, Mônaco, Tuvalu, Nauru e San Marino ocupam frações de pixel na
+    // escala 1:10m — mesmo no zoom máximo. Ganham um anel de tamanho fixo em
+    // pixels, que aparece só quando o jogador já está aproximando o suficiente
+    // para procurá-los, e nunca intercepta o ponteiro: a resolução de cliques
+    // continua sendo a geometria real mais as âncoras de toque.
+    DATA.filter((country) => country.a <= MICRO_AREA).forEach((country) => {
+      const marker = svgElement('g', { class: 'micro', 'data-id': country.id });
+      marker.append(svgElement('circle', { cx: 0, cy: 0, r: 7, class: 'micro-ring' }));
+      marker.append(svgElement('circle', { cx: 0, cy: 0, r: 1.6, class: 'micro-dot' }));
+      mapState.markers.append(marker);
+      mapState.microMarkers.push({ marker, point: country.c });
+    });
     mapState.root.append(mapState.land, mapState.markers, mapState.effects);
     dom.map.append(mapState.root);
     setMapCursor(state.mapCursorId, false);
@@ -423,6 +436,7 @@
     clear(mapState.effects);
     mapState.reticle = null;
     mapState.reticleId = null;
+    mapState.reticlePoint = null;
   }
   function markCountry(id, className) {
     (mapState.nodesById.get(id) || []).forEach((node) => node.classList.add(className));
@@ -444,7 +458,7 @@
       : 'Posição atualizada no mapa. Use Enter para selecionar ou pule a pergunta visual.');
   }
 
-  function showReticle(id) {
+  function showReticle(id, point) {
     const country = byId[id];
     if (!country) return;
     clear(mapState.effects);
@@ -460,6 +474,7 @@
     mapState.effects.append(reticle);
     mapState.reticle = reticle;
     mapState.reticleId = id;
+    mapState.reticlePoint = Array.isArray(point) && point.every(Number.isFinite) ? point : country.c;
     updateMapScaleSensitiveElements();
   }
 
@@ -481,42 +496,78 @@
 
   function updateMapScaleSensitiveElements() {
     const unitsPerPixel = 1 / Math.max(.0001, renderedScale());
-    if (mapState.reticle && mapState.reticleId) {
-      const country = byId[mapState.reticleId];
-      mapState.reticle.setAttribute('transform', `translate(${country.c[0]} ${country.c[1]}) scale(${unitsPerPixel.toFixed(5)})`);
+    if (mapState.reticle && mapState.reticlePoint) {
+      const [x, y] = mapState.reticlePoint;
+      mapState.reticle.setAttribute('transform', `translate(${x} ${y}) scale(${unitsPerPixel.toFixed(5)})`);
     }
+    const zoom = WORLD.w / mapState.view.w;
+    if (mapState.markers) mapState.markers.classList.toggle('shows-micro', zoom >= MICRO_MARKER_ZOOM);
+    mapState.microMarkers.forEach(({ marker, point }) => {
+      marker.setAttribute('transform', `translate(${point[0]} ${point[1]}) scale(${unitsPerPixel.toFixed(5)})`);
+    });
   }
 
-  function clamp(value, minimum, maximum) { return Math.max(minimum, Math.min(maximum, value)); }
+  const clamp = Core.clampNumber;
+  const VIEW_OPTIONS = { minimumWidth: MIN_VIEW_WIDTH };
 
-  function setMapView(x, y, width) {
-    const nextWidth = clamp(width, WORLD.w / 30, WORLD.w);
-    const nextHeight = nextWidth * WORLD.h / WORLD.w;
-    const nextX = clamp(x, WORLD.x, WORLD.x + WORLD.w - nextWidth);
-    const nextY = clamp(y, WORLD.y, WORLD.y + WORLD.h - nextHeight);
-    mapState.view = { x: nextX, y: nextY, w: nextWidth, h: nextHeight };
-    dom.map.setAttribute('viewBox', `${nextX} ${nextY} ${nextWidth} ${nextHeight}`);
+  function applyMapView(view) {
+    mapState.view = view;
+    dom.map.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
     mapState.metrics = null;
     updateMapScaleSensitiveElements();
+    updateZoomControls();
     updateReadout();
   }
 
+  function setMapView(x, y, width) {
+    applyMapView(Core.clampView({ x, y, w: width, h: width * WORLD.h / WORLD.w }, WORLD, VIEW_OPTIONS));
+  }
+
   function zoomAt(factor, center) {
-    const point = center || [mapState.view.x + mapState.view.w / 2, mapState.view.y + mapState.view.h / 2];
-    const width = mapState.view.w / factor;
-    const ratio = width / mapState.view.w;
-    setMapView(point[0] - (point[0] - mapState.view.x) * ratio, point[1] - (point[1] - mapState.view.y) * ratio, width);
+    applyMapView(Core.zoomView(mapState.view, factor, center, WORLD, VIEW_OPTIONS));
+  }
+
+  function updateZoomControls() {
+    const atMaximum = mapState.view.w <= MIN_VIEW_WIDTH + 1e-6;
+    const atMinimum = mapState.view.w >= WORLD.w - 1e-6;
+    if (dom.zoomIn) dom.zoomIn.disabled = atMaximum;
+    if (dom.zoomOut) dom.zoomOut.disabled = atMinimum;
+    if (dom.zoomReset) dom.zoomReset.disabled = atMinimum
+      && mapState.view.x <= WORLD.x + 1e-6 && mapState.view.y <= WORLD.y + 1e-6;
   }
   function resetMapView() { setMapView(WORLD.x, WORLD.y, WORLD.w); }
 
+  // O enquadramento usa o aglomerado principal do país (`pb`), não o bounding
+  // box completo: senão Alasca, Guiana Francesa ou Svalbard forçam a visão do
+  // mundo inteiro e o país "enquadrado" some no meio do oceano.
   function fitCountry(id) {
     const country = byId[id];
     if (!country) return;
-    const width = country.b[2] - country.b[0];
-    const height = country.b[3] - country.b[1];
-    const minimum = country.a < 5 ? WORLD.w / 14 : WORLD.w / 22;
-    const desired = clamp(Math.max(width * 3.1, height * WORLD.w / WORLD.h * 3.1, minimum), WORLD.w / 30, WORLD.w);
-    setMapView(country.c[0] - desired / 2, country.c[1] - desired * WORLD.h / WORLD.w / 2, desired);
+    const box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    // Microestado enquadrado a 14× continuava com menos de um pixel de largura.
+    // Com o teto em 60× o piso deles desce para 45×, o suficiente para a forma
+    // aparecer sem perder a referência regional em volta.
+    applyMapView(Core.fitBox(box, WORLD, {
+      ...VIEW_OPTIONS, floorWidth: country.a < 5 ? WORLD.w / 45 : WORLD.w / 22,
+    }));
+  }
+
+  // O box do território vem em graus; a projeção Robinson curva os paralelos,
+  // então os quatro cantos são projetados antes de virar um retângulo.
+  function territoryBounds(territory) {
+    const corners = [
+      robinson(territory.box[0], territory.box[1]), robinson(territory.box[2], territory.box[1]),
+      robinson(territory.box[0], territory.box[3]), robinson(territory.box[2], territory.box[3]),
+    ];
+    const xs = corners.map((corner) => corner[0]);
+    const ys = corners.map((corner) => corner[1]);
+    return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+  }
+
+  function territoryPoint(territory) { return robinson(territory.p[0], territory.p[1]); }
+
+  function fitTerritory(territory) {
+    applyMapView(Core.fitBox(territoryBounds(territory), WORLD, { ...VIEW_OPTIONS, floorWidth: WORLD.w / 40 }));
   }
 
   function screenToWorld(clientX, clientY, providedMetrics) {
@@ -550,6 +601,19 @@
     return nearest || directId || null;
   }
 
+  function territoriesOf(countryId) { return territoriesByCountry.get(countryId) || []; }
+
+  function territoryAt(countryId, point) {
+    if (!Array.isArray(point)) return null;
+    const [longitude, latitude] = inverseRobinson(point[0], point[1]);
+    return Core.territoryForPoint(TERRITORY_LIST, countryId, longitude, latitude);
+  }
+
+  function mapLabel(countryId, point) {
+    const territory = territoryAt(countryId, point);
+    return territory ? `${territory.n} (${byId[countryId].n})` : byId[countryId].n;
+  }
+
   function scheduleHoverReadout(event) {
     mapState.pendingHover = { clientX: event.clientX, clientY: event.clientY, target: event.target };
     if (mapState.hoverFrame) return;
@@ -562,7 +626,10 @@
       const point = screenToWorld(pending.clientX, pending.clientY, metrics);
       updateReadout(pending.clientX, pending.clientY, point);
       const hoverId = countryAt(pending.clientX, pending.clientY, pending.target, point, metrics.scale);
-      dom.hoverName.textContent = hoverId && state.view !== 'quiz' ? byId[hoverId].n : '';
+      // Fora do quiz o rótulo é livre; dentro dele só depois da resposta, para
+      // não entregar o alvo de uma pergunta visual.
+      const mayReveal = state.view !== 'quiz' || state.answered;
+      dom.hoverName.textContent = hoverId && mayReveal ? mapLabel(hoverId, point) : '';
     });
   }
 
@@ -574,17 +641,22 @@
     dom.readout.textContent = `lon ${longitude >= 0 ? '+' : ''}${longitude.toFixed(1)}° · lat ${latitude >= 0 ? '+' : ''}${latitude.toFixed(1)}° · zoom ${(WORLD.w / mapState.view.w).toFixed(1)}×`;
   }
 
-  function activateMapCountry(id) {
+  function activateMapCountry(id, point) {
     if (!id || !byId[id]) return;
+    const territory = territoryAt(id, point);
     setMapCursor(id, false);
-    if (state.view === 'quiz' && state.question && state.question.direction === 'locate' && !state.answered) return answerQuestion(id);
+    if (state.view === 'quiz' && state.question && state.question.direction === 'locate' && !state.answered) {
+      return answerQuestion(id, territory);
+    }
     if (state.view === 'quiz') {
       announce('O mapa é apenas referência nesta pergunta.');
       return;
     }
-    if (state.view === 'atlas') return selectAtlasCountry(id, true);
-    showReticle(id);
-    announce(`${byId[id].n}, capital ${byId[id].cap}.`);
+    if (state.view === 'atlas') return selectAtlasCountry(id, true, territory);
+    showReticle(id, territory ? territoryPoint(territory) : null);
+    announce(territory
+      ? `${territory.n}: ${territory.status}. Capital regional ${territory.cap}.`
+      : `${byId[id].n}, capital ${byId[id].cap}.`);
   }
 
   function directionalCountry(currentId, key) {
@@ -626,7 +698,8 @@
         const clientX = Number.isFinite(event.clientX) ? event.clientX : pointer.x;
         const clientY = Number.isFinite(event.clientY) ? event.clientY : pointer.y;
         const target = document.elementFromPoint(clientX, clientY);
-        activateMapCountry(countryAt(clientX, clientY, target) || gesture.countryId);
+        const point = screenToWorld(clientX, clientY);
+        activateMapCountry(countryAt(clientX, clientY, target, point) || gesture.countryId, point);
       }
     } else if (mapState.pointers.size === 1) {
       const remaining = [...mapState.pointers.values()][0];
@@ -727,21 +800,40 @@
 
   function effectiveDirections() {
     let directions = (MODE_DIRECTIONS[state.mode] || MODE_DIRECTIONS.mix).slice();
-    if (state.answerMode === 'type') directions = directions.filter((direction) => direction !== 'flagOf' && direction !== 'locate');
+    // No modo digitar as direções que só existem como escolha saem da mistura,
+    // mas se o modo inteiro for feito delas — como Regiões — o treino mantém o
+    // assunto e responde por escolha, em vez de virar outro treino sem avisar.
+    if (state.answerMode === 'type') {
+      const typed = directions.filter((direction) => !PICK_ONLY.has(direction));
+      if (typed.length) directions = typed;
+    }
     if (!state.includeVisual) directions = directions.filter((direction) => !VISUAL_DIRECTIONS.has(direction));
     return directions.length ? directions : ['cap', 'capOf'];
   }
 
   function createNextQuestion(options = {}) {
     if (!state.ready) return;
+    stopTimer();
+    // O baralho de erros tem prioridade sobre o sorteio: enquanto houver carta
+    // na fila, é ela que vira pergunta. `fromDeck` sobrevive à fila esvaziada
+    // para que a última carta ainda se apresente como revisão.
+    if (!state.forcedQuestion && state.reviewQueue.length) {
+      state.forcedQuestion = state.reviewQueue.shift();
+      state.fromDeck = true;
+      if (!state.reviewQueue.length) announce('Última carta do baralho de erros.');
+    } else if (!state.deckPending) {
+      state.fromDeck = false;
+    }
+    state.deckPending = false;
     const forced = state.forcedQuestion;
     state.forcedQuestion = null;
-    const questionAnswerMode = forced && (forced.direction === 'flagOf' || forced.direction === 'locate')
+    const directions = forced ? [forced.direction] : effectiveDirections();
+    const questionAnswerMode = directions.every((direction) => PICK_ONLY.has(direction))
       ? 'pick' : state.answerMode;
     const result = Core.createQuestion({
       countries: DATA,
       mode: state.mode,
-      directions: forced ? [forced.direction] : effectiveDirections(),
+      directions,
       region: forced ? 'Mundo inteiro' : state.region,
       answerMode: questionAnswerMode,
       progress,
@@ -754,13 +846,55 @@
     state.answered = false;
     state.selectedAnswer = null;
     state.answerMatch = null;
+    state.answerTerritory = null;
+    state.expired = false;
     state.questionNumber += 1;
+    state.askedAt = Date.now();
     renderQuiz();
     syncMapForQuestion();
+    startTimer();
     if (options.focus) {
       document.getElementById('questionTitle')?.focus();
       announce(questionCopy(state.question)[0]);
     }
+  }
+
+  function stopTimer() {
+    if (timer.handle) clearInterval(timer.handle);
+    timer.handle = 0;
+    timer.deadline = 0;
+  }
+
+  function startTimer() {
+    stopTimer();
+    if (!state.timeLimit || state.view !== 'quiz' || state.answered) return;
+    timer.deadline = Date.now() + state.timeLimit * 1000;
+    updateTimerDisplay();
+    timer.handle = setInterval(() => {
+      if (state.answered || state.view !== 'quiz') { stopTimer(); return; }
+      if (Date.now() >= timer.deadline) { stopTimer(); expireQuestion(); return; }
+      updateTimerDisplay();
+    }, 200);
+  }
+
+  function updateTimerDisplay() {
+    const bar = document.getElementById('questionTimer');
+    if (!bar) return;
+    const remaining = Math.max(0, timer.deadline - Date.now());
+    bar.value = remaining;
+    const seconds = Math.ceil(remaining / 1000);
+    bar.dataset.low = String(seconds <= 5);
+    const label = document.getElementById('questionTimerLabel');
+    if (label) label.textContent = `${seconds}s`;
+  }
+
+  // O estouro do tempo é registrado como erro pelo mesmo caminho de uma
+  // resposta errada, inclusive no modo digitar, onde uma string vazia seria
+  // rejeitada antes de virar resposta.
+  function expireQuestion() {
+    if (!state.question || state.answered) return;
+    state.expired = true;
+    answerQuestion(EXPIRED_ANSWER);
   }
 
   function questionCopy(question) {
@@ -776,6 +910,7 @@
       capOf: [`${country.cap} é a capital de qual país?`, 'Capital → país'],
       locate: [`Onde fica ${country.n}?`, 'Selecione o país no mapa'],
       mapId: ['Que país está marcado no mapa?', 'Mapa → país'],
+      reg: [`Em que região fica ${country.n}?`, 'País → região'],
     }[question.direction];
   }
   function isVisualQuestion(question = state.question) {
@@ -783,13 +918,21 @@
   }
   function optionLabel(direction, country) { return direction === 'cap' ? country.cap : country.n; }
   function answerField(direction) { return direction === 'cap' ? 'capital' : 'country'; }
+  function expectedAnswer(direction, country) {
+    if (direction === 'reg') return country.r;
+    return answerField(direction) === 'capital' ? country.cap : country.n;
+  }
 
-  function answerQuestion(value) {
+  function answerQuestion(value, territory) {
     if (!state.question || state.answered) return;
     const target = byId[state.question.id];
     let correct;
     let match = null;
-    if (state.question.direction === 'locate' || state.questionAnswerMode === 'pick') {
+    if (value === EXPIRED_ANSWER) {
+      correct = false;
+    } else if (state.question.direction === 'reg') {
+      correct = value === target.r;
+    } else if (state.question.direction === 'locate' || state.questionAnswerMode === 'pick') {
       correct = value === target.id;
     } else {
       match = Core.matchCountryAnswer(value, target, answerField(state.question.direction), DATA);
@@ -803,19 +946,33 @@
       }
       correct = match.ok;
     }
+    stopTimer();
     state.answered = true;
-    state.selectedAnswer = value;
+    state.selectedAnswer = value === EXPIRED_ANSWER ? null : value;
     state.answerMatch = match;
+    state.answerTerritory = territory || null;
     if (correct) { state.hits += 1; state.streak += 1; }
     else { state.misses += 1; state.streak = 0; }
+    state.sessionAnswers.push({
+      id: target.id,
+      direction: state.question.direction,
+      correct,
+      expired: state.expired,
+      ms: state.askedAt ? Math.max(0, Date.now() - state.askedAt) : null,
+    });
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
       countryIds: IDS, bestStreak: state.streak,
     });
     queueProgressSave();
     renderQuiz();
     syncMapForQuestion(correct);
-    const expected = answerField(state.question.direction) === 'capital' ? target.cap : target.n;
-    announce(correct ? `Correto. ${expected}.` : `Resposta incorreta. A resposta é ${expected}.`);
+    const expected = expectedAnswer(state.question.direction, target);
+    const marked = state.answerTerritory
+      ? ` Você marcou a ${state.answerTerritory.n}. ${state.answerTerritory.status}.` : '';
+    const verdict = correct
+      ? `Correto. ${expected}.`
+      : `${state.expired ? 'Tempo esgotado' : 'Resposta incorreta'}. A resposta é ${expected}.`;
+    announce(verdict + marked);
     document.getElementById('nextQuestion')?.focus();
   }
 
@@ -871,6 +1028,23 @@
       container.append(row, create('p', { className: 'answer-error', id: 'answerError', attrs: { 'aria-live': 'polite' } }));
       return;
     }
+    if (question.direction === 'reg') {
+      const regions = create('div', { className: 'opts' });
+      question.opts.forEach((region, index) => {
+        const classNames = ['opt'];
+        if (state.answered && region === byId[question.id].r) classNames.push('right');
+        if (state.answered && region === state.selectedAnswer && region !== byId[question.id].r) classNames.push('wrong');
+        const button = create('button', { className: classNames.join(' '), type: 'button', attrs: {
+          'data-answer': region, disabled: state.answered ? '' : null,
+        } });
+        button.append(create('span', { className: 'key', text: String(index + 1), attrs: { 'aria-hidden': 'true' } }));
+        button.append(document.createTextNode(region));
+        button.addEventListener('click', () => answerQuestion(region));
+        regions.append(button);
+      });
+      container.append(regions);
+      return;
+    }
     const options = create('div', { className: `opts${question.direction === 'flagOf' ? ' grid2' : ''}` });
     question.opts.forEach((id, index) => {
       const country = byId[id];
@@ -893,6 +1067,13 @@
 
   function explanatoryNotes(country) {
     const notes = [];
+    const territory = state.answerTerritory;
+    if (territory && byId[territory.of]) {
+      const sovereign = byId[territory.of];
+      notes.push(`Você marcou a ${territory.n}. ${territory.status}, com capital regional `
+        + `${territory.cap} — por isso o ponto ${territory.of === country.id ? 'vale' : 'foi lido'} como `
+        + `${sovereign.n}, cuja capital é ${sovereign.cap}.`);
+    }
     if (country.alternateCapitals && country.alternateCapitals.length) notes.push(`Também aceita como capital oficial: ${country.alternateCapitals.join(', ')}.`);
     if (country.otherSeats && country.otherSeats.length) notes.push(`Sede de governo, não tratada como resposta canônica: ${country.otherSeats.join(', ')}.`);
     if (country.formerCapitalNames && country.formerCapitalNames.length) notes.push(`Nome histórico não aceito como atual: ${country.formerCapitalNames.join(', ')}.`);
@@ -909,12 +1090,14 @@
   function renderVerdict(container) {
     const question = state.question;
     const country = byId[question.id];
-    const isCorrect = question.direction === 'locate' || state.questionAnswerMode === 'pick'
-      ? state.selectedAnswer === question.id : Boolean(state.answerMatch && state.answerMatch.ok);
+    const isCorrect = question.direction === 'reg'
+      ? state.selectedAnswer === country.r
+      : (question.direction === 'locate' || state.questionAnswerMode === 'pick'
+        ? state.selectedAnswer === question.id : Boolean(state.answerMatch && state.answerMatch.ok));
     const verdict = create('section', { className: 'verdict', attrs: { 'aria-labelledby': 'verdictTitle' } });
     verdict.append(create('p', {
       id: 'verdictTitle', className: `verdict-tag ${isCorrect ? 'ok' : 'bad'}`,
-      text: isCorrect ? 'Correto' : 'Resposta incorreta',
+      text: isCorrect ? 'Correto' : (state.expired ? 'Tempo esgotado' : 'Resposta incorreta'),
     }));
     const fact = create('div', { className: 'factrow' });
     fact.append(flagImage(country));
@@ -938,9 +1121,24 @@
     const country = byId[question.id];
     const [headline, eyebrow] = questionCopy(question);
     dom.panel.append(create('div', { className: 'plate' }, [
-      create('span', { text: `Pergunta ${state.questionNumber}` }),
+      create('span', { text: state.fromDeck
+        ? `Revisão de erros · ${state.reviewQueue.length ? `faltam ${state.reviewQueue.length + 1}` : 'última carta'}`
+        : `Pergunta ${state.questionNumber}` }),
       create('span', { text: DIRECTION_LABEL[question.direction] }),
     ]));
+    if (state.timeLimit && !state.answered) {
+      const total = state.timeLimit * 1000;
+      const row = create('div', { className: 'timerrow' });
+      row.append(create('progress', {
+        id: 'questionTimer', className: 'timer-bar',
+        attrs: { max: total, value: total, 'aria-label': `Tempo restante da pergunta, limite de ${state.timeLimit} segundos` },
+      }));
+      row.append(create('span', {
+        id: 'questionTimerLabel', className: 'timer-label',
+        text: `${state.timeLimit}s`, attrs: { 'aria-hidden': 'true' },
+      }));
+      dom.panel.append(row);
+    }
     dom.panel.append(create('p', { className: 'prompt', text: eyebrow }));
     if (question.direction === 'flag') {
       dom.panel.append(create('h2', { id: 'questionTitle', className: 'subject sm', text: headline, attrs: { tabindex: '-1' } }));
@@ -967,13 +1165,23 @@
       });
   }
 
+  function matchedTerritory(country, query) {
+    if (!query) return null;
+    return territoriesOf(country.id).find((territory) => (
+      [territory.n, territory.cap, territory.r].map(Core.normalizeText).join(' ').includes(query)
+    )) || null;
+  }
+
   function atlasMatches() {
     const query = Core.normalizeText(state.atlasQuery);
     const sorted = DATA.slice().sort((a, b) => a.n.localeCompare(b.n, 'pt-BR'));
     if (!query) return sorted;
     return sorted.filter((country) => {
       const aliases = (country.aliases || []).map((alias) => alias.value);
-      return [country.n, country.cap, country.r, ...aliases].map(Core.normalizeText).join(' ').includes(query);
+      if ([country.n, country.cap, country.r, ...aliases].map(Core.normalizeText).join(' ').includes(query)) return true;
+      // Quem procura por "Guiana Francesa" ou "Caiena" precisa achar o país que
+      // responde por esse território, com a distinção explicada na ficha.
+      return Boolean(matchedTerritory(country, query));
     });
   }
 
@@ -982,7 +1190,8 @@
     clear(dom.panel);
     renderScorebar();
     dom.panel.append(create('div', { className: 'plate' }, [
-      create('span', { text: 'Atlas dos países' }), create('span', { text: '195 estados' }),
+      create('span', { text: 'Atlas dos países' }),
+      create('span', { text: TERRITORY_LIST.length ? `195 estados · ${TERRITORY_LIST.length} territórios` : '195 estados' }),
     ]));
     dom.panel.append(create('h2', { className: 'panel-title', text: 'Explorar o mundo' }));
     const search = create('input', { className: 'search', attrs: {
@@ -1019,6 +1228,32 @@
       create('p', { text: `${country.r} · ${formatArea(country.ar)}` }),
     ]);
     atlasElements.detail.append(flagImage(country, { eager: true }), copy);
+    territoriesOf(country.id).forEach((territory) => {
+      atlasElements.detail.append(territoryCard(country, territory));
+    });
+  }
+
+  function territoryCard(country, territory) {
+    const card = create('div', { className: 'territory-card', attrs: { 'data-territory': territory.id } });
+    card.append(create('h4', {}, [
+      create('span', { text: territory.n }),
+      create('span', { className: 'territory-tag', text: territory.tag || 'território' }),
+    ]));
+    card.append(create('p', { className: 'territory-meta', text: `${territory.status} · capital regional ${territory.cap}` }));
+    card.append(create('p', { className: 'territory-meta', text: `${territory.r} · ${formatArea(territory.ar)}` }));
+    (territory.notes || []).forEach((note) => card.append(create('p', { className: 'note', text: note })));
+    const locate = create('button', {
+      className: 'btn ghost', type: 'button', text: `Ver ${territory.n} no mapa`,
+    });
+    locate.addEventListener('click', () => {
+      clearMapMarks();
+      markCountry(country.id, 'on');
+      showReticle(country.id, territoryPoint(territory));
+      fitTerritory(territory);
+      announce(`${territory.n} no mapa. ${territory.status}. Capital regional ${territory.cap}.`);
+    });
+    card.append(locate);
+    return card;
   }
 
   function renderAtlasList() {
@@ -1027,15 +1262,17 @@
     const visible = matches.slice(0, state.atlasLimit);
     clear(atlasElements.list);
     atlasElements.count.textContent = `${matches.length} ${matches.length === 1 ? 'resultado' : 'resultados'}`;
+    const query = Core.normalizeText(state.atlasQuery);
     visible.forEach((country) => {
+      const territory = matchedTerritory(country, query);
       const row = create('button', { className: 'row', type: 'button', attrs: {
         'data-country': country.id, 'aria-current': country.id === state.atlasSelected ? 'true' : null,
       } });
       row.append(flagImage(country, { decorative: true }), create('span', { className: 'row-txt' }, [
         create('span', { className: 'row-n', text: country.n }),
-        create('span', { className: 'row-c', text: `${country.cap} · ${country.r}` }),
+        create('span', { className: 'row-c', text: territory ? `${country.cap} · inclui ${territory.n}` : `${country.cap} · ${country.r}` }),
       ]));
-      row.addEventListener('click', () => selectAtlasCountry(country.id, true));
+      row.addEventListener('click', () => selectAtlasCountry(country.id, true, territory));
       atlasElements.list.append(row);
     });
     atlasElements.more.hidden = visible.length >= matches.length;
@@ -1043,20 +1280,30 @@
     if (!matches.length) atlasElements.list.append(create('p', { className: 'empty', text: 'Nenhum país, capital ou região corresponde à busca.' }));
   }
 
-  function selectAtlasCountry(id, fit = false) {
+  function selectAtlasCountry(id, fit = false, territory = null) {
     if (!byId[id]) return;
+    const focused = territory && territory.of === id ? territory : null;
     state.atlasSelected = id;
     setMapCursor(id, false);
     clearMapMarks();
     markCountry(id, 'on');
-    showReticle(id);
-    if (fit) fitCountry(id);
+    showReticle(id, focused ? territoryPoint(focused) : null);
+    if (fit) {
+      if (focused) fitTerritory(focused);
+      else fitCountry(id);
+    }
     renderAtlasDetail();
     if (atlasElements) atlasElements.list.querySelectorAll('[data-country]').forEach((row) => {
       if (row.dataset.country === id) row.setAttribute('aria-current', 'true');
       else row.removeAttribute('aria-current');
     });
-    announce(`${byId[id].n}. Capital ${byId[id].cap}. ${byId[id].r}.`);
+    if (focused && atlasElements) {
+      const card = atlasElements.detail.querySelector(`[data-territory="${focused.id}"]`);
+      if (card) card.classList.add('is-focused');
+    }
+    announce(focused
+      ? `${focused.n}. ${focused.status}. Capital regional ${focused.cap}. Selecionado como ${byId[id].n}.`
+      : `${byId[id].n}. Capital ${byId[id].cap}. ${byId[id].r}.`);
   }
 
   function familyPercent(directions) {
@@ -1100,6 +1347,202 @@
     announce(`Revisão de ${byId[id].n}: ${DIRECTION_LABEL[direction]}.`);
   }
 
+  // Cada habilidade errada entra uma vez só no baralho, na ordem em que foi
+  // errada, e sai se depois tiver sido acertada na mesma sessão.
+  function sessionMistakes() {
+    const outcome = new Map();
+    state.sessionAnswers.forEach((answer) => {
+      outcome.set(`${answer.id}:${answer.direction}`, answer.correct);
+    });
+    const seen = new Set();
+    const mistakes = [];
+    state.sessionAnswers.forEach((answer) => {
+      const key = `${answer.id}:${answer.direction}`;
+      if (answer.correct || outcome.get(key) || seen.has(key)) return;
+      seen.add(key);
+      mistakes.push({ id: answer.id, direction: answer.direction });
+    });
+    return mistakes;
+  }
+
+  function sessionStats() {
+    const answers = state.sessionAnswers;
+    const hits = answers.filter((answer) => answer.correct).length;
+    const timed = answers.filter((answer) => Number.isFinite(answer.ms) && answer.ms > 0);
+    const average = timed.length
+      ? timed.reduce((total, answer) => total + answer.ms, 0) / timed.length / 1000 : null;
+    return {
+      total: answers.length,
+      hits,
+      misses: answers.length - hits,
+      expired: answers.filter((answer) => answer.expired).length,
+      accuracy: answers.length ? hits / answers.length * 100 : 0,
+      averageSeconds: average,
+    };
+  }
+
+  function startMistakeDeck() {
+    const mistakes = sessionMistakes();
+    if (!mistakes.length) return;
+    state.reviewQueue = mistakes.slice(1);
+    state.forcedQuestion = mistakes[0];
+    state.fromDeck = true;
+    state.deckPending = true;
+    setView('quiz');
+    createNextQuestion({ focus: true });
+    announce(`Baralho de erros iniciado com ${mistakes.length} ${mistakes.length === 1 ? 'carta' : 'cartas'}.`);
+  }
+
+  function renderSessionSummary(container) {
+    const stats = sessionStats();
+    const section = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'sessionTitle' } });
+    section.append(create('h3', { id: 'sessionTitle', text: 'Esta sessão' }));
+    if (!stats.total) {
+      section.append(create('p', { className: 'empty', text: 'Nenhuma pergunta respondida nesta sessão ainda.' }));
+      container.append(section);
+      return;
+    }
+    const facts = [
+      `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}`,
+      `${formatPercent(stats.accuracy)} de precisão`,
+      stats.averageSeconds !== null ? `${stats.averageSeconds.toFixed(1).replace('.', ',')}s por resposta` : null,
+      stats.expired ? `${stats.expired} por tempo esgotado` : null,
+    ].filter(Boolean);
+    section.append(create('p', { className: 'section-copy', text: facts.join(' · ') }));
+
+    const mistakes = sessionMistakes();
+    if (mistakes.length) {
+      const deck = create('button', {
+        className: 'btn wide', type: 'button',
+        text: mistakes.length === 1
+          ? 'Revisar o erro desta sessão'
+          : `Revisar os ${mistakes.length} erros desta sessão`,
+      });
+      deck.addEventListener('click', startMistakeDeck);
+      section.append(deck);
+      const list = create('div', { className: 'weak' });
+      mistakes.slice(0, 12).forEach((item) => {
+        const chip = create('button', {
+          className: 'chip', type: 'button',
+          text: `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}`,
+        });
+        chip.addEventListener('click', () => startReview(item.id, item.direction));
+        list.append(chip);
+      });
+      section.append(list);
+    } else {
+      section.append(create('p', { className: 'empty', text: 'Nenhum erro pendente nesta sessão.' }));
+    }
+    container.append(section);
+  }
+
+  function progressFileName() {
+    const now = new Date();
+    const stamp = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2, '0'),
+      String(now.getDate()).padStart(2, '0'),
+    ].join('-');
+    return `atlas-195-progresso-${stamp}.json`;
+  }
+
+  function exportProgress() {
+    const serialized = Core.serializeProgress(progress, { countryIds: IDS });
+    const blob = new Blob([serialized], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = create('a', { attrs: { href: url, download: progressFileName() } });
+    document.body.append(link);
+    link.click();
+    link.remove();
+    // O objeto fica vivo até o download começar; um tempo curto basta e evita
+    // vazar a URL na sessão.
+    setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    const studied = Object.keys(progress.countries || {}).length;
+    state.importStatus = { kind: 'ok', text: `Arquivo gerado com ${studied} ${studied === 1 ? 'país' : 'países'} no histórico.` };
+    renderProgress();
+    announce('Progresso exportado para arquivo.');
+  }
+
+  // A importação funde, nunca sobrescreve: mergeProgress resolve por geração,
+  // época e revisão, então trazer um backup antigo não apaga o que já existe
+  // neste navegador, e um reset mais recente continua vencendo.
+  async function importProgressFile(file) {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      state.importStatus = { kind: 'error', text: 'Arquivo grande demais para ser um progresso do Atlas.' };
+      renderProgress();
+      announce('Arquivo recusado: tamanho incompatível.');
+      return;
+    }
+    let raw;
+    try {
+      raw = await file.text();
+    } catch (_) {
+      state.importStatus = { kind: 'error', text: 'Não foi possível ler o arquivo escolhido.' };
+      renderProgress();
+      return;
+    }
+    const decoded = Core.deserializeProgress(raw, { countryIds: IDS });
+    if (decoded.recovered) {
+      state.importStatus = { kind: 'error', text: 'Este arquivo não é um progresso válido do Atlas 195. Nada foi alterado.' };
+      renderProgress();
+      announce('Importação recusada: arquivo inválido.');
+      return;
+    }
+    const before = Core.serializeProgress(progress, { countryIds: IDS });
+    const merged = Core.mergeProgress(progress, decoded.progress, { countryIds: IDS });
+    const after = Core.serializeProgress(merged, { countryIds: IDS });
+    progress = merged;
+    const incomingCountries = Object.keys(decoded.progress.countries || {}).length;
+    const totalCountries = Object.keys(merged.countries || {}).length;
+    if (after === before) {
+      state.importStatus = { kind: 'ok', text: 'Arquivo válido, mas ele não trazia nada novo além do que já estava aqui.' };
+    } else {
+      queueProgressSave(true);
+      state.importStatus = {
+        kind: 'ok',
+        text: `Progresso fundido: ${incomingCountries} ${incomingCountries === 1 ? 'país' : 'países'} no arquivo, `
+          + `${totalCountries} no histórico agora.`,
+      };
+    }
+    renderProgress();
+    announce(state.importStatus.text);
+  }
+
+  function renderBackup(container) {
+    const card = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'backupTitle' } });
+    card.append(create('h3', { id: 'backupTitle', text: 'Backup do progresso' }));
+    card.append(create('p', {
+      text: 'O progresso vive somente neste navegador. Exporte um arquivo para guardar ou levar '
+        + 'para outro aparelho; a importação funde com o que já existe aqui, sem apagar nada.',
+    }));
+    const actions = create('div', { className: 'button-row' });
+    const exportButton = create('button', { className: 'btn ghost', type: 'button', text: 'Exportar progresso' });
+    exportButton.addEventListener('click', exportProgress);
+    const input = create('input', {
+      id: 'importProgressInput', className: 'file-input',
+      attrs: { type: 'file', accept: 'application/json,.json' },
+    });
+    input.addEventListener('change', () => {
+      const file = input.files && input.files[0];
+      input.value = '';
+      importProgressFile(file);
+    });
+    const label = create('label', {
+      className: 'btn ghost', text: 'Importar progresso',
+      attrs: { for: 'importProgressInput' },
+    });
+    actions.append(exportButton, label, input);
+    card.append(actions);
+    if (state.importStatus) {
+      card.append(create('p', {
+        className: `note${state.importStatus.kind === 'error' ? ' note-error' : ''}`,
+        text: state.importStatus.text, attrs: { role: 'status' },
+      }));
+    }
+    container.append(card);
+  }
+
   function renderProgress() {
     atlasElements = null;
     clear(dom.panel);
@@ -1113,6 +1556,8 @@
     ]));
     dom.panel.append(create('h2', { id: 'progressTitle', className: 'panel-title', text: 'Seu aprendizado', attrs: { tabindex: '-1' } }));
     dom.panel.append(create('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
+
+    renderSessionSummary(dom.panel);
 
     const mastery = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'masteryTitle' } });
     mastery.append(create('h3', { id: 'masteryTitle', text: 'Domínio por habilidade' }));
@@ -1148,6 +1593,8 @@
       ? 'Nenhuma habilidade fraca registrada.' : 'Ainda não há histórico suficiente para apontar dificuldades.' }));
     weakSection.append(weakList);
     dom.panel.append(weakSection);
+
+    renderBackup(dom.panel);
 
     const source = MAP_META && MAP_META.source || {};
     const sourceSection = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'sourceTitle' } });
@@ -1276,7 +1723,8 @@
     });
     dom.skipVisual.hidden = true;
     dom.map.classList.remove('picking');
-    if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); }
+    stopTimer();
+    if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); startTimer(); }
     else if (view === 'atlas') renderAtlas();
     else { clearMapMarks(); renderProgress(); }
     announce(view === 'quiz' ? 'Treino aberto.' : view === 'atlas' ? 'Atlas aberto.' : 'Progresso aberto.');
@@ -1298,6 +1746,7 @@
   function syncControls() {
     dom.modeSeg.querySelectorAll('[data-mode]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.mode === state.mode)));
     dom.ansSeg.querySelectorAll('[data-ans]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.ans === state.answerMode)));
+    dom.timeSeg.querySelectorAll('[data-time]').forEach((button) => button.setAttribute('aria-pressed', String(Number(button.dataset.time) === state.timeLimit)));
     dom.visualToggle.checked = state.includeVisual;
     dom.region.value = state.region;
     setMapCollapsed(state.mapCollapsed, false);
@@ -1324,6 +1773,19 @@
       syncControls(); savePreferences();
       if (state.view !== 'quiz') setView('quiz');
       createNextQuestion();
+    });
+    dom.timeSeg.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-time]');
+      if (!button) return;
+      const limit = Number(button.dataset.time);
+      if (!TIME_LIMITS.includes(limit)) return;
+      state.timeLimit = limit;
+      syncControls(); savePreferences();
+      announce(limit ? `Tempo por pergunta: ${limit} segundos.` : 'Treino sem limite de tempo.');
+      if (state.view !== 'quiz') setView('quiz');
+      // A pergunta em curso não muda: só o relógio passa a valer a partir dela.
+      if (state.answered) createNextQuestion();
+      else { renderQuiz(); startTimer(); }
     });
     dom.region.addEventListener('change', () => {
       state.region = REGIONS.includes(dom.region.value) ? dom.region.value : 'Mundo inteiro';

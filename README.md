@@ -2,7 +2,14 @@
 
 Aplicação educacional offline para praticar bandeiras, capitais e localização de 193 Estados-membros da ONU, da Santa Sé e do Estado da Palestina.
 
-O treino combina seis direções independentes (bandeira ↔ país, capital ↔ país e mapa ↔ país), escolha ou digitação, revisão espaçada e reforço das habilidades mais fracas. O Atlas é navegável por teclado, aceita pular questões visuais sem penalidade e mantém o progresso somente no dispositivo.
+O treino combina sete direções independentes (bandeira ↔ país, capital ↔ país, mapa ↔ país e país → região), escolha ou digitação, tempo por pergunta opcional, revisão espaçada e reforço das habilidades mais fracas. O Atlas é navegável por teclado, aceita pular questões visuais sem penalidade e mantém o progresso somente no dispositivo.
+
+## Treino
+
+- **Modos**: misto, bandeiras, capitais, localização e regiões. A direção país → região é sempre por escolha — digitar "América do Norte, Central e Caribe" cobraria grafia, não geografia —, e escolher esse modo com a resposta em "Digitar" mantém o assunto em vez de trocar o treino.
+- **Tempo**: livre, 30 s ou 15 s por pergunta. A barra fica vermelha nos últimos cinco segundos e o estouro entra como erro pelo mesmo caminho de uma resposta errada, sem tratamento especial no progresso.
+- **Baralho de erros**: a aba Progresso resume a sessão (perguntas, precisão, tempo médio, estouros) e enfileira os erros ainda não corrigidos numa sequência de revisão. Uma habilidade acertada depois sai do baralho.
+- **Backup**: exportar gera um arquivo com o envelope validado do progresso; importar funde com o que já existe no aparelho, sem apagar nada. O arquivo é o mesmo formato lido pelo `AtlasCore`, então um progresso corrompido é recusado sem efeito colateral.
 
 ## Desenvolvimento
 
@@ -20,9 +27,10 @@ Abra `http://127.0.0.1:8743/atlas-195.html`.
 
 - `src/index.template.html`: estrutura semântica da interface.
 - `src/styles.css`: identidade visual e responsividade.
-- `src/core.js`: regras puras, validação e revisão adaptativa.
-- `src/app.js`: mapa, controles e renderização.
+- `src/core.js`: regras puras, validação, revisão adaptativa e a geometria de exibição (projeção Robinson, zoom, enquadramento e resolução de território).
+- `src/app.js`: mapa, controles e renderização. Não guarda cópia própria dessas regras: consome o núcleo, que é testado sem DOM.
 - `src/countries.base.json`: conteúdo educacional e bandeiras.
+- `src/territories.json`: territórios que a cartografia entrega dentro de outro país, com rótulo, capital regional e notas.
 - `data/map-geometry.json`: geometria projetada gerada a partir do Natural Earth.
 - `data/flags.json`: bandeiras SVG 4:3 geradas do flag-icons, com licença documentada.
 - `scripts/`: build, servidor local e atualização cartográfica.
@@ -36,4 +44,14 @@ Os contornos usam Natural Earth 1:10m, uma base cartográfica pública. A camada
 
 A projeção Robinson preserva a leitura global, mas, como toda projeção plana, distorce áreas e distâncias. Fronteiras disputadas seguem a convenção de facto da versão registrada em `DATA_SOURCES.md`.
 
-As bandeiras usam a coleção flag-icons 7.5.0 sob licença MIT. O progresso possui validação, migração, revisão independente por habilidade e sincronização segura entre abas, inclusive após um reset. A aplicação não envia respostas ou dados pessoais para servidores.
+O zoom vai de 1× a 60× e é ancorado no ponto apontado: nos dois extremos a janela para de mudar em vez de deslizar, e os botões `+` e `−` desabilitam quando o limite é alcançado.
+
+Cada país guarda também os limites do seu **aglomerado principal** (`pb`): o componente que contém o ponto de rótulo mais tudo que estiver a menos de seis unidades projetadas dele. É esse retângulo que o Atlas enquadra. O bounding box completo abria o mundo inteiro em 29 países — o dos Estados Unidos vai de Guam a Porto Rico, o da França vai do Caribe ao Índico —, enquanto o aglomerado mantém arquipélagos inteiros (as duas ilhas da Nova Zelândia, a Indonésia) e deixa de fora o que está a um oceano de distância.
+
+Vaticano, Mônaco, Tuvalu, Nauru e San Marino ocupam frações de pixel nessa escala mesmo no zoom máximo; a partir de 6× eles recebem um anel de tamanho fixo em pixels, que não intercepta o ponteiro — a resolução de cliques continua sendo a geometria real mais as âncoras de toque.
+
+Territórios que chegam dentro do polígono de outro país, como a Guiana Francesa, o Alasca ou as Canárias, são identificados pelo nome próprio no mapa e ganham ficha no Atlas, sem virar resposta de pergunta — ver `DATA_SOURCES.md`.
+
+As bandeiras usam a coleção flag-icons 7.5.0 sob licença MIT. O progresso possui validação, migração, revisão independente por habilidade e sincronização segura entre abas, inclusive após um reset. A aplicação não envia respostas ou dados pessoais para servidores: o backup por arquivo existe justamente para levar o progresso a outro aparelho sem conta, sem servidor e sem abrir a CSP, que continua com `connect-src 'none'`.
+
+O servidor local negocia `Accept-Encoding` e responde comprimido: os 4,9 MB do artefato viram cerca de 1,6 MB na primeira resposta e 1,1 MB nas seguintes, quando o brotli de qualidade máxima termina em segundo plano e substitui o cache. Nenhuma dependência é usada para isso.
