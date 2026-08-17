@@ -79,3 +79,18 @@ o build recusa qualquer face que não confira com o hash registrado.
 
 São 118 KB de fonte para 5 MB de artefato, e nenhuma requisição de rede: a CSP
 autoriza `font-src data:` e nenhuma origem externa.
+
+### Precisão das coordenadas
+
+As coordenadas projetadas usam **duas casas decimais**. O `viewBox` tem 1018
+unidades de largura e o zoom máximo é 60×, o que dá cerca de 0,014 unidade por
+pixel: o arredondamento desloca um vértice em no máximo 0,005 unidade, ou
+**0,35 pixel na ampliação máxima** — abaixo de um pixel em qualquer situação de
+uso. Em troca, a geometria comprimida cai de 1.094 KB para 830 KB em gzip, que é
+o que o navegador realmente baixa.
+
+Os limites (`b` e `pb`) são medidos na geometria de origem **unida aos anéis
+efetivamente emitidos**. A distinção importa para os micro-países: quando o anel
+degenera na quantização, o gerador o substitui por um símbolo sintético criado
+depois da medição, e sem essa união o Vaticano ficaria com um retângulo de
+largura zero — desenhado na tela, mas invisível para o enquadramento.

@@ -71,7 +71,7 @@ const RADIUS = 190;
 const X_FACTOR = 0.8487;
 const Y_FACTOR = 1.3523;
 const DEFAULT_TOLERANCE = 0.06;
-const DEFAULT_PRECISION = 3;
+const DEFAULT_PRECISION = 2;
 const PROTECTED_RING_AREA = 0.25;
 const MINIMUM_OUTER_SYMBOL_RADIUS = 0.04;
 const HIT_COMPONENT_AREA = 6;
@@ -682,8 +682,31 @@ function buildCountryGeometry(countryId, feature, geometryFeatures, settings, st
   }
 
   const center = featureCenter(feature, largestOuterRing).map((value) => quantize(value, settings.precision));
-  const roundedBounds = bounds.map((value) => quantize(value, settings.precision));
+
+  // Os limites são medidos na geometria de origem, mas o que vai para a tela são
+  // os anéis de saída — e um micro-país cujo anel degenera na quantização recebe
+  // um símbolo sintético criado depois dessa medição. Sem unir os dois, o
+  // Vaticano fica com um retângulo de largura zero: ele é desenhado, mas o
+  // enquadramento passa a operar sobre uma caixa que não descreve nada.
+  const emittedBounds = [Infinity, Infinity, -Infinity, -Infinity];
+  outputRings.forEach((ring) => ring.forEach((point) => extendBounds(emittedBounds, point)));
+  const drawnBounds = [
+    Math.min(bounds[0], emittedBounds[0]), Math.min(bounds[1], emittedBounds[1]),
+    Math.max(bounds[2], emittedBounds[2]), Math.max(bounds[3], emittedBounds[3]),
+  ];
+
+  const roundedBounds = drawnBounds.map((value) => quantize(value, settings.precision));
   const clusterBounds = primaryClusterBounds(components, center).map((value) => quantize(value, settings.precision));
+  // O aglomerado também é medido na origem. Quando ele colapsa — só acontece com
+  // micro-países de um componente só — herda a caixa desenhada. Unir sempre seria
+  // errado: para os 29 países com territórios distantes, isso reintroduziria o
+  // enquadramento do mundo inteiro que o `pb` existe justamente para evitar.
+  if (clusterBounds[2] - clusterBounds[0] <= 0 || clusterBounds[3] - clusterBounds[1] <= 0) {
+    clusterBounds[0] = roundedBounds[0];
+    clusterBounds[1] = roundedBounds[1];
+    clusterBounds[2] = roundedBounds[2];
+    clusterBounds[3] = roundedBounds[3];
+  }
   const clusterWidth = clusterBounds[2] - clusterBounds[0];
   const fullWidth = roundedBounds[2] - roundedBounds[0];
   if (clusterWidth < fullWidth - 1e-9 || clusterBounds[3] - clusterBounds[1] < roundedBounds[3] - roundedBounds[1] - 1e-9) {

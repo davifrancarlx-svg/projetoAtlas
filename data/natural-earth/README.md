@@ -33,7 +33,7 @@ node scripts/update-map.cjs --check
 
 `data/map-geometry.json` is derived from this source. The generator projects
 coordinates to Robinson before simplification, retains every country polygon
-component, protects small rings from simplification, uses three-decimal
+component, protects small rings from simplification, uses two-decimal
 projected coordinates, and validates all 195 Atlas IDs. Each country records
 `parts` as its exact polygon-component count. The optional `hitPoints` field is
 emitted for real polygon components with projected area at or below 6; these
