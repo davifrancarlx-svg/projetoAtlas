@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    name: Testes e artefato
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # O teste de fumaça controla o Chrome por CDP sobre o WebSocket nativo,
+      # que só existe a partir do Node 22.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Versões
+        run: |
+          node --version
+          google-chrome --version
+
+      # ATLAS_REQUIRE_BROWSER transforma em erro o que localmente seria um teste
+      # pulado: aqui o navegador é garantido, então ausência dele é falha de CI.
+      - name: Testes
+        run: npm test
+        env:
+          ATLAS_REQUIRE_BROWSER: '1'
+          CHROME_PATH: /usr/bin/google-chrome
+
+      # atlas-195.html é versionado e é o arquivo que vai para a hospedagem.
+      # Se alguém mudar src/ sem reconstruir, o repositório e o site publicado
+      # ficam mostrando código diferente do que está nas fontes.
+      - name: O artefato commitado está em dia com as fontes
+        run: |
+          node scripts/build.cjs
+          if ! git diff --quiet -- atlas-195.html; then
+            echo "::error file=atlas-195.html::atlas-195.html está desatualizado. Rode 'npm run build' e faça commit do resultado."
+            git diff --stat -- atlas-195.html
+            exit 1
+          fi

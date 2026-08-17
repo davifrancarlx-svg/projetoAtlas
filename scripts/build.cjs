@@ -187,8 +187,14 @@ if (/\{\{[A-Z_]+\}\}/.test(output)) throw new Error('Há placeholders não resol
 
 const artifact = `${output.trim()}\n`;
 if (artifact.includes('\r')) throw new Error('O artefato saiu com CRLF: os hashes da CSP não sobreviveriam ao parser HTML.');
-fs.writeFileSync(path.join(root, 'atlas-195.html'), artifact, 'utf8');
-const stats = fs.statSync(path.join(root, 'atlas-195.html'));
+// Escrita atômica: o runner de testes roda cada arquivo em um processo próprio e
+// mais de um deles reconstrói o artefato. Sem o rename, um teste poderia servir
+// o HTML pela metade enquanto outro ainda escreve.
+const destination = path.join(root, 'atlas-195.html');
+const staging = `${destination}.tmp-${process.pid}`;
+fs.writeFileSync(staging, artifact, 'utf8');
+fs.renameSync(staging, destination);
+const stats = fs.statSync(destination);
 console.log(
   `atlas-195.html gerado: ${countries.length} países, ${territories.length} `
   + `${territories.length === 1 ? 'território' : 'territórios'}, ${(stats.size / 1024).toFixed(1)} KiB.`,
