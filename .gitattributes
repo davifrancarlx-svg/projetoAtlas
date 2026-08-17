@@ -1,0 +1,6 @@
+# O artefato final embute CSS e JS inline e autoriza cada bloco por hash na CSP.
+# O parser HTML normaliza CRLF para LF antes de calcular esse hash, então um
+# checkout com CRLF (padrão do Git no Windows) invalida todos os hashes de uma
+# vez e a CSP bloqueia o próprio app. Manter LF no diretório de trabalho é o que
+# garante que o hash gravado no build seja o mesmo que o navegador calcula.
+* text=auto eol=lf

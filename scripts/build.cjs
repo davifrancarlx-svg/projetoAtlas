@@ -3,7 +3,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
-const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+// O parser HTML normaliza quebras de linha (CRLF e CR viram LF) antes de o
+// navegador calcular o hash CSP de cada bloco inline. Ler tudo já normalizado é
+// o que mantém o hash gravado aqui idêntico ao que o navegador calcula, mesmo
+// num checkout que trouxe CRLF — caso contrário a CSP bloqueia o próprio app.
+const normalizeNewlines = (text) => text.replace(/\r\n?/g, '\n');
+const read = (file) => normalizeNewlines(fs.readFileSync(path.join(root, file), 'utf8'));
 const readJson = (file) => JSON.parse(read(file));
 
 function sha256(source) {
@@ -160,6 +165,9 @@ output = replace(output, '{{DATA}}', data);
 output = replace(output, '{{CORE}}', core);
 output = replace(output, '{{APP}}', app);
 output = replace(output, '{{LICENSES}}', licenses);
+// Última barreira: qualquer CR que escape até aqui deslocaria todos os hashes
+// abaixo em relação ao que o navegador calcula sobre o documento já parseado.
+output = normalizeNewlines(output);
 const inlineStyles = [...output.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((match) => match[1]);
 const inlineScripts = [...output.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map((match) => match[1]);
 const csp = [
@@ -177,7 +185,9 @@ const csp = [
 output = replace(output, '{{CSP}}', csp);
 if (/\{\{[A-Z_]+\}\}/.test(output)) throw new Error('Há placeholders não resolvidos no template.');
 
-fs.writeFileSync(path.join(root, 'atlas-195.html'), `${output.trim()}\n`, 'utf8');
+const artifact = `${output.trim()}\n`;
+if (artifact.includes('\r')) throw new Error('O artefato saiu com CRLF: os hashes da CSP não sobreviveriam ao parser HTML.');
+fs.writeFileSync(path.join(root, 'atlas-195.html'), artifact, 'utf8');
 const stats = fs.statSync(path.join(root, 'atlas-195.html'));
 console.log(
   `atlas-195.html gerado: ${countries.length} países, ${territories.length} `

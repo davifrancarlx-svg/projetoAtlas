@@ -200,6 +200,31 @@ test('a CSP autoriza exatamente o conteúdo inline emitido pelo build', () => {
   assert.deepEqual(hashesOf(directives, 'script-src').sort(), scripts.map(cspHash).sort());
 });
 
+// Regressão: comparar o hash do arquivo com o hash do arquivo sempre passa,
+// inclusive com CRLF. O navegador, porém, normaliza as quebras de linha ao
+// parsear o documento e só então calcula o hash — um artefato com CRLF invalida
+// os quatro blocos inline de uma vez e a CSP bloqueia o próprio Atlas.
+test('os hashes da CSP sobrevivem à normalização de quebras de linha do parser HTML', () => {
+  assert.equal(html.includes('\r'), false, 'O artefato não pode conter CR: a CSP quebra no navegador.');
+
+  const parsed = html.replace(/\r\n?/g, '\n');
+  const directives = cspDirectives(parsed);
+  const styles = [...parsed.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map(match => match[1]);
+  const scripts = [...parsed.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1]);
+
+  assert.equal(scripts.length, 3, 'Dados, núcleo e app precisam continuar inline.');
+  assert.deepEqual(
+    hashesOf(directives, 'style-src').sort(),
+    styles.map(cspHash).sort(),
+    'O estilo inline seria bloqueado pela CSP no navegador.'
+  );
+  assert.deepEqual(
+    hashesOf(directives, 'script-src').sort(),
+    scripts.map(cspHash).sort(),
+    'Os scripts inline seriam bloqueados pela CSP no navegador.'
+  );
+});
+
 test('não restam placeholders nem atributos inline bloqueados pela CSP', () => {
   assert.doesNotMatch(html, /\{\{[A-Z_]+\}\}/, 'Há placeholder não resolvido.');
 
