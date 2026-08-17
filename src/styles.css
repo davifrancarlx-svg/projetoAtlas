@@ -1,5 +1,8 @@
+/* Toda cor do Atlas mora aqui. Nenhuma regra abaixo escreve um valor cru: é o
+   que permite o tema claro ser só uma redefinição destes tokens, sem duplicar
+   nem uma linha de layout. */
 :root {
-  color-scheme: dark;
+  color-scheme: light dark;
   --ocean: #071821;
   --ocean-deep: #041117;
   --panel: #0d222e;
@@ -9,6 +12,9 @@
   --line-soft: #294654;
   --land: #557582;
   --land-hi: #7899a5;
+  --land-context: #395865;
+  --land-dim: #294550;
+  --map-glow: rgba(32, 72, 89, 0.23);
   --ink: #f4f7f8;
   --muted: #b3c2c8;
   --muted-2: #9bafb8;
@@ -18,6 +24,18 @@
   --coral: #ff8f7e;
   --paper: #f5efe4;
   --on-accent: #071821;
+  --seg-active: #31596a;
+  --seg-active-ink: #ffffff;
+  --seg-active-muted: #d5e3e8;
+  --ok-surface: rgba(107, 221, 184, 0.16);
+  --ok-ink: #e2fff5;
+  --bad-surface: rgba(255, 143, 126, 0.16);
+  --bad-ink: #ffe6e1;
+  --danger-hover: #ffb0a4;
+  --track-edge: #41606e;
+  --flag-edge: rgba(0, 0, 0, 0.2);
+  --shadow-soft: rgba(0, 0, 0, 0.28);
+  --shadow-strong: rgba(0, 0, 0, 0.36);
   --display: "Instrument Serif", Georgia, "Times New Roman", serif;
   --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
@@ -28,6 +46,46 @@
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
+}
+
+/* Tema claro: acompanha a preferência do sistema. Os acentos escurecem porque
+   dourado, menta e coral vivos são ilegíveis sobre branco — no escuro eles são
+   texto sobre fundo escuro, aqui o papel se inverte. Os pares de contraste
+   ficam todos acima de 4.5:1. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --ocean: #e9f0f3;
+    --ocean-deep: #dae5ea;
+    --panel: #ffffff;
+    --panel-2: #f1f6f8;
+    --surface-hover: #e1ecf0;
+    --line: #6f8892;
+    --line-soft: #cfdde2;
+    --land: #93aeba;
+    --land-hi: #62838f;
+    --land-context: #c6d5db;
+    --land-dim: #d3dfe4;
+    --map-glow: rgba(120, 160, 180, 0.20);
+    --ink: #0b1c25;
+    --muted: #3e545e;
+    --muted-2: #506a74;
+    --gold: #8a5a00;
+    --gold-hover: #6d4700;
+    --mint: #0f7a5a;
+    --coral: #b03a26;
+    --paper: #ffffff;
+    --on-accent: #ffffff;
+    --seg-active-muted: #dbe8ed;
+    --ok-surface: rgba(15, 122, 90, 0.12);
+    --ok-ink: #0a5c43;
+    --bad-surface: rgba(176, 58, 38, 0.10);
+    --bad-ink: #8d2c1b;
+    --danger-hover: #8d2c1b;
+    --track-edge: #c4d3d9;
+    --flag-edge: rgba(0, 0, 0, 0.18);
+    --shadow-soft: rgba(15, 40, 55, 0.13);
+    --shadow-strong: rgba(15, 40, 55, 0.19);
+  }
 }
 
 *,
@@ -346,8 +404,8 @@ input {
 
 .seg button[aria-pressed="true"],
 .seg button.is-active {
-  background: #31596a;
-  color: #fff;
+  background: var(--seg-active);
+  color: var(--seg-active-ink);
 }
 
 select,
@@ -482,7 +540,7 @@ select {
   min-height: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at 48% 44%, rgba(32, 72, 89, 0.23), transparent 55%),
+    radial-gradient(circle at 48% 44%, var(--map-glow), transparent 55%),
     var(--ocean);
 }
 
@@ -548,7 +606,7 @@ select {
 }
 
 .context-land {
-  fill: #395865;
+  fill: var(--land-context);
   stroke: var(--ocean-deep);
   stroke-width: 0.46;
   vector-effect: non-scaling-stroke;
@@ -610,7 +668,7 @@ select {
 .dot.dimmed,
 .cty.is-dimmed,
 .dot.is-dimmed {
-  fill: #294550;
+  fill: var(--land-dim);
   opacity: 0.78;
 }
 
@@ -706,7 +764,7 @@ select {
   color: var(--ink);
   font-size: 18px;
   line-height: 1;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 2px 7px var(--shadow-soft);
 }
 
 .zoomer button:hover:not(:disabled) {
@@ -828,7 +886,7 @@ body.view-prog .side-body {
   padding: 10px;
   border-radius: var(--radius);
   background: var(--paper);
-  box-shadow: 0 7px 24px rgba(0, 0, 0, 0.36);
+  box-shadow: 0 7px 24px var(--shadow-strong);
 }
 
 .flagbox img {
@@ -836,7 +894,7 @@ body.view-prog .side-body {
   width: 100%;
   max-height: 220px;
   margin-inline: auto;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--flag-edge);
   object-fit: contain;
 }
 
@@ -882,15 +940,15 @@ body.view-prog .side-body {
 .opt.right,
 .opt.is-correct {
   border-color: var(--mint);
-  background: rgba(107, 221, 184, 0.16);
-  color: #e2fff5;
+  background: var(--ok-surface);
+  color: var(--ok-ink);
 }
 
 .opt.wrong,
 .opt.is-wrong {
   border-color: var(--coral);
-  background: rgba(255, 143, 126, 0.16);
-  color: #ffe6e1;
+  background: var(--bad-surface);
+  color: var(--bad-ink);
 }
 
 .opt.right::after,
@@ -994,7 +1052,7 @@ body.view-prog .side-body {
 .btn.ghost:hover:not(:disabled) {
   border-color: var(--coral);
   background: var(--panel-2);
-  color: #ffd9d2;
+  color: var(--bad-ink);
 }
 
 .btn.wide {
@@ -1218,7 +1276,7 @@ label.btn:focus-within {
 .row[aria-current="true"],
 .row[aria-current="location"] {
   border-color: var(--line);
-  background: #31596a;
+  background: var(--seg-active);
 }
 
 .row img {
@@ -1252,7 +1310,7 @@ label.btn:focus-within {
 }
 
 .row[aria-current] .row-c {
-  color: #d5e3e8;
+  color: var(--seg-active-muted);
 }
 
 .count {
@@ -1300,7 +1358,7 @@ label.btn:focus-within {
 .track {
   height: 8px;
   overflow: hidden;
-  border: 1px solid #41606e;
+  border: 1px solid var(--track-edge);
   border-radius: 999px;
   background: var(--ocean-deep);
 }
@@ -1321,7 +1379,7 @@ progress.progress-native,
   width: 100%;
   height: 10px;
   overflow: hidden;
-  border: 1px solid #41606e;
+  border: 1px solid var(--track-edge);
   border-radius: 999px;
   background: var(--ocean-deep);
   color: var(--gold);
@@ -1372,7 +1430,7 @@ a.chip {
 
 .chip.hot {
   border-color: var(--coral);
-  color: #ffd3cc;
+  color: var(--bad-ink);
 }
 
 .empty {
@@ -1514,8 +1572,8 @@ a.chip {
 }
 
 .btn.danger:hover:not(:disabled) {
-  border-color: #ffb0a4;
-  background: #ffb0a4;
+  border-color: var(--danger-hover);
+  background: var(--danger-hover);
 }
 
 .storage-status[data-kind="error"] {
