@@ -15,10 +15,15 @@ const CACHE = `atlas-195-${VERSION}`;
 const ASSETS = {{ASSETS}};
 const APP_URL = new URL('./atlas-195.html', self.location).href;
 
+// A instalação leva só os arquivos pequenos. Baixar os cinco megabytes do
+// artefato aqui deixaria a instalação inteira dependente de uma única requisição
+// grande — e addAll é tudo ou nada: um tropeço, numa aba em segundo plano ou
+// numa rede ruim, aborta a instalação e o app fica sem offline nenhum. O
+// artefato entra no cache pelo fetch, na primeira vez que for realmente usado.
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    await cache.addAll(ASSETS);
+    await Promise.allSettled(ASSETS.map((asset) => cache.add(asset)));
     await self.skipWaiting();
   })());
 });
@@ -44,7 +49,14 @@ self.addEventListener('fetch', (event) => {
       const cached = await caches.match(APP_URL);
       if (cached) return cached;
       try {
-        return await fetch(request);
+        const response = await fetch(APP_URL);
+        // É aqui que o artefato entra no cache: uma vez aberto com rede, as
+        // próximas aberturas funcionam sem ela.
+        if (response.ok) {
+          const cache = await caches.open(CACHE);
+          await cache.put(APP_URL, response.clone());
+        }
+        return response;
       } catch (_) {
         return new Response('O Atlas ainda não foi baixado para uso offline. Abra uma vez com internet.', {
           status: 503,
