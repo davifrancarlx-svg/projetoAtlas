@@ -60,11 +60,11 @@ A parte difícil já está pronta: todas as cores são tokens. Deve bastar aplic
 
 Hoje o progresso fica salvo **só no navegador**. Quero poder criar conta e ter o progresso vinculado a ela, para continuar em outro aparelho.
 
-**Antes de escrever código, me explique o plano e os custos.** Esta mudança mexe em algo central do projeto, e eu quero entender antes de aprovar:
+**Antes de escrever código, me explique o plano.** Esta mudança mexe em algo central do projeto, e eu quero entender antes de aprovar:
 
-- O app hoje promete, no README e na interface, que **não envia nada para servidor nenhum**. A política de segurança está com `connect-src 'none'`, ou seja, ele está tecnicamente proibido de falar com a internet. Criar contas obriga a abrir isso e a mudar essa promessa. Quero que a promessa seja atualizada com honestidade, não apagada.
-- Quero que **continuar sem conta siga funcionando**, offline e sem cadastro. A conta deve ser opcional e adicional, não obrigatória.
-- Preciso saber: onde os dados ficariam hospedados, quanto custa, e o que acontece se o serviço sair do ar.
+- O app hoje promete, no README e na interface, que **não envia nada para servidor nenhum**. A política de segurança está com `connect-src 'none'`, ou seja, ele está tecnicamente proibido de falar com a internet. Criar contas obriga a abrir isso e a mudar essa promessa. Quero que a promessa seja atualizada com honestidade, não apagada — o texto novo deve dizer o que passa a sair do aparelho e o que continua local.
+- Quero que **continuar sem conta siga funcionando**, offline e sem cadastro. A conta deve ser opcional e adicional, nunca obrigatória, e nunca uma parede na frente de quem só quer treinar.
+- Quero saber o que acontece com o progresso de quem já usa o app hoje (ele não pode ser perdido ao criar uma conta) e o que acontece se o serviço de contas ficar fora do ar.
 
 **Aproveite o que já existe** — o projeto foi construído de um jeito que facilita isso:
 
@@ -75,7 +75,24 @@ Hoje o progresso fica salvo **só no navegador**. Quero poder criar conta e ter 
 
 **Princípio que quero preservado:** o dispositivo continua sendo a fonte da verdade; a conta é uma cópia que sincroniza. Se a internet cair, o treino não pode parar.
 
-Sobre a hospedagem: o site está publicado no Lovable, que hoje só serve o arquivo estático. O Lovable tem integração pronta com banco de dados e autenticação (Supabase) — provavelmente é o caminho mais curto, mas quero ouvir sua recomendação antes.
+### Hospedagem: já está decidido
+
+**O site será sempre hospedado no Lovable.** Não pretendo hospedar nada por conta própria, então não precisa avaliar alternativas de servidor. Use a integração de banco de dados e autenticação que o Lovable já oferece (Supabase / Lovable Cloud) — é para lá que a conta deve apontar. Vale confirmar comigo os limites do plano em uso antes de assumir volume.
+
+### Um cuidado importante ao usar o Lovable para isso
+
+O projeto no Lovable hoje é um app React que **só redireciona** para o `atlas-195.html` estático. Se a tarefa for entregue como "peça para a IA do Lovable adicionar login", o resultado provável é uma tela de login **em React, separada**, convivendo com o Atlas — dois aplicativos no mesmo endereço, cada um com seu estado. Não é isso que eu quero.
+
+O login e a sincronização devem ser implementados **dentro do próprio `atlas-195.html`**, no código deste repositório (`src/app.js` e `src/core.js`), como qualquer outra tela do app. O Lovable entra apenas como:
+
+1. **hospedagem** do arquivo estático, como já é hoje; e
+2. **provedor do banco de dados e da autenticação**, provisionados pelo painel dele.
+
+Consequência prática: o app deve conversar com o Supabase por **`fetch` puro** nos endpoints REST/Auth, sem instalar o SDK — isso mantém a regra de zero dependências e o arquivo continua único e autocontido. A URL do projeto e a chave pública (`anon`) ficam embutidas no arquivo, o que é normal e esperado para esse tipo de chave, desde que as permissões no banco estejam configuradas para que cada pessoa só enxergue o próprio progresso.
+
+Na política de segurança, abra `connect-src` **apenas para a origem do Supabase** — nada de liberar geral.
+
+E um detalhe que não pode ser esquecido: o `atlas-195.html` precisa continuar abrindo direto do disco, sem servidor. Quando não houver rede ou origem válida, a parte de conta simplesmente não aparece e o treino segue local, sem erro na tela.
 
 ## Como publicar (quando eu aprovar)
 
