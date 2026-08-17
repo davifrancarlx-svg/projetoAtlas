@@ -144,9 +144,12 @@ function loadTerritories(countries) {
   return territories;
 }
 
+// split/join troca todas as ocorrências: {{BASE_URL}} aparece mais de uma vez e
+// String.replace com texto literal só substituiria a primeira, deixando um
+// placeholder cru no HTML publicado.
 function replace(template, marker, value) {
   if (!template.includes(marker)) throw new Error(`Placeholder ausente: ${marker}`);
-  return template.replace(marker, () => value);
+  return template.split(marker).join(value);
 }
 
 const template = read('src/index.template.html');
@@ -165,6 +168,21 @@ output = replace(output, '{{DATA}}', data);
 output = replace(output, '{{CORE}}', core);
 output = replace(output, '{{APP}}', app);
 output = replace(output, '{{LICENSES}}', licenses);
+
+// Favicon: mesmo desenho dos ícones, em SVG, embutido como data: URI para não
+// depender de arquivo ao lado quando o Atlas é aberto direto do disco.
+const favicon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+  + '<rect width="64" height="64" rx="14" fill="#0d222e"/>'
+  + '<g fill="none" stroke="#f4c152" stroke-width="3.5">'
+  + '<circle cx="32" cy="32" r="19"/>'
+  + '<ellipse cx="32" cy="32" rx="9" ry="19"/>'
+  + '<path d="M13 32h38M18 22.5h28M18 41.5h28"/>'
+  + '</g></svg>';
+output = replace(output, '{{FAVICON}}', encodeURIComponent(favicon));
+
+// og:image precisa de URL absoluta para os previews de link funcionarem.
+const baseUrl = (process.env.ATLAS_BASE_URL || 'https://atlas-195.lovable.app').replace(/\/+$/, '');
+output = replace(output, '{{BASE_URL}}', baseUrl);
 // Última barreira: qualquer CR que escape até aqui deslocaria todos os hashes
 // abaixo em relação ao que o navegador calcula sobre o documento já parseado.
 output = normalizeNewlines(output);
@@ -174,9 +192,16 @@ const csp = [
   "default-src 'none'",
   `style-src ${inlineStyles.map(sha256).join(' ')}`,
   `script-src ${inlineScripts.map(sha256).join(' ')}`,
-  "img-src data:",
+  // 'self' cobre os ícones servidos ao lado do artefato; data: continua sendo a
+  // origem das bandeiras e do favicon embutidos.
+  "img-src 'self' data:",
   "font-src 'none'",
+  // O app segue sem falar com servidor nenhum. O que abre aqui é só o suficiente
+  // para instalar como aplicativo e funcionar offline: buscar o manifesto e
+  // registrar o service worker, ambos restritos à própria origem.
   "connect-src 'none'",
+  "manifest-src 'self'",
+  "worker-src 'self'",
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",
@@ -195,6 +220,58 @@ const staging = `${destination}.tmp-${process.pid}`;
 fs.writeFileSync(staging, artifact, 'utf8');
 fs.renameSync(staging, destination);
 const stats = fs.statSync(destination);
+
+// --- arquivos que acompanham o artefato na hospedagem ---------------------
+// O Atlas continua sendo um arquivo só e abre sozinho por file://. Estes
+// complementos existem só quando ele é servido por HTTP: são o que permite
+// instalar o app na tela inicial e usá-lo sem rede.
+function writeIfChanged(relative, contents) {
+  const file = path.join(root, relative);
+  const data = Buffer.isBuffer(contents) ? contents : Buffer.from(contents, 'utf8');
+  if (fs.existsSync(file) && fs.readFileSync(file).equals(data)) return false;
+  fs.writeFileSync(file, data);
+  return true;
+}
+
+const ICONS = ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
+const iconsDir = path.join(root, 'data', 'icons');
+for (const icon of ICONS) {
+  const source = path.join(iconsDir, icon);
+  if (!fs.existsSync(source)) throw new Error(`Ícone ausente: data/icons/${icon}. Rode "npm run icons".`);
+  writeIfChanged(icon, fs.readFileSync(source));
+}
+
+const manifest = {
+  name: 'Atlas 195 — bandeiras, capitais e localização',
+  short_name: 'Atlas 195',
+  description: 'Treino de geografia dos 195 países: bandeiras, capitais, localização e regiões. Funciona sem internet.',
+  lang: 'pt-BR',
+  dir: 'ltr',
+  // Relativos ao próprio manifesto: o app não sabe em que domínio será servido.
+  start_url: './atlas-195.html',
+  scope: './',
+  display: 'standalone',
+  orientation: 'any',
+  background_color: '#071821',
+  theme_color: '#0d222e',
+  categories: ['education', 'games'],
+  icons: [
+    { src: './icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+    { src: './icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+    { src: './icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+  ],
+};
+writeIfChanged('manifest.webmanifest', `${JSON.stringify(manifest, null, 2)}\n`);
+
+// A versão do cache é o hash do artefato: publicar algo novo troca o nome do
+// cache, e o service worker descarta o anterior sozinho.
+const version = crypto.createHash('sha256').update(artifact).digest('hex').slice(0, 12);
+const assets = ['./atlas-195.html', './manifest.webmanifest', ...ICONS.map((icon) => `./${icon}`)];
+const serviceWorker = normalizeNewlines(read('src/sw.js'))
+  .replace('{{VERSION}}', version)
+  .replace('{{ASSETS}}', JSON.stringify(assets, null, 2));
+if (/\{\{[A-Z_]+\}\}/.test(serviceWorker)) throw new Error('Placeholder não resolvido no service worker.');
+writeIfChanged('sw.js', serviceWorker);
 console.log(
   `atlas-195.html gerado: ${countries.length} países, ${territories.length} `
   + `${territories.length === 1 ? 'território' : 'territórios'}, ${(stats.size / 1024).toFixed(1)} KiB.`,

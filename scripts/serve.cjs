@@ -5,11 +5,20 @@ const zlib = require('node:zlib');
 
 const root = path.resolve(__dirname, '..');
 const port = Number(process.env.ATLAS_PORT || 8743);
-const types = { '.html': 'text/html; charset=utf-8', '.json': 'application/json; charset=utf-8' };
+// O tipo importa: o navegador recusa registrar um service worker que não chegue
+// como JavaScript, e ignora o manifesto sem o tipo próprio.
+const types = {
+  '.html': 'text/html; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+};
 // O artefato passa de 5 MB sem compressão. Localmente isso não aparece, mas é
 // o mesmo arquivo que vai para qualquer hospedagem: brotli derruba para ~1,1 MB
 // e gzip para ~1,7 MB, sem dependência nenhuma.
-const COMPRESSIBLE = new Set(['.html', '.json', '.js', '.css', '.svg']);
+const COMPRESSIBLE = new Set(['.html', '.json', '.js', '.css', '.svg', '.webmanifest']);
 // Qualidade 5 comprime 5 MB em milissegundos e chega a ~1,2 MB; a qualidade
 // padrão do brotli (11) economiza pouco mais e leva dezenas de segundos por
 // requisição, o que trava a primeira abertura do artefato.

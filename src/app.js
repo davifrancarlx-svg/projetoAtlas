@@ -1853,6 +1853,17 @@
     else dom.stage.removeAttribute('aria-busy');
   }
 
+  // O Atlas continua funcionando como arquivo solto; o service worker só entra
+  // em cena quando ele é servido por HTTP, e é o que permite instalar o app e
+  // abrir sem rede. Falhar aqui nunca pode impedir o treino de começar.
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => { /* segue sem offline */ });
+    });
+  }
+
   async function initialize() {
     setInitializing(true);
     try {
@@ -1879,5 +1890,6 @@
   }
 
   window.addEventListener('storage', synchronizeProgress);
+  registerServiceWorker();
   initialize();
 })();

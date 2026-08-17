@@ -1,0 +1,37 @@
+{
+  "name": "Atlas 195 — bandeiras, capitais e localização",
+  "short_name": "Atlas 195",
+  "description": "Treino de geografia dos 195 países: bandeiras, capitais, localização e regiões. Funciona sem internet.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "./atlas-195.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#071821",
+  "theme_color": "#0d222e",
+  "categories": [
+    "education",
+    "games"
+  ],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
