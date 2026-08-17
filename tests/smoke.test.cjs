@@ -254,6 +254,33 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     })()`);
     assert.equal(veredito, 'ok', 'Responder uma pergunta não produziu veredito.');
 
+    // 3b. A prova precisa fechar a série e entregar a nota. É o único fluxo do
+    //     app com fim definido, e quebrá-lo deixaria o usuário preso num
+    //     contador que nunca chega ao resultado.
+    await evaluate(client, `[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Progresso').click()`);
+    await until('o botão de prova aparecer', async () => (
+      await evaluate(client, `Boolean([...document.querySelectorAll('button')].find(b => b.textContent.trim() === '10 perguntas'))`)
+    ));
+    await evaluate(client, `[...document.querySelectorAll('button')].find(b => b.textContent.trim() === '10 perguntas').click()`);
+
+    const nota = await until('a prova terminar e mostrar a nota', async () => {
+      const estado = await evaluate(client, `(() => {
+        const painel = document.getElementById('panel').textContent;
+        // A nota sai do título: no painel inteiro o "4 de 10" gruda no "40%".
+        if (/Prova concluída/.test(painel)) {
+          const titulo = document.getElementById('questionTitle');
+          return 'fim:' + (titulo ? titulo.textContent.trim() : '(sem titulo)');
+        }
+        const alternativa = document.querySelector('[data-answer]');
+        if (alternativa) alternativa.click();
+        const proxima = document.getElementById('nextQuestion');
+        if (proxima) proxima.click();
+        return null;
+      })()`);
+      return estado;
+    }, { timeout: 15_000, interval: 60 });
+    assert.match(nota, /^fim:\d+ de 10$/, `A prova de 10 não fechou com nota sobre 10. Recebido: ${nota}`);
+
     // 4. Nenhuma violação de CSP: é o sintoma exato do defeito que motivou o teste.
     const violacoes = client.events
       .filter((evento) => evento.method === 'Log.entryAdded')

@@ -6,8 +6,9 @@ O treino combina sete direções independentes (bandeira ↔ país, capital ↔ 
 
 ## Treino
 
-- **Modos**: misto, bandeiras, capitais, localização e regiões. A direção país → região é sempre por escolha — digitar "América do Norte, Central e Caribe" cobraria grafia, não geografia —, e escolher esse modo com a resposta em "Digitar" mantém o assunto em vez de trocar o treino.
+- **Modos**: misto, bandeiras, capitais, localização e regiões. A área de estudo vai do mundo inteiro a um continente ou a uma subregião — América do Norte, América Central e Caribe aparecem indentadas sob o balde que o modo região cobra. A direção país → região é sempre por escolha — digitar "América do Norte, Central e Caribe" cobraria grafia, não geografia —, e escolher esse modo com a resposta em "Digitar" mantém o assunto em vez de trocar o treino.
 - **Tempo**: livre, 30 s ou 15 s por pergunta. A barra fica vermelha nos últimos cinco segundos e o estouro entra como erro pelo mesmo caminho de uma resposta errada, sem tratamento especial no progresso.
+- **Prova**: séries fechadas de 10, 20 ou 30 perguntas, iniciadas na aba Progresso, com nota, tempo médio e a lista de erros no fim. Respeita o modo e a área de estudo selecionados, e os erros alimentam o mesmo baralho de revisão.
 - **Baralho de erros**: a aba Progresso resume a sessão (perguntas, precisão, tempo médio, estouros) e enfileira os erros ainda não corrigidos numa sequência de revisão. Uma habilidade acertada depois sai do baralho.
 - **Backup**: exportar gera um arquivo com o envelope validado do progresso; importar funde com o que já existe no aparelho, sem apagar nada. O arquivo é o mesmo formato lido pelo `AtlasCore`, então um progresso corrompido é recusado sem efeito colateral.
 

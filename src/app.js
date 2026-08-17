@@ -109,6 +109,10 @@
     mapCursorId: 'BR',
     timeLimit: 0, askedAt: 0, expired: false,
     sessionAnswers: [], reviewQueue: [], fromDeck: false, deckPending: false, importStatus: null,
+    // Prova: uma série fechada de perguntas com nota no fim. Vale para a sessão
+    // atual e não é persistida — o que fica gravado é o progresso por país, que
+    // a prova alimenta como qualquer outra resposta.
+    exam: null,
   };
 
   // Relógio da pergunta: um intervalo curto move a barra, e o estouro entra
@@ -821,6 +825,8 @@
   function createNextQuestion(options = {}) {
     if (!state.ready) return;
     stopTimer();
+    // A série fechada termina aqui: em vez de sortear mais uma, entrega a nota.
+    if (examFinished()) { renderExamResult(); return; }
     // O baralho de erros tem prioridade sobre o sorteio: enquanto houver carta
     // na fila, é ela que vira pergunta. `fromDeck` sobrevive à fila esvaziada
     // para que a última carta ainda se apresente como revisão.
@@ -960,13 +966,20 @@
     state.answerTerritory = territory || null;
     if (correct) { state.hits += 1; state.streak += 1; }
     else { state.misses += 1; state.streak = 0; }
-    state.sessionAnswers.push({
+    signalAnswer(correct);
+    const registro = {
       id: target.id,
       direction: state.question.direction,
       correct,
       expired: state.expired,
       ms: state.askedAt ? Math.max(0, Date.now() - state.askedAt) : null,
-    });
+    };
+    state.sessionAnswers.push(registro);
+    // A revisão de erros não consome perguntas da prova: só contam as da série.
+    if (state.exam && !state.fromDeck && state.exam.done < state.exam.total) {
+      state.exam.done += 1;
+      state.exam.answers.push(registro);
+    }
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
       countryIds: IDS, bestStreak: state.streak,
     });
@@ -1130,7 +1143,9 @@
     dom.panel.append(create('div', { className: 'plate' }, [
       create('span', { text: state.fromDeck
         ? `Revisão de erros · ${state.reviewQueue.length ? `faltam ${state.reviewQueue.length + 1}` : 'última carta'}`
-        : `Pergunta ${state.questionNumber}` }),
+        : (state.exam
+          ? `Prova · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
+          : `Pergunta ${state.questionNumber}`) }),
       create('span', { text: DIRECTION_LABEL[question.direction] }),
     ]));
     if (state.timeLimit && !state.answered) {
@@ -1388,6 +1403,127 @@
     };
   }
 
+  // No celular o veredito costuma ficar fora do campo de visão, embaixo do
+  // mapa: um toque curto avisa o erro sem precisar procurar na tela. Só no
+  // erro, porque vibrar a cada acerto vira ruído numa sessão longa. Quem pediu
+  // menos movimento ao sistema não recebe nada disso.
+  function signalAnswer(correct) {
+    if (correct || typeof navigator.vibrate !== 'function') return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    try { navigator.vibrate(35); } catch (_) { /* aparelho pode recusar */ }
+  }
+
+  // --- prova --------------------------------------------------------------
+  // O treino livre não termina nunca, o que é bom para revisar e ruim para
+  // medir. A prova fecha uma série de N perguntas e entrega uma nota.
+
+  function startExam(total) {
+    state.exam = { total, done: 0, answers: [], startedAt: Date.now() };
+    state.reviewQueue = [];
+    state.forcedQuestion = null;
+    state.fromDeck = false;
+    setView('quiz');
+    createNextQuestion({ focus: true });
+    announce(`Prova iniciada com ${total} perguntas.`);
+  }
+
+  function endExam() {
+    state.exam = null;
+    createNextQuestion({ focus: true });
+  }
+
+  function examFinished() {
+    return Boolean(state.exam) && state.exam.done >= state.exam.total;
+  }
+
+  function examStats() {
+    const answers = state.exam.answers;
+    const hits = answers.filter((answer) => answer.correct).length;
+    const timed = answers.filter((answer) => Number.isFinite(answer.ms) && answer.ms > 0);
+    return {
+      total: answers.length,
+      hits,
+      misses: answers.length - hits,
+      accuracy: answers.length ? (hits / answers.length) * 100 : 0,
+      seconds: Math.round((Date.now() - state.exam.startedAt) / 1000),
+      averageSeconds: timed.length
+        ? timed.reduce((sum, answer) => sum + answer.ms, 0) / timed.length / 1000
+        : null,
+    };
+  }
+
+  function renderExamResult() {
+    const stats = examStats();
+    atlasElements = null;
+    clear(dom.panel);
+    stopTimer();
+    clearMapMarks();
+
+    dom.panel.append(create('div', { className: 'plate' }, [
+      create('span', { text: 'Prova concluída' }),
+      create('span', { text: `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}` }),
+    ]));
+    dom.panel.append(create('h2', {
+      id: 'questionTitle', className: 'subject', attrs: { tabindex: '-1' },
+      text: `${stats.hits} de ${stats.total}`,
+    }));
+
+    const minutos = Math.floor(stats.seconds / 60);
+    const resto = stats.seconds % 60;
+    const linha = [
+      `${formatPercent(stats.accuracy)} de acerto`,
+      minutos ? `${minutos}min ${resto}s no total` : `${resto}s no total`,
+      stats.averageSeconds !== null ? `${stats.averageSeconds.toFixed(1).replace('.', ',')}s por pergunta` : null,
+    ].filter(Boolean);
+    dom.panel.append(create('p', { className: 'section-copy', text: linha.join(' · ') }));
+
+    const errados = state.exam.answers.filter((answer) => !answer.correct);
+    if (errados.length) {
+      const bloco = create('section', { className: 'pgroup' });
+      bloco.append(create('h3', { text: errados.length === 1 ? 'O erro da prova' : `Os ${errados.length} erros da prova` }));
+      const lista = create('div', { className: 'weak' });
+      errados.slice(0, 20).forEach((item) => {
+        const chip = create('button', {
+          className: 'chip', type: 'button',
+          text: `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}`,
+        });
+        chip.addEventListener('click', () => { state.exam = null; startReview(item.id, item.direction); });
+        lista.append(chip);
+      });
+      bloco.append(lista);
+
+      // Reaproveita o baralho de erros: a prova aponta o que revisar e a
+      // revisão já existente cuida do resto.
+      const revisar = create('button', { className: 'btn wide', type: 'button', text: 'Revisar os erros agora' });
+      revisar.addEventListener('click', () => {
+        const cartas = errados.map((item) => ({ id: item.id, direction: item.direction }));
+        state.exam = null;
+        state.reviewQueue = cartas.slice(1);
+        state.forcedQuestion = cartas[0];
+        state.fromDeck = true;
+        state.deckPending = true;
+        createNextQuestion({ focus: true });
+      });
+      bloco.append(revisar);
+      dom.panel.append(bloco);
+    } else {
+      dom.panel.append(create('p', { className: 'empty', text: 'Nenhum erro. Prova perfeita.' }));
+    }
+
+    const acoes = create('div', { className: 'button-row' });
+    const refazer = create('button', { className: 'btn', type: 'button', text: 'Nova prova' });
+    refazer.addEventListener('click', () => startExam(state.exam ? state.exam.total : 20));
+    const voltar = create('button', { className: 'btn ghost', type: 'button', text: 'Voltar ao treino livre' });
+    voltar.addEventListener('click', endExam);
+    acoes.append(refazer, voltar);
+    dom.panel.append(acoes);
+
+    renderScorebar();
+    announce(`Prova concluída. ${stats.hits} de ${stats.total} corretas.`);
+    const titulo = document.getElementById('questionTitle');
+    if (titulo) titulo.focus();
+  }
+
   function startMistakeDeck() {
     const mistakes = sessionMistakes();
     if (!mistakes.length) return;
@@ -1565,6 +1701,28 @@
     dom.panel.append(create('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
 
     renderSessionSummary(dom.panel);
+
+    // O treino livre é infinito, o que serve para revisar mas não para medir.
+    // A prova fecha uma série e dá uma nota, respeitando o modo e a área de
+    // estudo escolhidos na barra de controles.
+    const prova = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'examTitle' } });
+    prova.append(create('h3', { id: 'examTitle', text: 'Prova' }));
+    prova.append(create('p', {
+      className: 'section-copy',
+      text: 'Uma série fechada, com nota no fim. Usa o modo e a área de estudo selecionados.',
+    }));
+    const opcoes = create('div', { className: 'button-row' });
+    [10, 20, 30].forEach((total) => {
+      const botao = create('button', {
+        className: total === 20 ? 'btn' : 'btn ghost', type: 'button',
+        text: `${total} perguntas`,
+        attrs: { 'aria-label': `Iniciar prova de ${total} perguntas` },
+      });
+      botao.addEventListener('click', () => startExam(total));
+      opcoes.append(botao);
+    });
+    prova.append(opcoes);
+    dom.panel.append(prova);
 
     const mastery = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'masteryTitle' } });
     mastery.append(create('h3', { id: 'masteryTitle', text: 'Domínio por habilidade' }));
