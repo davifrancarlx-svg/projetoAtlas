@@ -918,6 +918,34 @@
     return regions;
   }
 
+  // Áreas de estudo oferecidas ao usuário: os baldes amplos de `r` e, quando um
+  // deles se divide em subregiões distintas, também cada `sr`. Só as Américas do
+  // Norte/Central/Caribe se dividem hoje; nos demais continentes `sr` repete `r`
+  // e nada extra aparece.
+  function studyAreasOf(countries) {
+    var areas = [];
+    var seen = Object.create(null);
+    regionsOf(countries).forEach(function (region) {
+      areas.push({ value: region, region: region, subregion: false });
+      seen[region] = true;
+      var subs = [];
+      countries.forEach(function (country) {
+        if (!country || country.r !== region) return;
+        var sub = country.sr;
+        if (typeof sub !== 'string' || !sub || seen[sub] || subs.indexOf(sub) !== -1) return;
+        subs.push(sub);
+      });
+      // Ordem alfabética em vez da ordem de aparição no dataset: a lista precisa
+      // ser estável e previsível para quem procura uma subregião específica.
+      subs.sort(function (a, b) { return a.localeCompare(b, 'pt-BR'); });
+      subs.forEach(function (sub) {
+        seen[sub] = true;
+        areas.push({ value: sub, region: region, subregion: true });
+      });
+    });
+    return areas;
+  }
+
   function regionOptions(target, countries, rng) {
     var regions = regionsOf(countries);
     if (regions.indexOf(target.r) === -1) throw new RangeError('Target region is absent from the dataset');
@@ -948,10 +976,13 @@
       });
     }
     if (!directions.length) directions = ['flag'];
+    // A área de estudo aceita tanto um balde amplo (`r`) quanto uma subregião
+    // (`sr`). Fora das Américas as duas coincidem, então o comportamento antigo
+    // é preservado sem nenhum caso especial.
     var region = options.region;
     var pool = !region || region === 'Mundo inteiro'
       ? countries.slice()
-      : countries.filter(function (country) { return country.r === region; });
+      : countries.filter(function (country) { return country.r === region || country.sr === region; });
     if (!pool.length) throw new RangeError('No countries available for region: ' + region);
     var direction = directions[Math.floor(sampleUnit(options.rng) * directions.length)];
     var target;
@@ -1259,6 +1290,7 @@
     MODE_DIRECTIONS: MODE_DIRECTIONS,
     PICK_ONLY_DIRECTIONS: PICK_ONLY_DIRECTIONS,
     regionsOf: regionsOf,
+    studyAreasOf: studyAreasOf,
     project: project,
     unproject: unproject,
     clampNumber: clampNumber,

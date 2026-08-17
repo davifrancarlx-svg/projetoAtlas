@@ -16,7 +16,14 @@
     if (!territoriesByCountry.has(territory.of)) territoriesByCountry.set(territory.of, []);
     territoriesByCountry.get(territory.of).push(territory);
   });
-  const REGIONS = ['Mundo inteiro', ...new Set(DATA.map((country) => country.r))];
+  // Áreas de estudo: o mundo, cada balde amplo e as subregiões em que algum
+  // deles se divide. O balde continua existindo como opção própria — quem quer
+  // treinar as Américas inteiras não perde nada com a subdivisão.
+  const STUDY_AREAS = [
+    { value: 'Mundo inteiro', subregion: false },
+    ...Core.studyAreasOf(DATA),
+  ];
+  const REGIONS = STUDY_AREAS.map((area) => area.value);
   const DIRECTIONS = Core.QUESTION_DIRECTIONS.slice();
   const MODE_DIRECTIONS = {
     mix: DIRECTIONS,
@@ -1840,7 +1847,13 @@
 
   function populateRegions() {
     clear(dom.region);
-    REGIONS.forEach((region) => dom.region.append(create('option', { text: region, attrs: { value: region } })));
+    STUDY_AREAS.forEach((area) => {
+      // A seta indenta a subregião sob o balde a que pertence. É texto do próprio
+      // option porque <optgroup> não pode ser selecionado, e aqui tanto o balde
+      // quanto cada subregião precisam ser escolhíveis.
+      const label = area.subregion ? ` ↳ ${area.value}` : area.value;
+      dom.region.append(create('option', { text: label, attrs: { value: area.value } }));
+    });
   }
 
   function setInitializing(active) {

@@ -5,7 +5,7 @@
   "description": "Atlas interativo dos 195 países, com bandeiras, capitais, localização e revisão adaptativa.",
   "scripts": {
     "build": "node scripts/build.cjs",
-    "test": "node --test tests/*.test.cjs",
+    "test": "node --test --test-concurrency=1 tests/*.test.cjs",
     "check": "npm run test && npm run build",
     "serve": "node scripts/serve.cjs",
     "icons": "node scripts/make-icons.cjs"

@@ -362,3 +362,62 @@ test('question creation supports explicit directions and a forced target', () =>
     rng: () => 0
   }), /forcedId/);
 });
+
+// A subregião é rótulo de exibição e também área de estudo. O balde amplo tem de
+// continuar existindo como opção própria: é ele que o modo "país → região" cobra.
+const AREA_COUNTRIES = [
+  { id: 'CA', n: 'Canadá', cap: 'Ottawa', r: 'América do Norte, Central e Caribe', sr: 'América do Norte', ar: 1, c: [0, 0] },
+  { id: 'GT', n: 'Guatemala', cap: 'Cidade da Guatemala', r: 'América do Norte, Central e Caribe', sr: 'América Central', ar: 1, c: [0, 0] },
+  { id: 'CU', n: 'Cuba', cap: 'Havana', r: 'América do Norte, Central e Caribe', sr: 'Caribe', ar: 1, c: [0, 0] },
+  { id: 'JM', n: 'Jamaica', cap: 'Kingston', r: 'América do Norte, Central e Caribe', sr: 'Caribe', ar: 1, c: [0, 0] },
+  { id: 'PT', n: 'Portugal', cap: 'Lisboa', r: 'Europa', sr: 'Europa', ar: 1, c: [0, 0] }
+];
+
+test('as áreas de estudo expõem as subregiões sem esconder o balde amplo', () => {
+  const areas = Core.studyAreasOf(AREA_COUNTRIES);
+  const rotulos = areas.map(area => area.value);
+
+  assert.ok(rotulos.includes('América do Norte, Central e Caribe'), 'O balde amplo precisa continuar selecionável.');
+  assert.deepEqual(
+    areas.filter(area => area.subregion).map(area => area.value),
+    ['América Central', 'América do Norte', 'Caribe'],
+    'As subregiões saem em ordem alfabética estável, não na ordem do dataset.'
+  );
+  // Onde sr repete r não pode aparecer entrada duplicada.
+  assert.equal(rotulos.filter(rotulo => rotulo === 'Europa').length, 1);
+  assert.equal(areas.find(area => area.value === 'Europa').subregion, false);
+});
+
+test('escolher uma subregião restringe o sorteio sem alterar o balde amplo', () => {
+  const ids = AREA_COUNTRIES.map(country => country.id);
+  const base = Core.createProgress({ now: NOW });
+
+  const sorteados = new Set();
+  for (let seed = 0; seed < 40; seed += 1) {
+    const { question } = Core.createQuestion({
+      countries: AREA_COUNTRIES,
+      directions: ['cap'],
+      region: 'Caribe',
+      answerMode: 'pick',
+      progress: base,
+      rng: () => (seed * 0.025) % 1
+    });
+    sorteados.add(question.id);
+  }
+  assert.deepEqual([...sorteados].sort(), ['CU', 'JM'], 'Só os países do Caribe podem ser sorteados.');
+
+  const amplo = new Set();
+  for (let seed = 0; seed < 40; seed += 1) {
+    const { question } = Core.createQuestion({
+      countries: AREA_COUNTRIES,
+      directions: ['cap'],
+      region: 'América do Norte, Central e Caribe',
+      answerMode: 'pick',
+      progress: base,
+      rng: () => (seed * 0.025) % 1
+    });
+    amplo.add(question.id);
+  }
+  assert.deepEqual([...amplo].sort(), ['CA', 'CU', 'GT', 'JM'], 'O balde amplo segue cobrindo as três subregiões.');
+  assert.ok(ids.length === 5);
+});
