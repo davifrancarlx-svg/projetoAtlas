@@ -5,11 +5,20 @@
     "n": "Guiana Francesa",
     "cap": "Caiena",
     "r": "América do Sul",
+    "sr": "América do Sul",
     "ar": 83534,
     "tag": "departamento",
     "status": "Departamento e região ultramarina da França",
-    "box": [-54.65, 2.08, -51.6, 5.8],
-    "p": [-53.2, 4],
+    "box": [
+      -54.65,
+      2.08,
+      -51.6,
+      5.8
+    ],
+    "p": [
+      -53.2,
+      4
+    ],
     "notes": [
       "É território francês desde 1946 e região ultraperiférica da União Europeia: usa o euro e vota nas eleições francesas, por isso o Natural Earth desenha a Guiana dentro do polígono da França.",
       "Caiena é a capital regional e a sede da prefeitura; Paris continua sendo a capital do país e é ela que o Atlas cobra nas perguntas.",
@@ -22,11 +31,20 @@
     "n": "Guadalupe",
     "cap": "Basse-Terre",
     "r": "América do Norte, Central e Caribe",
+    "sr": "Caribe",
     "ar": 1628,
     "tag": "departamento",
     "status": "Departamento e região ultramarina da França",
-    "box": [-61.85, 15.8, -60.98, 16.55],
-    "p": [-61.55, 16.2],
+    "box": [
+      -61.85,
+      15.8,
+      -60.98,
+      16.55
+    ],
+    "p": [
+      -61.55,
+      16.2
+    ],
     "notes": [
       "Arquipélago das Pequenas Antilhas formado por Basse-Terre, Grande-Terre, Marie-Galante, Les Saintes e La Désirade.",
       "Basse-Terre é a capital administrativa, mas Pointe-à-Pitre e Les Abymes concentram a população e a economia."
@@ -38,11 +56,20 @@
     "n": "Martinica",
     "cap": "Fort-de-France",
     "r": "América do Norte, Central e Caribe",
+    "sr": "Caribe",
     "ar": 1128,
     "tag": "departamento",
     "status": "Departamento e região ultramarina da França",
-    "box": [-61.28, 14.36, -60.78, 14.92],
-    "p": [-61.02, 14.65],
+    "box": [
+      -61.28,
+      14.36,
+      -60.78,
+      14.92
+    ],
+    "p": [
+      -61.02,
+      14.65
+    ],
     "notes": [
       "Fica entre Dominica e Santa Lúcia, dois países independentes que o Atlas cobra como respostas — a Martinica, não.",
       "O vulcão Montanha Pelada destruiu Saint-Pierre em 1902 e transferiu de vez o peso da ilha para Fort-de-France."
@@ -54,11 +81,20 @@
     "n": "Reunião",
     "cap": "Saint-Denis",
     "r": "África",
+    "sr": "África",
     "ar": 2504,
     "tag": "departamento",
     "status": "Departamento e região ultramarina da França",
-    "box": [55.18, -21.42, 55.9, -20.82],
-    "p": [55.53, -21.12],
+    "box": [
+      55.18,
+      -21.42,
+      55.9,
+      -20.82
+    ],
+    "p": [
+      55.53,
+      -21.12
+    ],
     "notes": [
       "Ilha vulcânica no Índico, a leste de Madagascar e a oeste das Maurícias, com o Piton de la Fournaise entre os vulcões mais ativos do mundo.",
       "É a região ultraperiférica europeia mais populosa: usa o euro no meio do oceano Índico."
@@ -70,11 +106,20 @@
     "n": "Mayotte",
     "cap": "Mamoudzou",
     "r": "África",
+    "sr": "África",
     "ar": 374,
     "tag": "departamento",
     "status": "Departamento e região ultramarina da França desde 2011",
-    "box": [44.99, -13.04, 45.34, -12.6],
-    "p": [45.15, -12.82],
+    "box": [
+      44.99,
+      -13.04,
+      45.34,
+      -12.6
+    ],
+    "p": [
+      45.15,
+      -12.82
+    ],
     "notes": [
       "Fica no arquipélago das Comores, mas votou em 1974 e em 2009 por continuar francesa; as Comores reivindicam a ilha até hoje.",
       "As Comores são um dos 195 países do Atlas; Mayotte responde como França."
@@ -86,11 +131,20 @@
     "n": "Alasca",
     "cap": "Juneau",
     "r": "América do Norte, Central e Caribe",
+    "sr": "América do Norte",
     "ar": 1723337,
     "tag": "estado",
     "status": "Estado dos Estados Unidos desde 1959",
-    "box": [-179.9, 51, -129.5, 71.6],
-    "p": [-152, 64],
+    "box": [
+      -179.9,
+      51,
+      -129.5,
+      71.6
+    ],
+    "p": [
+      -152,
+      64
+    ],
     "notes": [
       "Comprado da Rússia em 1867 e separado do resto do país pelo Canadá — é por causa dele que o retângulo dos Estados Unidos ia do Ártico ao Caribe.",
       "A capital é Juneau, não Anchorage: Anchorage é a maior cidade, e Juneau só é acessível por barco ou avião.",
@@ -103,11 +157,20 @@
     "n": "Havaí",
     "cap": "Honolulu",
     "r": "Oceania",
+    "sr": "Oceania",
     "ar": 28313,
     "tag": "estado",
     "status": "Estado dos Estados Unidos desde 1959",
-    "box": [-160.6, 18.5, -154.5, 22.5],
-    "p": [-157.5, 20.8],
+    "box": [
+      -160.6,
+      18.5,
+      -154.5,
+      22.5
+    ],
+    "p": [
+      -157.5,
+      20.8
+    ],
     "notes": [
       "Arquipélago polinésio no meio do Pacífico, a mais de 3.800 km do continente americano.",
       "Foi um reino independente até 1893 e o único estado norte-americano que já teve monarquia própria."
@@ -119,11 +182,20 @@
     "n": "Açores",
     "cap": "Ponta Delgada",
     "r": "Europa",
+    "sr": "Europa",
     "ar": 2322,
     "tag": "região autônoma",
     "status": "Região autônoma de Portugal",
-    "box": [-31.4, 36.85, -24.95, 39.8],
-    "p": [-27.9, 38.5],
+    "box": [
+      -31.4,
+      36.85,
+      -24.95,
+      39.8
+    ],
+    "p": [
+      -27.9,
+      38.5
+    ],
     "notes": [
       "Nove ilhas vulcânicas a cerca de 1.400 km de Lisboa, no meio do Atlântico Norte.",
       "A sede do governo regional fica em Ponta Delgada, mas a assembleia funciona na Horta e o tribunal em Angra do Heroísmo — a capitalidade é repartida entre três cidades."
@@ -135,11 +207,20 @@
     "n": "Madeira",
     "cap": "Funchal",
     "r": "Europa",
+    "sr": "Europa",
     "ar": 801,
     "tag": "região autônoma",
     "status": "Região autônoma de Portugal",
-    "box": [-17.35, 32.35, -16.2, 33.15],
-    "p": [-16.9, 32.75],
+    "box": [
+      -17.35,
+      32.35,
+      -16.2,
+      33.15
+    ],
+    "p": [
+      -16.9,
+      32.75
+    ],
     "notes": [
       "Fica mais perto da costa africana do que de Portugal continental e integra a Macaronésia, junto com Açores, Canárias e Cabo Verde.",
       "Cabo Verde é um dos 195 países do Atlas; Madeira e Canárias, não."
@@ -151,11 +232,20 @@
     "n": "Ilhas Canárias",
     "cap": "Santa Cruz de Tenerife e Las Palmas",
     "r": "Europa",
+    "sr": "Europa",
     "ar": 7447,
     "tag": "comunidade autônoma",
     "status": "Comunidade autônoma da Espanha",
-    "box": [-18.25, 27.55, -13.4, 29.5],
-    "p": [-15.6, 28.1],
+    "box": [
+      -18.25,
+      27.55,
+      -13.4,
+      29.5
+    ],
+    "p": [
+      -15.6,
+      28.1
+    ],
     "notes": [
       "Ficam a menos de 100 km do Saara Ocidental, no litoral africano, e a mais de 1.000 km da Espanha peninsular.",
       "A capitalidade é alternada entre Santa Cruz de Tenerife e Las Palmas de Gran Canaria, que trocam a sede do governo a cada legislatura.",
@@ -168,11 +258,20 @@
     "n": "Galápagos",
     "cap": "Puerto Baquerizo Moreno",
     "r": "América do Sul",
+    "sr": "América do Sul",
     "ar": 8010,
     "tag": "província",
     "status": "Província do Equador",
-    "box": [-92.1, -1.5, -89.1, 0.8],
-    "p": [-90.5, -0.6],
+    "box": [
+      -92.1,
+      -1.5,
+      -89.1,
+      0.8
+    ],
+    "p": [
+      -90.5,
+      -0.6
+    ],
     "notes": [
       "Arquipélago vulcânico a cerca de 1.000 km da costa equatoriana, cortado pela linha do Equador.",
       "As observações de Charles Darwin na viagem do Beagle, em 1835, alimentaram a teoria da evolução por seleção natural."
@@ -184,11 +283,20 @@
     "n": "Ilha de Páscoa",
     "cap": "Hanga Roa",
     "r": "Oceania",
+    "sr": "Oceania",
     "ar": 164,
     "tag": "território especial",
     "status": "Território especial do Chile",
-    "box": [-109.5, -27.25, -109.15, -27.02],
-    "p": [-109.35, -27.12],
+    "box": [
+      -109.5,
+      -27.25,
+      -109.15,
+      -27.02
+    ],
+    "p": [
+      -109.35,
+      -27.12
+    ],
     "notes": [
       "Rapa Nui é uma das ilhas habitadas mais isoladas do planeta: o vizinho mais próximo fica a 2.000 km e o continente chileno, a 3.500 km.",
       "Geograficamente é Polinésia; politicamente é Chile desde 1888, com autonomia especial desde 2007."
@@ -200,11 +308,20 @@
     "n": "Svalbard",
     "cap": "Longyearbyen",
     "r": "Europa",
+    "sr": "Europa",
     "ar": 61022,
     "tag": "território",
     "status": "Arquipélago sob soberania norueguesa pelo Tratado de Svalbard",
-    "box": [10.2, 74.2, 31.5, 80.9],
-    "p": [16.5, 78.2],
+    "box": [
+      10.2,
+      74.2,
+      31.5,
+      80.9
+    ],
+    "p": [
+      16.5,
+      78.2
+    ],
     "notes": [
       "O Tratado de Svalbard, de 1920, reconhece a soberania da Noruega mas garante a todos os países signatários o direito de explorar recursos no arquipélago.",
       "Longyearbyen é um dos assentamentos permanentes mais setentrionais do mundo e abriga o Silo Global de Sementes de Svalbard."
@@ -216,11 +333,20 @@
     "n": "Bonaire",
     "cap": "Kralendijk",
     "r": "América do Norte, Central e Caribe",
+    "sr": "Caribe",
     "ar": 288,
     "tag": "município especial",
     "status": "Município especial dos Países Baixos desde 2010",
-    "box": [-68.5, 11.95, -68.1, 12.4],
-    "p": [-68.28, 12.18],
+    "box": [
+      -68.5,
+      11.95,
+      -68.1,
+      12.4
+    ],
+    "p": [
+      -68.28,
+      12.18
+    ],
     "notes": [
       "Fica a poucos quilômetros da costa venezuelana, junto de Aruba e Curaçao — que são países autônomos dentro do Reino dos Países Baixos, e não municípios.",
       "Desde a dissolução das Antilhas Neerlandesas, em 2010, Bonaire é administrada diretamente por Haia e usa o dólar americano."
@@ -232,11 +358,20 @@
     "n": "Saba",
     "cap": "The Bottom",
     "r": "América do Norte, Central e Caribe",
+    "sr": "Caribe",
     "ar": 13,
     "tag": "município especial",
     "status": "Município especial dos Países Baixos desde 2010",
-    "box": [-63.29, 17.58, -63.18, 17.69],
-    "p": [-63.23, 17.63],
+    "box": [
+      -63.29,
+      17.58,
+      -63.18,
+      17.69
+    ],
+    "p": [
+      -63.23,
+      17.63
+    ],
     "notes": [
       "Com 13 km², é menor que qualquer um dos 195 países do Atlas — inclusive Mônaco e o Vaticano, que são respostas válidas.",
       "O Monte Scenery, um vulcão adormecido, é o ponto mais alto de todo o Reino dos Países Baixos."
@@ -248,11 +383,20 @@
     "n": "Santo Eustáquio",
     "cap": "Oranjestad",
     "r": "América do Norte, Central e Caribe",
+    "sr": "Caribe",
     "ar": 21,
     "tag": "município especial",
     "status": "Município especial dos Países Baixos desde 2010",
-    "box": [-63.02, 17.43, -62.93, 17.56],
-    "p": [-62.97, 17.49],
+    "box": [
+      -63.02,
+      17.43,
+      -62.93,
+      17.56
+    ],
+    "p": [
+      -62.97,
+      17.49
+    ],
     "notes": [
       "A capital chama-se Oranjestad, como a capital de Aruba: são duas cidades homônimas no mesmo Reino, a 900 km uma da outra.",
       "Em 1776 a ilha foi o primeiro território estrangeiro a saudar a bandeira dos Estados Unidos independentes."

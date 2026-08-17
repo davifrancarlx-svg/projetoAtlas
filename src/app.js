@@ -1103,7 +1103,7 @@
     fact.append(flagImage(country));
     fact.append(create('div', {}, [
       create('div', { className: 'factname', text: country.n }),
-      create('div', { className: 'factmeta', text: `${country.cap} · ${country.r} · ${formatArea(country.ar)}` }),
+      create('div', { className: 'factmeta', text: `${country.cap} · ${country.sr} · ${formatArea(country.ar)}` }),
     ]));
     verdict.append(fact);
     explanatoryNotes(country).forEach((note) => verdict.append(create('p', { className: 'note', text: note })));
@@ -1168,7 +1168,7 @@
   function matchedTerritory(country, query) {
     if (!query) return null;
     return territoriesOf(country.id).find((territory) => (
-      [territory.n, territory.cap, territory.r].map(Core.normalizeText).join(' ').includes(query)
+      [territory.n, territory.cap, territory.r, territory.sr].map(Core.normalizeText).join(' ').includes(query)
     )) || null;
   }
 
@@ -1178,7 +1178,7 @@
     if (!query) return sorted;
     return sorted.filter((country) => {
       const aliases = (country.aliases || []).map((alias) => alias.value);
-      if ([country.n, country.cap, country.r, ...aliases].map(Core.normalizeText).join(' ').includes(query)) return true;
+      if ([country.n, country.cap, country.r, country.sr, ...aliases].map(Core.normalizeText).join(' ').includes(query)) return true;
       // Quem procura por "Guiana Francesa" ou "Caiena" precisa achar o país que
       // responde por esse território, com a distinção explicada na ficha.
       return Boolean(matchedTerritory(country, query));
@@ -1225,7 +1225,7 @@
     const copy = create('div', { className: 'atlas-detail-copy' }, [
       create('h3', { text: country.n }),
       create('p', { text: `Capital: ${country.cap}` }),
-      create('p', { text: `${country.r} · ${formatArea(country.ar)}` }),
+      create('p', { text: `${country.sr} · ${formatArea(country.ar)}` }),
     ]);
     atlasElements.detail.append(flagImage(country, { eager: true }), copy);
     territoriesOf(country.id).forEach((territory) => {
@@ -1240,7 +1240,7 @@
       create('span', { className: 'territory-tag', text: territory.tag || 'território' }),
     ]));
     card.append(create('p', { className: 'territory-meta', text: `${territory.status} · capital regional ${territory.cap}` }));
-    card.append(create('p', { className: 'territory-meta', text: `${territory.r} · ${formatArea(territory.ar)}` }));
+    card.append(create('p', { className: 'territory-meta', text: `${territory.sr} · ${formatArea(territory.ar)}` }));
     (territory.notes || []).forEach((note) => card.append(create('p', { className: 'note', text: note })));
     const locate = create('button', {
       className: 'btn ghost', type: 'button', text: `Ver ${territory.n} no mapa`,
@@ -1270,7 +1270,7 @@
       } });
       row.append(flagImage(country, { decorative: true }), create('span', { className: 'row-txt' }, [
         create('span', { className: 'row-n', text: country.n }),
-        create('span', { className: 'row-c', text: territory ? `${country.cap} · inclui ${territory.n}` : `${country.cap} · ${country.r}` }),
+        create('span', { className: 'row-c', text: territory ? `${country.cap} · inclui ${territory.n}` : `${country.cap} · ${country.sr}` }),
       ]));
       row.addEventListener('click', () => selectAtlasCountry(country.id, true, territory));
       atlasElements.list.append(row);
@@ -1303,7 +1303,7 @@
     }
     announce(focused
       ? `${focused.n}. ${focused.status}. Capital regional ${focused.cap}. Selecionado como ${byId[id].n}.`
-      : `${byId[id].n}. Capital ${byId[id].cap}. ${byId[id].r}.`);
+      : `${byId[id].n}. Capital ${byId[id].cap}. ${byId[id].sr}.`);
   }
 
   function familyPercent(directions) {

@@ -21,6 +21,10 @@ O conteúdo anterior foi preservado como base e passa por validações automáti
 
 Decisões editoriais sensíveis são explícitas em `src/content-policy.json`. Entre elas estão a capital da Guiné Equatorial conforme o Decreto-Lei 1/2026, a classificação M49 do Chipre na Ásia Ocidental e a distinção entre capitais, sedes de governo e nomes históricos.
 
+### Região (`r`) e subregião (`sr`)
+
+Todo país carrega dois rótulos geográficos. `r` é o balde amplo usado pelo filtro de região e pelo modo "país → região" — inclui, por exemplo, "América do Norte, Central e Caribe" como uma única opção de resposta, para não cobrar ortografia de topônimo em vez de geografia. `sr` é a subregião real do país e é o que aparece na ficha do Atlas, no resultado da pergunta e na busca: dentro desse mesmo balde, Canadá e Estados Unidos são "América do Norte", os oito países istmicos são "América Central" e os 13 insulares e Guiana são "Caribe" — a classificação segue o geoscheme M49 da ONU, coerente com a decisão já tomada para o Chipre. Fora desse balde, `sr` é sempre igual a `r`: os demais continentes não têm hoje uma subdivisão exibida. Uma correção editorial de `r` em `content-policy.json` (como a do Chipre) vale também para `sr`, para as duas etiquetas nunca se contradizerem. O build recusa qualquer país ou território sem `sr` preenchido.
+
 ## Territórios dentro de um soberano
 
 Vários territórios chegam do Natural Earth dentro do polígono do país a que pertencem: a Guiana Francesa é parte do polígono Admin-0 da França porque é um departamento ultramarino francês, o Alasca é um estado dos Estados Unidos e as Canárias são uma comunidade autônoma espanhola. Chamar essas áreas apenas de "França", "Estados Unidos" ou "Espanha" no mapa esconde uma capital regional, uma região e uma história próprias.

@@ -96,6 +96,38 @@ test('o artefato contém exatamente os 195 países e IDs únicos', () => {
   assert.match(html, /flag-icons 7\.5\.0 — MIT license/);
 });
 
+test('a subregião (sr) é sempre preenchida e nunca afeta o balde amplo do modo região', () => {
+  const AMERICAS_AMPLO = 'América do Norte, Central e Caribe';
+  const NORTE = ['CA', 'US'];
+  const CENTRAL = ['BZ', 'CR', 'SV', 'GT', 'HN', 'MX', 'NI', 'PA'];
+  const CARIBE = ['AG', 'BS', 'BB', 'CU', 'DM', 'GD', 'HT', 'JM', 'DO', 'LC', 'KN', 'VC', 'TT'];
+
+  built.DATA.forEach((country) => {
+    assert.equal(typeof country.sr, 'string', `${country.id}: sr ausente.`);
+    assert.ok(country.sr.length > 0, `${country.id}: sr vazio.`);
+    // O balde amplo usado pelo modo "país → região" e pelo filtro nunca muda:
+    // a subregião é só um rótulo mais preciso para exibição.
+    if (country.sr !== country.r) assert.equal(country.r, AMERICAS_AMPLO, `${country.id}: sr diverge de r fora do balde das Américas.`);
+  });
+
+  const byId = Object.fromEntries(built.DATA.map((country) => [country.id, country]));
+  NORTE.forEach((id) => assert.equal(byId[id].sr, 'América do Norte', `${id} deveria ser América do Norte.`));
+  CENTRAL.forEach((id) => assert.equal(byId[id].sr, 'América Central', `${id} deveria ser América Central.`));
+  CARIBE.forEach((id) => assert.equal(byId[id].sr, 'Caribe', `${id} deveria ser Caribe.`));
+  [...NORTE, ...CENTRAL, ...CARIBE].forEach((id) => assert.equal(byId[id].r, AMERICAS_AMPLO, `${id} deve continuar no balde amplo do modo região.`));
+
+  const americasBucket = built.DATA.filter((country) => country.r === AMERICAS_AMPLO);
+  assert.equal(americasBucket.length, NORTE.length + CENTRAL.length + CARIBE.length, 'O balde amplo das Américas mudou de tamanho.');
+
+  built.TERRITORIES.forEach((territory) => {
+    assert.equal(typeof territory.sr, 'string', `${territory.id}: sr ausente.`);
+    assert.ok(territory.sr.length > 0, `${territory.id}: sr vazio.`);
+  });
+  const territoryById = Object.fromEntries(built.TERRITORIES.map((territory) => [territory.id, territory]));
+  assert.equal(territoryById.AK.sr, 'América do Norte');
+  ['GP', 'MQ', 'BQ', 'SAB', 'STE'].forEach((id) => assert.equal(territoryById[id].sr, 'Caribe', `${id} deveria ser Caribe.`));
+});
+
 test('o build incorporou path, centro e bounds válidos para todo país', () => {
   for (const country of built.DATA) {
     assert.equal(typeof country.d, 'string', `${country.id}: path ausente.`);

@@ -34,6 +34,9 @@ function loadCountries() {
     if (typeof flags[country.id] !== 'string' || !flags[country.id].startsWith('data:image/svg+xml;base64,')) {
       throw new Error(`Bandeira SVG inválida ou ausente para ${country.id} (${country.n}).`);
     }
+    if (typeof country.sr !== 'string' || !country.sr) {
+      throw new Error(`Subregião (sr) ausente para ${country.id} (${country.n}).`);
+    }
     const policy = contentPolicy[country.id] || {};
     const nameAliases = policy.nameAliases ?? country.alt ?? [];
     const capitalAliases = policy.capitalAliases ?? country.calt ?? [];
@@ -60,10 +63,14 @@ function loadCountries() {
     const region = policy.region || (country.r === 'América do Norte e Central'
       ? 'América do Norte, Central e Caribe'
       : country.r);
+    // Uma correção editorial de região (ex.: Chipre na Ásia por M49) vale para a
+    // subregião também — não faria sentido a subregião discordar do continente.
+    const subregion = policy.region || country.sr;
     const normalizedContent = {
       ...country,
       cap: policy.capital || country.cap,
       r: region,
+      sr: subregion,
       aliases,
       alternateCapitals,
       formerCapitalNames,
@@ -113,6 +120,7 @@ function loadTerritories(countries) {
     if (known.has(territory.id)) throw new Error(`${label} é um dos 195 países e não pode ser território.`);
     if (!known.has(territory.of)) throw new Error(`${label} aponta para um soberano inexistente: ${territory.of}.`);
     if (!territory.n || !territory.cap || !territory.r) throw new Error(`${label} precisa de nome, capital e região.`);
+    if (!territory.sr) throw new Error(`${label} precisa de uma subregião (sr).`);
     const box = territory.box;
     if (!Array.isArray(box) || box.length !== 4 || !box.every(Number.isFinite)) {
       throw new Error(`${label} precisa de um box [oeste, sul, leste, norte] em graus.`);
