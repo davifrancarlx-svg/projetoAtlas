@@ -58,3 +58,24 @@ a ressalva sobre regras locais aplicáveis a símbolos nacionais estão registra
 em [`data/flag-icons/README.md`](data/flag-icons/README.md). O gerador
 `scripts/update-flags.cjs` fixa e valida todos esses dados antes de produzir
 `data/flags.json`.
+
+## Tipografia
+
+As três famílias do Atlas são embutidas no artefato em base64, no subset latino
+(`U+0000-00FF`), que é o suficiente para o português. Sem isso o CSS pediria
+famílias que quase ninguém tem instaladas e o navegador cairia em Georgia e
+system-ui — o desenho existiria só no código.
+
+| Família | Uso | Faces |
+| --- | --- | --- |
+| Instrument Serif | títulos e nomes de país | regular e itálico |
+| IBM Plex Sans | texto corrente | variável, 100–700 |
+| IBM Plex Mono | rótulos, placar e coordenadas | 400 e 500 |
+
+Ambas estão sob a **SIL Open Font License 1.1**, que exige distribuir a licença
+junto da fonte: os dois textos viajam dentro do próprio `atlas-195.html`.
+`data/fonts/fonts.json` registra a URL de origem e o SHA-256 de cada arquivo, e
+o build recusa qualquer face que não confira com o hash registrado.
+
+São 118 KB de fonte para 5 MB de artefato, e nenhuma requisição de rede: a CSP
+autoriza `font-src data:` e nenhuma origem externa.

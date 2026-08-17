@@ -152,8 +152,34 @@ function replace(template, marker, value) {
   return template.split(marker).join(value);
 }
 
+// As fontes são embutidas em base64 porque a CSP não autoriza origem externa e
+// o artefato precisa abrir sem rede. Sem isso, as famílias declaradas no CSS só
+// apareceriam para quem já as tivesse instaladas — na prática, quase ninguém.
+function embedFonts() {
+  const manifest = readJson('data/fonts/fonts.json');
+  const faces = manifest.faces.map((face) => {
+    const file = path.join(root, 'data', 'fonts', face.file);
+    const bytes = fs.readFileSync(file);
+    const digest = crypto.createHash('sha256').update(bytes).digest('hex');
+    if (digest !== face.sha256) {
+      throw new Error(`${face.file} não confere com o hash registrado em fonts.json.`);
+    }
+    return [
+      '@font-face {',
+      `  font-family: "${face.family}";`,
+      `  font-style: ${face.style};`,
+      `  font-weight: ${face.weight};`,
+      '  font-display: swap;',
+      `  unicode-range: U+0000-00FF;`,
+      `  src: url(data:font/woff2;base64,${bytes.toString('base64')}) format("woff2");`,
+      '}',
+    ].join('\n');
+  });
+  return `${faces.join('\n\n')}\n\n`;
+}
+
 const template = read('src/index.template.html');
-const css = read('src/styles.css').trim();
+const css = embedFonts() + read('src/styles.css').trim();
 const core = read('src/core.js').trim();
 const app = read('src/app.js').trim();
 const { countries, mapMeta, territories } = loadCountries();
@@ -161,7 +187,13 @@ const data = `const MAP_META = ${JSON.stringify(mapMeta)};\n`
   + `const DATA = ${JSON.stringify(countries)};\n`
   + `const TERRITORIES = ${JSON.stringify(territories)};`;
 const flagLicense = read('data/flag-icons/LICENSE').trim().replace(/--/g, '—');
-const licenses = `flag-icons 7.5.0 — MIT license\n\n${flagLicense}`;
+// A OFL exige que a licença acompanhe a fonte redistribuída; as famílias vão
+// embutidas no artefato, então o texto vai junto dentro dele.
+const licenses = [
+  `flag-icons 7.5.0 — MIT license\n\n${flagLicense}`,
+  `IBM Plex — SIL Open Font License 1.1\n\n${read('data/fonts/LICENSE-ibm-plex.txt').trim()}`,
+  `Instrument Serif — SIL Open Font License 1.1\n\n${read('data/fonts/LICENSE-instrument-serif.txt').trim()}`,
+].join('\n\n\n');
 let output = template;
 output = replace(output, '{{CSS}}', css);
 output = replace(output, '{{DATA}}', data);
@@ -195,7 +227,8 @@ const csp = [
   // 'self' cobre os ícones servidos ao lado do artefato; data: continua sendo a
   // origem das bandeiras e do favicon embutidos.
   "img-src 'self' data:",
-  "font-src 'none'",
+  // As famílias vão embutidas no próprio CSS; nenhuma origem externa é autorizada.
+  "font-src data:",
   // O app segue sem falar com servidor nenhum. O que abre aqui é só o suficiente
   // para instalar como aplicativo e funcionar offline: buscar o manifesto e
   // registrar o service worker, ambos restritos à própria origem.
