@@ -105,6 +105,35 @@ O backend de contas é o Supabase provisionado pelo Lovable. O aplicativo fala c
 - O que trafega é o mesmo envelope validado do backup por arquivo. Envelope corrompido no servidor é recusado pela validação e não contamina o aparelho.
 - Nunca existe sobrescrita: `Core.planSync` funde os dois lados com `Core.mergeProgress` e diz quem precisa ser atualizado. Um apagar de progresso feito num aparelho vence os desatualizados pela geração do envelope.
 
+## Terras fora dos 195
+
+As feições Admin-0 que não são um dos 195 países vinham fundidas numa silhueta
+cinza única e anônima: Groenlândia, Antártida e Saara Ocidental eram o mesmo
+borrão. Agora o gerador emite **cada uma identificada**, e `src/context-areas.json`
+classifica as 63 em três grupos:
+
+| Grupo | Quantas | Tratamento |
+| --- | --- | --- |
+| `dependencia` | 45 | Recebe o soberano e a cor de terra dos países. O mapa diz "Groenlândia (Dinamarca)". |
+| `disputado` | 13 | **Nunca recebe soberano.** Cor própria e uma nota explicando o status. |
+| `sem-soberania` | 5 | Idem: cor própria e nota. |
+
+A divisão existe por um motivo específico: atribuir Saara Ocidental, Taiwan,
+Kosovo, Somalilândia, Malvinas, Chipre do Norte ou Gibraltar a um país seria o
+Atlas afirmando geopolítica que não tem como sustentar — e o projeto segue a
+convenção de facto do Natural Earth justamente para não tomar esse partido.
+Antártida, Bir Tawil, o campo de gelo patagônico, a Linha Verde e a Ilha
+Brasileira não pertencem a ninguém: não é omissão, é o fato.
+
+O build **recusa** uma dependência sem soberano válido entre os 195, uma área
+disputada que receba soberano, e qualquer feição sem classificação. Nenhuma
+delas é resposta de pergunta: não carregam `data-id`, e clicar numa delas durante
+uma pergunta de localização não registra resposta.
+
+A silhueta fundida continua em `data/map-geometry.json`, onde o gerador a valida,
+mas não viaja no artefato — levar as duas duplicaria 285 KB de contorno para
+desenhar a mesma coisa.
+
 ## Indicadores e fatos derivados
 
 São **complementos da ficha do país e nunca viram pergunta**. Adivinhar IDH não é

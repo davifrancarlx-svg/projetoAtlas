@@ -1,0 +1,258 @@
+{
+  "_comentario": "Classificação das feições fora dos 195. Grupo dependencia recebe soberano; disputado e sem-soberania nunca recebem, para o Atlas não tomar posição. Nenhuma delas é resposta de pergunta.",
+  "areas": {
+    "ATA": {
+      "grupo": "sem-soberania",
+      "nota": "O Tratado da Antártida suspende as reivindicações territoriais: o continente não pertence a nenhum país."
+    },
+    "GRL": {
+      "grupo": "dependencia",
+      "of": "DK"
+    },
+    "SOL": {
+      "grupo": "disputado",
+      "nota": "Declarou independência em 1991. Nenhum Estado a reconhece formalmente; a ONU a trata como parte da Somália."
+    },
+    "SAH": {
+      "grupo": "disputado",
+      "nota": "Território não autônomo segundo a ONU. Marrocos administra a maior parte e a Frente Polisário reivindica o território."
+    },
+    "TWN": {
+      "grupo": "disputado",
+      "nota": "Administrada pela República da China. O estatuto político é disputado e a maioria dos Estados não mantém reconhecimento formal."
+    },
+    "NCL": {
+      "grupo": "dependencia",
+      "of": "FR"
+    },
+    "FLK": {
+      "grupo": "disputado",
+      "nota": "Administradas pelo Reino Unido, que as chama de Falkland. A Argentina reivindica a soberania."
+    },
+    "KOS": {
+      "grupo": "disputado",
+      "nota": "Declarou independência da Sérvia em 2008. O reconhecimento internacional é parcial."
+    },
+    "PRI": {
+      "grupo": "dependencia",
+      "of": "US"
+    },
+    "ATF": {
+      "grupo": "dependencia",
+      "of": "FR"
+    },
+    "KAB": {
+      "grupo": "dependencia",
+      "of": "KZ"
+    },
+    "SGS": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "CYN": {
+      "grupo": "disputado",
+      "nota": "Reconhecida apenas pela Turquia. A ONU a considera território do Chipre."
+    },
+    "PYF": {
+      "grupo": "dependencia",
+      "of": "FR"
+    },
+    "KAS": {
+      "grupo": "disputado",
+      "nota": "Trecho da Caxemira disputado por Índia e Paquistão."
+    },
+    "BRT": {
+      "grupo": "sem-soberania",
+      "nota": "Nem o Egito nem o Sudão reivindicam esta área — é um dos poucos territórios do mundo sem dono declarado."
+    },
+    "FRO": {
+      "grupo": "dependencia",
+      "of": "DK"
+    },
+    "SPI": {
+      "grupo": "sem-soberania",
+      "nota": "Trecho da fronteira entre Argentina e Chile que nunca foi demarcado."
+    },
+    "ALD": {
+      "grupo": "dependencia",
+      "of": "FI"
+    },
+    "HKG": {
+      "grupo": "dependencia",
+      "of": "CN"
+    },
+    "IMN": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "MNP": {
+      "grupo": "dependencia",
+      "of": "US"
+    },
+    "GUM": {
+      "grupo": "dependencia",
+      "of": "US"
+    },
+    "HMD": {
+      "grupo": "dependencia",
+      "of": "AU"
+    },
+    "CUW": {
+      "grupo": "dependencia",
+      "of": "NL"
+    },
+    "TCA": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "SHN": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "CNM": {
+      "grupo": "sem-soberania",
+      "nota": "Zona-tampão administrada pela ONU entre as duas partes do Chipre."
+    },
+    "VIR": {
+      "grupo": "dependencia",
+      "of": "US"
+    },
+    "CYM": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "SPM": {
+      "grupo": "dependencia",
+      "of": "FR"
+    },
+    "NIU": {
+      "grupo": "dependencia",
+      "of": "NZ"
+    },
+    "COK": {
+      "grupo": "dependencia",
+      "of": "NZ"
+    },
+    "ASM": {
+      "grupo": "dependencia",
+      "of": "US"
+    },
+    "ABW": {
+      "grupo": "dependencia",
+      "of": "NL"
+    },
+    "WLF": {
+      "grupo": "dependencia",
+      "of": "FR"
+    },
+    "VGB": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "JEY": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "ESB": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "IOA": {
+      "grupo": "dependencia",
+      "of": "AU"
+    },
+    "WSB": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "MSR": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "GGY": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "AIA": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "MAF": {
+      "grupo": "dependencia",
+      "of": "FR"
+    },
+    "USG": {
+      "grupo": "dependencia",
+      "of": "CU"
+    },
+    "BMU": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "IOT": {
+      "grupo": "disputado",
+      "nota": "Arquipélago de Chagos, administrado pelo Reino Unido e reivindicado por Maurício."
+    },
+    "PCN": {
+      "grupo": "dependencia",
+      "of": "GB"
+    },
+    "NFK": {
+      "grupo": "dependencia",
+      "of": "AU"
+    },
+    "CSI": {
+      "grupo": "dependencia",
+      "of": "AU"
+    },
+    "UMI": {
+      "grupo": "dependencia",
+      "of": "US"
+    },
+    "MAC": {
+      "grupo": "dependencia",
+      "of": "CN"
+    },
+    "PGA": {
+      "n": "Ilhas Spratly",
+      "grupo": "disputado",
+      "nota": "Recifes do Mar da China Meridional reivindicados por vários países."
+    },
+    "BLM": {
+      "grupo": "dependencia",
+      "of": "FR"
+    },
+    "SXM": {
+      "grupo": "dependencia",
+      "of": "NL"
+    },
+    "BJN": {
+      "grupo": "disputado",
+      "nota": "Banco de areia no Caribe reivindicado por mais de um país."
+    },
+    "CLP": {
+      "grupo": "dependencia",
+      "of": "FR"
+    },
+    "GIB": {
+      "grupo": "disputado",
+      "nota": "Território ultramarino britânico. A Espanha reivindica a soberania."
+    },
+    "SER": {
+      "grupo": "disputado",
+      "nota": "Banco de areia no Caribe reivindicado por mais de um país."
+    },
+    "BRI": {
+      "grupo": "sem-soberania",
+      "nota": "Ilha fluvial cuja soberania nunca foi definida entre Brasil e Uruguai."
+    },
+    "ATC": {
+      "grupo": "dependencia",
+      "of": "AU"
+    },
+    "SCR": {
+      "grupo": "disputado",
+      "nota": "Recife disputado por China e Filipinas."
+    }
+  }
+}

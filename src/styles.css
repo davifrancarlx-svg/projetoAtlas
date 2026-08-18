@@ -677,10 +677,24 @@ select {
 
 .context-land {
   fill: var(--land-context);
-  stroke: var(--ocean-deep);
-  stroke-width: 0.46;
-  vector-effect: non-scaling-stroke;
-  pointer-events: none;
+  /* Recebe o ponteiro só para poder se identificar ao passar o mouse. Fica
+     abaixo dos países no SVG, então nenhum alvo de pergunta perde prioridade
+     de clique. */
+  pointer-events: auto;
+}
+
+/* Dependência de um dos 195: recebe a cor de terra, como o país a que pertence.
+   Deixa de parecer área morta no mapa. */
+.context-land.is-dependencia {
+  fill: var(--land);
+  opacity: 0.72;
+}
+
+/* Disputada ou sem soberania: nem terra comum nem mancha anônima. Fica num tom
+   próprio, sinalizando que ali o Atlas não afirma a quem pertence. */
+.context-land.is-disputado,
+.context-land.is-sem-soberania {
+  fill: var(--land-context);
 }
 
 .cty,

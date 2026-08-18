@@ -767,9 +767,23 @@ function buildContextLand(contextFeatures, minorIslands, settings) {
     isSupplementalMinorIsland(feature)
   ));
   const geometryFeatures = [...contextFeatures, ...supplementalIslandFeatures];
-  const polygons = geometryFeatures.flatMap((feature) => (
-    geometryPolygons(feature.geometry, `context:${feature.properties.ADM0_A3}`)
-  ));
+  // O polígono guarda de qual feição veio. Sem isso a camada de contexto vira
+  // uma mancha anônima: a Groenlândia, o Saara Ocidental e a Antártida ficam
+  // indistinguíveis entre si e não há como rotular nem atribuir nenhuma delas.
+  const polygons = geometryFeatures.flatMap((feature) => {
+    const code = feature.properties.ADM0_A3 || feature.properties.sr_adm0_a3;
+    return geometryPolygons(feature.geometry, `context:${code}`)
+      .map((rings) => ({ code, rings }));
+  });
+  const identidade = new Map();
+  for (const feature of contextFeatures) {
+    identidade.set(feature.properties.ADM0_A3, {
+      nome: feature.properties.NAME_PT || feature.properties.NAME,
+      soberania: feature.properties.SOVEREIGNT || '',
+      tipo: feature.properties.TYPE || '',
+    });
+  }
+  const aneisPorCodigo = new Map();
   const outputRings = [];
   const bounds = [Infinity, Infinity, -Infinity, -Infinity];
   const stats = {
@@ -795,9 +809,11 @@ function buildContextLand(contextFeatures, minorIslands, settings) {
   let fullArea = 0;
   let simplifiedArea = 0;
 
-  for (const polygon of polygons) {
+  for (const { code, rings: polygon } of polygons) {
     if (!Array.isArray(polygon) || polygon.length === 0) throw new Error('Context land contains an empty polygon');
     const projectedPolygon = polygon.map((ring) => cleanSourceRing(ring, 'context-land'));
+    if (!aneisPorCodigo.has(code)) aneisPorCodigo.set(code, []);
+    const aneisDaFeicao = aneisPorCodigo.get(code);
     let polygonArea = 0;
     let simplifiedPolygonArea = 0;
 
@@ -826,6 +842,7 @@ function buildContextLand(contextFeatures, minorIslands, settings) {
       }
 
       outputRings.push(outputRing);
+      aneisDaFeicao.push(outputRing);
       if (ringIndex === 0) simplifiedPolygonArea += Math.abs(signedArea(outputRing));
       else simplifiedPolygonArea -= Math.abs(signedArea(outputRing));
       stats.outputRings += 1;
@@ -866,6 +883,35 @@ function buildContextLand(contextFeatures, minorIslands, settings) {
     throw new Error('Context land exceeds Robinson world bounds');
   }
 
+  // Cada feição sai também sozinha, com identidade. É o que permite pintar a
+  // Groenlândia como território dinamarquês e dizer o nome do que está sob o
+  // cursor, em vez de deixar manchas cinzas sem explicação pelo mapa. Nenhuma
+  // delas é resposta de pergunta: continuam fora do escopo dos 195.
+  const areas = [];
+  for (const [code, aneis] of aneisPorCodigo) {
+    const info = identidade.get(code);
+    if (!info || !aneis.length) continue; // ilhas menores herdam a feição principal
+    const caixa = [Infinity, Infinity, -Infinity, -Infinity];
+    aneis.forEach((anel) => anel.forEach((ponto) => extendBounds(caixa, ponto)));
+    const maior = aneis.reduce((a, b) => (Math.abs(signedArea(b)) > Math.abs(signedArea(a)) ? b : a));
+    areas.push({
+      code,
+      n: info.nome,
+      soberania: info.soberania,
+      tipo: info.tipo,
+      d: aneis.map((anel) => ringToPath(anel, settings.precision)).join(''),
+      b: caixa.map((valor) => quantize(valor, settings.precision)),
+      c: ringBounds(maior).slice(0, 2).map((valor, indice) => quantize(
+        (ringBounds(maior)[indice] + ringBounds(maior)[indice + 2]) / 2, settings.precision,
+      )),
+      a: quantize(aneis.reduce((total, anel) => total + Math.abs(signedArea(anel)), 0), 3),
+    });
+  }
+  areas.sort((a, b) => b.a - a.a);
+  if (areas.length !== contextFeatures.length) {
+    throw new Error(`Context areas: ${areas.length} identificadas para ${contextFeatures.length} feições.`);
+  }
+
   return {
     land: {
       purpose: 'neutral non-interactive silhouette for Admin-0 features outside the 195-country quiz scope',
@@ -881,6 +927,7 @@ function buildContextLand(contextFeatures, minorIslands, settings) {
       selectedAdminCodeOverlap: 0,
       antimeridianValidated: true,
     },
+    areas,
     stats,
   };
 }
@@ -1133,6 +1180,7 @@ function buildPayload(baseCountries, naturalEarth, minorIslands, settings) {
         ...context.land,
         stats: context.stats,
       },
+      contextAreas: context.areas,
       stats,
     },
     countries,

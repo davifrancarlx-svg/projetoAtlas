@@ -19,6 +19,7 @@ function loadCountries() {
   const countries = readJson('src/countries.base.json');
   const contentPolicy = readJson('src/content-policy.json');
   const indicators = readJson('data/indicators.json');
+  const contextAreas = readJson('src/context-areas.json');
   const flagFile = readJson('data/flags.json');
   const flags = flagFile && flagFile.flags;
   if (!flags || Object.keys(flags).length !== 195) {
@@ -121,7 +122,45 @@ function loadCountries() {
     mapMeta: geometry.meta || {},
     territories: loadTerritories(merged),
     indicatorMeta: indicators.meta,
+    contextAreas: loadContextAreas(geometry.meta, contextAreas, merged),
   };
+}
+
+// As feições fora dos 195: dependências com soberano claro, áreas disputadas e
+// áreas sem soberania. Antes eram uma mancha cinza anônima; identificá-las é o
+// que permite pintar a Groenlândia como território dinamarquês e dizer o que é
+// cada uma. Nenhuma vira resposta de pergunta — continuam fora do escopo.
+function loadContextAreas(mapMeta, classificacao, countries) {
+  const areas = Array.isArray(mapMeta.contextAreas) ? mapMeta.contextAreas : [];
+  if (!areas.length) throw new Error('Geometria sem contextAreas. Rode o gerador cartográfico.');
+  const conhecidos = new Set(countries.map((country) => country.id));
+  const GRUPOS = new Set(['dependencia', 'disputado', 'sem-soberania']);
+
+  return areas.map((area) => {
+    const registro = classificacao.areas[area.code];
+    if (!registro) {
+      throw new Error(`${area.code} (${area.n}) não está classificada em src/context-areas.json.`);
+    }
+    if (!GRUPOS.has(registro.grupo)) throw new Error(`${area.code}: grupo inválido "${registro.grupo}".`);
+    if (registro.grupo === 'dependencia') {
+      if (!conhecidos.has(registro.of)) throw new Error(`${area.code} aponta para um soberano fora dos 195: ${registro.of}.`);
+      if (registro.nota) throw new Error(`${area.code}: dependência não precisa de nota de status.`);
+    } else {
+      // Tomar partido numa área disputada seria afirmar geopolítica que o
+      // projeto não tem como sustentar; a nota explica em vez de atribuir.
+      if (registro.of) throw new Error(`${area.code}: área ${registro.grupo} não pode receber soberano.`);
+      if (!registro.nota) throw new Error(`${area.code}: área ${registro.grupo} precisa explicar o próprio status.`);
+    }
+    return {
+      code: area.code,
+      n: registro.n || area.n,
+      grupo: registro.grupo,
+      d: area.d,
+      b: area.b,
+      ...(registro.of ? { of: registro.of } : {}),
+      ...(registro.nota ? { nota: registro.nota } : {}),
+    };
+  });
 }
 
 // Territórios não soberanos que o Natural Earth entrega dentro do polígono de
@@ -209,10 +248,21 @@ const cloud = (() => {
   return { url: origin, anonKey: config.anonKey, tabela: config.tabela };
 })();
 const cloudOrigin = cloud ? cloud.url : "'none'";
-const { countries, mapMeta, territories, indicatorMeta } = loadCountries();
-const data = `const MAP_META = ${JSON.stringify(mapMeta)};\n`
+const { countries, mapMeta, territories, indicatorMeta, contextAreas } = loadCountries();
+// A silhueta fundida continua no arquivo de geometria, onde o gerador a valida,
+// mas não viaja no artefato: quem desenha agora são as áreas identificadas, e
+// levar as duas duplicaria 285 KB de contorno para o mesmo desenho.
+const mapMetaEnxuto = { ...mapMeta };
+if (mapMetaEnxuto.contextLand) {
+  mapMetaEnxuto.contextLand = { ...mapMetaEnxuto.contextLand };
+  delete mapMetaEnxuto.contextLand.d;
+}
+delete mapMetaEnxuto.contextAreas;
+
+const data = `const MAP_META = ${JSON.stringify(mapMetaEnxuto)};\n`
   + `const DATA = ${JSON.stringify(countries)};\n`
   + `const TERRITORIES = ${JSON.stringify(territories)};\n`
+  + `const CONTEXT_AREAS = ${JSON.stringify(contextAreas)};\n`
   + `const INDICATOR_META = ${JSON.stringify(indicatorMeta)};\n`
   + `const CLOUD = ${JSON.stringify(cloud)};`;
 const flagLicense = read('data/flag-icons/LICENSE').trim().replace(/--/g, '—');

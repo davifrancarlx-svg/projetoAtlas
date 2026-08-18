@@ -471,14 +471,23 @@
       x: WORLD.x + 1, y: WORLD.y + 1, width: WORLD.w - 2, height: WORLD.h - 2,
       class: 'frame', 'aria-hidden': 'true',
     }));
-    if (MAP_META && MAP_META.contextLand && MAP_META.contextLand.d) {
-      mapState.root.append(svgElement('path', {
-        d: MAP_META.contextLand.d,
-        class: 'context-land',
-        'fill-rule': 'evenodd',
-        'clip-rule': 'evenodd',
-        'aria-hidden': 'true',
-      }));
+    // As terras fora dos 195. Antes vinham fundidas numa mancha só, sem nome:
+    // a Groenlândia e a Antártida eram o mesmo borrão cinza. Agora cada uma é
+    // desenhada por si, e a cor diz o que ela é — dependência de um dos 195,
+    // área disputada ou área sem soberania. Nenhuma responde pergunta: seguem
+    // fora do escopo do quiz e por isso não recebem foco de teclado.
+    if (Array.isArray(CONTEXT_AREAS) && CONTEXT_AREAS.length) {
+      const contexto = svgElement('g', { 'aria-hidden': 'true' });
+      CONTEXT_AREAS.forEach((area) => {
+        contexto.append(svgElement('path', {
+          d: area.d,
+          class: `context-land is-${area.grupo}`,
+          'data-context': area.code,
+          'fill-rule': 'evenodd',
+          'clip-rule': 'evenodd',
+        }));
+      });
+      mapState.root.append(contexto);
     }
     mapState.land = svgElement('g', { 'aria-hidden': 'false' });
     mapState.markers = svgElement('g', { 'aria-hidden': 'true' });
@@ -707,6 +716,22 @@
     return territory ? `${territory.n} (${byId[countryId].n})` : byId[countryId].n;
   }
 
+  const CONTEXT_BY_CODE = Object.create(null);
+  (Array.isArray(CONTEXT_AREAS) ? CONTEXT_AREAS : []).forEach((area) => { CONTEXT_BY_CODE[area.code] = area; });
+
+  function contextAreaAt(target) {
+    const code = target && target.dataset ? target.dataset.context : null;
+    return code ? CONTEXT_BY_CODE[code] || null : null;
+  }
+
+  // A dependência é dita pelo soberano — "Groenlândia (Dinamarca)" — e as
+  // demais dizem o próprio estatuto, sem apontar dono, porque afirmar soberania
+  // sobre área disputada seria tomar posição que o Atlas não sustenta.
+  function contextLabel(area) {
+    if (area.grupo === 'dependencia' && byId[area.of]) return `${area.n} (${byId[area.of].n})`;
+    return `${area.n} · ${area.grupo === 'disputado' ? 'soberania disputada' : 'sem soberania'}`;
+  }
+
   function scheduleHoverReadout(event) {
     mapState.pendingHover = { clientX: event.clientX, clientY: event.clientY, target: event.target };
     if (mapState.hoverFrame) return;
@@ -722,7 +747,15 @@
       // Fora do quiz o rótulo é livre; dentro dele só depois da resposta, para
       // não entregar o alvo de uma pergunta visual.
       const mayReveal = state.view !== 'quiz' || state.answered;
-      dom.hoverName.textContent = hoverId && mayReveal ? mapLabel(hoverId, point) : '';
+      if (hoverId) {
+        dom.hoverName.textContent = mayReveal ? mapLabel(hoverId, point) : '';
+        return;
+      }
+      // Nenhum dos 195 sob o cursor: pode ser uma das terras de contexto. Elas
+      // não são resposta de pergunta, então o rótulo aparece sempre — não há
+      // alvo a entregar, e é justamente aqui que antes ficava a mancha muda.
+      const contexto = contextAreaAt(pending.target);
+      dom.hoverName.textContent = contexto ? contextLabel(contexto) : '';
     });
   }
 
