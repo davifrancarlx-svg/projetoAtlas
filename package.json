@@ -8,7 +8,8 @@
     "test": "node --test --test-concurrency=1 tests/*.test.cjs",
     "check": "npm run test && npm run build",
     "serve": "node scripts/serve.cjs",
-    "icons": "node scripts/make-icons.cjs"
+    "icons": "node scripts/make-icons.cjs",
+    "indicators": "node scripts/update-indicators.cjs"
   },
   "engines": {
     "node": ">=22"

@@ -18,6 +18,7 @@ function sha256(source) {
 function loadCountries() {
   const countries = readJson('src/countries.base.json');
   const contentPolicy = readJson('src/content-policy.json');
+  const indicators = readJson('data/indicators.json');
   const flagFile = readJson('data/flags.json');
   const flags = flagFile && flagFile.flags;
   if (!flags || Object.keys(flags).length !== 195) {
@@ -41,6 +42,14 @@ function loadCountries() {
     }
     if (typeof country.sr !== 'string' || !country.sr) {
       throw new Error(`Subregião (sr) ausente para ${country.id} (${country.n}).`);
+    }
+    // População e IDH são dados complementares da ficha: entram no país mas
+    // nunca viram resposta de pergunta. Quem não tem o dado carrega a nota que
+    // explica por quê — é isso que o gerador de indicadores exige para deixar
+    // um país sem número.
+    const indicator = indicators.paises[country.id];
+    if (!indicator) {
+      throw new Error(`Indicadores ausentes para ${country.id} (${country.n}). Rode "npm run indicators".`);
     }
     const policy = contentPolicy[country.id] || {};
     const nameAliases = policy.nameAliases ?? country.alt ?? [];
@@ -100,13 +109,19 @@ function loadCountries() {
       geomParts: map.parts || 1,
       hitPoints: Array.isArray(map.hitPoints) ? map.hitPoints : [],
       f: flags[country.id],
+      ...indicator,
     };
   });
 
   if (merged.length !== 195 || new Set(merged.map((c) => c.id)).size !== 195) {
     throw new Error('O dataset final precisa conter exatamente 195 IDs únicos.');
   }
-  return { countries: merged, mapMeta: geometry.meta || {}, territories: loadTerritories(merged) };
+  return {
+    countries: merged,
+    mapMeta: geometry.meta || {},
+    territories: loadTerritories(merged),
+    indicatorMeta: indicators.meta,
+  };
 }
 
 // Territórios não soberanos que o Natural Earth entrega dentro do polígono de
@@ -194,10 +209,11 @@ const cloud = (() => {
   return { url: origin, anonKey: config.anonKey, tabela: config.tabela };
 })();
 const cloudOrigin = cloud ? cloud.url : "'none'";
-const { countries, mapMeta, territories } = loadCountries();
+const { countries, mapMeta, territories, indicatorMeta } = loadCountries();
 const data = `const MAP_META = ${JSON.stringify(mapMeta)};\n`
   + `const DATA = ${JSON.stringify(countries)};\n`
   + `const TERRITORIES = ${JSON.stringify(territories)};\n`
+  + `const INDICATOR_META = ${JSON.stringify(indicatorMeta)};\n`
   + `const CLOUD = ${JSON.stringify(cloud)};`;
 const flagLicense = read('data/flag-icons/LICENSE').trim().replace(/--/g, '—');
 // A OFL exige que a licença acompanhe a fonte redistribuída; as famílias vão

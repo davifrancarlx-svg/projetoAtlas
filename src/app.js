@@ -194,6 +194,24 @@
   }
   function formatPercent(value) { return `${Math.round(value)}%`; }
 
+  // População e IDH são complementos da ficha e nunca viram pergunta. Os dois
+  // saem sempre com o ano ao lado: mudam a cada edição das fontes, e um número
+  // solto passaria a impressão de valor fixo. Quem não tem o dado mostra o
+  // motivo em vez de sumir da ficha ou aparecer zerado.
+  function formatPopulation(country) {
+    if (Number.isFinite(country.pop)) {
+      return `${new Intl.NumberFormat('pt-BR').format(country.pop)} habitantes · ${country.popAno}`;
+    }
+    return 'população não publicada';
+  }
+
+  function formatHdi(country) {
+    if (Number.isFinite(country.hdi)) {
+      return `IDH ${country.hdi.toFixed(3).replace('.', ',')} · ${country.hdiAno}`;
+    }
+    return 'IDH não publicado';
+  }
+
   function themeStep(id) {
     const indice = THEMES.findIndex((tema) => tema.id === id);
     return indice === -1 ? 0 : indice;
@@ -1298,8 +1316,17 @@
       create('h3', { text: country.n }),
       create('p', { text: `Capital: ${country.cap}` }),
       create('p', { text: `${country.sr} · ${formatArea(country.ar)}` }),
+      create('p', { className: 'atlas-indicators', text: `${formatPopulation(country)} · ${formatHdi(country)}` }),
     ]);
     atlasElements.detail.append(flagImage(country, { eager: true }), copy);
+    // A explicação da ausência só aparece para quem realmente não tem o dado.
+    [country.popNota, country.hdiNota].filter(Boolean).forEach((nota) => {
+      atlasElements.detail.append(create('p', { className: 'note', text: nota }));
+    });
+    atlasElements.detail.append(create('p', {
+      className: 'source-note',
+      text: `População: ${INDICATOR_META.populacao.fonte}. IDH: ${INDICATOR_META.idh.fonte}.`,
+    }));
     territoriesOf(country.id).forEach((territory) => {
       atlasElements.detail.append(territoryCard(country, territory));
     });

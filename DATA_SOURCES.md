@@ -104,3 +104,37 @@ O backend de contas é o Supabase provisionado pelo Lovable. O aplicativo fala c
 - Entrada por link mágico no e-mail, sem senha. Os tokens voltam no fragmento da URL, são guardados e imediatamente apagados da barra de endereços, para não ficarem no histórico nem vazarem num "copiar link".
 - O que trafega é o mesmo envelope validado do backup por arquivo. Envelope corrompido no servidor é recusado pela validação e não contamina o aparelho.
 - Nunca existe sobrescrita: `Core.planSync` funde os dois lados com `Core.mergeProgress` e diz quem precisa ser atualizado. Um apagar de progresso feito num aparelho vence os desatualizados pela geração do envelope.
+
+## População e IDH
+
+São **dados complementares da ficha do país e nunca viram pergunta**. Adivinhar
+IDH não é conhecimento geográfico, e o índice reduz um país a um número que muda
+a cada edição do relatório; por isso os dois aparecem sempre com o ano ao lado,
+para não passarem por valor permanente. Um teste barra a entrada deles no
+conjunto de respostas aceitas.
+
+| Dado | Fonte | Referência | Cobertura |
+| --- | --- | --- | --- |
+| IDH | PNUD, Relatório de Desenvolvimento Humano 2025 | 2023 | 192/195 |
+| População | Banco Mundial, indicador `SP.POP.TOTL` (CC BY 4.0) | 2025 | 194/195 |
+
+O IDH vem do PNUD porque **é ele quem define e calcula o índice** — qualquer
+outro site apenas republica. A população vem do Banco Mundial, que republica as
+projeções da ONU através de uma API estável.
+
+As ausências são poucas, conhecidas e explicadas na própria ficha: Coreia do
+Norte, Mônaco e Vaticano ficam sem IDH; o Vaticano também fica sem população, por
+ter cerca de 800 residentes. Nenhum deles aparece zerado ou desaparece da ficha —
+o app diz que o dado não é publicado e por quê. O gerador **recusa** deixar um
+país sem número sem que exista uma explicação registrada.
+
+`data/indicators.json` guarda os valores, a URL de origem, a data da coleta e o
+SHA-256 do que foi baixado. Como os dois números mudam todo ano:
+
+```sh
+npm run indicators            # rebaixa e regrava
+node scripts/update-indicators.cjs --check   # confere sem gravar
+```
+
+O `--check` ignora a data da coleta e o hash da resposta da API (que muda a cada
+consulta) e compara o que importa: os valores por país e o ano do IDH.
