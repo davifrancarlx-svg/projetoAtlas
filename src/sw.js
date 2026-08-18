@@ -31,10 +31,18 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names
-      .filter((name) => name.startsWith('atlas-195-') && name !== CACHE)
-      .map((name) => caches.delete(name)));
+    const anteriores = names.filter((name) => name.startsWith('atlas-195-') && name !== CACHE);
+    await Promise.all(anteriores.map((name) => caches.delete(name)));
     await self.clients.claim();
+
+    // A aba aberta neste instante ainda está rodando a versão antiga: ela foi
+    // servida do cache antes desta troca acontecer. Sem avisar, a pessoa recarrega,
+    // não vê mudança nenhuma e conclui que a publicação falhou. O aviso só faz
+    // sentido quando havia mesmo uma versão anterior — numa primeira instalação
+    // não existe "versão nova", e o alerta seria ruído.
+    if (!anteriores.length) return;
+    const abas = await self.clients.matchAll({ type: 'window' });
+    abas.forEach((aba) => aba.postMessage({ atlas: 'versao-nova', versao: VERSION }));
   })());
 });
 

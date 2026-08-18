@@ -109,3 +109,21 @@ test('a CSP libera o mínimo para instalar e nada além disso', () => {
   assert.doesNotMatch(csp, /'unsafe-inline'|'unsafe-eval'/);
   assert.doesNotMatch(csp, /script-src[^;]*\bhttps?:/, 'Nenhum script externo pode ser autorizado.');
 });
+
+test('a troca de versão avisa a aba aberta, e só quando havia versão anterior', () => {
+  const fonte = fs.readFileSync(path.join(__dirname, '..', 'src', 'sw.js'), 'utf8');
+
+  // A aba aberta no momento da publicação está rodando o artefato antigo, servido
+  // do cache antes da troca. Sem aviso, recarregar não mostra diferença e a
+  // publicação parece ter falhado.
+  assert.match(fonte, /postMessage\(\{ atlas: 'versao-nova'/, 'O service worker precisa avisar as abas abertas.');
+  assert.match(
+    fonte,
+    /if \(!anteriores\.length\) return;/,
+    'Numa primeira instalação não existe versão nova: o aviso viraria ruído.'
+  );
+
+  const app = fs.readFileSync(path.join(__dirname, '..', 'src', 'app.js'), 'utf8');
+  assert.match(app, /evento\.data\.atlas === 'versao-nova'/, 'O app precisa escutar o aviso.');
+  assert.match(app, /function showUpdateNotice/, 'O app precisa mostrar o aviso com um botão de recarregar.');
+});

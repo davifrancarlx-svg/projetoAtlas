@@ -1986,3 +1986,22 @@ a.chip {
     opacity: 0.45;
   }
 }
+
+/* Aviso de versão nova: aparece na barra de estado, ao lado da mensagem de
+   armazenamento, e some assim que a pessoa recarrega. */
+.update-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-block: 6px;
+  padding-inline-end: 4px;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.update-notice .btn {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
+}

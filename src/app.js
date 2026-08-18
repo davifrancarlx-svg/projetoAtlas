@@ -2346,9 +2346,28 @@
   function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
     if (location.protocol !== 'http:' && location.protocol !== 'https:') return;
+    navigator.serviceWorker.addEventListener('message', (evento) => {
+      if (evento.data && evento.data.atlas === 'versao-nova') showUpdateNotice();
+    });
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => { /* segue sem offline */ });
     });
+  }
+
+  // Quando uma versão nova é publicada, a aba aberta continua rodando a antiga:
+  // ela veio do cache antes da troca. Sem este aviso a pessoa recarrega, não vê
+  // diferença nenhuma e conclui que a publicação falhou — foi exatamente o que
+  // aconteceu na primeira vez.
+  function showUpdateNotice() {
+    if (document.getElementById('updateNotice')) return;
+    const aviso = create('div', { id: 'updateNotice', className: 'update-notice', attrs: { role: 'status' } });
+    aviso.append(create('span', { text: 'Uma versão nova do Atlas está pronta.' }));
+    const recarregar = create('button', { className: 'btn', type: 'button', text: 'Recarregar' });
+    recarregar.addEventListener('click', () => location.reload());
+    aviso.append(recarregar);
+    const barra = document.querySelector('.app-status');
+    if (barra) barra.append(aviso);
+    announce('Uma versão nova do Atlas está pronta. Recarregue para usá-la.');
   }
 
   async function initialize() {
