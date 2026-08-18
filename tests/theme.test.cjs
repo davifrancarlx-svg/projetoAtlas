@@ -27,6 +27,9 @@ function withoutPalettes(css) {
     }
     out = out.slice(0, light) + out.slice(end);
   }
+  // O tema fixado pelo botão do app é paleta como as outras: declarar cor crua
+  // ali é o certo. O que segue proibido é cor crua numa regra de layout.
+  out = out.replace(/:root\[data-theme="(?:light|dark)"\]\s*\{[\s\S]*?\n\}/g, '');
   return out.replace(/:root\s*\{[\s\S]*?\}/g, '');
 }
 
@@ -57,4 +60,60 @@ test('o tema claro redefine as superfícies e os acentos', () => {
   });
 
   assert.match(CSS, /color-scheme: light dark/, 'A raiz precisa anunciar os dois esquemas.');
+});
+
+// O tema claro existe em dois lugares: dentro da media query, para o modo
+// automático, e num bloco fixo, para quem escolheu claro dentro do app. Os dois
+// precisam ser idênticos — se divergirem, a interface muda de cor conforme o
+// sistema por baixo, e ninguém percebe até alguém reclamar de um detalhe.
+function tokensDoBloco(bloco) {
+  const tokens = new Map();
+  bloco.split('\n').forEach((linha) => {
+    const par = linha.match(/^\s*(--[a-z0-9-]+):\s*(.+);\s*$/);
+    if (par) tokens.set(par[1], par[2].trim());
+  });
+  return tokens;
+}
+
+test('as duas paletas claras declaram exatamente os mesmos valores', () => {
+  const doSistema = CSS.match(/@media \(prefers-color-scheme: light\)\s*\{[\s\S]*?\n\}/);
+  const doBotao = CSS.match(/:root\[data-theme="light"\]\s*\{[\s\S]*?\n\}/);
+  assert.ok(doSistema, 'O tema claro do sistema sumiu.');
+  assert.ok(doBotao, 'O tema claro fixado pelo botão sumiu.');
+
+  const sistema = tokensDoBloco(doSistema[0]);
+  const botao = tokensDoBloco(doBotao[0]);
+  assert.ok(sistema.size >= 25, 'A paleta clara do sistema encolheu demais.');
+  assert.deepEqual(
+    [...botao.keys()].sort(),
+    [...sistema.keys()].sort(),
+    'Os dois blocos do tema claro precisam declarar os mesmos tokens.'
+  );
+  for (const token of sistema.keys()) {
+    assert.equal(
+      botao.get(token),
+      sistema.get(token),
+      'O token ' + token + ' divergiu entre as duas paletas claras.'
+    );
+  }
+});
+
+test('a escolha feita no app vence a preferência do sistema', () => {
+  // Sem o :not, quem fixa o escuro num sistema claro continua vendo claro: a
+  // media query redefiniria os mesmos tokens depois do bloco fixo.
+  assert.match(
+    CSS,
+    /@media \(prefers-color-scheme: light\)\s*\{\s*:root:not\(\[data-theme="dark"\]\)/,
+    'A media query do tema claro precisa ceder quando o app fixou o escuro.'
+  );
+  assert.match(
+    CSS,
+    /:root\[data-theme="light"\]\s*\{\s*color-scheme: light;/,
+    'O tema claro fixado precisa anunciar color-scheme: light para os controles nativos.'
+  );
+  assert.match(
+    CSS,
+    /:root\[data-theme="dark"\]\s*\{\s*color-scheme: dark;/,
+    'O tema escuro fixado precisa anunciar color-scheme: dark.'
+  );
 });

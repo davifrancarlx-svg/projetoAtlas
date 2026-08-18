@@ -11,6 +11,6 @@
     "icons": "node scripts/make-icons.cjs"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   }
 }

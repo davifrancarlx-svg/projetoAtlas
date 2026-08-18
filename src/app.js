@@ -74,6 +74,8 @@
     tabs: [...document.querySelectorAll('.tab[data-view]')],
     controls: document.getElementById('controls'),
     filterToggle: document.getElementById('filterToggle'),
+    themeToggle: document.getElementById('themeToggle'),
+    themeToggleIcon: document.getElementById('themeToggleIcon'),
     modeSeg: document.getElementById('modeSeg'),
     region: document.getElementById('regSel'),
     ansSeg: document.getElementById('ansSeg'),
@@ -97,6 +99,13 @@
   };
 
   const TIME_LIMITS = [0, 30, 15];
+  // Ciclo do botão de tema. 'auto' não escreve atributo nenhum na raiz: é a
+  // ausência dele que devolve a palavra final ao sistema operacional.
+  const THEMES = [
+    { id: 'auto', icon: '◐', nome: 'automático, seguindo o sistema', curto: 'Tema automático' },
+    { id: 'light', icon: '☀', nome: 'claro', curto: 'Tema claro' },
+    { id: 'dark', icon: '☾', nome: 'escuro', curto: 'Tema escuro' },
+  ];
   // Sentinela de resposta: nunca é igual a um ID, região ou capital, então o
   // estouro de tempo não pode ser confundido com uma resposta do jogador.
   const EXPIRED_ANSWER = Symbol('tempo esgotado');
@@ -107,6 +116,7 @@
     questionNumber: 0, recentIds: [], forcedQuestion: null,
     atlasSelected: 'BR', atlasQuery: '', atlasLimit: 60, resetArmed: false, resetPending: false,
     mapCursorId: 'BR',
+    theme: 'auto',
     timeLimit: 0, askedAt: 0, expired: false,
     sessionAnswers: [], reviewQueue: [], fromDeck: false, deckPending: false, importStatus: null,
     // Prova: uma série fechada de perguntas com nota no fim. Vale para a sessão
@@ -184,11 +194,49 @@
   }
   function formatPercent(value) { return `${Math.round(value)}%`; }
 
+  function themeStep(id) {
+    const indice = THEMES.findIndex((tema) => tema.id === id);
+    return indice === -1 ? 0 : indice;
+  }
+
+  function applyTheme(shouldAnnounce = false) {
+    const indice = themeStep(state.theme);
+    const atual = THEMES[indice];
+    const proximo = THEMES[(indice + 1) % THEMES.length];
+    if (atual.id === 'auto') delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = atual.id;
+    if (dom.themeToggleIcon) dom.themeToggleIcon.textContent = atual.icon;
+    if (dom.themeToggle) {
+      dom.themeToggle.title = atual.curto;
+      dom.themeToggle.setAttribute('aria-label', `Tema ${atual.nome}. Ativar tema ${proximo.nome}.`);
+    }
+    syncThemeColor();
+    if (shouldAnnounce) announce(`Tema ${atual.nome}.`);
+  }
+
+  // A cor da barra do navegador vem de duas metas com media query, que seguem o
+  // sistema. Com o tema fixado no app elas apontariam para o lado errado, então
+  // uma terceira meta sem media entra na frente — o navegador usa a primeira que
+  // casa, em ordem de documento. O valor sai do próprio token, para não existir
+  // cor escrita à mão fora da paleta.
+  function syncThemeColor() {
+    const fixado = state.theme === 'light' || state.theme === 'dark';
+    const existente = document.getElementById('themeColorOverride');
+    if (!fixado) {
+      if (existente) existente.remove();
+      return;
+    }
+    const meta = existente || create('meta', { id: 'themeColorOverride', attrs: { name: 'theme-color' } });
+    if (!existente) document.head.prepend(meta);
+    const cor = getComputedStyle(document.documentElement).getPropertyValue('--panel').trim();
+    if (cor) meta.setAttribute('content', cor);
+  }
+
   function savePreferences() {
     const safe = {
       mode: state.mode, region: state.region, answerMode: state.answerMode,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
-      timeLimit: state.timeLimit,
+      timeLimit: state.timeLimit, theme: state.theme,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
   }
@@ -203,6 +251,7 @@
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
       if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
+      if (THEMES.some((tema) => tema.id === parsed.theme)) state.theme = parsed.theme;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
     } catch (_) { /* preferência corrompida é ignorada */ }
   }
@@ -1913,6 +1962,7 @@
     dom.ansSeg.querySelectorAll('[data-ans]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.ans === state.answerMode)));
     dom.timeSeg.querySelectorAll('[data-time]').forEach((button) => button.setAttribute('aria-pressed', String(Number(button.dataset.time) === state.timeLimit)));
     dom.visualToggle.checked = state.includeVisual;
+    applyTheme();
     dom.region.value = state.region;
     setMapCollapsed(state.mapCollapsed, false);
   }
@@ -1938,6 +1988,11 @@
       syncControls(); savePreferences();
       if (state.view !== 'quiz') setView('quiz');
       createNextQuestion();
+    });
+    dom.themeToggle.addEventListener('click', () => {
+      state.theme = THEMES[(themeStep(state.theme) + 1) % THEMES.length].id;
+      applyTheme(true);
+      savePreferences();
     });
     dom.timeSeg.addEventListener('click', (event) => {
       const button = event.target.closest('[data-time]');

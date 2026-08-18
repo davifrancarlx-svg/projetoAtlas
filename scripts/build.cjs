@@ -182,6 +182,7 @@ const template = read('src/index.template.html');
 const css = embedFonts() + read('src/styles.css').trim();
 const core = read('src/core.js').trim();
 const app = read('src/app.js').trim();
+const themeBoot = read('src/theme-boot.js').trim();
 const { countries, mapMeta, territories } = loadCountries();
 const data = `const MAP_META = ${JSON.stringify(mapMeta)};\n`
   + `const DATA = ${JSON.stringify(countries)};\n`
@@ -197,6 +198,7 @@ const licenses = [
 let output = template;
 output = replace(output, '{{CSS}}', css);
 output = replace(output, '{{DATA}}', data);
+output = replace(output, '{{THEME}}', themeBoot);
 output = replace(output, '{{CORE}}', core);
 output = replace(output, '{{APP}}', app);
 output = replace(output, '{{LICENSES}}', licenses);

@@ -281,6 +281,47 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     }, { timeout: 15_000, interval: 60 });
     assert.match(nota, /^fim:\d+ de 10$/, `A prova de 10 não fechou com nota sobre 10. Recebido: ${nota}`);
 
+    // 3c. O botão de tema precisa trocar a pintura de verdade, não só o estado
+    //     interno: é o navegador que resolve tokens, media query e atributo na
+    //     raiz, e só aqui dá para ver a cor final.
+    const estadoDoTema = async () => JSON.parse(await evaluate(client, `JSON.stringify({
+      tema: document.documentElement.dataset.theme || 'auto',
+      fundo: getComputedStyle(document.body).backgroundColor,
+      rotulo: document.getElementById('themeToggle').getAttribute('aria-label'),
+      salvo: JSON.parse(localStorage.getItem('atlas195:prefs:v2') || '{}').theme || 'auto'
+    })`));
+    const clicarTema = async () => evaluate(client, `document.getElementById('themeToggle').click()`);
+
+    const inicial = await estadoDoTema();
+    assert.equal(inicial.tema, 'auto', 'O tema começa no automático.');
+
+    await clicarTema();
+    const claro = await estadoDoTema();
+    assert.equal(claro.tema, 'light', 'O primeiro clique precisa fixar o tema claro.');
+    assert.equal(claro.salvo, 'light', 'A escolha de tema precisa ir para as preferências.');
+
+    await clicarTema();
+    // A cor pintada só re-resolve no quadro seguinte à troca do token, então a
+    // leitura espera a mudança em vez de exigir que ela já tenha acontecido.
+    const fundoEscuro = await until('o tema escuro pintar o fundo', async () => {
+      const atual = await estadoDoTema();
+      return atual.fundo !== claro.fundo ? atual.fundo : null;
+    });
+    const escuro = await estadoDoTema();
+    assert.equal(escuro.tema, 'dark', 'O segundo clique precisa fixar o tema escuro.');
+    assert.notEqual(fundoEscuro, claro.fundo, 'Claro e escuro pintaram o mesmo fundo.');
+
+    await clicarTema();
+    const voltou = await estadoDoTema();
+    assert.equal(voltou.tema, 'auto', 'O terceiro clique precisa voltar para o automático.');
+    [inicial, claro, escuro, voltou].forEach((passo) => {
+      assert.match(
+        passo.rotulo,
+        /^Tema .+\. Ativar tema .+\.$/,
+        'O rótulo do botão precisa dizer o estado atual e o próximo.'
+      );
+    });
+
     // 4. Nenhuma violação de CSP: é o sintoma exato do defeito que motivou o teste.
     const violacoes = client.events
       .filter((evento) => evento.method === 'Log.entryAdded')

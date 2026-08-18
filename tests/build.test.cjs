@@ -83,7 +83,11 @@ test('o build gera um único atlas-195.html autocontido', () => {
     'Folhas de estilo externas quebram o arquivo único.'
   );
   assert.equal((html.match(/<style\b/gi) || []).length, 1, 'Deve existir um único estilo inline.');
-  assert.equal((html.match(/<script\b/gi) || []).length, 3, 'Dados, núcleo e app devem ser inline.');
+  assert.equal(
+    (html.match(/<script\b/gi) || []).length,
+    4,
+    'Tema, dados, núcleo e app devem ser inline.'
+  );
 });
 
 test('o artefato contém exatamente os 195 países e IDs únicos', () => {
@@ -212,7 +216,7 @@ test('os hashes da CSP sobrevivem à normalização de quebras de linha do parse
   const styles = [...parsed.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map(match => match[1]);
   const scripts = [...parsed.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1]);
 
-  assert.equal(scripts.length, 3, 'Dados, núcleo e app precisam continuar inline.');
+  assert.equal(scripts.length, 4, 'Tema, dados, núcleo e app precisam continuar inline.');
   assert.deepEqual(
     hashesOf(directives, 'style-src').sort(),
     styles.map(cspHash).sort(),
@@ -282,4 +286,24 @@ test('capitais oficiais, sedes administrativas e nomes históricos não são con
   assert.equal(byId.CY.r, 'Ásia');
   assert.equal(countries.some(country => country.r === 'América do Norte e Central'), false);
   assert.equal(countries.some(country => country.r === 'América do Norte, Central e Caribe'), true);
+});
+
+test('o tema salvo é aplicado antes da primeira pintura', () => {
+  // Se o atributo só fosse escrito quando o app inicializa, quem fixou o tema
+  // oposto ao do sistema veria a paleta errada piscar antes da troca.
+  const boot = extractInline(html, 'script', 'theme');
+  assert.match(boot, /atlas195:prefs:v2/, 'O script de tema precisa ler a mesma chave de preferências.');
+  assert.match(boot, /document\.documentElement\.dataset\.theme/, 'O script de tema precisa marcar a raiz.');
+
+  const cabecalho = html.slice(0, html.indexOf('</head>'));
+  assert.ok(
+    cabecalho.includes('data-atlas-slot="theme"'),
+    'O script de tema precisa estar no head, antes do corpo ser pintado.'
+  );
+  const posicaoTema = html.indexOf('data-atlas-slot="theme"');
+  const posicaoEstilo = html.indexOf('data-atlas-slot="css"');
+  assert.ok(posicaoTema < posicaoEstilo, 'O script de tema deve preceder o CSS.');
+
+  // Ele não pode depender do resto do app, que só carrega no fim do corpo.
+  assert.doesNotMatch(boot, /AtlasCore|\bDATA\b/, 'O script de tema precisa ser autossuficiente.');
 });

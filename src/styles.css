@@ -53,7 +53,7 @@
    texto sobre fundo escuro, aqui o papel se inverte. Os pares de contraste
    ficam todos acima de 4.5:1. */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --ocean: #e9f0f3;
     --ocean-deep: #dae5ea;
     --panel: #ffffff;
@@ -86,6 +86,52 @@
     --shadow-soft: rgba(15, 40, 55, 0.13);
     --shadow-strong: rgba(15, 40, 55, 0.19);
   }
+}
+
+/* Tema claro fixado pelo botão do app. Os valores são copiados do bloco acima;
+   um teste compara os dois para que nunca divirjam. */
+:root[data-theme="light"] {
+  --ocean: #e9f0f3;
+  --ocean-deep: #dae5ea;
+  --panel: #ffffff;
+  --panel-2: #f1f6f8;
+  --surface-hover: #e1ecf0;
+  --line: #6f8892;
+  --line-soft: #cfdde2;
+  --land: #93aeba;
+  --land-hi: #62838f;
+  --land-context: #c6d5db;
+  --land-dim: #d3dfe4;
+  --map-glow: rgba(120, 160, 180, 0.20);
+  --ink: #0b1c25;
+  --muted: #3e545e;
+  --muted-2: #506a74;
+  --gold: #8a5a00;
+  --gold-hover: #6d4700;
+  --mint: #0f7a5a;
+  --coral: #b03a26;
+  --paper: #ffffff;
+  --on-accent: #ffffff;
+  --seg-active-muted: #dbe8ed;
+  --ok-surface: rgba(15, 122, 90, 0.12);
+  --ok-ink: #0a5c43;
+  --bad-surface: rgba(176, 58, 38, 0.10);
+  --bad-ink: #8d2c1b;
+  --danger-hover: #8d2c1b;
+  --track-edge: #c4d3d9;
+  --flag-edge: rgba(0, 0, 0, 0.18);
+  --shadow-soft: rgba(15, 40, 55, 0.13);
+  --shadow-strong: rgba(15, 40, 55, 0.19);
+}
+
+/* O esquema declarado acompanha a escolha para que controles nativos (barras de
+   rolagem, campos, seletores) não fiquem com o contraste do tema oposto. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 *,
@@ -240,7 +286,8 @@ input {
 }
 
 .tab,
-.filter-toggle {
+.filter-toggle,
+.theme-toggle {
   min-height: var(--tap);
   border: 1px solid transparent;
   border-radius: var(--radius);
@@ -280,6 +327,29 @@ input {
   border-color: var(--line);
 }
 
+/* Botão de tema: discreto ao lado das seções, com a largura do alvo de toque
+   para continuar acessível no celular. */
+.theme-toggle {
+  display: inline-flex;
+  min-width: var(--tap);
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-color: var(--line-soft);
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+  border-color: var(--line);
+  background: var(--panel-2);
+  color: var(--ink);
+}
+
+.theme-toggle-icon {
+  line-height: 1;
+}
 .filter-toggle:hover {
   background: var(--panel-2);
   color: var(--ink);

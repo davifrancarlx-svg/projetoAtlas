@@ -11,6 +11,7 @@ O treino combina sete direções independentes (bandeira ↔ país, capital ↔ 
 - **Prova**: séries fechadas de 10, 20 ou 30 perguntas, iniciadas na aba Progresso, com nota, tempo médio e a lista de erros no fim. Respeita o modo e a área de estudo selecionados, e os erros alimentam o mesmo baralho de revisão.
 - **Baralho de erros**: a aba Progresso resume a sessão (perguntas, precisão, tempo médio, estouros) e enfileira os erros ainda não corrigidos numa sequência de revisão. Uma habilidade acertada depois sai do baralho.
 - **Backup**: exportar gera um arquivo com o envelope validado do progresso; importar funde com o que já existe no aparelho, sem apagar nada. O arquivo é o mesmo formato lido pelo `AtlasCore`, então um progresso corrompido é recusado sem efeito colateral.
+- **Tema**: o botão na barra do topo cicla automático → claro → escuro. Automático é o padrão e segue o sistema; escolher claro ou escuro fixa a paleta mesmo que o sistema diga o contrário, e a escolha fica salva com as demais preferências. Um script no `<head>` aplica o tema salvo antes da primeira pintura, para a página não nascer com a paleta errada e piscar.
 
 ## Desenvolvimento
 
@@ -30,6 +31,7 @@ Abra `http://127.0.0.1:8743/atlas-195.html`.
 - `src/styles.css`: identidade visual e responsividade.
 - `src/core.js`: regras puras, validação, revisão adaptativa e a geometria de exibição (projeção Robinson, zoom, enquadramento e resolução de território).
 - `src/app.js`: mapa, controles e renderização. Não guarda cópia própria dessas regras: consome o núcleo, que é testado sem DOM.
+- `src/theme-boot.js`: aplica o tema salvo antes da primeira pintura. Só isso — a lógica de tema mora em `app.js`.
 - `src/countries.base.json`: conteúdo educacional e bandeiras.
 - `src/territories.json`: territórios que a cartografia entrega dentro de outro país, com rótulo, capital regional e notas.
 - `data/map-geometry.json`: geometria projetada gerada a partir do Natural Earth.

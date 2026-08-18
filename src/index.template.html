@@ -30,6 +30,9 @@
   <meta name="twitter:title" content="Atlas 195 — bandeiras, capitais e localização">
   <meta name="twitter:description" content="Treino de geografia dos 195 países, com revisão espaçada e mapa interativo. Funciona sem internet.">
   <meta name="twitter:image" content="{{BASE_URL}}/icon-512.png">
+  <script data-atlas-slot="theme">
+{{THEME}}
+  </script>
   <style data-atlas-slot="css">
 {{CSS}}
   </style>
@@ -60,6 +63,16 @@
         <button class="tab" type="button" data-view="atlas">Atlas</button>
         <button class="tab" type="button" data-view="prog">Progresso</button>
       </nav>
+
+      <button
+        class="theme-toggle"
+        id="themeToggle"
+        type="button"
+        aria-label="Tema automático, seguindo o sistema. Ativar tema claro."
+        title="Tema automático"
+      >
+        <span class="theme-toggle-icon" id="themeToggleIcon" aria-hidden="true">◐</span>
+      </button>
     </header>
 
     <section class="controls" id="controls" aria-labelledby="controlsTitle">
