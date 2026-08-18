@@ -55,6 +55,16 @@ Vaticano, Mônaco, Tuvalu, Nauru e San Marino ocupam frações de pixel nessa es
 
 Territórios que chegam dentro do polígono de outro país, como a Guiana Francesa, o Alasca ou as Canárias, são identificados pelo nome próprio no mapa e ganham ficha no Atlas, sem virar resposta de pergunta — ver `DATA_SOURCES.md`.
 
-As bandeiras usam a coleção flag-icons 7.5.0 sob licença MIT. O progresso possui validação, migração, revisão independente por habilidade e sincronização segura entre abas, inclusive após um reset. A aplicação não envia respostas ou dados pessoais para servidores: o backup por arquivo existe justamente para levar o progresso a outro aparelho sem conta, sem servidor e sem abrir a CSP, que continua com `connect-src 'none'`.
+As bandeiras usam a coleção flag-icons 7.5.0 sob licença MIT. O progresso possui validação, migração, revisão independente por habilidade e sincronização segura entre abas, inclusive após um reset.
+
+## O que sai do aparelho
+
+**Sem conta, nada sai.** Sem entrar, o Atlas não faz nenhuma requisição de rede — nem para o backend, nem para qualquer outro lugar. É verificável: a política de segurança do artefato autoriza exatamente uma origem em `connect-src`, a do backend de contas, e nada dispara pedido sem sessão iniciada. Todo o resto (mapa, bandeiras, fontes) vem embutido no próprio arquivo.
+
+**Com conta, saem duas coisas:** o e-mail usado para entrar e o seu progresso — países, níveis, datas de revisão e recorde. Isso é derivado das suas respostas. Não há anúncio, rastreio, analytics nem terceiro envolvido; a conta existe só para levar o progresso a outro aparelho.
+
+A conta é sempre opcional e nunca aparece na frente de quem quer treinar: ela vive num cartão da aba Progresso. Aberto direto do disco, o cartão nem existe. O aparelho continua sendo o dono do progresso — a conta é uma cópia que sincroniza, e o que decide conflito é o mesmo `Core.mergeProgress` que já reconcilia duas abas abertas, fundindo os dois lados em vez de escolher um. Se a rede cair ou o serviço sair do ar, aparece um aviso discreto e o treino continua igual.
+
+O backup por arquivo continua existindo para quem prefere não criar conta nenhuma.
 
 O servidor local negocia `Accept-Encoding` e responde comprimido: os 4,9 MB do artefato viram cerca de 1,6 MB na primeira resposta e 1,1 MB nas seguintes, quando o brotli de qualidade máxima termina em segundo plano e substitui o cache. Nenhuma dependência é usada para isso.

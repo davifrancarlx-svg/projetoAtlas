@@ -1,0 +1,6 @@
+{
+  "_comentario": "Endereço e chave pública do backend de contas. A chave anon é publicável por definição: quem protege os dados são as políticas de linha no banco, que restringem cada pessoa à própria linha. Sem este arquivo, ou aberto do disco, o Atlas simplesmente não mostra a área de conta.",
+  "url": "https://wckbqklezfxfoaaiybab.supabase.co",
+  "anonKey": "sb_publishable_X8Qy8yytvtrfbvc-I1UhGA_ctgdPUso",
+  "tabela": "progresso_atlas"
+}

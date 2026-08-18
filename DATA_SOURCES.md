@@ -94,3 +94,13 @@ efetivamente emitidos**. A distinção importa para os micro-países: quando o a
 degenera na quantização, o gerador o substitui por um símbolo sintético criado
 depois da medição, e sem essa união o Vaticano ficaria com um retângulo de
 largura zero — desenhado na tela, mas invisível para o enquadramento.
+
+## Conta e sincronização
+
+O backend de contas é o Supabase provisionado pelo Lovable. O aplicativo fala com ele por HTTP direto (`fetch`), sem SDK — a regra de zero dependências vale também aqui, e o artefato continua sendo um arquivo só.
+
+- Configuração: `src/cloud.json` (endereço e chave `anon`). O build embute esses valores e usa a origem para montar o `connect-src` da CSP. Sem o arquivo, o app não mostra a área de conta e a CSP volta a `'none'`.
+- A chave `anon` é publicável por definição: quem protege os dados é a política de linha do banco. A tabela `progresso_atlas` tem RLS ligado e quatro políticas (leitura, criação, atualização, exclusão), todas restritas a `auth.uid() = usuario`. Um leitor anônimo recebe lista vazia, não erro.
+- Entrada por link mágico no e-mail, sem senha. Os tokens voltam no fragmento da URL, são guardados e imediatamente apagados da barra de endereços, para não ficarem no histórico nem vazarem num "copiar link".
+- O que trafega é o mesmo envelope validado do backup por arquivo. Envelope corrompido no servidor é recusado pela validação e não contamina o aparelho.
+- Nunca existe sobrescrita: `Core.planSync` funde os dois lados com `Core.mergeProgress` e diz quem precisa ser atualizado. Um apagar de progresso feito num aparelho vence os desatualizados pela geração do envelope.

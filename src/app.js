@@ -1033,6 +1033,7 @@
       countryIds: IDS, bestStreak: state.streak,
     });
     queueProgressSave();
+    scheduleCloudSync();
     renderQuiz();
     syncMapForQuestion(correct);
     const expected = expectedAnswer(state.question.direction, target);
@@ -1701,6 +1702,265 @@
     announce(state.importStatus.text);
   }
 
+  /* ------------------------------------------------------------------ *
+   * Conta (opcional)
+   *
+   * O aparelho continua sendo o dono do progresso: a conta é uma cópia que
+   * sincroniza. Tudo aqui falha em silêncio — sem rede, sem conta ou com o
+   * servidor fora do ar, o treino segue exatamente como antes.
+   * ------------------------------------------------------------------ */
+
+  const SESSION_KEY = 'atlas195:conta:v1';
+  const CLOUD_CONFIG = typeof CLOUD === 'undefined' ? null : CLOUD;
+  const cloud = { session: null, status: null, syncing: false, timer: 0, lastSyncAt: null };
+
+  function cloudEnabled() {
+    return Core.cloudReady(CLOUD_CONFIG, location.protocol);
+  }
+
+  function readSession() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+      if (!parsed || typeof parsed.access_token !== 'string' || typeof parsed.refresh_token !== 'string') return null;
+      return parsed;
+    } catch (_) { return null; }
+  }
+
+  function writeSession(session) {
+    cloud.session = session;
+    try {
+      if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+      else localStorage.removeItem(SESSION_KEY);
+    } catch (_) { /* modo privado: a sessão vale só enquanto a aba viver */ }
+  }
+
+  function setCloudStatus(text, kind = '') {
+    cloud.status = text ? { text, kind } : null;
+    if (state.view === 'prog') renderProgress();
+  }
+
+  async function cloudFetch(path, options = {}) {
+    const resposta = await fetch(`${CLOUD_CONFIG.url}${path}`, {
+      ...options,
+      headers: {
+        apikey: CLOUD_CONFIG.anonKey,
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+        ...(cloud.session ? { Authorization: `Bearer ${cloud.session.access_token}` } : {}),
+      },
+    });
+    return resposta;
+  }
+
+  // O token de acesso expira; o de renovação vale muito mais. Uma resposta 401
+  // dispara uma única tentativa de renovar antes de considerar a sessão perdida.
+  async function refreshSession() {
+    if (!cloud.session || !cloud.session.refresh_token) return false;
+    const resposta = await fetch(`${CLOUD_CONFIG.url}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { apikey: CLOUD_CONFIG.anonKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: cloud.session.refresh_token }),
+    });
+    if (!resposta.ok) { writeSession(null); return false; }
+    const dados = await resposta.json();
+    writeSession({
+      access_token: dados.access_token,
+      refresh_token: dados.refresh_token,
+      email: (dados.user && dados.user.email) || cloud.session.email,
+      user_id: (dados.user && dados.user.id) || cloud.session.user_id,
+    });
+    return true;
+  }
+
+  async function cloudRequest(path, options = {}) {
+    let resposta = await cloudFetch(path, options);
+    if (resposta.status === 401 && await refreshSession()) resposta = await cloudFetch(path, options);
+    return resposta;
+  }
+
+  async function requestMagicLink(email) {
+    const destino = `${location.origin}${location.pathname}`;
+    const resposta = await fetch(
+      `${CLOUD_CONFIG.url}/auth/v1/otp?redirect_to=${encodeURIComponent(destino)}`,
+      {
+        method: 'POST',
+        headers: { apikey: CLOUD_CONFIG.anonKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, create_user: true }),
+      },
+    );
+    if (resposta.ok) return { ok: true };
+    let motivo = '';
+    try { const erro = await resposta.json(); motivo = erro.msg || erro.error_description || erro.message || ''; } catch (_) { /* corpo vazio */ }
+    // O plano em uso limita os e-mails de autenticação por hora; dizer isso é
+    // mais útil do que "erro 429".
+    if (resposta.status === 429) return { ok: false, motivo: 'Muitos pedidos de link em pouco tempo. Tente de novo daqui a alguns minutos.' };
+    return { ok: false, motivo: motivo || 'Não foi possível enviar o link agora.' };
+  }
+
+  // O link do e-mail volta para o app com os tokens no fragmento da URL. Ele é
+  // lido, guardado e apagado da barra de endereços, para o token não ficar no
+  // histórico nem ser compartilhado sem querer num "copiar link".
+  async function consumeAuthCallback() {
+    const bruto = location.hash.startsWith('#') ? location.hash.slice(1) : '';
+    if (!bruto) return false;
+    const parametros = new URLSearchParams(bruto);
+    const acesso = parametros.get('access_token');
+    const renovacao = parametros.get('refresh_token');
+    const erro = parametros.get('error_description') || parametros.get('error');
+    if (!acesso && !erro) return false;
+    history.replaceState(null, '', `${location.pathname}${location.search}`);
+    if (erro) {
+      setCloudStatus(`O link de acesso não valeu: ${erro}`, 'error');
+      return false;
+    }
+    writeSession({ access_token: acesso, refresh_token: renovacao, email: null, user_id: null });
+    const perfil = await cloudRequest('/auth/v1/user');
+    if (perfil.ok) {
+      const usuario = await perfil.json();
+      writeSession({ ...cloud.session, email: usuario.email, user_id: usuario.id });
+    }
+    return true;
+  }
+
+  async function pullRemoteProgress() {
+    if (!cloud.session || !cloud.session.user_id) return null;
+    const caminho = `/rest/v1/${CLOUD_CONFIG.tabela}?usuario=eq.${encodeURIComponent(cloud.session.user_id)}&select=envelope`;
+    const resposta = await cloudRequest(caminho, { headers: { Accept: 'application/json' } });
+    if (!resposta.ok) throw new Error(`leitura falhou (${resposta.status})`);
+    const linhas = await resposta.json();
+    if (!Array.isArray(linhas) || !linhas.length) return null;
+    const decoded = Core.deserializeProgress(JSON.stringify(linhas[0].envelope), { countryIds: IDS });
+    return decoded.recovered ? null : decoded.progress;
+  }
+
+  async function pushRemoteProgress(envelope) {
+    const resposta = await cloudRequest(`/rest/v1/${CLOUD_CONFIG.tabela}`, {
+      method: 'POST',
+      headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({
+        usuario: cloud.session.user_id,
+        envelope: JSON.parse(envelope),
+        atualizado_em: new Date().toISOString(),
+      }),
+    });
+    if (!resposta.ok) throw new Error(`gravação falhou (${resposta.status})`);
+  }
+
+  async function syncCloud({ silencioso = false } = {}) {
+    if (!cloudEnabled() || !cloud.session || cloud.syncing) return;
+    cloud.syncing = true;
+    if (!silencioso) setCloudStatus('Sincronizando…');
+    try {
+      const remoto = await pullRemoteProgress();
+      const plano = Core.planSync(progress, remoto, { countryIds: IDS });
+      if (plano.download) {
+        progress = plano.merged;
+        queueProgressSave(true);
+        if (state.view === 'quiz') renderScorebar();
+      }
+      if (plano.upload) await pushRemoteProgress(Core.serializeProgress(plano.merged, { countryIds: IDS }));
+      cloud.lastSyncAt = new Date();
+      setCloudStatus(plano.unchanged ? 'Tudo sincronizado.' : 'Progresso sincronizado com a conta.', 'ok');
+    } catch (erro) {
+      // Falha de rede não pode virar obstáculo: o progresso local continua
+      // salvo e a próxima tentativa acontece na próxima mudança.
+      setCloudStatus('Sem sincronizar agora. O progresso continua salvo neste aparelho.', 'error');
+    } finally {
+      cloud.syncing = false;
+    }
+  }
+
+  function scheduleCloudSync() {
+    if (!cloudEnabled() || !cloud.session) return;
+    clearTimeout(cloud.timer);
+    cloud.timer = setTimeout(() => syncCloud({ silencioso: true }), 6000);
+  }
+
+  async function signOutCloud() {
+    try { await cloudRequest('/auth/v1/logout', { method: 'POST' }); } catch (_) { /* melhor esforço */ }
+    writeSession(null);
+    cloud.lastSyncAt = null;
+    setCloudStatus('Você saiu da conta. O progresso continua neste aparelho.', 'ok');
+  }
+
+  async function initializeCloud() {
+    if (!cloudEnabled()) return;
+    cloud.session = readSession();
+    const entrou = await consumeAuthCallback();
+    if (cloud.session) {
+      if (entrou) setCloudStatus('Conta conectada. Juntando o progresso…', 'ok');
+      await syncCloud({ silencioso: !entrou });
+    }
+  }
+
+  function renderAccount(container) {
+    if (!cloudEnabled()) return;
+    const card = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'contaTitle' } });
+    card.append(create('h3', { id: 'contaTitle', text: 'Conta (opcional)' }));
+
+    if (!cloud.session) {
+      card.append(create('p', {
+        text: 'Entrar é opcional e serve só para levar o progresso a outro aparelho. '
+          + 'Sem conta, nada sai daqui. Com conta, saem o seu e-mail e o seu progresso '
+          + '— países, níveis e datas de revisão. Nunca há anúncio, rastreio ou venda de dados.',
+      }));
+      const linha = create('div', { className: 'button-row' });
+      const email = create('input', {
+        id: 'contaEmail', className: 'search', attrs: {
+          type: 'email', autocomplete: 'email', placeholder: 'seu@email.com',
+          'aria-label': 'E-mail para receber o link de acesso',
+        },
+      });
+      const entrar = create('button', { className: 'btn', type: 'button', text: 'Receber link de acesso' });
+      const pedir = async () => {
+        const valor = email.value.trim();
+        if (!valor || !valor.includes('@')) {
+          setCloudStatus('Digite um e-mail válido para receber o link.', 'error');
+          return;
+        }
+        entrar.disabled = true;
+        setCloudStatus('Enviando o link…');
+        const resultado = await requestMagicLink(valor);
+        entrar.disabled = false;
+        if (resultado.ok) setCloudStatus(`Link enviado para ${valor}. Abra o e-mail neste aparelho e clique no link.`, 'ok');
+        else setCloudStatus(resultado.motivo, 'error');
+      };
+      entrar.addEventListener('click', pedir);
+      email.addEventListener('keydown', (evento) => { if (evento.key === 'Enter') { evento.preventDefault(); pedir(); } });
+      linha.append(email, entrar);
+      card.append(linha);
+      card.append(create('p', {
+        className: 'source-note',
+        text: 'Sem senha: você recebe um link por e-mail e entra clicando nele.',
+      }));
+    } else {
+      card.append(create('p', {
+        text: `Conectado como ${cloud.session.email || 'sua conta'}. O progresso deste aparelho e o da conta são fundidos, nunca substituídos.`,
+      }));
+      if (cloud.lastSyncAt) {
+        card.append(create('p', {
+          className: 'source-note',
+          text: `Última sincronização às ${cloud.lastSyncAt.toLocaleTimeString('pt-BR')}.`,
+        }));
+      }
+      const linha = create('div', { className: 'button-row' });
+      const sincronizar = create('button', { className: 'btn ghost', type: 'button', text: 'Sincronizar agora' });
+      sincronizar.addEventListener('click', () => syncCloud());
+      const sair = create('button', { className: 'btn ghost', type: 'button', text: 'Sair da conta' });
+      sair.addEventListener('click', signOutCloud);
+      linha.append(sincronizar, sair);
+      card.append(linha);
+    }
+
+    if (cloud.status) {
+      card.append(create('p', {
+        className: `note${cloud.status.kind === 'error' ? ' note-error' : ''}`,
+        text: cloud.status.text, attrs: { role: 'status' },
+      }));
+    }
+    container.append(card);
+  }
+
   function renderBackup(container) {
     const card = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'backupTitle' } });
     card.append(create('h3', { id: 'backupTitle', text: 'Backup do progresso' }));
@@ -1808,6 +2068,7 @@
     weakSection.append(weakList);
     dom.panel.append(weakSection);
 
+    renderAccount(dom.panel);
     renderBackup(dom.panel);
 
     const source = MAP_META && MAP_META.source || {};
@@ -2104,6 +2365,9 @@
       bindMapEvents();
       bindControls();
       createNextQuestion();
+      // A conta entra depois que o treino já está de pé: nada aqui pode atrasar
+      // ou impedir a primeira pergunta aparecer.
+      initializeCloud();
     } catch (error) {
       setStorageStatus('O Atlas não pôde ser iniciado.', 'error', true);
       clear(dom.panel);

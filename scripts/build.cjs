@@ -183,10 +183,22 @@ const css = embedFonts() + read('src/styles.css').trim();
 const core = read('src/core.js').trim();
 const app = read('src/app.js').trim();
 const themeBoot = read('src/theme-boot.js').trim();
+// A configuração de conta entra no artefato e também define a única origem que
+// a CSP vai autorizar. Se o arquivo sumir ou vier incompleto, o build segue: o
+// app apenas não mostra a área de conta e a CSP volta a proibir qualquer rede.
+const cloud = (() => {
+  const config = readJson('src/cloud.json');
+  if (!config || typeof config.url !== 'string' || !config.anonKey || !config.tabela) return null;
+  const origin = new URL(config.url).origin;
+  if (!origin.startsWith('https://')) throw new Error('src/cloud.json precisa de uma URL https.');
+  return { url: origin, anonKey: config.anonKey, tabela: config.tabela };
+})();
+const cloudOrigin = cloud ? cloud.url : "'none'";
 const { countries, mapMeta, territories } = loadCountries();
 const data = `const MAP_META = ${JSON.stringify(mapMeta)};\n`
   + `const DATA = ${JSON.stringify(countries)};\n`
-  + `const TERRITORIES = ${JSON.stringify(territories)};`;
+  + `const TERRITORIES = ${JSON.stringify(territories)};\n`
+  + `const CLOUD = ${JSON.stringify(cloud)};`;
 const flagLicense = read('data/flag-icons/LICENSE').trim().replace(/--/g, '—');
 // A OFL exige que a licença acompanhe a fonte redistribuída; as famílias vão
 // embutidas no artefato, então o texto vai junto dentro dele.
@@ -231,10 +243,10 @@ const csp = [
   "img-src 'self' data:",
   // As famílias vão embutidas no próprio CSS; nenhuma origem externa é autorizada.
   "font-src data:",
-  // O app segue sem falar com servidor nenhum. O que abre aqui é só o suficiente
-  // para instalar como aplicativo e funcionar offline: buscar o manifesto e
-  // registrar o service worker, ambos restritos à própria origem.
-  "connect-src 'none'",
+  // Sem conta o app não fala com servidor nenhum. O que abre aqui é exatamente
+  // uma origem — a do backend de contas — e nada mais: nem analytics, nem CDN,
+  // nem a internet em geral. Quem treina sem entrar continua sem tráfego algum.
+  `connect-src ${cloudOrigin}`,
   "manifest-src 'self'",
   "worker-src 'self'",
   "object-src 'none'",

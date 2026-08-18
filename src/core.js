@@ -1230,6 +1230,54 @@
     return null;
   }
 
+  /* ------------------------------------------------------------------ *
+   * Sincronização com conta
+   *
+   * A conta é uma cópia do progresso, nunca a fonte. Estas regras dizem o que
+   * fazer quando as duas versões divergem, e ficam aqui — sem rede e sem DOM —
+   * para serem testadas de verdade. Quem funde continua sendo mergeProgress,
+   * o mesmo que reconcilia duas abas abertas.
+   * ------------------------------------------------------------------ */
+
+  function cloudReady(config, protocol) {
+    if (!isPlainObject(config)) return false;
+    if (typeof config.url !== 'string' || typeof config.anonKey !== 'string') return false;
+    if (!config.url || !config.anonKey || !config.tabela) return false;
+    if (config.url.indexOf('https://') !== 0) return false;
+    // Aberto do disco não há origem para falar com o servidor, e um pedido de
+    // rede ali só produziria erro na tela. A área de conta some, o treino fica.
+    return protocol === 'https:' || protocol === 'http:';
+  }
+
+  /**
+   * Decide o que fazer com o progresso local e o da conta.
+   *
+   * Nunca escolhe um lado: funde os dois e informa quem precisa ser atualizado.
+   * É isso que garante que criar conta não apaga o que já existe no aparelho, e
+   * que um aparelho que ficou offline não desfaz o progresso dos outros.
+   */
+  function planSync(local, remote, options) {
+    options = options || {};
+    assertValidProgress(local, options);
+    var localSerialized = serializeProgress(local, options);
+    if (remote === null || remote === undefined) {
+      return { merged: local, upload: true, download: false, unchanged: false };
+    }
+    assertValidProgress(remote, options);
+    var remoteSerialized = serializeProgress(remote, options);
+    if (remoteSerialized === localSerialized) {
+      return { merged: local, upload: false, download: false, unchanged: true };
+    }
+    var merged = mergeProgress(local, remote, options);
+    var mergedSerialized = serializeProgress(merged, options);
+    return {
+      merged: merged,
+      upload: mergedSerialized !== remoteSerialized,
+      download: mergedSerialized !== localSerialized,
+      unchanged: false
+    };
+  }
+
   function inspectQuestion(question, countries) {
     var errors = [];
     if (!isPlainObject(question)) return { valid: false, errors: ['question must be a plain object'] };
@@ -1298,6 +1346,8 @@
     zoomView: zoomView,
     fitBox: fitBox,
     territoryForPoint: territoryForPoint,
+    cloudReady: cloudReady,
+    planSync: planSync,
     ALIAS_TYPES: ALIAS_TYPES,
     SAFE_ALIAS_TYPES: SAFE_ALIAS_TYPES,
     REVIEW_INTERVAL_DAYS: REVIEW_INTERVAL_DAYS,

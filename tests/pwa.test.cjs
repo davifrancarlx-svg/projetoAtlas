@@ -91,8 +91,21 @@ test('a CSP libera o mínimo para instalar e nada além disso', () => {
   const csp = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];
   assert.match(csp, /manifest-src 'self'/, 'Sem isso o navegador ignora o manifesto.');
   assert.match(csp, /worker-src 'self'/, 'Sem isso o service worker não registra.');
-  // A promessa do produto continua de pé: o app não fala com servidor nenhum.
-  assert.match(csp, /connect-src 'none'/, 'O Atlas não pode passar a enviar dados para fora.');
+  // A promessa mudou junto com a conta opcional, e o teste mudou com ela: em vez
+  // de "não fala com ninguém", agora é "fala com exatamente um endereço". Quem
+  // treina sem entrar continua sem tráfego algum, porque nada dispara pedido sem
+  // sessão. Uma segunda origem aqui — analytics, CDN, curinga — reprova.
+  const backend = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', 'src', 'cloud.json'), 'utf8')
+  );
+  const permitido = new URL(backend.url).origin;
+  const connect = csp.match(/connect-src ([^;]+)/);
+  assert.ok(connect, 'A diretiva connect-src sumiu.');
+  assert.deepEqual(
+    connect[1].trim().split(/\s+/),
+    [permitido],
+    'connect-src precisa listar só o backend de contas.'
+  );
   assert.doesNotMatch(csp, /'unsafe-inline'|'unsafe-eval'/);
   assert.doesNotMatch(csp, /script-src[^;]*\bhttps?:/, 'Nenhum script externo pode ser autorizado.');
 });

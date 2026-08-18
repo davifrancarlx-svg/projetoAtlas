@@ -307,3 +307,34 @@ test('o tema salvo é aplicado antes da primeira pintura', () => {
   // Ele não pode depender do resto do app, que só carrega no fim do corpo.
   assert.doesNotMatch(boot, /AtlasCore|\bDATA\b/, 'O script de tema precisa ser autossuficiente.');
 });
+
+test('a CSP autoriza exatamente a origem do backend de contas, e nada mais', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'cloud.json'), 'utf8'));
+  const origem = new URL(config.url).origin;
+  const directives = cspDirectives(html);
+
+  assert.deepEqual(
+    directives.get('connect-src'),
+    [origem],
+    'connect-src precisa listar só a origem do backend: nem curinga, nem uma segunda origem.'
+  );
+  ['*', "'unsafe-inline'", 'http:', 'https:'].forEach((curinga) => {
+    assert.equal(
+      (directives.get('connect-src') || []).includes(curinga),
+      false,
+      `connect-src não pode conter ${curinga}.`
+    );
+  });
+  // Sem conta o app continua sem falar com ninguém: nada de analytics ou CDN.
+  assert.deepEqual(directives.get('default-src'), ["'none'"]);
+  assert.deepEqual(directives.get('font-src'), ['data:']);
+});
+
+test('a configuração de conta embarca sem segredo de servidor', () => {
+  const dados = extractInline(html, 'script', 'data');
+  assert.match(dados, /const CLOUD = \{/, 'A configuração de conta não foi embutida.');
+  assert.match(dados, /progresso_atlas/, 'A tabela de progresso não foi embutida.');
+  // A chave anon é publicável; a service_role nunca pode entrar no artefato.
+  assert.doesNotMatch(html, /service_role/i, 'Chave de servidor no artefato.');
+  assert.doesNotMatch(html, /\bsb_secret\b|\bSUPABASE_SERVICE\b/i, 'Segredo de servidor no artefato.');
+});
