@@ -1330,7 +1330,115 @@
     return dueReviews(envelope, ids, skills, now);
   }
 
+  // --- fatos derivados -----------------------------------------------------
+  // Frases geradas a partir dos dados que já estão no artefato: nada é escrito à
+  // mão e nada precisa de curadoria, porque tudo aqui é consequência aritmética
+  // de números que já têm origem registrada. Se um dado mudar na próxima
+  // atualização das fontes, a frase muda junto — não há como envelhecer errado.
+  //
+  // Só valem os extremos. "87º maior país do mundo" é verdade e não é fato
+  // nenhum, então rankings do meio da tabela ficam de fora de propósito.
+  // O artigo vem junto porque a concordância muda: "o mais populoso" mas "a maior
+  // expectativa de vida".
+  var FATOS_MUNDO = Object.freeze([
+    { campo: 'ar', artigo: 'o', topo: 10, base: 10, alto: 'maior país do mundo em área', baixo: 'menor país do mundo em área' },
+    { campo: 'pop', artigo: 'o', topo: 10, alto: 'país mais populoso do mundo' },
+    { campo: 'hdi', artigo: 'o', topo: 5, alto: 'maior IDH do mundo' },
+    { campo: 'dens', artigo: 'o', topo: 5, alto: 'país mais densamente povoado do mundo' },
+    { campo: 'vida', artigo: 'a', topo: 5, alto: 'maior expectativa de vida do mundo' },
+    { campo: 'flor', artigo: 'o', topo: 5, alto: 'país mais florestado do mundo' },
+    { campo: 'urb', artigo: 'o', topo: 5, alto: 'país mais urbanizado do mundo' },
+  ]);
+  var FATOS_AREA = Object.freeze([
+    { campo: 'ar', artigo: 'o', alto: 'maior em área', baixo: 'menor em área' },
+    { campo: 'pop', artigo: 'o', alto: 'mais populoso' },
+    { campo: 'hdi', artigo: 'o', alto: 'maior IDH' },
+    { campo: 'dens', artigo: 'o', alto: 'mais densamente povoado' },
+    { campo: 'vida', artigo: 'a', alto: 'maior expectativa de vida' },
+    { campo: 'flor', artigo: 'o', alto: 'mais florestado' },
+    { campo: 'urb', artigo: 'o', alto: 'mais urbanizado' },
+  ]);
+
+  function ordenarPor(lista, campo) {
+    return lista
+      .filter(function (item) { return Number.isFinite(item && item[campo]); })
+      .sort(function (a, b) { return b[campo] - a[campo]; });
+  }
+
+  function derivedFacts(country, countries, options) {
+    if (!country || !Array.isArray(countries)) return [];
+    options = options || {};
+    var territories = options.territories || [];
+    var fatos = [];
+
+    FATOS_MUNDO.forEach(function (regra) {
+      var ordenado = ordenarPor(countries, regra.campo);
+      var posicao = ordenado.findIndex(function (item) { return item.id === country.id; }) + 1;
+      if (!posicao) return;
+      // O primeiro colocado não leva ordinal: "o maior país do mundo" soa como
+      // se fala, "1º maior país do mundo" não.
+      if (posicao === 1) fatos.push(regra.artigo + ' ' + regra.alto);
+      else if (posicao <= regra.topo) fatos.push(posicao + 'º ' + regra.alto);
+      else if (regra.base && posicao > ordenado.length - regra.base) {
+        var doFim = ordenado.length - posicao + 1;
+        fatos.push(doFim === 1 ? regra.artigo + ' ' + regra.baixo : doFim + 'º ' + regra.baixo);
+      }
+    });
+
+    // Superlativos dentro da subregião e da região. A subregião vem primeiro:
+    // "maior do Caribe" diz mais do que "maior das Américas".
+    [
+      { chave: 'sr', rotulo: country.sr },
+      { chave: 'r', rotulo: country.r },
+    ].forEach(function (escopo, indice) {
+      if (!escopo.rotulo) return;
+      if (indice === 1 && country.sr === country.r) return; // não repete o mesmo balde
+      var grupo = countries.filter(function (item) { return item[escopo.chave] === escopo.rotulo; });
+      if (grupo.length < 3) return;
+      FATOS_AREA.forEach(function (regra) {
+        var ordenado = ordenarPor(grupo, regra.campo);
+        if (!ordenado.length) return;
+        if (ordenado[0].id === country.id) fatos.push(regra.artigo + ' ' + regra.alto + ' — ' + escopo.rotulo);
+        else if (regra.baixo && ordenado[ordenado.length - 1].id === country.id) {
+          fatos.push(regra.artigo + ' ' + regra.baixo + ' — ' + escopo.rotulo);
+        }
+      });
+    });
+
+    // Fatos que vêm da própria cartografia.
+    if (Number.isFinite(country.geomParts) && country.geomParts >= 100) {
+      fatos.push('o mapa registra ' + country.geomParts + ' ilhas e porções de terra');
+    }
+    var proprios = territories.filter(function (t) { return t && t.of === country.id; });
+    if (proprios.length) {
+      fatos.push('inclui ' + (proprios.length === 1 ? 'o território' : 'os territórios') + ' de '
+        + proprios.map(function (t) { return t.n; }).join(', '));
+    }
+
+    // Quem não é extremo em nada — a maioria — ficaria sem frase alguma. A
+    // âncora de tamanho resolve isso e ainda ensina: saber que o Uruguai tem a
+    // área do Suriname fixa melhor do que um número solto. Só entra quando a
+    // semelhança é real (até 10% de diferença), senão viraria comparação torta.
+    if (!fatos.length && Number.isFinite(country.ar)) {
+      var vizinho = null;
+      var menorDiferenca = Infinity;
+      countries.forEach(function (outro) {
+        if (!outro || outro.id === country.id || !Number.isFinite(outro.ar) || !outro.ar) return;
+        var diferenca = Math.abs(outro.ar - country.ar) / country.ar;
+        if (diferenca < menorDiferenca) { menorDiferenca = diferenca; vizinho = outro; }
+      });
+      // Formato com travessão, o mesmo dos fatos regionais: em português o artigo
+      // antes do nome do país é irregular ("do Brasil", "da França", "de
+      // Portugal") e montá-lo por regra erraria em vários casos.
+      if (vizinho && menorDiferenca <= 0.1) {
+        fatos.push('área parecida — ' + vizinho.n);
+      }
+    }
+    return fatos;
+  }
+
   return Object.freeze({
+    derivedFacts: derivedFacts,
     SCHEMA_VERSION: SCHEMA_VERSION,
     MAX_LEVEL: MAX_LEVEL,
     QUESTION_DIRECTIONS: QUESTION_DIRECTIONS,

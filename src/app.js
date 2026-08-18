@@ -198,18 +198,32 @@
   // saem sempre com o ano ao lado: mudam a cada edição das fontes, e um número
   // solto passaria a impressão de valor fixo. Quem não tem o dado mostra o
   // motivo em vez de sumir da ficha ou aparecer zerado.
-  function formatPopulation(country) {
-    if (Number.isFinite(country.pop)) {
-      return `${new Intl.NumberFormat('pt-BR').format(country.pop)} habitantes · ${country.popAno}`;
-    }
-    return 'população não publicada';
+  const numero = (valor, casas = 0) => new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: casas, maximumFractionDigits: casas,
+  }).format(valor);
+
+  // Cada indicador sai com o próprio ano porque as séries das fontes não andam
+  // juntas: o IDH é de 2023, a densidade de 2023, a população de 2025.
+  const INDICADORES = [
+    { campo: 'pop', rotulo: 'População', formatar: (v) => `${numero(v)} hab.` },
+    { campo: 'dens', rotulo: 'Densidade', formatar: (v) => `${numero(v, 1)} hab./km²` },
+    { campo: 'vida', rotulo: 'Expectativa de vida', formatar: (v) => `${numero(v, 1)} anos` },
+    { campo: 'urb', rotulo: 'População urbana', formatar: (v) => `${numero(v, 1)}%` },
+    { campo: 'flor', rotulo: 'Área florestal', formatar: (v) => `${numero(v, 1)}%` },
+    { campo: 'hdi', rotulo: 'IDH', formatar: (v) => numero(v, 3) },
+  ];
+
+  function indicadoresDe(country) {
+    return INDICADORES
+      .filter((item) => Number.isFinite(country[item.campo]))
+      .map((item) => ({
+        rotulo: item.rotulo,
+        valor: `${item.formatar(country[item.campo])} · ${country[`${item.campo}Ano`]}`,
+      }));
   }
 
-  function formatHdi(country) {
-    if (Number.isFinite(country.hdi)) {
-      return `IDH ${country.hdi.toFixed(3).replace('.', ',')} · ${country.hdiAno}`;
-    }
-    return 'IDH não publicado';
+  function fatosDe(country) {
+    return Core.derivedFacts(country, DATA, { territories: TERRITORY_LIST });
   }
 
   function themeStep(id) {
@@ -1194,6 +1208,20 @@
       create('div', { className: 'factmeta', text: `${country.cap} · ${country.sr} · ${formatArea(country.ar)}` }),
     ]));
     verdict.append(fact);
+
+    // No acerto, um destaque do país. Só um: a série é rápida e despejar cinco
+    // frases a cada resposta viraria ruído. Qual deles aparece varia com o
+    // número da pergunta, então repetir o mesmo país não repete o mesmo fato.
+    if (isCorrect) {
+      const fatos = fatosDe(country);
+      if (fatos.length) {
+        verdict.append(create('p', {
+          className: 'fato-destaque',
+          text: fatos[state.questionNumber % fatos.length],
+        }));
+      }
+    }
+
     explanatoryNotes(country).forEach((note) => verdict.append(create('p', { className: 'note', text: note })));
     const next = create('button', { id: 'nextQuestion', className: 'btn wide', text: 'Próxima pergunta', type: 'button' });
     next.addEventListener('click', () => createNextQuestion({ focus: true }));
@@ -1316,16 +1344,32 @@
       create('h3', { text: country.n }),
       create('p', { text: `Capital: ${country.cap}` }),
       create('p', { text: `${country.sr} · ${formatArea(country.ar)}` }),
-      create('p', { className: 'atlas-indicators', text: `${formatPopulation(country)} · ${formatHdi(country)}` }),
     ]);
     atlasElements.detail.append(flagImage(country, { eager: true }), copy);
+
+    const indicadores = indicadoresDe(country);
+    if (indicadores.length) {
+      const lista = create('dl', { className: 'indicadores' });
+      indicadores.forEach((item) => {
+        lista.append(create('dt', { text: item.rotulo }), create('dd', { text: item.valor }));
+      });
+      atlasElements.detail.append(lista);
+    }
+
+    const fatos = fatosDe(country);
+    if (fatos.length) {
+      const bloco = create('ul', { className: 'fatos', attrs: { 'aria-label': `Destaques de ${country.n}` } });
+      fatos.forEach((fato) => bloco.append(create('li', { text: fato })));
+      atlasElements.detail.append(bloco);
+    }
+
     // A explicação da ausência só aparece para quem realmente não tem o dado.
-    [country.popNota, country.hdiNota].filter(Boolean).forEach((nota) => {
+    [country.bmNota, country.hdiNota].filter(Boolean).forEach((nota) => {
       atlasElements.detail.append(create('p', { className: 'note', text: nota }));
     });
     atlasElements.detail.append(create('p', {
       className: 'source-note',
-      text: `População: ${INDICATOR_META.populacao.fonte}. IDH: ${INDICATOR_META.idh.fonte}.`,
+      text: `Indicadores: ${INDICATOR_META.bancoMundial.fonte} (${INDICATOR_META.bancoMundial.licenca}). IDH: ${INDICATOR_META.idh.fonte}.`,
     }));
     territoriesOf(country.id).forEach((territory) => {
       atlasElements.detail.append(territoryCard(country, territory));

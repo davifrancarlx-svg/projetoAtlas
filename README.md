@@ -33,7 +33,7 @@ Abra `http://127.0.0.1:8743/atlas-195.html`.
 - `src/app.js`: mapa, controles e renderização. Não guarda cópia própria dessas regras: consome o núcleo, que é testado sem DOM.
 - `src/theme-boot.js`: aplica o tema salvo antes da primeira pintura. Só isso — a lógica de tema mora em `app.js`.
 - `src/countries.base.json`: conteúdo educacional e bandeiras.
-- `data/indicators.json`: população e IDH, com origem e hash registrados. São dados complementares da ficha e nunca viram pergunta.
+- `data/indicators.json`: seis indicadores oficiais (população, densidade, expectativa de vida, população urbana, área florestal e IDH), com origem, ano e hash registrados. São dados complementares da ficha e nunca viram pergunta; os destaques exibidos são derivados deles por `Core.derivedFacts`.
 - `src/territories.json`: territórios que a cartografia entrega dentro de outro país, com rótulo, capital regional e notas.
 - `data/map-geometry.json`: geometria projetada gerada a partir do Natural Earth.
 - `data/flags.json`: bandeiras SVG 4:3 geradas do flag-icons, com licença documentada.

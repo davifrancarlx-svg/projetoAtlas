@@ -105,36 +105,63 @@ O backend de contas é o Supabase provisionado pelo Lovable. O aplicativo fala c
 - O que trafega é o mesmo envelope validado do backup por arquivo. Envelope corrompido no servidor é recusado pela validação e não contamina o aparelho.
 - Nunca existe sobrescrita: `Core.planSync` funde os dois lados com `Core.mergeProgress` e diz quem precisa ser atualizado. Um apagar de progresso feito num aparelho vence os desatualizados pela geração do envelope.
 
-## População e IDH
+## Indicadores e fatos derivados
 
-São **dados complementares da ficha do país e nunca viram pergunta**. Adivinhar
-IDH não é conhecimento geográfico, e o índice reduz um país a um número que muda
-a cada edição do relatório; por isso os dois aparecem sempre com o ano ao lado,
-para não passarem por valor permanente. Um teste barra a entrada deles no
-conjunto de respostas aceitas.
+São **complementos da ficha do país e nunca viram pergunta**. Adivinhar IDH não é
+conhecimento geográfico, e o índice reduz um país a um número que muda a cada
+edição do relatório. Um teste barra a entrada de qualquer um deles no conjunto de
+respostas aceitas.
+
+Cada número aparece **com o próprio ano**, porque as séries não andam juntas:
 
 | Dado | Fonte | Referência | Cobertura |
 | --- | --- | --- | --- |
 | IDH | PNUD, Relatório de Desenvolvimento Humano 2025 | 2023 | 192/195 |
-| População | Banco Mundial, indicador `SP.POP.TOTL` (CC BY 4.0) | 2025 | 194/195 |
+| População | Banco Mundial, `SP.POP.TOTL` | 2025 | 194/195 |
+| Expectativa de vida | Banco Mundial, `SP.DYN.LE00.IN` | 2024 | 194/195 |
+| Densidade demográfica | Banco Mundial, `EN.POP.DNST` | 2023 | 194/195 |
+| População urbana | Banco Mundial, `SP.URB.TOTL.IN.ZS` | 2025 | 194/195 |
+| Área florestal | Banco Mundial, `AG.LND.FRST.ZS` | 2023 | 194/195 |
 
 O IDH vem do PNUD porque **é ele quem define e calcula o índice** — qualquer
-outro site apenas republica. A população vem do Banco Mundial, que republica as
-projeções da ONU através de uma API estável.
+outro site apenas republica. Os demais vêm do Banco Mundial (CC BY 4.0), que
+republica as projeções da ONU e as séries ambientais numa API estável. PIB per
+capita e taxa de fecundidade foram medidos e ficaram de fora: o primeiro cobre
+só 181 dos 195, o segundo diz pouco sobre geografia.
 
 As ausências são poucas, conhecidas e explicadas na própria ficha: Coreia do
-Norte, Mônaco e Vaticano ficam sem IDH; o Vaticano também fica sem população, por
-ter cerca de 800 residentes. Nenhum deles aparece zerado ou desaparece da ficha —
-o app diz que o dado não é publicado e por quê. O gerador **recusa** deixar um
-país sem número sem que exista uma explicação registrada.
+Norte, Mônaco e Vaticano ficam sem IDH; o Vaticano fica fora de todas as séries
+do Banco Mundial, por ter cerca de 800 residentes. Nenhum aparece zerado ou some
+da ficha. O gerador **recusa** deixar um país sem número sem explicação
+registrada.
 
 `data/indicators.json` guarda os valores, a URL de origem, a data da coleta e o
-SHA-256 do que foi baixado. Como os dois números mudam todo ano:
+SHA-256 de cada resposta baixada:
 
 ```sh
-npm run indicators            # rebaixa e regrava
-node scripts/update-indicators.cjs --check   # confere sem gravar
+npm run indicators                            # rebaixa e regrava
+node scripts/update-indicators.cjs --check    # confere sem gravar
 ```
 
-O `--check` ignora a data da coleta e o hash da resposta da API (que muda a cada
-consulta) e compara o que importa: os valores por país e o ano do IDH.
+O `--check` ignora a data da coleta e os hashes (que mudam a cada consulta) e
+compara o que importa: os valores por país e o ano do IDH.
+
+### Fatos derivados
+
+As frases de destaque da ficha **não são escritas à mão nem por curadoria**: são
+consequência aritmética dos dados acima, calculadas em `Core.derivedFacts`. Se um
+número mudar na próxima atualização das fontes, a frase muda junto — não há como
+envelhecer errado.
+
+Só valem os extremos: rankings mundiais de topo, superlativos dentro da região e
+da subregião, contagem de ilhas na cartografia e territórios. "87º maior país do
+mundo" é verdade e não é fato nenhum, então o meio da tabela fica de fora de
+propósito — e um teste garante isso.
+
+Como extremo é, por definição, para poucos, quem não é extremo em nada recebe uma
+âncora de tamanho ("área parecida — Peru"), aceita apenas quando a diferença é
+de no máximo 10%. Com isso, 190 dos 195 países têm ao menos um destaque; os cinco
+restantes simplesmente não exibem nada.
+
+No acerto de uma pergunta aparece **um** destaque, escolhido pelo número da
+pergunta, para que repetir o país não repita a frase.

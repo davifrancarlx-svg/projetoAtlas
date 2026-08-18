@@ -9,13 +9,52 @@
       "sha256": "61ed82e5b66c88dfca8ff9fac775c63981ecab6a254862af97acacc41c143117",
       "cobertura": 192
     },
-    "populacao": {
-      "fonte": "Banco Mundial — indicador SP.POP.TOTL (população total)",
-      "url": "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json&per_page=400&mrv=1",
+    "bancoMundial": {
+      "fonte": "Banco Mundial",
       "termos": "https://datacatalog.worldbank.org/public-licenses#cc-by",
       "licenca": "CC BY 4.0",
-      "sha256": "c6512f87db545be06c8a6a5353d591c395ee6d0b3e748a4374825fa9150bd6ed",
-      "cobertura": 194
+      "indicadores": {
+        "pop": {
+          "codigo": "SP.POP.TOTL",
+          "rotulo": "população total",
+          "url": "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL?format=json&per_page=400&mrv=1",
+          "sha256": "c6512f87db545be06c8a6a5353d591c395ee6d0b3e748a4374825fa9150bd6ed",
+          "cobertura": 194,
+          "anoPredominante": 2025
+        },
+        "vida": {
+          "codigo": "SP.DYN.LE00.IN",
+          "rotulo": "expectativa de vida ao nascer",
+          "url": "https://api.worldbank.org/v2/country/all/indicator/SP.DYN.LE00.IN?format=json&per_page=400&mrv=1",
+          "sha256": "01cddf6b9de036b2454f590117da31635538255a88f45ff3753f99abedf40c83",
+          "cobertura": 194,
+          "anoPredominante": 2024
+        },
+        "dens": {
+          "codigo": "EN.POP.DNST",
+          "rotulo": "densidade demográfica",
+          "url": "https://api.worldbank.org/v2/country/all/indicator/EN.POP.DNST?format=json&per_page=400&mrv=1",
+          "sha256": "483df304cb8c43f8f821e675c6c93e5029e06f77c0dafdfb8c00ac1e44bc678b",
+          "cobertura": 194,
+          "anoPredominante": 2023
+        },
+        "urb": {
+          "codigo": "SP.URB.TOTL.IN.ZS",
+          "rotulo": "população urbana",
+          "url": "https://api.worldbank.org/v2/country/all/indicator/SP.URB.TOTL.IN.ZS?format=json&per_page=400&mrv=1",
+          "sha256": "d60e007fe93b8494e03a6acb95de821aec62b1676bcf93b937e5f02125d209c3",
+          "cobertura": 194,
+          "anoPredominante": 2025
+        },
+        "flor": {
+          "codigo": "AG.LND.FRST.ZS",
+          "rotulo": "área florestal",
+          "url": "https://api.worldbank.org/v2/country/all/indicator/AG.LND.FRST.ZS?format=json&per_page=400&mrv=1",
+          "sha256": "f34a5bd252beb77396b64dbc33ee7eac1948ae84347d17fe9b908b1712405b78",
+          "cobertura": 194,
+          "anoPredominante": 2023
+        }
+      }
     },
     "total": 195
   },
@@ -24,1167 +63,2719 @@
       "hdi": 0.496,
       "hdiAno": 2023,
       "pop": 43844111,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66.3,
+      "vidaAno": 2024,
+      "dens": 63.6,
+      "densAno": 2023,
+      "urb": 25.9,
+      "urbAno": 2025,
+      "flor": 1.9,
+      "florAno": 2023
     },
     "ZA": {
       "hdi": 0.741,
       "hdiAno": 2023,
       "pop": 64747319,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66.3,
+      "vidaAno": 2024,
+      "dens": 52.1,
+      "densAno": 2023,
+      "urb": 63.8,
+      "urbAno": 2025,
+      "flor": 14,
+      "florAno": 2023
     },
     "AL": {
       "hdi": 0.81,
       "hdiAno": 2023,
       "pop": 2349580,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 79.8,
+      "vidaAno": 2024,
+      "dens": 88,
+      "densAno": 2023,
+      "urb": 58.9,
+      "urbAno": 2025,
+      "flor": 28.8,
+      "florAno": 2023
     },
     "DE": {
       "hdi": 0.959,
       "hdiAno": 2023,
       "pop": 83491249,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 80.8,
+      "vidaAno": 2024,
+      "dens": 238.4,
+      "densAno": 2023,
+      "urb": 82.1,
+      "urbAno": 2025,
+      "flor": 32.7,
+      "florAno": 2023
     },
     "AD": {
       "hdi": 0.913,
       "hdiAno": 2023,
       "pop": 82904,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 84.2,
+      "vidaAno": 2024,
+      "dens": 172,
+      "densAno": 2023,
+      "urb": 88.9,
+      "urbAno": 2025,
+      "flor": 34,
+      "florAno": 2023
     },
     "AO": {
       "hdi": 0.616,
       "hdiAno": 2023,
       "pop": 39040039,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 64.8,
+      "vidaAno": 2024,
+      "dens": 29.5,
+      "densAno": 2023,
+      "urb": 71.5,
+      "urbAno": 2025,
+      "flor": 52.1,
+      "florAno": 2023
     },
     "AG": {
       "hdi": 0.851,
       "hdiAno": 2023,
       "pop": 94209,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.8,
+      "vidaAno": 2024,
+      "dens": 212.1,
+      "densAno": 2023,
+      "urb": 24.3,
+      "urbAno": 2025,
+      "flor": 18,
+      "florAno": 2023
     },
     "SA": {
       "hdi": 0.9,
       "hdiAno": 2023,
       "pop": 36973555,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 79,
+      "vidaAno": 2024,
+      "dens": 15.7,
+      "densAno": 2023,
+      "urb": 84.6,
+      "urbAno": 2025,
+      "flor": 0.5,
+      "florAno": 2023
     },
     "DZ": {
       "hdi": 0.763,
       "hdiAno": 2023,
       "pop": 47435312,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.5,
+      "vidaAno": 2024,
+      "dens": 19.4,
+      "densAno": 2023,
+      "urb": 75.8,
+      "urbAno": 2025,
+      "flor": 0.8,
+      "florAno": 2023
     },
     "AR": {
       "hdi": 0.865,
       "hdiAno": 2023,
       "pop": 45851378,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.5,
+      "vidaAno": 2024,
+      "dens": 16.6,
+      "densAno": 2023,
+      "urb": 92.4,
+      "urbAno": 2025,
+      "flor": 10.3,
+      "florAno": 2023
     },
     "AM": {
       "hdi": 0.811,
       "hdiAno": 2023,
       "pop": 3086700,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78.3,
+      "vidaAno": 2024,
+      "dens": 105.1,
+      "densAno": 2023,
+      "urb": 65.9,
+      "urbAno": 2025,
+      "flor": 11.6,
+      "florAno": 2023
     },
     "AU": {
       "hdi": 0.958,
       "hdiAno": 2023,
       "pop": 27614411,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83.1,
+      "vidaAno": 2024,
+      "dens": 3.5,
+      "densAno": 2023,
+      "urb": 87.7,
+      "urbAno": 2025,
+      "flor": 17.4,
+      "florAno": 2023
     },
     "AT": {
       "hdi": 0.93,
       "hdiAno": 2023,
       "pop": 9208163,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82,
+      "vidaAno": 2024,
+      "dens": 110.7,
+      "densAno": 2023,
+      "urb": 69.7,
+      "urbAno": 2025,
+      "flor": 47.2,
+      "florAno": 2023
     },
     "AZ": {
       "hdi": 0.789,
       "hdiAno": 2023,
       "pop": 10246996,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74.6,
+      "vidaAno": 2024,
+      "dens": 122.9,
+      "densAno": 2023,
+      "urb": 58.6,
+      "urbAno": 2025,
+      "flor": 14.1,
+      "florAno": 2023
     },
     "BS": {
       "hdi": 0.82,
       "hdiAno": 2023,
       "pop": 403033,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74.7,
+      "vidaAno": 2024,
+      "dens": 39.9,
+      "densAno": 2023,
+      "urb": 81.3,
+      "urbAno": 2025,
+      "flor": 50.9,
+      "florAno": 2023
     },
     "BH": {
       "hdi": 0.899,
       "hdiAno": 2023,
       "pop": 1600366,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 81.4,
+      "vidaAno": 2024,
+      "dens": 1971.3,
+      "densAno": 2023,
+      "urb": 100,
+      "urbAno": 2025,
+      "flor": 0.9,
+      "florAno": 2023
     },
     "BD": {
       "hdi": 0.685,
       "hdiAno": 2023,
       "pop": 175686899,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74.9,
+      "vidaAno": 2024,
+      "dens": 1319.2,
+      "densAno": 2023,
+      "urb": 33.2,
+      "urbAno": 2025,
+      "flor": 14.5,
+      "florAno": 2023
     },
     "BB": {
       "hdi": 0.811,
       "hdiAno": 2023,
       "pop": 282623,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.3,
+      "vidaAno": 2024,
+      "dens": 656.6,
+      "densAno": 2023,
+      "urb": 59.7,
+      "urbAno": 2025,
+      "flor": 14.7,
+      "florAno": 2023
     },
     "BE": {
       "hdi": 0.951,
       "hdiAno": 2023,
       "pop": 11941781,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82.3,
+      "vidaAno": 2024,
+      "dens": 386.3,
+      "densAno": 2023,
+      "urb": 87.7,
+      "urbAno": 2025,
+      "flor": 22.6,
+      "florAno": 2023
     },
     "BZ": {
       "hdi": 0.721,
       "hdiAno": 2023,
       "pop": 422924,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.7,
+      "vidaAno": 2024,
+      "dens": 18,
+      "densAno": 2023,
+      "urb": 41.6,
+      "urbAno": 2025,
+      "flor": 54.5,
+      "florAno": 2023
     },
     "BJ": {
       "hdi": 0.515,
       "hdiAno": 2023,
       "pop": 14814460,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 61,
+      "vidaAno": 2024,
+      "dens": 125.1,
+      "densAno": 2023,
+      "urb": 53.4,
+      "urbAno": 2025,
+      "flor": 26.5,
+      "florAno": 2023
     },
     "BY": {
       "hdi": 0.824,
       "hdiAno": 2023,
       "pop": 9085991,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74.4,
+      "vidaAno": 2024,
+      "dens": 45.2,
+      "densAno": 2023,
+      "urb": 79.5,
+      "urbAno": 2025,
+      "flor": 43.4,
+      "florAno": 2023
     },
     "BO": {
       "hdi": 0.733,
       "hdiAno": 2023,
       "pop": 12581843,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 68.7,
+      "vidaAno": 2024,
+      "dens": 11.3,
+      "densAno": 2023,
+      "urb": 71.6,
+      "urbAno": 2025,
+      "flor": 46.3,
+      "florAno": 2023
     },
     "BA": {
       "hdi": 0.804,
       "hdiAno": 2023,
       "pop": 3140095,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78,
+      "vidaAno": 2024,
+      "dens": 62.2,
+      "densAno": 2023,
+      "urb": 52.7,
+      "urbAno": 2025,
+      "flor": 42.7,
+      "florAno": 2023
     },
     "BW": {
       "hdi": 0.731,
       "hdiAno": 2023,
       "pop": 2562122,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 69.3,
+      "vidaAno": 2024,
+      "dens": 4.4,
+      "densAno": 2023,
+      "urb": 68,
+      "urbAno": 2025,
+      "flor": 26.3,
+      "florAno": 2023
     },
     "BR": {
       "hdi": 0.786,
       "hdiAno": 2023,
       "pop": 212812405,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76,
+      "vidaAno": 2024,
+      "dens": 25.3,
+      "densAno": 2023,
+      "urb": 88.2,
+      "urbAno": 2025,
+      "flor": 59,
+      "florAno": 2023
     },
     "BN": {
       "hdi": 0.837,
       "hdiAno": 2023,
       "pop": 466330,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 75.5,
+      "vidaAno": 2024,
+      "dens": 87.1,
+      "densAno": 2023,
+      "urb": 75,
+      "urbAno": 2025,
+      "flor": 72.1,
+      "florAno": 2023
     },
     "BG": {
       "hdi": 0.845,
       "hdiAno": 2023,
       "pop": 6433302,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 75.8,
+      "vidaAno": 2024,
+      "dens": 59.4,
+      "densAno": 2023,
+      "urb": 74.2,
+      "urbAno": 2025,
+      "flor": 36.2,
+      "florAno": 2023
     },
     "BF": {
       "hdi": 0.459,
       "hdiAno": 2023,
       "pop": 24074580,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 61.3,
+      "vidaAno": 2024,
+      "dens": 84.2,
+      "densAno": 2023,
+      "urb": 28.9,
+      "urbAno": 2025,
+      "flor": 22.2,
+      "florAno": 2023
     },
     "BI": {
       "hdi": 0.439,
       "hdiAno": 2023,
       "pop": 14390003,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 63.8,
+      "vidaAno": 2024,
+      "dens": 533.1,
+      "densAno": 2023,
+      "urb": 25.7,
+      "urbAno": 2025,
+      "flor": 10.9,
+      "florAno": 2023
     },
     "BT": {
       "hdi": 0.698,
       "hdiAno": 2023,
       "pop": 796682,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.3,
+      "vidaAno": 2024,
+      "dens": 20.6,
+      "densAno": 2023,
+      "urb": 43.4,
+      "urbAno": 2025,
+      "flor": 71.6,
+      "florAno": 2023
     },
     "CV": {
       "hdi": 0.668,
       "hdiAno": 2023,
       "pop": 527326,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.2,
+      "vidaAno": 2024,
+      "dens": 129.6,
+      "densAno": 2023,
+      "urb": 77.6,
+      "urbAno": 2025,
+      "flor": 11.6,
+      "florAno": 2023
     },
     "CM": {
       "hdi": 0.588,
       "hdiAno": 2023,
       "pop": 29879337,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 64,
+      "vidaAno": 2024,
+      "dens": 60,
+      "densAno": 2023,
+      "urb": 55.7,
+      "urbAno": 2025,
+      "flor": 42.7,
+      "florAno": 2023
     },
     "KH": {
       "hdi": 0.606,
       "hdiAno": 2023,
       "pop": 17847982,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 70.8,
+      "vidaAno": 2024,
+      "dens": 98.7,
+      "densAno": 2023,
+      "urb": 41.1,
+      "urbAno": 2025,
+      "flor": 43.1,
+      "florAno": 2023
     },
     "CA": {
       "hdi": 0.939,
       "hdiAno": 2023,
       "pop": 41651653,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82.1,
+      "vidaAno": 2024,
+      "dens": 4.6,
+      "densAno": 2023,
+      "urb": 82.9,
+      "urbAno": 2025,
+      "flor": 39.5,
+      "florAno": 2023
     },
     "QA": {
       "hdi": 0.886,
       "hdiAno": 2023,
       "pop": 2972215,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82.5,
+      "vidaAno": 2024,
+      "dens": 231.2,
+      "densAno": 2023,
+      "urb": 99.4,
+      "urbAno": 2025,
+      "flor": 0,
+      "florAno": 2023
     },
     "KZ": {
       "hdi": 0.837,
       "hdiAno": 2023,
       "pop": 20843754,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74.5,
+      "vidaAno": 2024,
+      "dens": 7.5,
+      "densAno": 2023,
+      "urb": 62.4,
+      "urbAno": 2025,
+      "flor": 1.3,
+      "florAno": 2023
     },
     "TD": {
       "hdi": 0.416,
       "hdiAno": 2023,
       "pop": 21003705,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 55.2,
+      "vidaAno": 2024,
+      "dens": 15.3,
+      "densAno": 2023,
+      "urb": 27.6,
+      "urbAno": 2025,
+      "flor": 3.2,
+      "florAno": 2023
     },
     "CL": {
       "hdi": 0.878,
       "hdiAno": 2023,
       "pop": 19859921,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 81.4,
+      "vidaAno": 2024,
+      "dens": 26.5,
+      "densAno": 2023,
+      "urb": 89.2,
+      "urbAno": 2025,
+      "flor": 25,
+      "florAno": 2023
     },
     "CN": {
       "hdi": 0.797,
       "hdiAno": 2023,
       "pop": 1406585000,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78,
+      "vidaAno": 2024,
+      "dens": 150.3,
+      "densAno": 2023,
+      "urb": 66.3,
+      "urbAno": 2025,
+      "flor": 24,
+      "florAno": 2023
     },
     "CY": {
       "hdi": 0.913,
       "hdiAno": 2023,
       "pop": 1370754,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 81.8,
+      "vidaAno": 2024,
+      "dens": 145.6,
+      "densAno": 2023,
+      "urb": 66.7,
+      "urbAno": 2025,
+      "flor": 18.7,
+      "florAno": 2023
     },
     "CO": {
       "hdi": 0.788,
       "hdiAno": 2023,
       "pop": 53425635,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.9,
+      "vidaAno": 2024,
+      "dens": 47.2,
+      "densAno": 2023,
+      "urb": 78.8,
+      "urbAno": 2025,
+      "flor": 52.8,
+      "florAno": 2023
     },
     "KM": {
       "hdi": 0.603,
       "hdiAno": 2023,
       "pop": 882847,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67,
+      "vidaAno": 2024,
+      "dens": 457,
+      "densAno": 2023,
+      "urb": 33.9,
+      "urbAno": 2025,
+      "flor": 17,
+      "florAno": 2023
     },
     "KP": {
       "hdiNota": "A Coreia do Norte não fornece os dados que o PNUD usa para calcular o índice.",
       "pop": 26571036,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.7,
+      "vidaAno": 2024,
+      "dens": 219.4,
+      "densAno": 2023,
+      "urb": 64.2,
+      "urbAno": 2025,
+      "flor": 49.6,
+      "florAno": 2023
     },
     "KR": {
       "hdi": 0.937,
       "hdiAno": 2023,
       "pop": 51684564,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83.6,
+      "vidaAno": 2024,
+      "dens": 529.8,
+      "densAno": 2023,
+      "urb": 81.2,
+      "urbAno": 2025,
+      "flor": 64.1,
+      "florAno": 2023
     },
     "CI": {
       "hdi": 0.582,
       "hdiAno": 2023,
       "pop": 32711547,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 62.1,
+      "vidaAno": 2024,
+      "dens": 98,
+      "densAno": 2023,
+      "urb": 54.5,
+      "urbAno": 2025,
+      "flor": 7.9,
+      "florAno": 2023
     },
     "CR": {
       "hdi": 0.833,
       "hdiAno": 2023,
       "pop": 5152950,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 81,
+      "vidaAno": 2024,
+      "dens": 100,
+      "densAno": 2023,
+      "urb": 79.7,
+      "urbAno": 2025,
+      "flor": 60.4,
+      "florAno": 2023
     },
     "HR": {
       "hdi": 0.889,
       "hdiAno": 2023,
       "pop": 3876200,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78.9,
+      "vidaAno": 2024,
+      "dens": 69,
+      "densAno": 2023,
+      "urb": 57.8,
+      "urbAno": 2025,
+      "flor": 34.8,
+      "florAno": 2023
     },
     "CU": {
       "hdi": 0.762,
       "hdiAno": 2023,
       "pop": 10937203,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78.3,
+      "vidaAno": 2024,
+      "dens": 106.2,
+      "densAno": 2023,
+      "urb": 77.2,
+      "urbAno": 2025,
+      "flor": 31.2,
+      "florAno": 2023
     },
     "DK": {
       "hdi": 0.962,
       "hdiAno": 2023,
       "pop": 6009169,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82.3,
+      "vidaAno": 2024,
+      "dens": 148.7,
+      "densAno": 2023,
+      "urb": 88.8,
+      "urbAno": 2025,
+      "flor": 15.8,
+      "florAno": 2023
     },
     "DJ": {
       "hdi": 0.513,
       "hdiAno": 2023,
       "pop": 1184076,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66.2,
+      "vidaAno": 2024,
+      "dens": 49.7,
+      "densAno": 2023,
+      "urb": 73,
+      "urbAno": 2025,
+      "flor": 0.3,
+      "florAno": 2023
     },
     "DM": {
       "hdi": 0.761,
       "hdiAno": 2023,
       "pop": 65871,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.3,
+      "vidaAno": 2024,
+      "dens": 88.7,
+      "densAno": 2023,
+      "urb": 74,
+      "urbAno": 2025,
+      "flor": 63.8,
+      "florAno": 2023
     },
     "EG": {
       "hdi": 0.754,
       "hdiAno": 2023,
       "pop": 118365995,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.8,
+      "vidaAno": 2024,
+      "dens": 115.1,
+      "densAno": 2023,
+      "urb": 42.9,
+      "urbAno": 2025,
+      "flor": 0,
+      "florAno": 2023
     },
     "SV": {
       "hdi": 0.678,
       "hdiAno": 2023,
       "pop": 6365503,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.3,
+      "vidaAno": 2024,
+      "dens": 304.5,
+      "densAno": 2023,
+      "urb": 75.5,
+      "urbAno": 2025,
+      "flor": 27.5,
+      "florAno": 2023
     },
     "AE": {
       "hdi": 0.94,
       "hdiAno": 2023,
       "pop": 11513149,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83.1,
+      "vidaAno": 2024,
+      "dens": 147.6,
+      "densAno": 2023,
+      "urb": 86,
+      "urbAno": 2025,
+      "flor": 4.5,
+      "florAno": 2023
     },
     "EC": {
       "hdi": 0.777,
       "hdiAno": 2023,
       "pop": 18289896,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.6,
+      "vidaAno": 2024,
+      "dens": 72.4,
+      "densAno": 2023,
+      "urb": 63.4,
+      "urbAno": 2025,
+      "flor": 49.5,
+      "florAno": 2023
     },
     "ER": {
       "hdi": 0.503,
       "hdiAno": 2023,
       "pop": 3607003,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 68.9,
+      "vidaAno": 2024,
+      "dens": 28.6,
+      "densAno": 2023,
+      "urb": 34.5,
+      "urbAno": 2025,
+      "flor": 8.6,
+      "florAno": 2023
     },
     "SK": {
       "hdi": 0.88,
       "hdiAno": 2023,
       "pop": 5413813,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78.4,
+      "vidaAno": 2024,
+      "dens": 112.9,
+      "densAno": 2023,
+      "urb": 53.2,
+      "urbAno": 2025,
+      "flor": 40.1,
+      "florAno": 2023
     },
     "SI": {
       "hdi": 0.931,
       "hdiAno": 2023,
       "pop": 2130986,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82.3,
+      "vidaAno": 2024,
+      "dens": 105.3,
+      "densAno": 2023,
+      "urb": 56,
+      "urbAno": 2025,
+      "flor": 61.2,
+      "florAno": 2023
     },
     "ES": {
       "hdi": 0.918,
       "hdiAno": 2023,
       "pop": 49355143,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83.9,
+      "vidaAno": 2024,
+      "dens": 96.8,
+      "densAno": 2023,
+      "urb": 80.5,
+      "urbAno": 2025,
+      "flor": 37.2,
+      "florAno": 2023
     },
     "SZ": {
       "hdi": 0.695,
       "hdiAno": 2023,
       "pop": 1256174,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 64.3,
+      "vidaAno": 2024,
+      "dens": 71.5,
+      "densAno": 2023,
+      "urb": 26.7,
+      "urbAno": 2025,
+      "flor": 29.1,
+      "florAno": 2023
     },
     "US": {
       "hdi": 0.938,
       "hdiAno": 2023,
       "pop": 341784857,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78.9,
+      "vidaAno": 2024,
+      "dens": 36.8,
+      "densAno": 2023,
+      "urb": 80.2,
+      "urbAno": 2025,
+      "flor": 33.9,
+      "florAno": 2023
     },
     "EE": {
       "hdi": 0.905,
       "hdiAno": 2023,
       "pop": 1366475,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 79.3,
+      "vidaAno": 2024,
+      "dens": 32.1,
+      "densAno": 2023,
+      "urb": 70.7,
+      "urbAno": 2025,
+      "flor": 57.1,
+      "florAno": 2023
     },
     "ET": {
       "hdi": 0.497,
       "hdiAno": 2023,
       "pop": 135472051,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.6,
+      "vidaAno": 2024,
+      "dens": 114,
+      "densAno": 2023,
+      "urb": 24.1,
+      "urbAno": 2025,
+      "flor": 14.9,
+      "florAno": 2023
     },
     "FJ": {
       "hdi": 0.731,
       "hdiAno": 2023,
       "pop": 933154,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.5,
+      "vidaAno": 2024,
+      "dens": 50.6,
+      "densAno": 2023,
+      "urb": 59.5,
+      "urbAno": 2025,
+      "flor": 63.5,
+      "florAno": 2023
     },
     "PH": {
       "hdi": 0.72,
       "hdiAno": 2023,
       "pop": 116786962,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 69.9,
+      "vidaAno": 2024,
+      "dens": 385.3,
+      "densAno": 2023,
+      "urb": 55.8,
+      "urbAno": 2025,
+      "flor": 24.5,
+      "florAno": 2023
     },
     "FI": {
       "hdi": 0.948,
       "hdiAno": 2023,
       "pop": 5646436,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82.3,
+      "vidaAno": 2024,
+      "dens": 18.4,
+      "densAno": 2023,
+      "urb": 74.5,
+      "urbAno": 2025,
+      "flor": 73.7,
+      "florAno": 2023
     },
     "FR": {
       "hdi": 0.92,
       "hdiAno": 2023,
       "pop": 68720337,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83,
+      "vidaAno": 2024,
+      "dens": 126.9,
+      "densAno": 2023,
+      "urb": 78.8,
+      "urbAno": 2025,
+      "flor": 32.5,
+      "florAno": 2023
     },
     "GA": {
       "hdi": 0.733,
       "hdiAno": 2023,
       "pop": 2593130,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 68.5,
+      "vidaAno": 2024,
+      "dens": 9.6,
+      "densAno": 2023,
+      "urb": 92.1,
+      "urbAno": 2025,
+      "flor": 91.2,
+      "florAno": 2023
     },
     "GM": {
       "hdi": 0.524,
       "hdiAno": 2023,
       "pop": 2822093,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66.1,
+      "vidaAno": 2024,
+      "dens": 266.6,
+      "densAno": 2023,
+      "urb": 65,
+      "urbAno": 2025,
+      "flor": 22.3,
+      "florAno": 2023
     },
     "GH": {
       "hdi": 0.628,
       "hdiAno": 2023,
       "pop": 35064272,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 65.7,
+      "vidaAno": 2024,
+      "dens": 148.5,
+      "densAno": 2023,
+      "urb": 58.9,
+      "urbAno": 2025,
+      "flor": 35.2,
+      "florAno": 2023
     },
     "GE": {
       "hdi": 0.844,
       "hdiAno": 2023,
       "pop": 3935766,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74.7,
+      "vidaAno": 2024,
+      "dens": 65,
+      "densAno": 2023,
+      "urb": 61.2,
+      "urbAno": 2025,
+      "flor": 40.6,
+      "florAno": 2023
     },
     "GD": {
       "hdi": 0.791,
       "hdiAno": 2023,
       "pop": 117303,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 75.4,
+      "vidaAno": 2024,
+      "dens": 344.4,
+      "densAno": 2023,
+      "urb": 36.7,
+      "urbAno": 2025,
+      "flor": 52.1,
+      "florAno": 2023
     },
     "GR": {
       "hdi": 0.908,
       "hdiAno": 2023,
       "pop": 10413962,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 81.8,
+      "vidaAno": 2024,
+      "dens": 80.7,
+      "densAno": 2023,
+      "urb": 79.2,
+      "urbAno": 2025,
+      "flor": 30.3,
+      "florAno": 2023
     },
     "GT": {
       "hdi": 0.662,
       "hdiAno": 2023,
       "pop": 18687881,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.7,
+      "vidaAno": 2024,
+      "dens": 169.1,
+      "densAno": 2023,
+      "urb": 56.3,
+      "urbAno": 2025,
+      "flor": 32.6,
+      "florAno": 2023
     },
     "GY": {
       "hdi": 0.776,
       "hdiAno": 2023,
       "pop": 835986,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 70.3,
+      "vidaAno": 2024,
+      "dens": 3.9,
+      "densAno": 2023,
+      "urb": 26.5,
+      "urbAno": 2025,
+      "flor": 87.1,
+      "florAno": 2023
     },
     "GN": {
       "hdi": 0.5,
       "hdiAno": 2023,
       "pop": 15099727,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 60.9,
+      "vidaAno": 2024,
+      "dens": 58.6,
+      "densAno": 2023,
+      "urb": 38.5,
+      "urbAno": 2025,
+      "flor": 24.7,
+      "florAno": 2023
     },
     "GQ": {
       "hdi": 0.674,
       "hdiAno": 2023,
       "pop": 1938431,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 63.9,
+      "vidaAno": 2024,
+      "dens": 65.9,
+      "densAno": 2023,
+      "urb": 71.6,
+      "urbAno": 2025,
+      "flor": 86.4,
+      "florAno": 2023
     },
     "GW": {
       "hdi": 0.514,
       "hdiAno": 2023,
       "pop": 2249515,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 64.3,
+      "vidaAno": 2024,
+      "dens": 76.6,
+      "densAno": 2023,
+      "urb": 46.7,
+      "urbAno": 2025,
+      "flor": 69.5,
+      "florAno": 2023
     },
     "HT": {
       "hdi": 0.554,
       "hdiAno": 2023,
       "pop": 11906095,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 65.1,
+      "vidaAno": 2024,
+      "dens": 422.3,
+      "densAno": 2023,
+      "urb": 55.6,
+      "urbAno": 2025,
+      "flor": 12.3,
+      "florAno": 2023
     },
     "HN": {
       "hdi": 0.645,
       "hdiAno": 2023,
       "pop": 11005850,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73,
+      "vidaAno": 2024,
+      "dens": 95.1,
+      "densAno": 2023,
+      "urb": 59.3,
+      "urbAno": 2025,
+      "flor": 56.3,
+      "florAno": 2023
     },
     "HU": {
       "hdi": 0.87,
       "hdiAno": 2023,
       "pop": 9514251,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.7,
+      "vidaAno": 2024,
+      "dens": 105.1,
+      "densAno": 2023,
+      "urb": 70.7,
+      "urbAno": 2025,
+      "flor": 22.4,
+      "florAno": 2023
     },
     "YE": {
       "hdi": 0.47,
       "hdiAno": 2023,
       "pop": 41773878,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 69.4,
+      "vidaAno": 2024,
+      "dens": 74.6,
+      "densAno": 2023,
+      "urb": 37,
+      "urbAno": 2025,
+      "flor": 1,
+      "florAno": 2023
     },
     "MH": {
       "hdi": 0.733,
       "hdiAno": 2023,
       "pop": 36282,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.1,
+      "vidaAno": 2024,
+      "dens": 215.7,
+      "densAno": 2023,
+      "urb": 79.1,
+      "urbAno": 2025,
+      "flor": 52.2,
+      "florAno": 2023
     },
     "SB": {
       "hdi": 0.584,
       "hdiAno": 2023,
       "pop": 838645,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 70.7,
+      "vidaAno": 2024,
+      "dens": 28.6,
+      "densAno": 2023,
+      "urb": 31.3,
+      "urbAno": 2025,
+      "flor": 90.1,
+      "florAno": 2023
     },
     "IN": {
       "hdi": 0.685,
       "hdiAno": 2023,
       "pop": 1463865525,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.2,
+      "vidaAno": 2024,
+      "dens": 483.7,
+      "densAno": 2023,
+      "urb": 35.7,
+      "urbAno": 2025,
+      "flor": 24.5,
+      "florAno": 2023
     },
     "ID": {
       "hdi": 0.728,
       "hdiAno": 2023,
       "pop": 285721236,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.3,
+      "vidaAno": 2024,
+      "dens": 148.6,
+      "densAno": 2023,
+      "urb": 59.4,
+      "urbAno": 2025,
+      "flor": 47.7,
+      "florAno": 2023
     },
     "IR": {
       "hdi": 0.799,
       "hdiAno": 2023,
       "pop": 92417681,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.9,
+      "vidaAno": 2024,
+      "dens": 55.8,
+      "densAno": 2023,
+      "urb": 77.4,
+      "urbAno": 2025,
+      "flor": 6.6,
+      "florAno": 2023
     },
     "IQ": {
       "hdi": 0.695,
       "hdiAno": 2023,
       "pop": 47020774,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.4,
+      "vidaAno": 2024,
+      "dens": 103.8,
+      "densAno": 2023,
+      "urb": 69.9,
+      "urbAno": 2025,
+      "flor": 1.9,
+      "florAno": 2023
     },
     "IE": {
       "hdi": 0.949,
       "hdiAno": 2023,
       "pop": 5484367,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83,
+      "vidaAno": 2024,
+      "dens": 77.1,
+      "densAno": 2023,
+      "urb": 64.6,
+      "urbAno": 2025,
+      "flor": 11.5,
+      "florAno": 2023
     },
     "IS": {
       "hdi": 0.972,
       "hdiAno": 2023,
       "pop": 392404,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82.8,
+      "vidaAno": 2024,
+      "dens": 3.8,
+      "densAno": 2023,
+      "urb": 94.2,
+      "urbAno": 2025,
+      "flor": 0.5,
+      "florAno": 2023
     },
     "IL": {
       "hdi": 0.919,
       "hdiAno": 2023,
       "pop": 10122800,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83.2,
+      "vidaAno": 2024,
+      "dens": 455.1,
+      "densAno": 2023,
+      "urb": 91.6,
+      "urbAno": 2025,
+      "flor": 6.5,
+      "florAno": 2023
     },
     "IT": {
       "hdi": 0.915,
       "hdiAno": 2023,
       "pop": 58915656,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 84,
+      "vidaAno": 2024,
+      "dens": 199.5,
+      "densAno": 2023,
+      "urb": 69.7,
+      "urbAno": 2025,
+      "flor": 32.9,
+      "florAno": 2023
     },
     "JM": {
       "hdi": 0.72,
       "hdiAno": 2023,
       "pop": 2837077,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.6,
+      "vidaAno": 2024,
+      "dens": 262.2,
+      "densAno": 2023,
+      "urb": 59.4,
+      "urbAno": 2025,
+      "flor": 56.2,
+      "florAno": 2023
     },
     "JP": {
       "hdi": 0.925,
       "hdiAno": 2023,
       "pop": 123366734,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 84,
+      "vidaAno": 2024,
+      "dens": 341.5,
+      "densAno": 2023,
+      "urb": 92.3,
+      "urbAno": 2025,
+      "flor": 68.4,
+      "florAno": 2023
     },
     "JO": {
       "hdi": 0.754,
       "hdiAno": 2023,
       "pop": 11520684,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78,
+      "vidaAno": 2024,
+      "dens": 128.8,
+      "densAno": 2023,
+      "urb": 93.2,
+      "urbAno": 2025,
+      "flor": 1.1,
+      "florAno": 2023
     },
     "KI": {
       "hdi": 0.644,
       "hdiAno": 2023,
       "pop": 136488,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66.6,
+      "vidaAno": 2024,
+      "dens": 163.6,
+      "densAno": 2023,
+      "urb": 63.4,
+      "urbAno": 2025,
+      "flor": 1.5,
+      "florAno": 2023
     },
     "KW": {
       "hdi": 0.852,
       "hdiAno": 2023,
       "pop": 4865298,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 84.6,
+      "vidaAno": 2024,
+      "dens": 272.4,
+      "densAno": 2023,
+      "urb": 100,
+      "urbAno": 2025,
+      "flor": 0.4,
+      "florAno": 2023
     },
     "LA": {
       "hdi": 0.617,
       "hdiAno": 2023,
       "pop": 7873046,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 69.2,
+      "vidaAno": 2024,
+      "dens": 33.2,
+      "densAno": 2023,
+      "urb": 40.3,
+      "urbAno": 2025,
+      "flor": 71.5,
+      "florAno": 2023
     },
     "LS": {
       "hdi": 0.55,
       "hdiAno": 2023,
       "pop": 2363325,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 57.8,
+      "vidaAno": 2024,
+      "dens": 76.1,
+      "densAno": 2023,
+      "urb": 44.7,
+      "urbAno": 2025,
+      "flor": 1.1,
+      "florAno": 2023
     },
     "LV": {
       "hdi": 0.889,
       "hdiAno": 2023,
       "pop": 1847785,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.4,
+      "vidaAno": 2024,
+      "dens": 30.3,
+      "densAno": 2023,
+      "urb": 68.6,
+      "urbAno": 2025,
+      "flor": 55,
+      "florAno": 2023
     },
     "LB": {
       "hdi": 0.752,
       "hdiAno": 2023,
       "pop": 5849421,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.9,
+      "vidaAno": 2024,
+      "dens": 564.4,
+      "densAno": 2023,
+      "urb": 91,
+      "urbAno": 2025,
+      "flor": 14.2,
+      "florAno": 2023
     },
     "LR": {
       "hdi": 0.51,
       "hdiAno": 2023,
       "pop": 5731206,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 62.3,
+      "vidaAno": 2024,
+      "dens": 57,
+      "densAno": 2023,
+      "urb": 56.1,
+      "urbAno": 2025,
+      "flor": 78.1,
+      "florAno": 2023
     },
     "LY": {
       "hdi": 0.721,
       "hdiAno": 2023,
       "pop": 7458555,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.1,
+      "vidaAno": 2024,
+      "dens": 4.2,
+      "densAno": 2023,
+      "urb": 87.9,
+      "urbAno": 2025,
+      "flor": 0.1,
+      "florAno": 2023
     },
     "LI": {
       "hdi": 0.938,
       "hdiAno": 2023,
       "pop": 41024,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 84.2,
+      "vidaAno": 2024,
+      "dens": 249,
+      "densAno": 2023,
+      "urb": 14.6,
+      "urbAno": 2025,
+      "flor": 41.9,
+      "florAno": 2023
     },
     "LT": {
       "hdi": 0.895,
       "hdiAno": 2023,
       "pop": 2888774,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.2,
+      "vidaAno": 2024,
+      "dens": 45.9,
+      "densAno": 2023,
+      "urb": 69.1,
+      "urbAno": 2025,
+      "flor": 35.2,
+      "florAno": 2023
     },
     "LU": {
       "hdi": 0.922,
       "hdiAno": 2023,
       "pop": 686970,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83.2,
+      "vidaAno": 2024,
+      "dens": 258.9,
+      "densAno": 2023,
+      "urb": 94.9,
+      "urbAno": 2025,
+      "flor": 34.5,
+      "florAno": 2023
     },
     "MK": {
       "hdi": 0.815,
       "hdiAno": 2023,
       "pop": 1820909,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.6,
+      "vidaAno": 2024,
+      "dens": 72.5,
+      "densAno": 2023,
+      "urb": 62.9,
+      "urbAno": 2025,
+      "flor": 39.7,
+      "florAno": 2023
     },
     "MG": {
       "hdi": 0.487,
       "hdiAno": 2023,
       "pop": 32740678,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 63.8,
+      "vidaAno": 2024,
+      "dens": 53.6,
+      "densAno": 2023,
+      "urb": 32.9,
+      "urbAno": 2025,
+      "flor": 21.3,
+      "florAno": 2023
     },
     "MY": {
       "hdi": 0.819,
       "hdiAno": 2023,
       "pop": 35977838,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.8,
+      "vidaAno": 2024,
+      "dens": 106.9,
+      "densAno": 2023,
+      "urb": 77.4,
+      "urbAno": 2025,
+      "flor": 57.7,
+      "florAno": 2023
     },
     "MW": {
       "hdi": 0.517,
       "hdiAno": 2023,
       "pop": 22216120,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.6,
+      "vidaAno": 2024,
+      "dens": 223.8,
+      "densAno": 2023,
+      "urb": 17.6,
+      "urbAno": 2025,
+      "flor": 22.4,
+      "florAno": 2023
     },
     "MV": {
       "hdi": 0.766,
       "hdiAno": 2023,
       "pop": 529676,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 81.3,
+      "vidaAno": 2024,
+      "dens": 1765.1,
+      "densAno": 2023,
+      "urb": 42.5,
+      "urbAno": 2025,
+      "flor": 2.8,
+      "florAno": 2023
     },
     "ML": {
       "hdi": 0.419,
       "hdiAno": 2023,
       "pop": 25198821,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 60.7,
+      "vidaAno": 2024,
+      "dens": 19.5,
+      "densAno": 2023,
+      "urb": 32.2,
+      "urbAno": 2025,
+      "flor": 10.9,
+      "florAno": 2023
     },
     "MT": {
       "hdi": 0.924,
       "hdiAno": 2023,
       "pop": 579704,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83,
+      "vidaAno": 2024,
+      "dens": 1727.3,
+      "densAno": 2023,
+      "urb": 95.7,
+      "urbAno": 2025,
+      "flor": 1.4,
+      "florAno": 2023
     },
     "MA": {
       "hdi": 0.71,
       "hdiAno": 2023,
       "pop": 38430770,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 75.5,
+      "vidaAno": 2024,
+      "dens": 84.5,
+      "densAno": 2023,
+      "urb": 63.1,
+      "urbAno": 2025,
+      "flor": 12.9,
+      "florAno": 2023
     },
     "MU": {
       "hdi": 0.806,
       "hdiAno": 2023,
       "pop": 1243741,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.8,
+      "vidaAno": 2024,
+      "dens": 625.3,
+      "densAno": 2023,
+      "urb": 39,
+      "urbAno": 2025,
+      "flor": 19.5,
+      "florAno": 2023
     },
     "MR": {
       "hdi": 0.563,
       "hdiAno": 2023,
       "pop": 5315065,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 68.7,
+      "vidaAno": 2024,
+      "dens": 4.9,
+      "densAno": 2023,
+      "urb": 61.5,
+      "urbAno": 2025,
+      "flor": 0.3,
+      "florAno": 2023
     },
     "MX": {
       "hdi": 0.789,
       "hdiAno": 2023,
       "pop": 131946900,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 75.3,
+      "vidaAno": 2024,
+      "dens": 66.7,
+      "densAno": 2023,
+      "urb": 80,
+      "urbAno": 2025,
+      "flor": 33.6,
+      "florAno": 2023
     },
     "FM": {
       "hdi": 0.615,
       "hdiAno": 2023,
       "pop": 113683,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.4,
+      "vidaAno": 2024,
+      "dens": 160.9,
+      "densAno": 2023,
+      "urb": 22.5,
+      "urbAno": 2025,
+      "flor": 92.2,
+      "florAno": 2023
     },
     "MZ": {
       "hdi": 0.493,
       "hdiAno": 2023,
       "pop": 35631653,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 63.8,
+      "vidaAno": 2024,
+      "dens": 42.8,
+      "densAno": 2023,
+      "urb": 37.2,
+      "urbAno": 2025,
+      "flor": 45.8,
+      "florAno": 2023
     },
     "MD": {
       "hdi": 0.785,
       "hdiAno": 2023,
       "pop": 2360527,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.3,
+      "vidaAno": 2024,
+      "dens": 85.4,
+      "densAno": 2023,
+      "urb": 43.7,
+      "urbAno": 2025,
+      "flor": 11.7,
+      "florAno": 2023
     },
     "MC": {
       "hdiNota": "Mônaco não integra o levantamento do PNUD.",
       "pop": 38341,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 86.5,
+      "vidaAno": 2024,
+      "dens": 18692.9,
+      "densAno": 2023,
+      "urb": 100,
+      "urbAno": 2025,
+      "flor": 0,
+      "florAno": 2023
     },
     "MN": {
       "hdi": 0.747,
       "hdiAno": 2023,
       "pop": 3568978,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.4,
+      "vidaAno": 2024,
+      "dens": 2.2,
+      "densAno": 2023,
+      "urb": 71.1,
+      "urbAno": 2025,
+      "flor": 9.1,
+      "florAno": 2023
     },
     "ME": {
       "hdi": 0.862,
       "hdiAno": 2023,
       "pop": 623129,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.9,
+      "vidaAno": 2024,
+      "dens": 46.4,
+      "densAno": 2023,
+      "urb": 65.6,
+      "urbAno": 2025,
+      "flor": 61.5,
+      "florAno": 2023
     },
     "MM": {
       "hdi": 0.609,
       "hdiAno": 2023,
       "pop": 54850648,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.1,
+      "vidaAno": 2024,
+      "dens": 82.9,
+      "densAno": 2023,
+      "urb": 30.6,
+      "urbAno": 2025,
+      "flor": 42.4,
+      "florAno": 2023
     },
     "NA": {
       "hdi": 0.665,
       "hdiAno": 2023,
       "pop": 3092816,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.5,
+      "vidaAno": 2024,
+      "dens": 3.6,
+      "densAno": 2023,
+      "urb": 50.9,
+      "urbAno": 2025,
+      "flor": 7.8,
+      "florAno": 2023
     },
     "NR": {
       "hdi": 0.703,
       "hdiAno": 2023,
       "pop": 12025,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 62.3,
+      "vidaAno": 2024,
+      "dens": 593.8,
+      "densAno": 2023,
+      "urb": 100,
+      "urbAno": 2025,
+      "flor": 0,
+      "florAno": 2023
     },
     "NP": {
       "hdi": 0.622,
       "hdiAno": 2023,
       "pop": 29618118,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 70.6,
+      "vidaAno": 2024,
+      "dens": 207.1,
+      "densAno": 2023,
+      "urb": 67,
+      "urbAno": 2025,
+      "flor": 41.6,
+      "florAno": 2023
     },
     "NI": {
       "hdi": 0.706,
       "hdiAno": 2023,
       "pop": 7007502,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 75.1,
+      "vidaAno": 2024,
+      "dens": 56.7,
+      "densAno": 2023,
+      "urb": 59.4,
+      "urbAno": 2025,
+      "flor": 25.8,
+      "florAno": 2023
     },
     "NE": {
       "hdi": 0.419,
       "hdiAno": 2023,
       "pop": 27917831,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 61.4,
+      "vidaAno": 2024,
+      "dens": 20.7,
+      "densAno": 2023,
+      "urb": 18.4,
+      "urbAno": 2025,
+      "flor": 0.8,
+      "florAno": 2023
     },
     "NG": {
       "hdi": 0.56,
       "hdiAno": 2023,
       "pop": 237527782,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 54.6,
+      "vidaAno": 2024,
+      "dens": 250.2,
+      "densAno": 2023,
+      "urb": 63.8,
+      "urbAno": 2025,
+      "flor": 23.2,
+      "florAno": 2023
     },
     "NO": {
       "hdi": 0.97,
       "hdiAno": 2023,
       "pop": 5610870,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83.2,
+      "vidaAno": 2024,
+      "dens": 15.2,
+      "densAno": 2023,
+      "urb": 83.6,
+      "urbAno": 2025,
+      "flor": 33.5,
+      "florAno": 2023
     },
     "NZ": {
       "hdi": 0.938,
       "hdiAno": 2023,
       "pop": 5324700,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82,
+      "vidaAno": 2024,
+      "dens": 19.7,
+      "densAno": 2023,
+      "urb": 84,
+      "urbAno": 2025,
+      "flor": 37.8,
+      "florAno": 2023
     },
     "OM": {
       "hdi": 0.858,
       "hdiAno": 2023,
       "pop": 5494691,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 80.2,
+      "vidaAno": 2024,
+      "dens": 16.3,
+      "densAno": 2023,
+      "urb": 79.5,
+      "urbAno": 2025,
+      "flor": 0,
+      "florAno": 2023
     },
     "NL": {
       "hdi": 0.955,
       "hdiAno": 2023,
       "pop": 18087633,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82,
+      "vidaAno": 2024,
+      "dens": 531,
+      "densAno": 2023,
+      "urb": 95.9,
+      "urbAno": 2025,
+      "flor": 11.1,
+      "florAno": 2023
     },
     "PW": {
       "hdi": 0.786,
       "hdiAno": 2023,
       "pop": 17663,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 69.4,
+      "vidaAno": 2024,
+      "dens": 38.5,
+      "densAno": 2023,
+      "urb": 79.3,
+      "urbAno": 2025,
+      "flor": 90.5,
+      "florAno": 2023
     },
     "PS": {
       "hdi": 0.733,
       "hdiAno": 2023,
       "pop": 5413596,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 69.2,
+      "vidaAno": 2024,
+      "dens": 857.4,
+      "densAno": 2023,
+      "urb": 87.4,
+      "urbAno": 2025,
+      "flor": 1.7,
+      "florAno": 2023
     },
     "PA": {
       "hdi": 0.839,
       "hdiAno": 2023,
       "pop": 4571189,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 79.8,
+      "vidaAno": 2024,
+      "dens": 60.1,
+      "densAno": 2023,
+      "urb": 66.2,
+      "urbAno": 2025,
+      "flor": 56.3,
+      "florAno": 2023
     },
     "PG": {
       "hdi": 0.576,
       "hdiAno": 2023,
       "pop": 10762817,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66.3,
+      "vidaAno": 2024,
+      "dens": 22.9,
+      "densAno": 2023,
+      "urb": 15.8,
+      "urbAno": 2025,
+      "flor": 79,
+      "florAno": 2023
     },
     "PK": {
       "hdi": 0.544,
       "hdiAno": 2023,
       "pop": 255219554,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.8,
+      "vidaAno": 2024,
+      "dens": 321.1,
+      "densAno": 2023,
+      "urb": 39.5,
+      "urbAno": 2025,
+      "flor": 4.7,
+      "florAno": 2023
     },
     "PY": {
       "hdi": 0.756,
       "hdiAno": 2023,
       "pop": 7013078,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74,
+      "vidaAno": 2024,
+      "dens": 17.3,
+      "densAno": 2023,
+      "urb": 70.4,
+      "urbAno": 2025,
+      "flor": 38.5,
+      "florAno": 2023
     },
     "PE": {
       "hdi": 0.794,
       "hdiAno": 2023,
       "pop": 34576665,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.9,
+      "vidaAno": 2024,
+      "dens": 26.4,
+      "densAno": 2023,
+      "urb": 85.6,
+      "urbAno": 2025,
+      "flor": 56.1,
+      "florAno": 2023
     },
     "PL": {
       "hdi": 0.906,
       "hdiAno": 2023,
       "pop": 36435861,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78.4,
+      "vidaAno": 2024,
+      "dens": 119.8,
+      "densAno": 2023,
+      "urb": 60.1,
+      "urbAno": 2025,
+      "flor": 31.1,
+      "florAno": 2023
     },
     "PT": {
       "hdi": 0.89,
       "hdiAno": 2023,
       "pop": 10804871,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 82.4,
+      "vidaAno": 2024,
+      "dens": 115.5,
+      "densAno": 2023,
+      "urb": 61.5,
+      "urbAno": 2025,
+      "flor": 36.2,
+      "florAno": 2023
     },
     "KE": {
       "hdi": 0.628,
       "hdiAno": 2023,
       "pop": 57532493,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 63.8,
+      "vidaAno": 2024,
+      "dens": 95.3,
+      "densAno": 2023,
+      "urb": 32.2,
+      "urbAno": 2025,
+      "flor": 6.2,
+      "florAno": 2023
     },
     "KG": {
       "hdi": 0.72,
       "hdiAno": 2023,
       "pop": 7343064,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.4,
+      "vidaAno": 2024,
+      "dens": 37,
+      "densAno": 2023,
+      "urb": 34.7,
+      "urbAno": 2025,
+      "flor": 7.1,
+      "florAno": 2023
     },
     "GB": {
       "hdi": 0.946,
       "hdiAno": 2023,
       "pop": 69487000,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 81.4,
+      "vidaAno": 2024,
+      "dens": 283.2,
+      "densAno": 2023,
+      "urb": 83.3,
+      "urbAno": 2025,
+      "flor": 13.3,
+      "florAno": 2023
     },
     "CF": {
       "hdi": 0.414,
       "hdiAno": 2023,
       "pop": 5513282,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 57.7,
+      "vidaAno": 2024,
+      "dens": 8.3,
+      "densAno": 2023,
+      "urb": 44.6,
+      "urbAno": 2025,
+      "flor": 35.7,
+      "florAno": 2023
     },
     "CD": {
       "hdi": 0.522,
       "hdiAno": 2023,
       "pop": 112832473,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 62.1,
+      "vidaAno": 2024,
+      "dens": 46.7,
+      "densAno": 2023,
+      "urb": 45.1,
+      "urbAno": 2025,
+      "flor": 54.2,
+      "florAno": 2023
     },
     "CG": {
       "hdi": 0.649,
       "hdiAno": 2023,
       "pop": 6484437,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66,
+      "vidaAno": 2024,
+      "dens": 18.1,
+      "densAno": 2023,
+      "urb": 64.1,
+      "urbAno": 2025,
+      "flor": 64.1,
+      "florAno": 2023
     },
     "DO": {
       "hdi": 0.776,
       "hdiAno": 2023,
       "pop": 11520487,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.9,
+      "vidaAno": 2024,
+      "dens": 235.1,
+      "densAno": 2023,
+      "urb": 72.5,
+      "urbAno": 2025,
+      "flor": 45,
+      "florAno": 2023
     },
     "RO": {
       "hdi": 0.845,
       "hdiAno": 2023,
       "pop": 19020271,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.5,
+      "vidaAno": 2024,
+      "dens": 82.8,
+      "densAno": 2023,
+      "urb": 52.2,
+      "urbAno": 2025,
+      "flor": 30.1,
+      "florAno": 2023
     },
     "RW": {
       "hdi": 0.578,
       "hdiAno": 2023,
       "pop": 14569341,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 68,
+      "vidaAno": 2024,
+      "dens": 565.6,
+      "densAno": 2023,
+      "urb": 30.9,
+      "urbAno": 2025,
+      "flor": 11.3,
+      "florAno": 2023
     },
     "RU": {
       "hdi": 0.832,
       "hdiAno": 2023,
       "pop": 143513328,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.4,
+      "vidaAno": 2024,
+      "dens": 8.8,
+      "densAno": 2023,
+      "urb": 75.3,
+      "urbAno": 2025,
+      "flor": 49.8,
+      "florAno": 2023
     },
     "WS": {
       "hdi": 0.708,
       "hdiAno": 2023,
       "pop": 219306,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.8,
+      "vidaAno": 2024,
+      "dens": 77.9,
+      "densAno": 2023,
+      "urb": 17.5,
+      "urbAno": 2025,
+      "flor": 57.6,
+      "florAno": 2023
     },
     "SM": {
       "hdi": 0.915,
       "hdiAno": 2023,
       "pop": 34109,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 85.8,
+      "vidaAno": 2024,
+      "dens": 564.3,
+      "densAno": 2023,
+      "urb": 97.2,
+      "urbAno": 2025,
+      "flor": 16.7,
+      "florAno": 2023
     },
     "LC": {
       "hdi": 0.748,
       "hdiAno": 2023,
       "pop": 180149,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.8,
+      "vidaAno": 2024,
+      "dens": 293.9,
+      "densAno": 2023,
+      "urb": 29.1,
+      "urbAno": 2025,
+      "flor": 34,
+      "florAno": 2023
     },
     "KN": {
       "hdi": 0.84,
       "hdiAno": 2023,
       "pop": 46922,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.3,
+      "vidaAno": 2024,
+      "dens": 179.8,
+      "densAno": 2023,
+      "urb": 31.9,
+      "urbAno": 2025,
+      "flor": 42.3,
+      "florAno": 2023
     },
     "ST": {
       "hdi": 0.637,
       "hdiAno": 2023,
       "pop": 240254,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 69.9,
+      "vidaAno": 2024,
+      "dens": 240.5,
+      "densAno": 2023,
+      "urb": 69.2,
+      "urbAno": 2025,
+      "flor": 52.1,
+      "florAno": 2023
     },
     "VC": {
       "hdi": 0.798,
       "hdiAno": 2023,
       "pop": 99924,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.4,
+      "vidaAno": 2024,
+      "dens": 259.8,
+      "densAno": 2023,
+      "urb": 48,
+      "urbAno": 2025,
+      "flor": 73.2,
+      "florAno": 2023
     },
     "SC": {
       "hdi": 0.848,
       "hdiAno": 2023,
       "pop": 122730,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.3,
+      "vidaAno": 2024,
+      "dens": 260.4,
+      "densAno": 2023,
+      "urb": 45.5,
+      "urbAno": 2025,
+      "flor": 73.3,
+      "florAno": 2023
     },
     "SN": {
       "hdi": 0.53,
       "hdiAno": 2023,
       "pop": 18931966,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 68.9,
+      "vidaAno": 2024,
+      "dens": 93.9,
+      "densAno": 2023,
+      "urb": 55.8,
+      "urbAno": 2025,
+      "flor": 41.3,
+      "florAno": 2023
     },
     "SL": {
       "hdi": 0.467,
       "hdiAno": 2023,
       "pop": 8819794,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 62,
+      "vidaAno": 2024,
+      "dens": 117.2,
+      "densAno": 2023,
+      "urb": 45.9,
+      "urbAno": 2025,
+      "flor": 34.3,
+      "florAno": 2023
     },
     "RS": {
       "hdi": 0.833,
       "hdiAno": 2023,
       "pop": 6549143,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76,
+      "vidaAno": 2024,
+      "dens": 78.8,
+      "densAno": 2023,
+      "urb": 62.6,
+      "urbAno": 2025,
+      "flor": 32.4,
+      "florAno": 2023
     },
     "SG": {
       "hdi": 0.946,
       "hdiAno": 2023,
       "pop": 6111175,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 83.3,
+      "vidaAno": 2024,
+      "dens": 8241.8,
+      "densAno": 2023,
+      "urb": 100,
+      "urbAno": 2025,
+      "flor": 20.9,
+      "florAno": 2023
     },
     "SY": {
       "hdi": 0.564,
       "hdiAno": 2023,
       "pop": 25620427,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.6,
+      "vidaAno": 2024,
+      "dens": 128.5,
+      "densAno": 2023,
+      "urb": 72.1,
+      "urbAno": 2025,
+      "flor": 2.8,
+      "florAno": 2023
     },
     "SO": {
       "hdi": 0.404,
       "hdiAno": 2023,
       "pop": 19654739,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 59,
+      "vidaAno": 2024,
+      "dens": 29.3,
+      "densAno": 2023,
+      "urb": 55.1,
+      "urbAno": 2025,
+      "flor": 9.2,
+      "florAno": 2023
     },
     "LK": {
       "hdi": 0.776,
       "hdiAno": 2023,
       "pop": 21756000,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.7,
+      "vidaAno": 2024,
+      "dens": 356.2,
+      "densAno": 2023,
+      "urb": 20.5,
+      "urbAno": 2025,
+      "flor": 34,
+      "florAno": 2023
     },
     "SD": {
       "hdi": 0.511,
       "hdiAno": 2023,
       "pop": 51662147,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66.5,
+      "vidaAno": 2024,
+      "dens": 26.8,
+      "densAno": 2023,
+      "urb": 34.9,
+      "urbAno": 2025,
+      "flor": 9.6,
+      "florAno": 2023
     },
     "SS": {
       "hdi": 0.388,
       "hdiAno": 2023,
       "pop": 12188788,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 57.7,
+      "vidaAno": 2024,
+      "dens": 18.2,
+      "densAno": 2023,
+      "urb": 21.7,
+      "urbAno": 2025,
+      "flor": 11.3,
+      "florAno": 2023
     },
     "SE": {
       "hdi": 0.959,
       "hdiAno": 2023,
       "pop": 10596620,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 84.1,
+      "vidaAno": 2024,
+      "dens": 25.9,
+      "densAno": 2023,
+      "urb": 89.1,
+      "urbAno": 2025,
+      "flor": 68.7,
+      "florAno": 2023
     },
     "CH": {
       "hdi": 0.97,
       "hdiAno": 2023,
       "pop": 9092436,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 84.4,
+      "vidaAno": 2024,
+      "dens": 225,
+      "densAno": 2023,
+      "urb": 85.7,
+      "urbAno": 2025,
+      "flor": 32.4,
+      "florAno": 2023
     },
     "SR": {
       "hdi": 0.722,
       "hdiAno": 2023,
       "pop": 639850,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.8,
+      "vidaAno": 2024,
+      "dens": 3.9,
+      "densAno": 2023,
+      "urb": 65.8,
+      "urbAno": 2025,
+      "flor": 94.4,
+      "florAno": 2023
     },
     "TH": {
       "hdi": 0.798,
       "hdiAno": 2023,
       "pop": 71619863,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.6,
+      "vidaAno": 2024,
+      "dens": 140.3,
+      "densAno": 2023,
+      "urb": 62.8,
+      "urbAno": 2025,
+      "flor": 38.7,
+      "florAno": 2023
     },
     "TJ": {
       "hdi": 0.691,
       "hdiAno": 2023,
       "pop": 10786734,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.9,
+      "vidaAno": 2024,
+      "dens": 74.9,
+      "densAno": 2023,
+      "urb": 26.2,
+      "urbAno": 2025,
+      "flor": 3.1,
+      "florAno": 2023
     },
     "TZ": {
       "hdi": 0.555,
       "hdiAno": 2023,
       "pop": 70545865,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.2,
+      "vidaAno": 2024,
+      "dens": 75.2,
+      "densAno": 2023,
+      "urb": 36.9,
+      "urbAno": 2025,
+      "flor": 50.1,
+      "florAno": 2023
     },
     "CZ": {
       "hdi": 0.915,
       "hdiAno": 2023,
       "pop": 10886878,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 80,
+      "vidaAno": 2024,
+      "dens": 140.8,
+      "densAno": 2023,
+      "urb": 72.9,
+      "urbAno": 2025,
+      "flor": 34.8,
+      "florAno": 2023
     },
     "TL": {
       "hdi": 0.634,
       "hdiAno": 2023,
       "pop": 1418517,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.9,
+      "vidaAno": 2024,
+      "dens": 93.1,
+      "densAno": 2023,
+      "urb": 28.8,
+      "urbAno": 2025,
+      "flor": 61.7,
+      "florAno": 2023
     },
     "TG": {
       "hdi": 0.571,
       "hdiAno": 2023,
       "pop": 8591626,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 62.9,
+      "vidaAno": 2024,
+      "dens": 151.2,
+      "densAno": 2023,
+      "urb": 44.4,
+      "urbAno": 2025,
+      "flor": 22.1,
+      "florAno": 2023
     },
     "TO": {
       "hdi": 0.769,
       "hdiAno": 2023,
       "pop": 103742,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.1,
+      "vidaAno": 2024,
+      "dens": 145.3,
+      "densAno": 2023,
+      "urb": 21.2,
+      "urbAno": 2025,
+      "flor": 12.4,
+      "florAno": 2023
     },
     "TT": {
       "hdi": 0.807,
       "hdiAno": 2023,
       "pop": 1367764,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 73.6,
+      "vidaAno": 2024,
+      "dens": 266.6,
+      "densAno": 2023,
+      "urb": 54,
+      "urbAno": 2025,
+      "flor": 44.2,
+      "florAno": 2023
     },
     "TN": {
       "hdi": 0.746,
       "hdiAno": 2023,
       "pop": 12348573,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 76.7,
+      "vidaAno": 2024,
+      "dens": 78.5,
+      "densAno": 2023,
+      "urb": 70.7,
+      "urbAno": 2025,
+      "flor": 4.6,
+      "florAno": 2023
     },
     "TM": {
       "hdi": 0.764,
       "hdiAno": 2023,
       "pop": 7618847,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 70.2,
+      "vidaAno": 2024,
+      "dens": 15.7,
+      "densAno": 2023,
+      "urb": 47.1,
+      "urbAno": 2025,
+      "flor": 8.8,
+      "florAno": 2023
     },
     "TR": {
       "hdi": 0.853,
       "hdiAno": 2023,
       "pop": 85878556,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 77.4,
+      "vidaAno": 2024,
+      "dens": 110.9,
+      "densAno": 2023,
+      "urb": 89.5,
+      "urbAno": 2025,
+      "flor": 29.5,
+      "florAno": 2023
     },
     "TV": {
       "hdi": 0.689,
       "hdiAno": 2023,
       "pop": 9492,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 67.3,
+      "vidaAno": 2024,
+      "dens": 327.2,
+      "densAno": 2023,
+      "urb": 65.4,
+      "urbAno": 2025,
+      "flor": 33.3,
+      "florAno": 2023
     },
     "UA": {
       "hdi": 0.779,
       "hdiAno": 2023,
       "pop": 38980376,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74.7,
+      "vidaAno": 2024,
+      "dens": 65.1,
+      "densAno": 2023,
+      "urb": 69.6,
+      "urbAno": 2025,
+      "flor": 16.8,
+      "florAno": 2023
     },
     "UG": {
       "hdi": 0.582,
       "hdiAno": 2023,
       "pop": 51384894,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 68.5,
+      "vidaAno": 2024,
+      "dens": 242.7,
+      "densAno": 2023,
+      "urb": 31.9,
+      "urbAno": 2025,
+      "flor": 11,
+      "florAno": 2023
     },
     "UY": {
       "hdi": 0.862,
       "hdiAno": 2023,
       "pop": 3384688,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 78.3,
+      "vidaAno": 2024,
+      "dens": 19.4,
+      "densAno": 2023,
+      "urb": 95.7,
+      "urbAno": 2025,
+      "flor": 12,
+      "florAno": 2023
     },
     "UZ": {
       "hdi": 0.74,
       "hdiAno": 2023,
       "pop": 37053428,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.5,
+      "vidaAno": 2024,
+      "dens": 80.9,
+      "densAno": 2023,
+      "urb": 51,
+      "urbAno": 2025,
+      "flor": 8.5,
+      "florAno": 2023
     },
     "VU": {
       "hdi": 0.621,
       "hdiAno": 2023,
       "pop": 335169,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 71.7,
+      "vidaAno": 2024,
+      "dens": 26.3,
+      "densAno": 2023,
+      "urb": 22.3,
+      "urbAno": 2025,
+      "flor": 36.3,
+      "florAno": 2023
     },
     "VA": {
       "hdiNota": "O Vaticano não integra o levantamento do PNUD.",
-      "popNota": "O Vaticano tem cerca de 800 residentes e fica abaixo do limite de cobertura do Banco Mundial."
+      "bmNota": "O Vaticano tem cerca de 800 residentes e fica abaixo do limite de cobertura do Banco Mundial."
     },
     "VE": {
       "hdi": 0.709,
       "hdiAno": 2023,
       "pop": 28516896,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 72.7,
+      "vidaAno": 2024,
+      "dens": 32.1,
+      "densAno": 2023,
+      "urb": 89.3,
+      "urbAno": 2025,
+      "flor": 52.2,
+      "florAno": 2023
     },
     "VN": {
       "hdi": 0.766,
       "hdiAno": 2023,
       "pop": 101598527,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 74.7,
+      "vidaAno": 2024,
+      "dens": 320.2,
+      "densAno": 2023,
+      "urb": 38.8,
+      "urbAno": 2025,
+      "flor": 47.4,
+      "florAno": 2023
     },
     "ZM": {
       "hdi": 0.595,
       "hdiAno": 2023,
       "pop": 21913874,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 66.5,
+      "vidaAno": 2024,
+      "dens": 27.9,
+      "densAno": 2023,
+      "urb": 45.9,
+      "urbAno": 2025,
+      "flor": 59.5,
+      "florAno": 2023
     },
     "ZW": {
       "hdi": 0.598,
       "hdiAno": 2023,
       "pop": 16950795,
-      "popAno": 2025
+      "popAno": 2025,
+      "vida": 63.1,
+      "vidaAno": 2024,
+      "dens": 42.2,
+      "densAno": 2023,
+      "urb": 40.5,
+      "urbAno": 2025,
+      "flor": 44.7,
+      "florAno": 2023
     }
   }
 }
