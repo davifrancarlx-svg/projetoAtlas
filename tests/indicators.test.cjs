@@ -117,7 +117,10 @@ test('os fatos derivados são só extremos, e cobrem quase todo o mundo', () => 
 });
 
 test('a ficha mostra cada número com o ano e credita as fontes', () => {
-  assert.match(html, /\$\{country\[`\$\{item\.campo\}Ano`\]\}/, 'Todo indicador precisa sair com o ano ao lado.');
+  // O ano viaja num campo próprio e é renderizado ao lado do valor, num span
+  // secundário — sem ele o número passaria por permanente.
+  assert.match(html, /ano: country\[`\$\{item\.campo\}Ano`\]/, 'O ano precisa acompanhar cada indicador.');
+  assert.match(html, /className: 'ano', text: String\(item\.ano\)/, 'O ano precisa ser renderizado ao lado do valor.');
   // Sem alternativa na regex: um nome de campo que não existe mais quebraria a
   // ficha em tempo de execução e passaria batido se o teste aceitasse o texto solto.
   assert.match(html, /INDICATOR_META\.bancoMundial\.fonte/, 'A ficha precisa creditar o Banco Mundial.');
