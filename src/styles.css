@@ -2007,36 +2007,79 @@ a.chip {
 }
 
 .indicadores {
+  /* Ocupa a linha inteira do grid da ficha. Sem isso, cai dentro da coluna
+     estreita ao lado da bandeira e o texto colide com o resto do cartão. */
+  grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 3px 12px;
-  margin: 12px 0 0;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: 5px 14px;
+  margin: 14px 0 0;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--line-soft);
 }
 
 .indicadores dt {
+  align-self: baseline;
   color: var(--muted-2);
   font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
   text-transform: uppercase;
 }
 
 .indicadores dd {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   margin: 0;
-  color: var(--ink);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.indicadores .valor {
+  color: var(--ink);
+  /* O número não quebra no meio: "212.812.405" em duas linhas é ilegível. */
+  white-space: nowrap;
+}
+
+.indicadores .ano {
+  color: var(--muted-2);
+  font-size: 10.5px;
 }
 
 .fatos {
+  grid-column: 1 / -1;
   margin: 12px 0 0;
-  padding-inline-start: 18px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--panel);
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  list-style: none;
 }
 
 .fatos li {
-  margin-block-end: 3px;
+  padding-inline-start: 14px;
+  position: relative;
+}
+
+.fatos li + li {
+  margin-block-start: 4px;
+}
+
+.fatos li::before {
+  content: "▸";
+  position: absolute;
+  inset-inline-start: 0;
+  color: var(--gold);
+}
+
+.atlas-detail > .note,
+.atlas-detail > .source-note {
+  grid-column: 1 / -1;
 }
 
 .fato-destaque {

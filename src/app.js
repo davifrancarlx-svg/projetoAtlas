@@ -218,7 +218,8 @@
       .filter((item) => Number.isFinite(country[item.campo]))
       .map((item) => ({
         rotulo: item.rotulo,
-        valor: `${item.formatar(country[item.campo])} · ${country[`${item.campo}Ano`]}`,
+        valor: item.formatar(country[item.campo]),
+        ano: country[`${item.campo}Ano`],
       }));
   }
 
@@ -1351,7 +1352,15 @@
     if (indicadores.length) {
       const lista = create('dl', { className: 'indicadores' });
       indicadores.forEach((item) => {
-        lista.append(create('dt', { text: item.rotulo }), create('dd', { text: item.valor }));
+        lista.append(
+          create('dt', { text: item.rotulo }),
+          create('dd', {}, [
+            create('span', { className: 'valor', text: item.valor }),
+            // O ano fica visivelmente secundário: precisa estar lá para o número
+            // não passar por permanente, sem competir com ele na leitura.
+            create('span', { className: 'ano', text: String(item.ano) }),
+          ])
+        );
       });
       atlasElements.detail.append(lista);
     }
