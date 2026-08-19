@@ -1,107 +1,164 @@
 # Prompt de continuação — Atlas 195
 
-> Copie tudo daqui para baixo e cole como primeira mensagem numa sessão nova.
-> Ele é autocontido: quem receber não tem o histórico da conversa anterior.
+> Copie tudo daqui para baixo e cole como primeira mensagem numa sessão nova
+> do Claude Code, já dentro da pasta do projeto. O arquivo é autocontido: quem
+> receber não tem o histórico da conversa anterior.
 
 ---
 
-Você vai continuar um projeto que já existe. Leia este briefing inteiro antes de mexer em qualquer arquivo.
+Você vai continuar um projeto que já existe e está maduro — não é um esqueleto.
+Leia este briefing inteiro antes de mexer em qualquer arquivo. Eu sou leigo em
+programação: explique decisões em linguagem simples e evite jargão sem tradução.
 
 ## O projeto
 
-**Atlas 195** — treinador de geografia em português (bandeiras, capitais, localização no mapa e regiões dos 195 países), com revisão espaçada. Sou leigo em programação, então explique decisões em linguagem simples e evite jargão sem tradução.
+**Atlas 195** — treinador de geografia em português (bandeiras, capitais,
+localização no mapa, regiões e subregiões dos 195 países), com revisão
+espaçada, prova, indicadores oficiais e conta opcional para sincronizar entre
+aparelhos.
 
 - Código: `https://github.com/davifrancarlx-svg/projetoAtlas` (branch `main`)
 - No ar: `https://atlas-195.lovable.app`
-- Requer **Node 22 ou superior** (um dos testes usa WebSocket nativo)
+- Requer **Node 22 ou superior** (um teste usa WebSocket nativo para controlar
+  um Chrome de verdade)
 
 ```sh
-npm test          # 65 testes; inclui um que abre o app num Chrome real
+npm test          # 87 testes; um deles abre o app num Chrome real via CDP
 npm run build     # gera atlas-195.html + manifest.webmanifest + sw.js + ícones
 npm run serve     # servidor local em http://127.0.0.1:8743/atlas-195.html
+npm run indicators   # rebaixa população/IDH das fontes oficiais (raro precisar)
+npm run icons        # regera os ícones PWA (raro precisar)
 ```
+
+**Antes de qualquer coisa, leia `README.md` e `DATA_SOURCES.md`.** Os dois
+estão atualizados e documentam em detalhe: todo modo de jogo, a proveniência
+de cada fonte de dados (Natural Earth, flag-icons, PNUD, Banco Mundial), a
+distinção região/subregião, o esquema de conta/sincronização, a classificação
+das terras fora dos 195 e os fatos derivados. Este arquivo aqui é só o
+operacional — não repete o que já está bem contado lá.
 
 ### Como está organizado
 
-O produto final é **um único arquivo autocontido**, `atlas-195.html` (~4,7 MB), com CSS, JS, mapa SVG, bandeiras e fontes embutidos. Ele abre até direto do disco, sem servidor e sem internet. Esse arquivo é **gerado**: nunca edite ele à mão.
+O produto final é **um único arquivo autocontido**, `atlas-195.html` (~4,7 MB),
+com CSS, JS, mapa SVG, bandeiras e fontes embutidos. Abre direto do disco, sem
+servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
 
-- `src/core.js` — regras puras, sem DOM: validação de respostas, progresso, revisão espaçada, projeção do mapa. É o que os testes cobrem melhor.
-- `src/app.js` — interface, mapa, controles, renderização.
-- `src/styles.css` — visual. **Toda cor é um token em `:root`**; o tema claro é só uma redefinição desses tokens dentro de `@media (prefers-color-scheme: light)`.
-- `src/index.template.html` — estrutura da página, com marcadores `{{CSS}}`, `{{DATA}}`, `{{CSP}}` etc.
-- `src/sw.js` — service worker (funcionamento offline).
-- `scripts/build.cjs` — monta o arquivo final.
-- `tests/` — 65 testes em `node --test`.
+- `src/core.js` — regras puras, sem DOM: validação de respostas, progresso,
+  revisão espaçada, projeção do mapa, fatos derivados. O que os testes cobrem melhor.
+- `src/app.js` — interface, mapa, controles, renderização, sincronização de conta.
+- `src/styles.css` — visual. Toda cor é um token em `:root`; o tema claro é
+  uma redefinição desses tokens, tanto por `prefers-color-scheme` (automático)
+  quanto por `[data-theme]` (escolha fixada pelo botão do app).
+- `src/index.template.html` — estrutura da página, com marcadores `{{CSS}}`,
+  `{{DATA}}`, `{{CSP}}` etc.
+- `src/sw.js` — service worker (instalação como app, funcionamento offline).
+- `src/cloud.json` — endereço e chave pública do Supabase usado pela conta opcional.
+- `src/countries.base.json`, `src/territories.json`, `src/context-areas.json`,
+  `src/content-policy.json` — dados editoriais dos 195 países, dos territórios
+  não soberanos, das terras fora do escopo e de correções pontuais (capital
+  disputada, região M49 etc.).
+- `data/map-geometry.json`, `data/flags.json`, `data/indicators.json`,
+  `data/fonts/` — dados gerados a partir de fontes externas, cada um com
+  origem, data e SHA-256 registrados. Regenerados pelos scripts em `scripts/`,
+  cada um com `--check` para conferir sem regravar.
+- `scripts/build.cjs` — monta o arquivo final a partir de tudo acima.
+- `tests/` — 87 testes em `node --test`, incluindo um smoke test que abre um
+  Chrome de verdade via CDP.
 
 ## Regras inegociáveis
 
-1. **O projeto não tem nenhuma dependência npm e isso é proposital.** Não instale pacotes. Até os ícones PNG e o controle do Chrome nos testes foram feitos com o que vem no Node.
+1. **O projeto não tem nenhuma dependência npm e isso é proposital.** Não
+   instale pacotes. Ícones PNG, controle do Chrome nos testes, tudo foi feito
+   só com o que vem no Node.
 
-2. **Quebras de linha precisam ser LF, nunca CRLF.** O arquivo final protege a si mesmo com hashes de CSP calculados sobre o conteúdo exato. O navegador normaliza CRLF→LF antes de conferir o hash — então um arquivo com CRLF invalida os hashes e **a página inteira para de funcionar, sem erro visível**. Isso já derrubou o site em produção uma vez. Existem três defesas: `.gitattributes` com `eol=lf`, normalização no build, e um teste. Não desative nenhuma.
+2. **Quebras de linha precisam ser LF, nunca CRLF.** O arquivo final se
+   protege com hashes de CSP calculados sobre o conteúdo exato; o navegador
+   normaliza CRLF→LF antes de conferir o hash, então um artefato com CRLF
+   invalida os hashes e **a página inteira para de funcionar, sem erro
+   visível**. Isso já derrubou o site em produção uma vez. Três defesas
+   existem — `.gitattributes` com `eol=lf`, normalização no build, um teste —
+   não desative nenhuma.
 
-3. **Nunca edite `atlas-195.html` diretamente.** Edite `src/` e rode `npm run build`.
+3. **Nunca edite `atlas-195.html`, `sw.js` ou `manifest.webmanifest` na raiz
+   diretamente.** Edite `src/` e rode `npm run build`.
 
-4. **Sempre rode `npm test` antes de commitar.** Há CI no GitHub que roda a suíte a cada push.
+4. **Sempre rode `npm test` antes de commitar.** Há CI no GitHub que roda a
+   suíte a cada push — confira que ficou verde.
 
-5. **Verifique no navegador de verdade, não só nos testes.** Use `npm run serve` e abra a página. Testes em Node não enxergam "o app não inicia".
+5. **Verifique no navegador de verdade, não só nos testes.** Use
+   `npm run serve` e abra a página, ou use as ferramentas de browser
+   disponíveis na sessão. Testes em Node não enxergam "o app não inicia" —
+   foi exatamente esse tipo de defeito (regra 2) que motivou o smoke test.
 
-## Tarefa 1 — Botão para alternar o tema (simples)
+6. **Ações de risco pedem confirmação primeiro**, mesmo dentro do que já foi
+   pedido: publicar no Lovable, mudar a classificação de uma terra disputada,
+   ou qualquer coisa que mude a promessa de privacidade do app.
 
-Hoje o app segue o tema do sistema operacional automaticamente, e não há como trocar dentro dele. Quero um botão no app.
+## O que já existe (não é para reconstruir, é para conhecer)
 
-- Um botão discreto na barra do topo, ciclando **Automático → Claro → Escuro**
-- **Automático é o padrão** e mantém o comportamento atual (seguir o sistema)
-- A escolha deve ser salva junto das outras preferências do usuário (veja `PREFS_KEY` em `src/app.js`)
-- Acessível: rótulo claro para leitor de tela, anunciar a mudança
+- **Modos de treino**: misto, bandeiras, capitais, localização, regiões —
+  sete direções de pergunta, com filtro por região e por subregião (as
+  Américas do Norte/Central/Caribe são o único caso hoje com subdivisão).
+- **Cronômetro opcional**, **baralho de revisão de erros**, **modo prova**
+  (10/20/30 perguntas fechadas com nota).
+- **Mapa**: projeção Robinson própria, zoom por gesto/roda/botões, e desde a
+  última correção — **a resposta certa sempre enquadra o país no mapa ao ser
+  revelada**, mesmo em perguntas onde o mapa não é a pergunta (capital→país
+  etc.); antes disso, um país pequeno acertado ficava marcado mas invisível
+  no zoom do mundo inteiro.
+- **Terras fora dos 195** (Groenlândia, Antártida, Taiwan...) são desenhadas
+  identificadas — dependência de um dos 195 recebe a cor do soberano; área
+  disputada ou sem soberania recebe cor própria e uma nota, nunca um dono.
+  Nenhuma delas é resposta de pergunta. Ver `DATA_SOURCES.md` § Terras fora dos 195.
+- **Ficha do país**: seis indicadores oficiais (população, expectativa de
+  vida, densidade, população urbana, área florestal, IDH — Banco Mundial e
+  PNUD, cada um com o próprio ano) e **fatos derivados** calculados a partir
+  desses dados (superlativos mundiais e regionais) — nunca escritos à mão,
+  nunca respostas de pergunta.
+- **PWA completo**: instalável, funciona offline (service worker cacheia o
+  artefato no primeiro uso, não na instalação — testado que sobrevive a
+  aba/rede instável), avisa a aba aberta quando uma versão nova é publicada.
+- **Tema**: automático (segue o sistema) por padrão, com botão para fixar
+  claro ou escuro.
+- **Conta opcional**: sincroniza progresso via Supabase, sem exigir cadastro
+  para treinar. `connect-src` na CSP abre só para a origem do Supabase — ver
+  `src/cloud.json` e `DATA_SOURCES.md` § Conta e sincronização.
 
-A parte difícil já está pronta: todas as cores são tokens. Deve bastar aplicar um atributo na raiz (ex.: `data-theme="light"`) e escrever as regras correspondentes, mantendo `prefers-color-scheme` como comportamento do modo automático. Há um teste que **proíbe cor fixa fora das paletas** — respeite-o.
+## Como publicar no Lovable
 
-## Tarefa 2 — Contas de usuário (grande, decida comigo antes de codar)
+O site no Lovable **não está ligado ao GitHub** — é um projeto React que só
+redireciona para o `atlas-195.html` estático, hospedado à parte.
 
-Hoje o progresso fica salvo **só no navegador**. Quero poder criar conta e ter o progresso vinculado a ela, para continuar em outro aparelho.
+1. `npm run build` e `npm test` (precisa passar)
+2. Commit e push para o GitHub (CI precisa ficar verde)
+3. Comparar hash de cada arquivo publicável (`atlas-195.html`,
+   `manifest.webmanifest`, `sw.js`, os 4 PNGs de ícone) contra o que já está
+   em `https://atlas-195.lovable.app/<arquivo>` — só reenviar o que mudou.
+4. Enviar os arquivos que mudaram para o projeto Lovable
+   (id `d00d8eb3-5261-428f-b5bb-7d8f89247846`) e pedir explicitamente para
+   **copiar byte a byte, sem reformatar, sem linter** — um byte alterado
+   quebra os hashes de CSP e derruba a página inteira.
+5. Publicar e conferir o hash do arquivo já no ar antes de considerar concluído.
 
-**Antes de escrever código, me explique o plano.** Esta mudança mexe em algo central do projeto, e eu quero entender antes de aprovar:
+**Só publique no Lovable se o usuário pedir.** Terminar de codar e testar
+localmente não é licença para publicar sozinho.
 
-- O app hoje promete, no README e na interface, que **não envia nada para servidor nenhum**. A política de segurança está com `connect-src 'none'`, ou seja, ele está tecnicamente proibido de falar com a internet. Criar contas obriga a abrir isso e a mudar essa promessa. Quero que a promessa seja atualizada com honestidade, não apagada — o texto novo deve dizer o que passa a sair do aparelho e o que continua local.
-- Quero que **continuar sem conta siga funcionando**, offline e sem cadastro. A conta deve ser opcional e adicional, nunca obrigatória, e nunca uma parede na frente de quem só quer treinar.
-- Quero saber o que acontece com o progresso de quem já usa o app hoje (ele não pode ser perdido ao criar uma conta) e o que acontece se o serviço de contas ficar fora do ar.
+## Não há pendência técnica conhecida agora
 
-**Aproveite o que já existe** — o projeto foi construído de um jeito que facilita isso:
+As duas grandes tarefas do briefing anterior (botão de tema, conta com
+sincronização) foram concluídas, testadas e publicadas. O funcionamento
+offline em produção, que ficou como dúvida numa sessão anterior, foi
+confirmado ao vivo depois (cache populando após o primeiro uso, app abrindo
+com o servidor derrubado).
 
-- O progresso já é um "envelope" versionado, validado e serializável (`Core.serializeProgress` / `Core.deserializeProgress` / `Core.validateProgress`, com `Core.SCHEMA_VERSION`). Ele é exatamente o que precisaria ser enviado e recebido.
-- **Já existe `Core.mergeProgress`**, que funde dois progressos resolvendo conflitos por habilidade — foi feito para sincronizar abas abertas ao mesmo tempo, e serve igual para sincronizar aparelhos. Não escreva um merge novo.
-- Já existe exportar/importar progresso por arquivo (`exportProgress` / `importProgressFile` em `src/app.js`), que é a versão manual do que a conta faria sozinha.
-- O armazenamento local já tem uma camada de abstração (`STORAGE_KEY`, `hostStorageAvailable`, leitura/escrita com timeout) — o servidor deve entrar como mais uma réplica, não substituindo a local.
+### Ideias registradas, não pedidas ainda
 
-**Princípio que quero preservado:** o dispositivo continua sendo a fonte da verdade; a conta é uma cópia que sincroniza. Se a internet cair, o treino não pode parar.
-
-### Hospedagem: já está decidido
-
-**O site será sempre hospedado no Lovable.** Não pretendo hospedar nada por conta própria, então não precisa avaliar alternativas de servidor. Use a integração de banco de dados e autenticação que o Lovable já oferece (Supabase / Lovable Cloud) — é para lá que a conta deve apontar. Vale confirmar comigo os limites do plano em uso antes de assumir volume.
-
-### Um cuidado importante ao usar o Lovable para isso
-
-O projeto no Lovable hoje é um app React que **só redireciona** para o `atlas-195.html` estático. Se a tarefa for entregue como "peça para a IA do Lovable adicionar login", o resultado provável é uma tela de login **em React, separada**, convivendo com o Atlas — dois aplicativos no mesmo endereço, cada um com seu estado. Não é isso que eu quero.
-
-O login e a sincronização devem ser implementados **dentro do próprio `atlas-195.html`**, no código deste repositório (`src/app.js` e `src/core.js`), como qualquer outra tela do app. O Lovable entra apenas como:
-
-1. **hospedagem** do arquivo estático, como já é hoje; e
-2. **provedor do banco de dados e da autenticação**, provisionados pelo painel dele.
-
-Consequência prática: o app deve conversar com o Supabase por **`fetch` puro** nos endpoints REST/Auth, sem instalar o SDK — isso mantém a regra de zero dependências e o arquivo continua único e autocontido. A URL do projeto e a chave pública (`anon`) ficam embutidas no arquivo, o que é normal e esperado para esse tipo de chave, desde que as permissões no banco estejam configuradas para que cada pessoa só enxergue o próprio progresso.
-
-Na política de segurança, abra `connect-src` **apenas para a origem do Supabase** — nada de liberar geral.
-
-E um detalhe que não pode ser esquecido: o `atlas-195.html` precisa continuar abrindo direto do disco, sem servidor. Quando não houver rede ou origem válida, a parte de conta simplesmente não aparece e o treino segue local, sem erro na tela.
-
-## Como publicar (quando eu aprovar)
-
-1. `npm run build` e `npm test`
-2. Commit e push para o GitHub (o CI precisa ficar verde)
-3. O site no Lovable **não** está ligado ao GitHub: os arquivos gerados (`atlas-195.html`, `manifest.webmanifest`, `sw.js` e os 4 ícones PNG) são enviados manualmente para a pasta `public/` do projeto Lovable, e depois publica-se.
-   - Projeto Lovable: `d00d8eb3-5261-428f-b5bb-7d8f89247846`
-   - Ao enviar, avise explicitamente para **copiar byte a byte, sem reformatar, sem linter** — qualquer byte alterado quebra os hashes de CSP e derruba a página.
-
-## Uma pendência conhecida
-
-O funcionamento offline foi verificado localmente (servidor derrubado, app abre completo). **Em produção não foi confirmado**: o service worker registra e controla a página, mas o cache não populou no navegador automatizado usado no teste, e a causa não foi determinada. Pode ser limitação do ambiente de teste. Se puder, confirme abrindo o site no celular, deixando carregar, e reabrindo em modo avião.
+- As terras fora dos 195 (Groenlândia etc.) não têm ficha no Atlas nem entram
+  na busca — só aparecem no mapa. Se um dia fizer sentido dar ficha a elas
+  também, é recurso à parte.
+- Não está confirmado se o Supabase por trás da conta está no plano gratuito
+  dele ou gerenciado dentro do Lovable Cloud — só importa se o uso crescer a
+  ponto de esbarrar em limite.
+- Som e tradução para inglês foram cogitados e deliberadamente deixados de
+  fora até agora (som pediria um controle de liga/desliga novo; traduzir
+  poria em risco a precisão de 195 países de conteúdo).
