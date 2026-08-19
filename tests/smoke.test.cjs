@@ -254,6 +254,36 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     })()`);
     assert.equal(veredito, 'ok', 'Responder uma pergunta não produziu veredito.');
 
+    // 3a. Acertar uma pergunta como "capital → país" precisa enquadrar o país no
+    //     mapa. Antes, o mapa nunca era tocado nessas direções: um país pequeno
+    //     (Maurício, San Marino...) ficava marcado em verde no zoom do mundo
+    //     inteiro, invisível. Reseta para o mundo antes de cada rodada e mede o
+    //     viewBox do SVG, sem depender de nenhuma variável interna do app.js.
+    await evaluate(client, `document.querySelector('[data-mode="cap"]').click()`);
+    let enquadrou = 0;
+    const RODADAS_ENQUADRAMENTO = 5;
+    for (let i = 0; i < RODADAS_ENQUADRAMENTO; i += 1) {
+      await evaluate(client, `document.getElementById('zRst').click()`);
+      const larguraMundo = await evaluate(client, `Number(document.getElementById('map').getAttribute('viewBox').split(/\\s+/)[2])`);
+      assert.equal(larguraMundo, 1018, 'O botão de restaurar visão precisa voltar ao mundo inteiro.');
+
+      await until('a pergunta de capitais oferecer alternativa', async () => (
+        await evaluate(client, `document.querySelectorAll('[data-answer]').length > 0`)
+      ));
+      await evaluate(client, `document.querySelector('[data-answer]').click()`);
+      await until('o veredito aparecer', async () => (
+        await evaluate(client, `/Correto|incorreta/.test(document.getElementById('panel').textContent)`)
+      ));
+
+      const larguraDepois = await evaluate(client, `Number(document.getElementById('map').getAttribute('viewBox').split(/\\s+/)[2])`);
+      if (larguraDepois < larguraMundo - 5) enquadrou += 1;
+      await evaluate(client, `document.getElementById('nextQuestion')?.click()`);
+    }
+    assert.ok(
+      enquadrou >= RODADAS_ENQUADRAMENTO - 1,
+      `O mapa só enquadrou o país em ${enquadrou}/${RODADAS_ENQUADRAMENTO} respostas de capitais.`
+    );
+
     // 3b. A prova precisa fechar a série e entregar a nota. É o único fluxo do
     //     app com fim definido, e quebrá-lo deixaria o usuário preso num
     //     contador que nunca chega ao resultado.

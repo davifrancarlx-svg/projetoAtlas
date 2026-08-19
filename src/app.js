@@ -1129,7 +1129,13 @@
     if (state.answered) {
       markCountry(question.id, 'ok');
       if (!correct && question.direction === 'locate' && byId[state.selectedAnswer]) markCountry(state.selectedAnswer, 'bad');
-      if (question.direction === 'locate' || question.direction === 'mapId') showReticle(question.id);
+      // Perguntas como "capital → país" nunca mexiam no mapa: o país acertado
+      // ficava só marcado em verde, invisível no zoom do mundo se fosse pequeno
+      // (Maurício, San Marino, Bahrein...). fitCountry é a mesma função que já
+      // enquadra microestados no Atlas — reaproveitada aqui para o revelar da
+      // resposta sempre mostrar onde o país fica, não só se ele foi acertado.
+      fitCountry(question.id);
+      showReticle(question.id);
     }
   }
 
