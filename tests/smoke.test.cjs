@@ -254,13 +254,16 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     })()`);
     assert.equal(veredito, 'ok', 'Responder uma pergunta não produziu veredito.');
 
-    // 3a. Acertar uma pergunta como "capital → país" precisa enquadrar o país no
-    //     mapa. Antes, o mapa nunca era tocado nessas direções: um país pequeno
-    //     (Maurício, San Marino...) ficava marcado em verde no zoom do mundo
-    //     inteiro, invisível. Reseta para o mundo antes de cada rodada e mede o
-    //     viewBox do SVG, sem depender de nenhuma variável interna do app.js.
+    // 3a. Acertar uma pergunta como "capital → país" precisa marcar o país no
+    //     mapa com um pin (o mesmo reticle usado em "mapa → país"), visível em
+    //     qualquer zoom mesmo para país pequeno (Maurício, San Marino...). Um
+    //     zoom automático foi tentado antes e descartado por trocar o
+    //     enquadramento a cada resposta; por isso o teste também confirma que
+    //     o viewBox não muda. Reseta para o mundo antes de cada rodada e mede
+    //     viewBox e a presença do pin, sem depender de variável interna do app.js.
     await evaluate(client, `document.querySelector('[data-mode="cap"]').click()`);
-    let enquadrou = 0;
+    let comPin = 0;
+    let semZoom = 0;
     const RODADAS_ENQUADRAMENTO = 5;
     for (let i = 0; i < RODADAS_ENQUADRAMENTO; i += 1) {
       await evaluate(client, `document.getElementById('zRst').click()`);
@@ -276,12 +279,18 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
       ));
 
       const larguraDepois = await evaluate(client, `Number(document.getElementById('map').getAttribute('viewBox').split(/\\s+/)[2])`);
-      if (larguraDepois < larguraMundo - 5) enquadrou += 1;
+      if (larguraDepois === larguraMundo) semZoom += 1;
+      const temPin = await evaluate(client, `Boolean(document.querySelector('#map .reticle'))`);
+      if (temPin) comPin += 1;
       await evaluate(client, `document.getElementById('nextQuestion')?.click()`);
     }
     assert.ok(
-      enquadrou >= RODADAS_ENQUADRAMENTO - 1,
-      `O mapa só enquadrou o país em ${enquadrou}/${RODADAS_ENQUADRAMENTO} respostas de capitais.`
+      comPin >= RODADAS_ENQUADRAMENTO - 1,
+      `O mapa só marcou o país com pin em ${comPin}/${RODADAS_ENQUADRAMENTO} respostas de capitais.`
+    );
+    assert.ok(
+      semZoom >= RODADAS_ENQUADRAMENTO - 1,
+      `O revelar da resposta mudou o zoom do mapa em ${RODADAS_ENQUADRAMENTO - semZoom}/${RODADAS_ENQUADRAMENTO} rodadas, mas não deveria mais.`
     );
 
     // 3b. A prova precisa fechar a série e entregar a nota. É o único fluxo do

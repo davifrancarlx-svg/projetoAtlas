@@ -1131,10 +1131,11 @@
       if (!correct && question.direction === 'locate' && byId[state.selectedAnswer]) markCountry(state.selectedAnswer, 'bad');
       // Perguntas como "capital → país" nunca mexiam no mapa: o país acertado
       // ficava só marcado em verde, invisível no zoom do mundo se fosse pequeno
-      // (Maurício, San Marino, Bahrein...). fitCountry é a mesma função que já
-      // enquadra microestados no Atlas — reaproveitada aqui para o revelar da
-      // resposta sempre mostrar onde o país fica, não só se ele foi acertado.
-      fitCountry(question.id);
+      // (Maurício, San Marino, Bahrein...). Zoom automático no revelar (fitCountry)
+      // resolvia a invisibilidade mas trocava o enquadramento a cada resposta, o
+      // que incomodava ao jogar. O pin (mesmo reticle do "mapa → país") já é um
+      // marcador de tamanho fixo em pixels, visível em qualquer zoom, sem mexer
+      // na visão que a pessoa escolheu.
       showReticle(question.id);
     }
   }
