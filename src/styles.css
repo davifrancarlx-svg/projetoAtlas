@@ -330,6 +330,7 @@ input {
 /* Botão de tema: discreto ao lado das seções, com a largura do alvo de toque
    para continuar acessível no celular. */
 .theme-toggle {
+  position: relative;
   display: inline-flex;
   min-width: var(--tap);
   align-items: center;
@@ -349,6 +350,36 @@ input {
 
 .theme-toggle-icon {
   line-height: 1;
+}
+
+/* Trocar de automático para claro (ou de escuro para automático, num sistema
+   escuro) às vezes não muda nenhuma cor na tela, porque o resultado visual já
+   era o mesmo antes do clique. Sem aviso, esse clique parece não ter feito
+   nada e a pessoa clica de novo. Este balão confirma o nome do tema em texto,
+   que sempre muda, mesmo quando a cor não muda. */
+.theme-toggle-hint {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-end: 0;
+  margin-block-start: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: var(--panel);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  text-transform: none;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.theme-toggle-hint.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 .filter-toggle:hover {
   background: var(--panel-2);

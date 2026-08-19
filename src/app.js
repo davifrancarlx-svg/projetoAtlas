@@ -76,6 +76,7 @@
     filterToggle: document.getElementById('filterToggle'),
     themeToggle: document.getElementById('themeToggle'),
     themeToggleIcon: document.getElementById('themeToggleIcon'),
+    themeToggleHint: document.getElementById('themeToggleHint'),
     modeSeg: document.getElementById('modeSeg'),
     region: document.getElementById('regSel'),
     ansSeg: document.getElementById('ansSeg'),
@@ -135,6 +136,7 @@
   let saveChain = Promise.resolve();
   let atlasSearchTimer = 0;
   let announcementTimer = 0;
+  let themeHintTimer = 0;
   let resetSyncDirty = false;
   const pendingStorageValues = [];
   let atlasElements = null;
@@ -245,6 +247,21 @@
     }
     syncThemeColor();
     if (shouldAnnounce) announce(`Tema ${atual.nome}.`);
+    return atual;
+  }
+
+  // Ir de automático para claro (ou de escuro para automático, num sistema
+  // escuro) às vezes não muda nenhuma cor na tela: o resultado visual já era
+  // o mesmo antes do clique. Sem aviso, esse clique parece não ter feito
+  // nada e a pessoa clica de novo achando que precisa de dois cliques. Este
+  // balão confirma o nome do tema em texto, que sempre muda mesmo quando a
+  // cor não muda, e some sozinho.
+  function showThemeHint(texto) {
+    if (!dom.themeToggleHint) return;
+    clearTimeout(themeHintTimer);
+    dom.themeToggleHint.textContent = texto;
+    dom.themeToggleHint.classList.add('is-visible');
+    themeHintTimer = setTimeout(() => dom.themeToggleHint.classList.remove('is-visible'), 1600);
   }
 
   // A cor da barra do navegador vem de duas metas com media query, que seguem o
@@ -2372,7 +2389,8 @@
     });
     dom.themeToggle.addEventListener('click', () => {
       state.theme = THEMES[(themeStep(state.theme) + 1) % THEMES.length].id;
-      applyTheme(true);
+      const atual = applyTheme(true);
+      showThemeHint(atual.curto);
       savePreferences();
     });
     dom.timeSeg.addEventListener('click', (event) => {
