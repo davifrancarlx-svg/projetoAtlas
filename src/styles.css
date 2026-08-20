@@ -1142,7 +1142,6 @@ body.view-prog .side-body {
   min-height: 100px;
   justify-content: center;
   padding: 8px;
-  background: var(--paper);
 }
 
 .opt.flagopt img {
