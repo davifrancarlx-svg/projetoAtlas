@@ -77,6 +77,8 @@
     tabs: [...document.querySelectorAll('.tab[data-view]')],
     controls: document.getElementById('controls'),
     filterToggle: document.getElementById('filterToggle'),
+    filterSummary: document.getElementById('filterSummary'),
+    focusToggle: document.getElementById('focusToggle'),
     themeToggle: document.getElementById('themeToggle'),
     themeToggleIcon: document.getElementById('themeToggleIcon'),
     themeToggleHint: document.getElementById('themeToggleHint'),
@@ -115,7 +117,7 @@
   const EXPIRED_ANSWER = Symbol('tempo esgotado');
   const state = {
     ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro', answerMode: 'pick',
-    includeVisual: true, mapCollapsed: false, filtersCollapsed: true,
+    includeVisual: true, mapCollapsed: false, filtersCollapsed: true, focusMode: false,
     question: null, questionAnswerMode: 'pick', answered: false,
     selectedAnswer: null, answerMatch: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
@@ -127,7 +129,7 @@
     // Prova: uma série fechada de perguntas com nota no fim. Vale para a sessão
     // atual e não é persistida — o que fica gravado é o progresso por país, que
     // a prova alimenta como qualquer outra resposta.
-    exam: null,
+    exam: null, sessionEnded: false, regionCelebration: null,
   };
 
   // Relógio da pergunta: um intervalo curto move a barra, e o estouro entra
@@ -187,7 +189,7 @@
   }
 
   function flagImage(country, options = {}) {
-    const image = create('img', { attrs: {
+    const image = create('img', { className: 'flag-image', attrs: {
       src: flagSource(country), alt: options.decorative ? '' : (options.alt || `Bandeira de ${country.n}`),
       loading: options.eager ? 'eager' : 'lazy', decoding: 'async',
     } });
@@ -290,7 +292,8 @@
     const safe = {
       mode: state.mode, region: state.region, answerMode: state.answerMode,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
-      filtersCollapsed: state.filtersCollapsed, timeLimit: state.timeLimit, theme: state.theme,
+      filtersCollapsed: state.filtersCollapsed, focusMode: state.focusMode,
+      timeLimit: state.timeLimit, theme: state.theme,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
   }
@@ -305,9 +308,11 @@
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
       if (typeof parsed.filtersCollapsed === 'boolean') state.filtersCollapsed = parsed.filtersCollapsed;
+      if (typeof parsed.focusMode === 'boolean') state.focusMode = parsed.focusMode;
       if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
       if (THEMES.some((tema) => tema.id === parsed.theme)) state.theme = parsed.theme;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
+      if (state.region !== 'Mundo inteiro' && state.mode === 'reg') state.mode = 'mix';
     } catch (_) { /* preferência corrompida é ignorada */ }
   }
 
@@ -959,6 +964,7 @@
 
   function effectiveDirections() {
     let directions = (MODE_DIRECTIONS[state.mode] || MODE_DIRECTIONS.mix).slice();
+    if (state.region !== 'Mundo inteiro') directions = directions.filter((direction) => direction !== 'reg');
     // No modo digitar as direções que só existem como escolha saem da mistura,
     // mas se o modo inteiro for feito delas — como Regiões — o treino mantém o
     // assunto e responde por escolha, em vez de virar outro treino sem avisar.
@@ -972,9 +978,18 @@
 
   function createNextQuestion(options = {}) {
     if (!state.ready) return;
+    state.sessionEnded = false;
+    state.regionCelebration = null;
     stopTimer();
     // A série fechada termina aqui: em vez de sortear mais uma, entrega a nota.
     if (examFinished()) { renderExamResult(); return; }
+    if (state.region !== 'Mundo inteiro') {
+      state.reviewQueue = state.reviewQueue.filter((card) => card.direction !== 'reg');
+      if (state.forcedQuestion && state.forcedQuestion.direction === 'reg') {
+        state.forcedQuestion = null;
+        state.fromDeck = false;
+      }
+    }
     // O baralho de erros tem prioridade sobre o sorteio: enquanto houver carta
     // na fila, é ela que vira pergunta. `fromDeck` sobrevive à fila esvaziada
     // para que a última carta ainda se apresente como revisão.
@@ -1128,9 +1143,12 @@
       state.exam.done += 1;
       state.exam.answers.push(registro);
     }
+    const regionWasComplete = regionMastery(target.r).complete;
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
       countryIds: IDS, bestStreak: state.streak,
     });
+    if (!regionWasComplete && regionMastery(target.r).complete) state.regionCelebration = target.r;
+    refreshMapMastery();
     queueProgressSave();
     scheduleCloudSync();
     renderQuiz();
@@ -1283,6 +1301,16 @@
     ]));
     verdict.append(fact);
 
+    if (state.regionCelebration) {
+      verdict.append(create('div', { className: 'region-celebration', attrs: { role: 'status' } }, [
+        create('span', { text: '◆', attrs: { 'aria-hidden': 'true' } }),
+        create('div', {}, [
+          create('strong', { text: `${state.regionCelebration} dominada` }),
+          create('small', { text: 'Todas as habilidades da região chegaram ao nível máximo.' }),
+        ]),
+      ]));
+    }
+
     // No acerto, um destaque do país. Só um: a série é rápida e despejar cinco
     // frases a cada resposta viraria ruído. Qual deles aparece varia com o
     // número da pergunta, então repetir o mesmo país não repete o mesmo fato.
@@ -1308,6 +1336,7 @@
     atlasElements = null;
     clear(dom.panel);
     const question = state.question;
+    dom.shell.dataset.questionVisual = String(isVisualQuestion(question));
     const country = byId[question.id];
     const [headline, eyebrow] = questionCopy(question);
     dom.panel.append(create('div', { className: 'plate' }, [
@@ -1347,14 +1376,21 @@
     if (state.view !== 'quiz') { dom.scorebar.hidden = true; return; }
     dom.scorebar.hidden = false;
     const total = state.hits + state.misses;
-    [[state.hits, 'acertos'], [state.misses, 'erros'],
-      [total ? `${Math.round(state.hits / total * 100)}%` : '—', 'precisão'],
-      [state.streak, 'sequência'], [progress.bestStreak, 'recorde']]
-      .forEach(([value, label], index) => {
-        const box = create('div', { className: `stat${index === 3 && state.streak ? ' hot' : ''}` });
-        box.append(create('b', { text: value }), create('span', { text: label }));
-        dom.scorebar.append(box);
-      });
+    const questionLabel = state.exam
+      ? `${Math.min(state.exam.done + (state.answered ? 0 : 1), state.exam.total)} de ${state.exam.total}`
+      : `${Math.max(1, state.questionNumber)}`;
+    const summary = create('div', { className: 'session-strip' });
+    summary.append(
+      create('span', {}, [create('b', { text: questionLabel }), document.createTextNode(' pergunta')]),
+      create('span', {}, [create('b', { text: total ? `${Math.round(state.hits / total * 100)}%` : '—' }), document.createTextNode(' precisão')]),
+      create('span', { className: state.streak ? 'hot' : '' }, [create('b', { text: state.streak }), document.createTextNode(' sequência')]),
+    );
+    dom.scorebar.append(summary);
+    if (!state.exam && total && !state.sessionEnded) {
+      const finish = create('button', { className: 'session-finish', type: 'button', text: 'Encerrar' });
+      finish.addEventListener('click', finishSession);
+      dom.scorebar.append(finish);
+    }
   }
 
   function matchedTerritory(country, query) {
@@ -1565,6 +1601,64 @@
     return wrapper;
   }
 
+  function countryFamilyLevel(country, directions) {
+    return directions.reduce((sum, direction) => sum + Core.levelOf(progress, country.id, direction), 0)
+      / (directions.length * Core.MAX_LEVEL);
+  }
+
+  function regionMastery(region) {
+    const countries = DATA.filter((country) => country.r === region);
+    const directions = ['flag', 'flagOf', 'cap', 'capOf', 'locate', 'mapId'];
+    const score = countries.reduce((sum, country) => sum + directions.reduce((inner, direction) =>
+      inner + Core.levelOf(progress, country.id, direction), 0), 0);
+    const maximum = countries.length * directions.length * Core.MAX_LEVEL;
+    return { percent: maximum ? score / maximum * 100 : 0, complete: maximum > 0 && score === maximum };
+  }
+
+  function refreshMapMastery() {
+    Core.regionsOf(DATA).forEach((region) => {
+      const complete = regionMastery(region).complete;
+      DATA.filter((country) => country.r === region).forEach((country) => {
+        (mapState.nodesById.get(country.id) || []).forEach((node) => node.classList.toggle('mastered-region', complete));
+      });
+    });
+  }
+
+  function masteryOverview() {
+    const section = create('section', { className: 'pgroup mastery-overview', attrs: { 'aria-labelledby': 'countryMasteryTitle' } });
+    section.append(create('h3', { id: 'countryMasteryTitle', text: 'Mapa de domínio' }));
+    const regions = create('div', { className: 'region-badges', attrs: { 'aria-label': 'Conquistas regionais' } });
+    Core.regionsOf(DATA).forEach((region) => {
+      const value = regionMastery(region);
+      const badge = create('div', { className: `region-badge${value.complete ? ' is-complete' : ''}` });
+      badge.append(create('span', { className: 'region-badge-mark', text: value.complete ? '◆' : '◇', attrs: { 'aria-hidden': 'true' } }));
+      badge.append(create('span', {}, [create('strong', { text: region }), create('small', { text: formatPercent(value.percent) })]));
+      regions.append(badge);
+    });
+    section.append(regions);
+    const details = create('details', { className: 'mastery-details' });
+    details.append(create('summary', { text: 'Ver os 195 países por habilidade' }));
+    const legend = create('p', { className: 'mastery-legend', text: 'Bandeira · Capital · Localização' });
+    const grid = create('div', { className: 'mastery-grid' });
+    DATA.slice().sort((a, b) => a.n.localeCompare(b.n, 'pt-BR')).forEach((country) => {
+      const values = [FAMILY_DIRECTIONS.Bandeiras, FAMILY_DIRECTIONS.Capitais, FAMILY_DIRECTIONS.Localização]
+        .map((directions) => Math.round(countryFamilyLevel(country, directions) * 5));
+      const tile = create('button', { className: 'mastery-tile', type: 'button', attrs: {
+        title: country.n,
+        'aria-label': `${country.n}: bandeira nível ${values[0]}, capital nível ${values[1]}, localização nível ${values[2]}`,
+      } });
+      tile.append(create('b', { text: country.id }));
+      const skills = create('span', { className: 'mastery-skills', attrs: { 'aria-hidden': 'true' } });
+      values.forEach((value) => skills.append(create('i', { attrs: { 'data-level': value } })));
+      tile.append(skills);
+      tile.addEventListener('click', () => { state.atlasSelected = country.id; setView('atlas'); selectAtlasCountry(country.id, true); });
+      grid.append(tile);
+    });
+    details.append(legend, grid);
+    section.append(details);
+    return section;
+  }
+
   function startReview(id, direction) {
     state.forcedQuestion = { id, direction };
     setView('quiz');
@@ -1679,6 +1773,7 @@
       stats.averageSeconds !== null ? `${stats.averageSeconds.toFixed(1).replace('.', ',')}s por pergunta` : null,
     ].filter(Boolean);
     dom.panel.append(create('p', { className: 'section-copy', text: linha.join(' · ') }));
+    dom.panel.append(sessionMiniMap(state.exam.answers));
 
     const errados = state.exam.answers.filter((answer) => !answer.correct);
     if (errados.length) {
@@ -1780,6 +1875,107 @@
       section.append(create('p', { className: 'empty', text: 'Nenhum erro pendente nesta sessão.' }));
     }
     container.append(section);
+  }
+
+  function sessionOutcomeByCountry(answers = state.sessionAnswers) {
+    const outcome = new Map();
+    answers.forEach((answer) => {
+      if (!outcome.has(answer.id)) outcome.set(answer.id, { correct: 0, wrong: 0 });
+      const value = outcome.get(answer.id);
+      if (answer.correct) value.correct += 1;
+      else value.wrong += 1;
+    });
+    return outcome;
+  }
+
+  function sessionMiniMap(answers = state.sessionAnswers) {
+    const outcome = sessionOutcomeByCountry(answers);
+    const svg = svgElement('svg', {
+      class: 'session-mini-map', viewBox: `${WORLD.x} ${WORLD.y} ${WORLD.w} ${WORLD.h}`,
+      role: 'img', 'aria-label': 'Mapa dos países praticados nesta sessão',
+    });
+    DATA.forEach((country) => {
+      const result = outcome.get(country.id);
+      svg.append(svgElement('path', {
+        d: country.d,
+        class: result ? (result.wrong ? 'session-map-hard' : 'session-map-good') : 'session-map-neutral',
+        'fill-rule': 'evenodd', 'clip-rule': 'evenodd',
+      }));
+    });
+    return svg;
+  }
+
+  function nextReviewCopy() {
+    const dates = attemptedSkills().map((item) => Date.parse(item.skill.nextReviewAt)).filter(Number.isFinite).sort((a, b) => a - b);
+    if (!dates.length) return 'Continue treinando para formar seu ciclo de revisão.';
+    const days = Math.max(0, Math.ceil((dates[0] - Date.now()) / 86400000));
+    if (!days) return 'Há conteúdo pronto para revisar hoje.';
+    return `Próxima revisão recomendada em ${days} ${days === 1 ? 'dia' : 'dias'}.`;
+  }
+
+  function renderSessionResult() {
+    const stats = sessionStats();
+    const outcome = sessionOutcomeByCountry();
+    const consolidated = [...outcome.entries()]
+      .filter(([, result]) => result.correct > 0 && result.wrong === 0)
+      .map(([id]) => byId[id]);
+    const mistakes = sessionMistakes();
+    atlasElements = null;
+    clear(dom.panel); clearMapMarks(); stopTimer();
+    dom.shell.dataset.questionVisual = 'false';
+    dom.panel.append(create('div', { className: 'plate' }, [
+      create('span', { text: 'Sessão concluída' }),
+      create('span', { text: `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}` }),
+    ]));
+    dom.panel.append(create('h2', { id: 'questionTitle', className: 'subject session-result-title', text: `${formatPercent(stats.accuracy)} de precisão`, attrs: { tabindex: '-1' } }));
+    dom.panel.append(create('div', { className: 'session-result-stats' }, [
+      create('span', {}, [create('b', { text: stats.hits }), document.createTextNode(' acertos')]),
+      create('span', {}, [create('b', { text: stats.misses }), document.createTextNode(' erros')]),
+      create('span', {}, [create('b', { text: stats.averageSeconds === null ? '—' : `${stats.averageSeconds.toFixed(1).replace('.', ',')}s` }), document.createTextNode(' por resposta')]),
+    ]));
+    dom.panel.append(sessionMiniMap());
+    const learned = create('section', { className: 'pgroup session-result-group' });
+    learned.append(create('h3', { text: 'Consolidados nesta sessão' }));
+    learned.append(create('p', { className: 'section-copy', text: consolidated.length
+      ? consolidated.slice(0, 8).map((country) => country.n).join(' · ')
+      : 'Nenhum país foi consolidado sem erros nesta sessão.' }));
+    dom.panel.append(learned);
+    const difficult = create('section', { className: 'pgroup session-result-group' });
+    difficult.append(create('h3', { text: 'Para reforçar' }));
+    const weak = create('div', { className: 'weak' });
+    mistakes.slice(0, 10).forEach((item) => weak.append(create('span', { className: 'chip', text: `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}` })));
+    if (!mistakes.length) weak.append(create('p', { className: 'empty', text: 'Nenhum erro pendente. Excelente fechamento.' }));
+    difficult.append(weak, create('p', { className: 'next-review-copy', text: nextReviewCopy() }));
+    dom.panel.append(difficult);
+    const actions = create('div', { className: 'button-row session-result-actions' });
+    const again = create('button', { className: 'btn', type: 'button', text: 'Nova sessão' });
+    again.addEventListener('click', startNewSession);
+    actions.append(again);
+    if (mistakes.length) {
+      const review = create('button', { className: 'btn ghost', type: 'button', text: 'Revisar erros' });
+      review.addEventListener('click', startMistakeDeck);
+      actions.append(review);
+    }
+    const seeProgress = create('button', { className: 'btn ghost', type: 'button', text: 'Ver progresso' });
+    seeProgress.addEventListener('click', () => setView('prog'));
+    actions.append(seeProgress);
+    dom.panel.append(actions);
+    renderScorebar();
+    document.getElementById('questionTitle')?.focus();
+  }
+
+  function finishSession() {
+    if (!state.sessionAnswers.length) return;
+    state.sessionEnded = true;
+    renderSessionResult();
+    announce('Sessão encerrada. O resumo do aprendizado está disponível.');
+  }
+
+  function startNewSession() {
+    state.hits = 0; state.misses = 0; state.streak = 0; state.questionNumber = 0;
+    state.sessionAnswers = []; state.reviewQueue = []; state.forcedQuestion = null;
+    state.fromDeck = false; state.deckPending = false; state.sessionEnded = false;
+    createNextQuestion({ focus: true });
   }
 
   function progressFileName() {
@@ -2224,6 +2420,7 @@
     mastery.append(create('h3', { id: 'masteryTitle', text: 'Domínio por habilidade' }));
     Object.entries(FAMILY_DIRECTIONS).forEach(([label, directions]) => mastery.append(progressBar(label, directions)));
     dom.panel.append(mastery);
+    dom.panel.append(masteryOverview());
 
     const review = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'reviewTitle' } });
     review.append(create('h3', { id: 'reviewTitle', text: 'Revisões recomendadas' }));
@@ -2379,6 +2576,7 @@
     state.view = view;
     document.body.dataset.view = view;
     dom.shell.dataset.view = view;
+    dom.shell.classList.toggle('is-focus-mode', state.focusMode && view === 'quiz');
     dom.tabs.forEach((tab) => {
       if (tab.dataset.view === view) tab.setAttribute('aria-current', 'page');
       else tab.removeAttribute('aria-current');
@@ -2386,7 +2584,8 @@
     dom.skipVisual.hidden = true;
     dom.map.classList.remove('picking');
     stopTimer();
-    if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); startTimer(); }
+    if (view === 'quiz' && state.sessionEnded) renderSessionResult();
+    else if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); startTimer(); }
     else if (view === 'atlas') renderAtlas();
     else { clearMapMarks(); renderProgress(); }
     announce(view === 'quiz' ? 'Treino aberto.' : view === 'atlas' ? 'Atlas aberto.' : 'Progresso aberto.');
@@ -2406,10 +2605,22 @@
   }
 
   function syncControls() {
-    dom.modeSeg.querySelectorAll('[data-mode]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.mode === state.mode)));
+    dom.modeSeg.querySelectorAll('[data-mode]').forEach((button) => {
+      const regionOnly = button.dataset.mode === 'reg';
+      button.disabled = regionOnly && state.region !== 'Mundo inteiro';
+      button.title = button.disabled ? 'As perguntas de região estão disponíveis apenas em Mundo inteiro.' : '';
+      button.setAttribute('aria-pressed', String(button.dataset.mode === state.mode));
+    });
     dom.ansSeg.querySelectorAll('[data-ans]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.ans === state.answerMode)));
     dom.timeSeg.querySelectorAll('[data-time]').forEach((button) => button.setAttribute('aria-pressed', String(Number(button.dataset.time) === state.timeLimit)));
     dom.visualToggle.checked = state.includeVisual;
+    const modeLabel = { mix: 'Misto', flag: 'Bandeiras', cap: 'Capitais', loc: 'Localização', reg: 'Regiões' }[state.mode];
+    const answerLabel = state.answerMode === 'type' ? 'Digitar' : 'Escolher';
+    const timeLabel = state.timeLimit ? `${state.timeLimit}s` : 'Livre';
+    dom.filterSummary.textContent = `${modeLabel} · ${state.region} · ${answerLabel} · ${timeLabel}`;
+    dom.focusToggle.setAttribute('aria-pressed', String(state.focusMode));
+    dom.focusToggle.title = state.focusMode ? 'Sair do modo foco' : 'Ocultar distrações';
+    dom.shell.classList.toggle('is-focus-mode', state.focusMode && state.view === 'quiz');
     applyTheme();
     dom.region.value = state.region;
     setMapCollapsed(state.mapCollapsed, false);
@@ -2426,20 +2637,14 @@
   }
 
   function syncFilterLayout() {
-    const desktop = matchMedia('(min-width: 821px)').matches;
-    if (desktop) {
-      dom.controls.hidden = false;
-      dom.filterToggle.setAttribute('aria-expanded', 'true');
-      const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
-      if (icon) icon.textContent = '−';
-    } else setFiltersCollapsed(state.filtersCollapsed, false);
+    setFiltersCollapsed(state.filtersCollapsed, false);
   }
 
   function bindControls() {
     dom.tabs.forEach((tab) => tab.addEventListener('click', () => setView(tab.dataset.view)));
     dom.modeSeg.addEventListener('click', (event) => {
       const button = event.target.closest('[data-mode]');
-      if (!button) return;
+      if (!button || button.disabled) return;
       state.mode = button.dataset.mode;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) {
         state.mode = 'cap';
@@ -2463,6 +2668,12 @@
       showThemeHint(atual.curto);
       savePreferences();
     });
+    dom.focusToggle.addEventListener('click', () => {
+      state.focusMode = !state.focusMode;
+      if (state.focusMode) setFiltersCollapsed(true, false);
+      syncControls(); savePreferences();
+      announce(state.focusMode ? 'Modo foco ativado.' : 'Modo foco desativado.');
+    });
     dom.timeSeg.addEventListener('click', (event) => {
       const button = event.target.closest('[data-time]');
       if (!button) return;
@@ -2478,7 +2689,11 @@
     });
     dom.region.addEventListener('change', () => {
       state.region = REGIONS.includes(dom.region.value) ? dom.region.value : 'Mundo inteiro';
-      savePreferences();
+      if (state.region !== 'Mundo inteiro' && state.mode === 'reg') {
+        state.mode = 'mix';
+        announce('O modo foi ajustado para Misto: perguntas de região só aparecem em Mundo inteiro.');
+      }
+      syncControls(); savePreferences();
       if (state.view !== 'quiz') setView('quiz');
       createNextQuestion();
     });
@@ -2578,6 +2793,7 @@
       loadPreferences();
       syncControls();
       await hydrateProgress();
+      refreshMapMastery();
       absorbPendingProgress();
       state.ready = true;
       bindMapEvents();

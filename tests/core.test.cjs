@@ -363,6 +363,30 @@ test('question creation supports explicit directions and a forced target', () =>
   }), /forcedId/);
 });
 
+test('region questions are rejected outside Mundo inteiro', () => {
+  assert.throws(() => Core.createQuestion({
+    countries: COUNTRIES,
+    progress: progress(),
+    directions: ['reg'],
+    region: 'Europa',
+    answerMode: 'pick',
+    rng: () => 0
+  }), /only available for Mundo inteiro/);
+});
+
+test('smart distractors prioritize similar capitals, flags and nearby countries', () => {
+  const target = { id: 'AA', n: 'Alfa', cap: 'Kingston', r: 'R1', sr: 'S1', c: [0, 0], fs: ['BB'] };
+  const candidates = [
+    { id: 'BB', n: 'Beta', cap: 'Muito longe', r: 'R2', sr: 'S2', c: [400, 400] },
+    { id: 'CC', n: 'Gama', cap: 'Kingstown', r: 'R2', sr: 'S2', c: [300, 300] },
+    { id: 'DD', n: 'Delta', cap: 'Outra', r: 'R1', sr: 'S1', c: [2, 2] },
+    { id: 'EE', n: 'Épsilon', cap: 'Capital', r: 'R2', sr: 'S2', c: [250, 250] }
+  ];
+  assert.equal(Core.distractors(target, 1, candidates, candidates, () => 0, 'flag')[0].id, 'BB');
+  assert.equal(Core.distractors(target, 1, candidates, candidates, () => 0, 'cap')[0].id, 'CC');
+  assert.equal(Core.distractors(target, 1, candidates, candidates, () => 0, 'mapId')[0].id, 'DD');
+});
+
 // A subregião é rótulo de exibição e também área de estudo. O balde amplo tem de
 // continuar existindo como opção própria: é ele que o modo "país → região" cobra.
 const AREA_COUNTRIES = [

@@ -887,23 +887,57 @@
     return copy;
   }
 
-  function distractors(target, count, pool, allCountries, rng) {
+  function normalizedDistance(left, right) {
+    left = normalizeText(left);
+    right = normalizeText(right);
+    return levenshtein(left, right) / Math.max(1, left.length, right.length);
+  }
+
+  function projectedDistance(left, right) {
+    if (!Array.isArray(left.c) || !Array.isArray(right.c)) return 1;
+    return Math.min(1, Math.hypot(left.c[0] - right.c[0], left.c[1] - right.c[1]) / 500);
+  }
+
+  function distractorScore(target, candidate, direction) {
+    var geographic = projectedDistance(target, candidate);
+    var sameSubregion = target.sr && target.sr === candidate.sr ? 0 : 1;
+    var sameRegion = target.r && target.r === candidate.r ? 0 : 1;
+    if (direction === 'flag' || direction === 'flagOf') {
+      var visualRank = Array.isArray(target.fs) ? target.fs.indexOf(candidate.id) : -1;
+      return (visualRank === -1 ? 1.2 : visualRank / Math.max(1, target.fs.length))
+        + geographic * 0.12 + sameRegion * 0.08;
+    }
+    if (direction === 'cap' || direction === 'capOf') {
+      var capital = normalizedDistance(target.cap, candidate.cap);
+      var sameInitial = normalizeText(target.cap).charAt(0) === normalizeText(candidate.cap).charAt(0) ? 0 : 1;
+      return capital * 0.72 + sameInitial * 0.12 + geographic * 0.1 + sameRegion * 0.06;
+    }
+    return geographic * 0.72 + sameSubregion * 0.18 + sameRegion * 0.1;
+  }
+
+  function distractors(target, count, pool, allCountries, rng, direction) {
     count = Math.max(0, Math.trunc(count));
     var targetId = itemId(target);
-    var candidates = [];
     var seen = Object.create(null);
-    function add(list) {
-      shuffled(list, rng).forEach(function (country) {
+    function unique(list) {
+      var result = [];
+      list.forEach(function (country) {
         var id = itemId(country);
         if (!id || id === targetId || seen[id]) return;
         seen[id] = true;
-        candidates.push(country);
+        result.push(country);
       });
+      return result;
     }
-    add(pool.filter(function (country) { return country.r === target.r; }));
-    add(pool.filter(function (country) { return country.r !== target.r; }));
-    add((allCountries || pool).filter(function () { return true; }));
-    return candidates.slice(0, count);
+    var local = unique(pool);
+    var candidates = local.length >= count ? local : local.concat(unique(allCountries || pool));
+    return candidates.map(function (country) {
+      // Uma variação pequena evita que a mesma pergunta sempre exponha o mesmo
+      // trio, sem apagar a relação pedagógica que tornou o distrator plausível.
+      return { country: country, score: distractorScore(target, country, direction) + sampleUnit(rng) * 0.08 };
+    }).sort(function (left, right) {
+      return left.score - right.score || itemId(left.country).localeCompare(itemId(right.country));
+    }).slice(0, count).map(function (entry) { return entry.country; });
   }
 
   function regionsOf(countries) {
@@ -970,6 +1004,11 @@
       if (!directions) throw new RangeError('Unknown mode: ' + mode);
       directions = directions.slice();
     }
+    var region = options.region;
+    if (region && region !== 'Mundo inteiro') {
+      directions = directions.filter(function (direction) { return direction !== 'reg'; });
+      if (!directions.length) throw new RangeError('Region questions are only available for Mundo inteiro');
+    }
     if (options.answerMode === 'type') {
       directions = directions.filter(function (direction) {
         return PICK_ONLY_DIRECTIONS.indexOf(direction) === -1;
@@ -979,7 +1018,6 @@
     // A área de estudo aceita tanto um balde amplo (`r`) quanto uma subregião
     // (`sr`). Fora das Américas as duas coincidem, então o comportamento antigo
     // é preservado sem nenhum caso especial.
-    var region = options.region;
     var pool = !region || region === 'Mundo inteiro'
       ? countries.slice()
       : countries.filter(function (country) { return country.r === region || country.sr === region; });
@@ -1004,7 +1042,7 @@
     } else if (options.answerMode === 'pick' || direction === 'flagOf' || direction === 'locate') {
       if (direction !== 'locate') {
         question.opts = shuffled(
-          [target].concat(distractors(target, 3, pool, countries, options.rng)),
+          [target].concat(distractors(target, 3, pool, countries, options.rng, direction)),
           options.rng
         ).map(function (country) { return country.id; });
       }

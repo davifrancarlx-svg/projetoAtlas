@@ -43,6 +43,21 @@ test('a interface preserva recursos essenciais de acessibilidade', () => {
   assert.match(app, /\^\\p\{L\}\$\/u/);
 });
 
+test('a camada visual oferece foco, domínio e encerramento de sessão responsivos', () => {
+  const html = read('src/index.template.html');
+  const css = read('src/styles.css');
+  const app = read('src/app.js');
+  assert.match(html, /id="filterSummary"/);
+  assert.match(html, /id="focusToggle"[^>]+aria-pressed="false"/);
+  assert.match(app, /function masteryOverview/);
+  assert.match(app, /function renderSessionResult/);
+  assert.match(app, /function sessionMiniMap/);
+  assert.match(app, /regionCelebration/);
+  assert.match(css, /\.shell\[data-question-visual="false"\] \.side/);
+  assert.match(css, /#nextQuestion\s*\{[\s\S]*?position:\s*sticky/);
+  assert.match(css, /\.flagbox\s*\{[\s\S]*?aspect-ratio:\s*3\s*\/\s*2/);
+});
+
 test('falhas de rede da conta são recuperáveis pela interface', () => {
   const app = read('src/app.js');
   assert.match(app, /async function ensureCloudIdentity/);

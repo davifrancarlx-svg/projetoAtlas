@@ -19,6 +19,71 @@ function sha256Hex(source) {
   return crypto.createHash('sha256').update(source).digest('hex');
 }
 
+function flagSignature(dataUri) {
+  const svg = Buffer.from(dataUri.slice(dataUri.indexOf(',') + 1), 'base64').toString('utf8').toLowerCase();
+  const colors = [...svg.matchAll(/(?:fill|stop-color)=["'](#[0-9a-f]{3,8})["']/g)]
+    .map((match) => match[1])
+    .filter((color) => color !== '#0000');
+  const uniqueColors = [...new Set(colors)].map((color) => {
+    let hex = color.slice(1);
+    if (hex.length === 3 || hex.length === 4) hex = hex.slice(0, 3).split('').map((digit) => digit + digit).join('');
+    if (hex.length === 8) hex = hex.slice(0, 6);
+    return parseInt(hex, 16);
+  }).filter(Number.isFinite);
+  const tags = ['circle', 'ellipse', 'path', 'polygon', 'rect'].map((tag) =>
+    (svg.match(new RegExp(`<${tag}(?:\\s|>)`, 'g')) || []).length
+  );
+  return { colors: uniqueColors, tags };
+}
+
+function rgbDistance(left, right) {
+  const channel = (color, shift) => (color >> shift) & 255;
+  return Math.hypot(
+    channel(left, 16) - channel(right, 16),
+    channel(left, 8) - channel(right, 8),
+    channel(left, 0) - channel(right, 0)
+  ) / 441.673;
+}
+
+function flagDistance(left, right) {
+  function nearest(colors, otherColors) {
+    if (!colors.length || !otherColors.length) return 1;
+    return colors.reduce((sum, color) => sum + Math.min(...otherColors.map((other) => rgbDistance(color, other))), 0) / colors.length;
+  }
+  const colorDistance = (nearest(left.colors, right.colors) + nearest(right.colors, left.colors)) / 2;
+  const colorCount = Math.abs(left.colors.length - right.colors.length) / Math.max(1, left.colors.length, right.colors.length);
+  const shapeDistance = left.tags.reduce((sum, count, index) => {
+    const other = right.tags[index];
+    return sum + Math.abs(count - other) / Math.max(1, count, other);
+  }, 0) / left.tags.length;
+  return colorDistance * 0.62 + shapeDistance * 0.28 + colorCount * 0.1;
+}
+
+function attachSimilarFlags(countries) {
+  // Pares e famílias cuja confusão é didaticamente conhecida. O cálculo visual
+  // abaixo amplia a cobertura; esta semente garante os casos em que pequenas
+  // diferenças de tom ou proporção escondem uma composição quase idêntica.
+  const knownGroups = [
+    ['ID', 'MC'], ['RO', 'TD'], ['IE', 'CI'], ['NL', 'LU'], ['AU', 'NZ'],
+    ['QA', 'BH'], ['CO', 'EC', 'VE'], ['NO', 'IS', 'DK', 'SE', 'FI'],
+    ['RU', 'SK', 'SI', 'RS'], ['JP', 'BD'], ['ML', 'GN', 'SN'],
+  ];
+  const signatures = new Map(countries.map((country) => [country.id, flagSignature(country.f)]));
+  countries.forEach((country) => {
+    const source = signatures.get(country.id);
+    const known = knownGroups
+      .filter((group) => group.includes(country.id))
+      .flatMap((group) => group.filter((id) => id !== country.id));
+    const computed = countries
+      .filter((candidate) => candidate.id !== country.id)
+      .map((candidate) => ({ id: candidate.id, distance: flagDistance(source, signatures.get(candidate.id)) }))
+      .sort((left, right) => left.distance - right.distance || left.id.localeCompare(right.id))
+      .map((candidate) => candidate.id);
+    country.fs = [...new Set(known.concat(computed))].slice(0, 8);
+  });
+  return countries;
+}
+
 function loadCountries() {
   const countries = readJson('src/countries.base.json');
   const contentPolicy = readJson('src/content-policy.json');
@@ -121,6 +186,7 @@ function loadCountries() {
   if (merged.length !== 195 || new Set(merged.map((c) => c.id)).size !== 195) {
     throw new Error('O dataset final precisa conter exatamente 195 IDs únicos.');
   }
+  attachSimilarFlags(merged);
   return {
     countries: merged,
     mapMeta: geometry.meta || {},

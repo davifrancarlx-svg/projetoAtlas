@@ -73,6 +73,18 @@ const buildResult = buildAtlas();
 const html = fs.readFileSync(OUTPUT, 'utf8');
 const built = readBuiltData(html);
 
+test('o build registra vizinhos visuais para as bandeiras mais confundidas', () => {
+  const byId = Object.fromEntries(built.DATA.map((country) => [country.id, country]));
+  assert.equal(byId.ID.fs[0], 'MC', 'Indonésia deve priorizar Mônaco como distrator visual.');
+  assert.equal(byId.RO.fs[0], 'TD', 'Romênia deve priorizar Chade como distrator visual.');
+  assert.ok(byId.JP.fs.includes('BD'), 'Japão e Bangladesh devem compartilhar a composição de disco.');
+  built.DATA.forEach((country) => {
+    assert.equal(country.fs.length, 8);
+    assert.equal(new Set(country.fs).size, 8);
+    assert.ok(!country.fs.includes(country.id));
+  });
+});
+
 test('o build gera um único atlas-195.html autocontido', () => {
   assert.match(buildResult.stdout, /atlas-195\.html gerado: 195 países/i);
   assert.ok(fs.statSync(OUTPUT).size > 500_000, 'O artefato parece incompleto.');
