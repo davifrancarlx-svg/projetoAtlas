@@ -10,7 +10,7 @@
 // VERSION é o hash do artefato, injetado no build: publicar uma versão nova
 // troca o nome do cache e o antigo é descartado no activate.
 
-const VERSION = 'a1caa0497828';
+const VERSION = '7018754d054c';
 const CACHE = `atlas-195-${VERSION}`;
 const ASSETS = [
   "./atlas-195.html",
@@ -88,7 +88,7 @@ self.addEventListener('fetch', (event) => {
     const response = await fetch(request);
     if (response.ok && response.type === 'basic') {
       const cache = await caches.open(CACHE);
-      cache.put(request, response.clone());
+      await cache.put(request, response.clone());
     }
     return response;
   })());

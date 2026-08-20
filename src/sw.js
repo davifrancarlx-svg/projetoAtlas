@@ -81,7 +81,7 @@ self.addEventListener('fetch', (event) => {
     const response = await fetch(request);
     if (response.ok && response.type === 'basic') {
       const cache = await caches.open(CACHE);
-      cache.put(request, response.clone());
+      await cache.put(request, response.clone());
     }
     return response;
   })());

@@ -6,10 +6,13 @@
   "scripts": {
     "build": "node scripts/build.cjs",
     "test": "node --test --test-concurrency=1 tests/*.test.cjs",
-    "check": "npm run test && npm run build",
+    "check": "npm run test && npm run build && npm run budget && npm run data:freshness",
     "serve": "node scripts/serve.cjs",
     "icons": "node scripts/make-icons.cjs",
-    "indicators": "node scripts/update-indicators.cjs"
+    "indicators": "node scripts/update-indicators.cjs",
+    "budget": "node scripts/check-budgets.cjs",
+    "data:freshness": "node scripts/check-data-freshness.cjs --strict",
+    "verify:production": "node scripts/verify-production.cjs"
   },
   "engines": {
     "node": ">=22"

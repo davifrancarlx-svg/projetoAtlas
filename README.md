@@ -15,11 +15,12 @@ O treino combina sete direções independentes (bandeira ↔ país, capital ↔ 
 
 ## Desenvolvimento
 
-Requer Node.js 18 ou superior. O código-fonte vive em `src/`; `atlas-195.html` é um artefato autocontido gerado.
+Requer Node.js 22 ou superior. O código-fonte vive em `src/`; `atlas-195.html` é um artefato autocontido gerado.
 
 ```sh
 npm test
 npm run build
+npm run budget
 npm run serve
 ```
 
@@ -30,6 +31,7 @@ Abra `http://127.0.0.1:8743/atlas-195.html`.
 - `src/index.template.html`: estrutura semântica da interface.
 - `src/styles.css`: identidade visual e responsividade.
 - `src/core.js`: regras puras, validação, revisão adaptativa e a geometria de exibição (projeção Robinson, zoom, enquadramento e resolução de território).
+- `src/sync-queue.js`: coordenador assíncrono testável que garante uma nova sincronização quando o progresso muda durante um envio em curso.
 - `src/app.js`: mapa, controles e renderização. Não guarda cópia própria dessas regras: consome o núcleo, que é testado sem DOM.
 - `src/theme-boot.js`: aplica o tema salvo antes da primeira pintura. Só isso — a lógica de tema mora em `app.js`.
 - `src/countries.base.json`: conteúdo educacional e bandeiras.
@@ -38,9 +40,10 @@ Abra `http://127.0.0.1:8743/atlas-195.html`.
 - `data/map-geometry.json`: geometria projetada gerada a partir do Natural Earth.
 - `data/flags.json`: bandeiras SVG 4:3 geradas do flag-icons, com licença documentada.
 - `scripts/`: build, servidor local e atualização cartográfica.
+- `supabase/migrations/`: esquema e políticas RLS reproduzíveis da conta opcional.
 - `tests/`: invariantes do núcleo, conteúdo e mapa.
 
-`npm run check` executa todos os testes e recria o HTML final. Os dados fixados também podem ser auditados com `node scripts/update-map.cjs --check` e `node scripts/update-flags.cjs --check` (o segundo baixa o arquivo de origem fixado para comparar os hashes).
+`npm run check` executa todos os testes, recria o HTML final, aplica os orçamentos de tamanho e verifica a atualidade mínima dos indicadores. O build também gera `release-manifest.json`, com hash e tamanho de cada arquivo publicado. Depois de publicar, `npm run verify:production` compara byte a byte a produção com esse manifesto. Os dados fixados também podem ser auditados com `node scripts/update-map.cjs --check` e `node scripts/update-flags.cjs --check` (o segundo baixa o arquivo de origem fixado para comparar os hashes).
 
 ## Dados cartográficos
 

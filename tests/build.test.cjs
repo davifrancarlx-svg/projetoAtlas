@@ -85,8 +85,8 @@ test('o build gera um único atlas-195.html autocontido', () => {
   assert.equal((html.match(/<style\b/gi) || []).length, 1, 'Deve existir um único estilo inline.');
   assert.equal(
     (html.match(/<script\b/gi) || []).length,
-    4,
-    'Tema, dados, núcleo e app devem ser inline.'
+    5,
+    'Tema, dados, núcleo, fila de sincronização e app devem ser inline.'
   );
 });
 
@@ -216,7 +216,7 @@ test('os hashes da CSP sobrevivem à normalização de quebras de linha do parse
   const styles = [...parsed.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map(match => match[1]);
   const scripts = [...parsed.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1]);
 
-  assert.equal(scripts.length, 4, 'Tema, dados, núcleo e app precisam continuar inline.');
+  assert.equal(scripts.length, 5, 'Tema, dados, núcleo, fila de sincronização e app precisam continuar inline.');
   assert.deepEqual(
     hashesOf(directives, 'style-src').sort(),
     styles.map(cspHash).sort(),

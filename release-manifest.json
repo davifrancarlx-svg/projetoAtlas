@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "version": "7018754d054c",
+  "files": {
+    "atlas-195.html": {
+      "bytes": 5034337,
+      "sha256": "d0d9dbe215fd3ad1d7eccb48de459021a589c23599e01896a72c9682bef4d085"
+    },
+    "manifest.webmanifest": {
+      "bytes": 864,
+      "sha256": "5f1a79cbc3bd3d9538614640ea3101b9926dc69719b24f8aa25f756ca45dd519"
+    },
+    "icon-192.png": {
+      "bytes": 4145,
+      "sha256": "b330254833cddfae0dd6c79c7894788995fc910c7e292416226a0456c51639dd"
+    },
+    "icon-512.png": {
+      "bytes": 12368,
+      "sha256": "ca31063e23c58920ead164dcf6da2fd4fa4d5db5f4077319bd71850c5aadd3fe"
+    },
+    "icon-maskable-512.png": {
+      "bytes": 8669,
+      "sha256": "748de0bf7293a44194a657ef78c56207c70beebafb6de147fb96ef3ea6b870a6"
+    },
+    "apple-touch-icon.png": {
+      "bytes": 2619,
+      "sha256": "ee24d97d1860dabeb02d1b75ebdbc141fab820d0d33338c8766942e5e50fa327"
+    },
+    "sw.js": {
+      "bytes": 3756,
+      "sha256": "32a6afb751f03735938a68f38d4c2bdd915f164b665976e5be15983240446983"
+    }
+  }
+}

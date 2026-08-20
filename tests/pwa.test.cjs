@@ -14,6 +14,7 @@ const { spawnSync } = require('node:child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
+const readBuffer = (file) => fs.readFileSync(path.join(ROOT, file));
 
 const build = spawnSync(process.execPath, ['scripts/build.cjs'], { cwd: ROOT, encoding: 'utf8', windowsHide: true });
 assert.equal(build.status, 0, `O build falhou.\n${build.stderr}`);
@@ -21,6 +22,19 @@ assert.equal(build.status, 0, `O build falhou.\n${build.stderr}`);
 const html = read('atlas-195.html');
 const manifest = JSON.parse(read('manifest.webmanifest'));
 const serviceWorker = read('sw.js');
+const releaseManifest = JSON.parse(read('release-manifest.json'));
+const ICONS = ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
+
+function expectedVersion() {
+  const hash = crypto.createHash('sha256');
+  [
+    ['atlas-195.html', readBuffer('atlas-195.html')],
+    ['manifest.webmanifest', readBuffer('manifest.webmanifest')],
+    ...ICONS.map((icon) => [icon, readBuffer(icon)]),
+    ['src/sw.js', readBuffer('src/sw.js')],
+  ].forEach(([name, contents]) => hash.update(name).update('\0').update(contents).update('\0'));
+  return hash.digest('hex').slice(0, 12);
+}
 
 // Dimensões vêm do IHDR, os primeiros bytes de todo PNG.
 function pngSize(file) {
@@ -55,26 +69,42 @@ test('o manifesto descreve um app instalável', () => {
   });
 });
 
-test('o service worker sai completo e versionado pelo artefato', () => {
+test('o service worker sai completo e versionado por todo conteúdo publicável', () => {
   assert.doesNotMatch(serviceWorker, /\{\{[A-Z_]+\}\}/, 'Placeholder não resolvido no service worker.');
 
-  const expected = crypto.createHash('sha256').update(html, 'utf8').digest('hex').slice(0, 12);
+  const expected = expectedVersion();
   assert.match(
     serviceWorker,
     new RegExp(`const VERSION = '${expected}'`),
-    'A versão do cache precisa acompanhar o artefato, senão o app fica preso numa versão antiga.'
+    'A versão do cache precisa acompanhar HTML, manifesto, ícones e a lógica do worker.'
   );
 
   // Sem handler de fetch o navegador nem oferece instalar o app.
   assert.match(serviceWorker, /addEventListener\('fetch'/, 'O service worker precisa tratar fetch.');
   assert.match(serviceWorker, /addEventListener\('install'/);
   assert.match(serviceWorker, /addEventListener\('activate'/);
+  assert.match(serviceWorker, /await cache\.put\(request, response\.clone\(\)\)/,
+    'A gravação em cache precisa terminar antes da resposta assíncrona encerrar.');
 
   const assets = JSON.parse(serviceWorker.match(/const ASSETS = (\[[\s\S]*?\]);/)[1]);
   assert.ok(assets.includes('./atlas-195.html'), 'O artefato precisa ser pré-cacheado.');
   assets.forEach((asset) => {
     const file = asset.replace(/^\.\//, '');
     assert.ok(fs.existsSync(path.join(ROOT, file)), `Asset pré-cacheado inexistente: ${file}. O install falharia inteiro.`);
+  });
+});
+
+test('o manifesto de release registra hash e tamanho de cada arquivo publicado', () => {
+  assert.equal(releaseManifest.schemaVersion, 1);
+  assert.equal(releaseManifest.version, expectedVersion());
+  const expectedFiles = ['atlas-195.html', 'manifest.webmanifest', ...ICONS, 'sw.js'].sort();
+  assert.deepEqual(Object.keys(releaseManifest.files).sort(), expectedFiles);
+  expectedFiles.forEach((file) => {
+    const contents = readBuffer(file);
+    assert.deepEqual(releaseManifest.files[file], {
+      bytes: contents.length,
+      sha256: crypto.createHash('sha256').update(contents).digest('hex'),
+    }, `${file} diverge do manifesto de release.`);
   });
 });
 

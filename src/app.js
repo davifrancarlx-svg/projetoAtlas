@@ -3,9 +3,12 @@
 
   const Core = globalThis.AtlasCore;
   if (!Core) throw new Error('AtlasCore não foi carregado.');
+  const SyncQueue = globalThis.AtlasSyncQueue;
+  if (!SyncQueue) throw new Error('AtlasSyncQueue não foi carregado.');
 
   const IDS = DATA.map((country) => country.id);
   const byId = Object.fromEntries(DATA.map((country) => [country.id, country]));
+  const MAP_ALPHABETICAL = DATA.slice().sort((left, right) => left.n.localeCompare(right.n, 'pt-BR'));
   // Territórios que a cartografia entrega dentro do polígono de um soberano.
   // Não entram no sorteio nem viram resposta: apenas dão nome ao que está sob
   // o cursor e ganham ficha própria no Atlas.
@@ -112,7 +115,8 @@
   const EXPIRED_ANSWER = Symbol('tempo esgotado');
   const state = {
     ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro', answerMode: 'pick',
-    includeVisual: true, mapCollapsed: false, question: null, questionAnswerMode: 'pick', answered: false,
+    includeVisual: true, mapCollapsed: false, filtersCollapsed: true,
+    question: null, questionAnswerMode: 'pick', answered: false,
     selectedAnswer: null, answerMatch: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
     atlasSelected: 'BR', atlasQuery: '', atlasLimit: 60, resetArmed: false, resetPending: false,
@@ -286,7 +290,7 @@
     const safe = {
       mode: state.mode, region: state.region, answerMode: state.answerMode,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
-      timeLimit: state.timeLimit, theme: state.theme,
+      filtersCollapsed: state.filtersCollapsed, timeLimit: state.timeLimit, theme: state.theme,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
   }
@@ -300,6 +304,7 @@
       if (parsed.answerMode === 'pick' || parsed.answerMode === 'type') state.answerMode = parsed.answerMode;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
+      if (typeof parsed.filtersCollapsed === 'boolean') state.filtersCollapsed = parsed.filtersCollapsed;
       if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
       if (THEMES.some((tema) => tema.id === parsed.theme)) state.theme = parsed.theme;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
@@ -923,6 +928,17 @@
       if (event.key.startsWith('Arrow')) {
         event.preventDefault(); event.stopPropagation();
         setMapCursor(directionalCountry(state.mapCursorId, event.key));
+      } else if (event.key === 'Home' || event.key === 'End') {
+        event.preventDefault(); event.stopPropagation();
+        const country = event.key === 'Home' ? MAP_ALPHABETICAL[0] : MAP_ALPHABETICAL[MAP_ALPHABETICAL.length - 1];
+        setMapCursor(country.id);
+      } else if (event.key.length === 1 && /^\p{L}$/u.test(event.key)) {
+        event.preventDefault(); event.stopPropagation();
+        const initial = Core.normalizeText(event.key);
+        const current = MAP_ALPHABETICAL.findIndex((country) => country.id === state.mapCursorId);
+        const ordered = MAP_ALPHABETICAL.slice(current + 1).concat(MAP_ALPHABETICAL.slice(0, current + 1));
+        const country = ordered.find((candidate) => Core.normalizeText(candidate.n).startsWith(initial));
+        if (country) setMapCursor(country.id);
       } else if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault(); event.stopPropagation();
         activateMapCountry(state.mapCursorId);
@@ -1849,7 +1865,7 @@
 
   const SESSION_KEY = 'atlas195:conta:v1';
   const CLOUD_CONFIG = typeof CLOUD === 'undefined' ? null : CLOUD;
-  const cloud = { session: null, status: null, syncing: false, timer: 0, lastSyncAt: null };
+  const cloud = { session: null, status: null, lastSyncAt: null, queue: null, requestingLink: false };
 
   function cloudEnabled() {
     return Core.cloudReady(CLOUD_CONFIG, location.protocol);
@@ -1934,6 +1950,17 @@
     return { ok: false, motivo: motivo || 'Não foi possível enviar o link agora.' };
   }
 
+  async function ensureCloudIdentity() {
+    if (!cloud.session) return false;
+    if (cloud.session.user_id && cloud.session.email) return true;
+    const perfil = await cloudRequest('/auth/v1/user');
+    if (!perfil.ok) return false;
+    const usuario = await perfil.json();
+    if (!usuario || typeof usuario.id !== 'string' || !usuario.id) return false;
+    writeSession({ ...cloud.session, email: usuario.email || cloud.session.email, user_id: usuario.id });
+    return true;
+  }
+
   // O link do e-mail volta para o app com os tokens no fragmento da URL. Ele é
   // lido, guardado e apagado da barra de endereços, para o token não ficar no
   // histórico nem ser compartilhado sem querer num "copiar link".
@@ -1951,11 +1978,7 @@
       return false;
     }
     writeSession({ access_token: acesso, refresh_token: renovacao, email: null, user_id: null });
-    const perfil = await cloudRequest('/auth/v1/user');
-    if (perfil.ok) {
-      const usuario = await perfil.json();
-      writeSession({ ...cloud.session, email: usuario.email, user_id: usuario.id });
-    }
+    await ensureCloudIdentity();
     return true;
   }
 
@@ -1983,11 +2006,11 @@
     if (!resposta.ok) throw new Error(`gravação falhou (${resposta.status})`);
   }
 
-  async function syncCloud({ silencioso = false } = {}) {
-    if (!cloudEnabled() || !cloud.session || cloud.syncing) return;
-    cloud.syncing = true;
+  async function syncCloudOnce({ silencioso = false } = {}) {
+    if (!cloudEnabled() || !cloud.session) return;
     if (!silencioso) setCloudStatus('Sincronizando…');
     try {
+      if (!await ensureCloudIdentity()) throw new Error('identidade da conta indisponível');
       const remoto = await pullRemoteProgress();
       const plano = Core.planSync(progress, remoto, { countryIds: IDS });
       if (plano.download) {
@@ -2002,18 +2025,28 @@
       // Falha de rede não pode virar obstáculo: o progresso local continua
       // salvo e a próxima tentativa acontece na próxima mudança.
       setCloudStatus('Sem sincronizar agora. O progresso continua salvo neste aparelho.', 'error');
-    } finally {
-      cloud.syncing = false;
     }
+  }
+
+  function syncCloud({ silencioso = false } = {}) {
+    if (!cloudEnabled() || !cloud.session) return Promise.resolve(false);
+    if (!cloud.queue) {
+      cloud.queue = SyncQueue.create({ task: () => syncCloudOnce({ silencioso: true }), delay: 6000 });
+    }
+    if (!silencioso) setCloudStatus('Sincronizando…');
+    return cloud.queue.run();
   }
 
   function scheduleCloudSync() {
     if (!cloudEnabled() || !cloud.session) return;
-    clearTimeout(cloud.timer);
-    cloud.timer = setTimeout(() => syncCloud({ silencioso: true }), 6000);
+    if (!cloud.queue) {
+      cloud.queue = SyncQueue.create({ task: () => syncCloudOnce({ silencioso: true }), delay: 6000 });
+    }
+    cloud.queue.schedule();
   }
 
   async function signOutCloud() {
+    if (cloud.queue) cloud.queue.cancel();
     try { await cloudRequest('/auth/v1/logout', { method: 'POST' }); } catch (_) { /* melhor esforço */ }
     writeSession(null);
     cloud.lastSyncAt = null;
@@ -2022,11 +2055,16 @@
 
   async function initializeCloud() {
     if (!cloudEnabled()) return;
-    cloud.session = readSession();
-    const entrou = await consumeAuthCallback();
-    if (cloud.session) {
-      if (entrou) setCloudStatus('Conta conectada. Juntando o progresso…', 'ok');
-      await syncCloud({ silencioso: !entrou });
+    try {
+      cloud.session = readSession();
+      const entrou = await consumeAuthCallback();
+      if (cloud.session) {
+        if (!await ensureCloudIdentity()) throw new Error('perfil da conta indisponível');
+        if (entrou) setCloudStatus('Conta conectada. Juntando o progresso…', 'ok');
+        await syncCloud({ silencioso: !entrou });
+      }
+    } catch (_) {
+      setCloudStatus('Não foi possível concluir a conexão agora. O treino continua salvo neste aparelho.', 'error');
     }
   }
 
@@ -2048,19 +2086,31 @@
           'aria-label': 'E-mail para receber o link de acesso',
         },
       });
-      const entrar = create('button', { className: 'btn', type: 'button', text: 'Receber link de acesso' });
+      const entrar = create('button', {
+        className: 'btn', type: 'button', text: 'Receber link de acesso',
+        attrs: { disabled: cloud.requestingLink ? '' : null },
+      });
       const pedir = async () => {
+        if (cloud.requestingLink) return;
         const valor = email.value.trim();
         if (!valor || !valor.includes('@')) {
           setCloudStatus('Digite um e-mail válido para receber o link.', 'error');
           return;
         }
-        entrar.disabled = true;
+        cloud.requestingLink = true;
         setCloudStatus('Enviando o link…');
-        const resultado = await requestMagicLink(valor);
-        entrar.disabled = false;
-        if (resultado.ok) setCloudStatus(`Link enviado para ${valor}. Abra o e-mail neste aparelho e clique no link.`, 'ok');
-        else setCloudStatus(resultado.motivo, 'error');
+        let resultadoStatus;
+        try {
+          const resultado = await requestMagicLink(valor);
+          resultadoStatus = resultado.ok
+            ? { text: `Link enviado para ${valor}. Abra o e-mail neste aparelho e clique no link.`, kind: 'ok' }
+            : { text: resultado.motivo, kind: 'error' };
+        } catch (_) {
+          resultadoStatus = { text: 'Sem conexão para enviar o link agora. Tente novamente quando a rede voltar.', kind: 'error' };
+        } finally {
+          cloud.requestingLink = false;
+          setCloudStatus(resultadoStatus.text, resultadoStatus.kind);
+        }
       };
       entrar.addEventListener('click', pedir);
       email.addEventListener('keydown', (evento) => { if (evento.key === 'Enter') { evento.preventDefault(); pedir(); } });
@@ -2363,6 +2413,26 @@
     applyTheme();
     dom.region.value = state.region;
     setMapCollapsed(state.mapCollapsed, false);
+    syncFilterLayout();
+  }
+
+  function setFiltersCollapsed(collapsed, persist = true) {
+    state.filtersCollapsed = Boolean(collapsed);
+    dom.controls.hidden = state.filtersCollapsed;
+    dom.filterToggle.setAttribute('aria-expanded', String(!state.filtersCollapsed));
+    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
+    if (icon) icon.textContent = state.filtersCollapsed ? '+' : '−';
+    if (persist) savePreferences();
+  }
+
+  function syncFilterLayout() {
+    const desktop = matchMedia('(min-width: 821px)').matches;
+    if (desktop) {
+      dom.controls.hidden = false;
+      dom.filterToggle.setAttribute('aria-expanded', 'true');
+      const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
+      if (icon) icon.textContent = '−';
+    } else setFiltersCollapsed(state.filtersCollapsed, false);
   }
 
   function bindControls() {
@@ -2422,22 +2492,13 @@
     });
     dom.filterToggle.addEventListener('click', () => {
       const expanded = dom.filterToggle.getAttribute('aria-expanded') === 'true';
-      dom.filterToggle.setAttribute('aria-expanded', String(!expanded));
-      dom.controls.hidden = expanded;
-      const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
-      if (icon) icon.textContent = expanded ? '+' : '−';
+      setFiltersCollapsed(expanded);
     });
     const desktopFilters = matchMedia('(min-width: 821px)');
-    const restoreDesktopFilters = (event) => {
-      if (!event.matches) return;
-      dom.controls.hidden = false;
-      dom.filterToggle.setAttribute('aria-expanded', 'true');
-      const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
-      if (icon) icon.textContent = '−';
-    };
-    if (desktopFilters.addEventListener) desktopFilters.addEventListener('change', restoreDesktopFilters);
-    else desktopFilters.addListener(restoreDesktopFilters);
-    restoreDesktopFilters(desktopFilters);
+    const restoreFilterLayout = () => syncFilterLayout();
+    if (desktopFilters.addEventListener) desktopFilters.addEventListener('change', restoreFilterLayout);
+    else desktopFilters.addListener(restoreFilterLayout);
+    restoreFilterLayout();
     dom.mapToggle.addEventListener('click', () => setMapCollapsed(!state.mapCollapsed));
     dom.skipVisual.addEventListener('click', skipVisualQuestion);
     dom.zoomIn.addEventListener('click', () => zoomAt(1.4));

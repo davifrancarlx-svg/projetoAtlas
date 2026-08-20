@@ -149,7 +149,7 @@
 
         <div class="mapwrap" id="mapwrap">
           <p class="sr-only" id="mapInstructions">
-            Foque o mapa e use as setas para percorrer os países; ative um país com Enter ou Espaço. Use mais, menos ou zero para controlar o zoom.
+            Foque o mapa e use as setas ou uma inicial para percorrer os países; Home e End vão ao primeiro e ao último. Ative um país com Enter ou Espaço. Use mais, menos ou zero para controlar o zoom.
           </p>
           <svg
             id="map"
@@ -194,6 +194,9 @@
   </script>
   <script data-atlas-slot="core">
 {{CORE}}
+  </script>
+  <script data-atlas-slot="sync-queue">
+{{SYNC_QUEUE}}
   </script>
   <script data-atlas-slot="app">
 {{APP}}

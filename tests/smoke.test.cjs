@@ -24,7 +24,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const ROOT = path.resolve(__dirname, '..');
 const ARTIFACT = path.join(ROOT, 'atlas-195.html');
 const REQUIRE_BROWSER = process.env.ATLAS_REQUIRE_BROWSER === '1';
-const HEADLESS_TIMEOUT = 45_000;
+const HEADLESS_TIMEOUT = 60_000;
 
 function chromeCandidates() {
   if (process.env.CHROME_PATH) return [process.env.CHROME_PATH];
@@ -95,6 +95,21 @@ function connect(webSocketUrl) {
     const pending = new Map();
     const events = [];
     let nextId = 0;
+    let settled = false;
+    const openingTimer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      try { socket.close(); } catch (_) { /* ainda não abriu */ }
+      reject(new Error('Tempo esgotado conectando ao WebSocket do Chrome.'));
+    }, 10_000);
+
+    const rejectPending = (message) => {
+      pending.forEach((entry) => {
+        clearTimeout(entry.timer);
+        entry.reject(new Error(`${message} (${entry.method})`));
+      });
+      pending.clear();
+    };
 
     socket.addEventListener('message', (message) => {
       const payload = JSON.parse(message.data);
@@ -102,21 +117,34 @@ function connect(webSocketUrl) {
         const entry = pending.get(payload.id);
         if (!entry) return;
         pending.delete(payload.id);
+        clearTimeout(entry.timer);
         if (payload.error) entry.reject(new Error(`${payload.error.message} (${entry.method})`));
         else entry.resolve(payload.result);
         return;
       }
       events.push(payload);
     });
-    socket.addEventListener('error', () => reject(new Error('Falha ao conectar no Chrome via CDP.')));
+    socket.addEventListener('error', () => {
+      clearTimeout(openingTimer);
+      rejectPending('Conexão CDP falhou');
+      if (!settled) { settled = true; reject(new Error('Falha ao conectar no Chrome via CDP.')); }
+    });
+    socket.addEventListener('close', () => rejectPending('Conexão CDP encerrada'));
     socket.addEventListener('open', () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(openingTimer);
       resolve({
         events,
         close: () => socket.close(),
         send(method, params) {
           const id = ++nextId;
           return new Promise((ok, fail) => {
-            pending.set(id, { resolve: ok, reject: fail, method });
+            const timer = setTimeout(() => {
+              pending.delete(id);
+              fail(new Error(`Tempo esgotado esperando resposta do Chrome (${method})`));
+            }, 10_000);
+            pending.set(id, { resolve: ok, reject: fail, method, timer });
             socket.send(JSON.stringify({ id, method, params: params || {} }));
           });
         },
@@ -157,18 +185,31 @@ async function launchChrome(binary) {
   let stderr = '';
   child.stderr.on('data', (chunk) => { stderr += chunk.toString(); });
 
-  const portFile = path.join(profile, 'DevToolsActivePort');
-  const port = await until('o Chrome abrir a porta de depuração', () => {
-    if (child.exitCode !== null) throw new Error(`Chrome encerrou (${child.exitCode}): ${stderr.slice(-400)}`);
-    const raw = fs.readFileSync(portFile, 'utf8').split('\n')[0].trim();
-    return raw ? Number(raw) : null;
-  }, { timeout: 20_000 });
-
+  // A limpeza nasce junto com o processo. Antes ela só era criada depois que a
+  // porta CDP aparecia; se o navegador travasse na inicialização, o teste falhava
+  // e deixava Chrome + perfil temporário vivos, prendendo o runner do Node.
+  let cleaned = false;
   const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
     try { child.kill(); } catch (_) { /* já morreu */ }
+    try { child.stderr.destroy(); } catch (_) { /* já fechou */ }
     try { fs.rmSync(profile, { recursive: true, force: true }); } catch (_) { /* melhor esforço */ }
   };
-  return { port, cleanup };
+
+  const portFile = path.join(profile, 'DevToolsActivePort');
+  try {
+    const port = await until('o Chrome abrir a porta de depuração', () => {
+      if (child.exitCode !== null) throw new Error(`Chrome encerrou (${child.exitCode}): ${stderr.slice(-400)}`);
+      const raw = fs.readFileSync(portFile, 'utf8').split('\n')[0].trim();
+      return raw ? Number(raw) : null;
+    }, { timeout: 15_000 });
+    return { port, cleanup };
+  } catch (error) {
+    const detail = stderr.trim().slice(-800);
+    cleanup();
+    throw new Error(`${error.message}${detail ? `\nSaída do navegador: ${detail}` : ''}`);
+  }
 }
 
 async function openPage(port) {
@@ -198,13 +239,29 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
   assert.equal(build.status, 0, `O build falhou antes do teste de fumaça.\n${build.stderr}`);
 
   const { server, port: httpPort } = await serveArtifact(fs.readFileSync(ARTIFACT, 'utf8'));
-  const { port: debugPort, cleanup } = await launchChrome(chrome);
+  let cleanup = () => {};
   let client;
   try {
-    client = await openPage(debugPort);
-    await client.send('Runtime.enable');
-    await client.send('Log.enable');
-    await client.send('Page.enable');
+    let launched;
+    try {
+      launched = await launchChrome(chrome);
+    } catch (error) {
+      if (REQUIRE_BROWSER) throw error;
+      t.diagnostic(`Navegador encontrado, mas não pôde ser iniciado neste ambiente: ${error.message}`);
+      return t.skip('Smoke test de navegador indisponível neste ambiente local.');
+    }
+    cleanup = launched.cleanup;
+    const debugPort = launched.port;
+    try {
+      client = await openPage(debugPort);
+      await client.send('Runtime.enable');
+      await client.send('Log.enable');
+      await client.send('Page.enable');
+    } catch (error) {
+      if (REQUIRE_BROWSER) throw error;
+      t.diagnostic(`Chrome abriu, mas o canal CDP não ficou disponível: ${error.message}`);
+      return t.skip('Controle do navegador indisponível neste ambiente local.');
+    }
     await client.send('Page.navigate', { url: `http://127.0.0.1:${httpPort}/atlas-195.html` });
 
     // 1. Os scripts embutidos precisam executar. Com a CSP divergindo do
@@ -370,6 +427,9 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
   } finally {
     if (client) client.close();
     cleanup();
-    await new Promise((resolve) => server.close(resolve));
+    await new Promise((resolve) => {
+      server.close(resolve);
+      if (typeof server.closeAllConnections === 'function') server.closeAllConnections();
+    });
   }
 });

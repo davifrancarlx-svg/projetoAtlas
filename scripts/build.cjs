@@ -15,6 +15,10 @@ function sha256(source) {
   return `'sha256-${crypto.createHash('sha256').update(source).digest('base64')}'`;
 }
 
+function sha256Hex(source) {
+  return crypto.createHash('sha256').update(source).digest('hex');
+}
+
 function loadCountries() {
   const countries = readJson('src/countries.base.json');
   const contentPolicy = readJson('src/content-policy.json');
@@ -235,6 +239,7 @@ function embedFonts() {
 const template = read('src/index.template.html');
 const css = embedFonts() + read('src/styles.css').trim();
 const core = read('src/core.js').trim();
+const syncQueue = read('src/sync-queue.js').trim();
 const app = read('src/app.js').trim();
 const themeBoot = read('src/theme-boot.js').trim();
 // A configuração de conta entra no artefato e também define a única origem que
@@ -278,6 +283,7 @@ output = replace(output, '{{CSS}}', css);
 output = replace(output, '{{DATA}}', data);
 output = replace(output, '{{THEME}}', themeBoot);
 output = replace(output, '{{CORE}}', core);
+output = replace(output, '{{SYNC_QUEUE}}', syncQueue);
 output = replace(output, '{{APP}}', app);
 output = replace(output, '{{LICENSES}}', licenses);
 
@@ -348,10 +354,13 @@ function writeIfChanged(relative, contents) {
 
 const ICONS = ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 const iconsDir = path.join(root, 'data', 'icons');
+const iconContents = new Map();
 for (const icon of ICONS) {
   const source = path.join(iconsDir, icon);
   if (!fs.existsSync(source)) throw new Error(`Ícone ausente: data/icons/${icon}. Rode "npm run icons".`);
-  writeIfChanged(icon, fs.readFileSync(source));
+  const contents = fs.readFileSync(source);
+  iconContents.set(icon, contents);
+  writeIfChanged(icon, contents);
 }
 
 const manifest = {
@@ -374,17 +383,47 @@ const manifest = {
     { src: './icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
   ],
 };
-writeIfChanged('manifest.webmanifest', `${JSON.stringify(manifest, null, 2)}\n`);
+const manifestContents = `${JSON.stringify(manifest, null, 2)}\n`;
+writeIfChanged('manifest.webmanifest', manifestContents);
 
-// A versão do cache é o hash do artefato: publicar algo novo troca o nome do
-// cache, e o service worker descarta o anterior sozinho.
-const version = crypto.createHash('sha256').update(artifact).digest('hex').slice(0, 12);
+// A versão cobre todo conteúdo que o service worker entrega, além da própria
+// lógica do worker. Assim uma troca isolada de ícone, manifesto ou estratégia de
+// cache também abre um cache novo — antes só mudanças no HTML faziam isso.
+const swTemplate = normalizeNewlines(read('src/sw.js'));
+const versionHash = crypto.createHash('sha256');
+[
+  ['atlas-195.html', Buffer.from(artifact, 'utf8')],
+  ['manifest.webmanifest', Buffer.from(manifestContents, 'utf8')],
+  ...ICONS.map((icon) => [icon, iconContents.get(icon)]),
+  ['src/sw.js', Buffer.from(swTemplate, 'utf8')],
+].forEach(([name, contents]) => {
+  versionHash.update(name).update('\0').update(contents).update('\0');
+});
+const version = versionHash.digest('hex').slice(0, 12);
 const assets = ['./atlas-195.html', './manifest.webmanifest', ...ICONS.map((icon) => `./${icon}`)];
-const serviceWorker = normalizeNewlines(read('src/sw.js'))
+const serviceWorker = swTemplate
   .replace('{{VERSION}}', version)
   .replace('{{ASSETS}}', JSON.stringify(assets, null, 2));
 if (/\{\{[A-Z_]+\}\}/.test(serviceWorker)) throw new Error('Placeholder não resolvido no service worker.');
 writeIfChanged('sw.js', serviceWorker);
+
+// Manifesto de release reproduzível: a publicação e o CI usam a mesma lista de
+// hashes para detectar arquivo omitido, reformatado ou ainda preso em cache.
+const releaseFiles = {
+  'atlas-195.html': artifact,
+  'manifest.webmanifest': manifestContents,
+  ...Object.fromEntries(ICONS.map((icon) => [icon, iconContents.get(icon)])),
+  'sw.js': serviceWorker,
+};
+const releaseManifest = {
+  schemaVersion: 1,
+  version,
+  files: Object.fromEntries(Object.entries(releaseFiles).map(([name, contents]) => [name, {
+    bytes: Buffer.byteLength(contents),
+    sha256: sha256Hex(contents),
+  }])),
+};
+writeIfChanged('release-manifest.json', `${JSON.stringify(releaseManifest, null, 2)}\n`);
 console.log(
   `atlas-195.html gerado: ${countries.length} países, ${territories.length} `
   + `${territories.length === 1 ? 'território' : 'territórios'}, ${(stats.size / 1024).toFixed(1)} KiB.`,

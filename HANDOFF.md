@@ -23,8 +23,9 @@ aparelhos.
   um Chrome de verdade)
 
 ```sh
-npm test          # 87 testes; um deles abre o app num Chrome real via CDP
+npm test          # suíte completa; um dos testes abre o app num Chrome real via CDP
 npm run build     # gera atlas-195.html + manifest.webmanifest + sw.js + ícones
+npm run budget    # impede crescimento acidental dos principais artefatos
 npm run serve     # servidor local em http://127.0.0.1:8743/atlas-195.html
 npm run indicators   # rebaixa população/IDH das fontes oficiais (raro precisar)
 npm run icons        # regera os ícones PWA (raro precisar)
@@ -46,6 +47,7 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
 - `src/core.js` — regras puras, sem DOM: validação de respostas, progresso,
   revisão espaçada, projeção do mapa, fatos derivados. O que os testes cobrem melhor.
 - `src/app.js` — interface, mapa, controles, renderização, sincronização de conta.
+- `src/sync-queue.js` — fila pequena e testável que serializa sincronizações e não perde mudanças concorrentes.
 - `src/styles.css` — visual. Toda cor é um token em `:root`; o tema claro é
   uma redefinição desses tokens, tanto por `prefers-color-scheme` (automático)
   quanto por `[data-theme]` (escolha fixada pelo botão do app).
@@ -62,6 +64,7 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
   origem, data e SHA-256 registrados. Regenerados pelos scripts em `scripts/`,
   cada um com `--check` para conferir sem regravar.
 - `scripts/build.cjs` — monta o arquivo final a partir de tudo acima.
+- `supabase/migrations/` — tabela e políticas RLS da conta, versionadas para auditoria e recuperação.
 - `tests/` — 87 testes em `node --test`, incluindo um smoke test que abre um
   Chrome de verdade via CDP.
 
@@ -129,11 +132,10 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
 O site no Lovable **não está ligado ao GitHub** — é um projeto React que só
 redireciona para o `atlas-195.html` estático, hospedado à parte.
 
-1. `npm run build` e `npm test` (precisa passar)
+1. `npm run check` (precisa passar)
 2. Commit e push para o GitHub (CI precisa ficar verde)
-3. Comparar hash de cada arquivo publicável (`atlas-195.html`,
-   `manifest.webmanifest`, `sw.js`, os 4 PNGs de ícone) contra o que já está
-   em `https://atlas-195.lovable.app/<arquivo>` — só reenviar o que mudou.
+3. Comparar cada arquivo publicável com `release-manifest.json`; depois do envio,
+   `npm run verify:production` precisa confirmar os hashes servidos em produção.
 4. Enviar os arquivos que mudaram para o projeto Lovable
    (id `d00d8eb3-5261-428f-b5bb-7d8f89247846`) e pedir explicitamente para
    **copiar byte a byte, sem reformatar, sem linter** — um byte alterado
