@@ -1051,9 +1051,6 @@ body.view-prog .side-body {
   place-items: center;
   margin-block-end: 17px;
   padding: 10px;
-  border-radius: var(--radius);
-  background: var(--paper);
-  box-shadow: 0 7px 24px var(--shadow-strong);
 }
 
 .flagbox img {
@@ -1064,6 +1061,9 @@ body.view-prog .side-body {
   margin-inline: auto;
   border: 1px solid var(--flag-edge);
   object-fit: contain;
+  /* Sem fundo por baixo, a sombra vai no contorno real da bandeira (drop-shadow),
+     não numa caixa retangular que ficaria flutuando atrás dela. */
+  filter: drop-shadow(0 7px 24px var(--shadow-strong));
 }
 
 .opts {
