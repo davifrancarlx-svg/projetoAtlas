@@ -4,9 +4,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
+// O orçamento existe para barrar crescimento acidental, não para congelar o
+// produto: subir um teto é decisão consciente e deve vir junto do recurso que a
+// justifica. `src/app.js` foi de 140 para 150 KiB com a revisão focada e o
+// contraste didático do erro (2026-08-21).
 const LIMITS = {
   'atlas-195.html': 5.25 * 1024 * 1024,
-  'src/app.js': 140 * 1024,
+  'src/app.js': 150 * 1024,
   'src/core.js': 80 * 1024,
   'src/styles.css': 55 * 1024,
 };

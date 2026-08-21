@@ -50,6 +50,14 @@
   ]);
   var REVIEW_INTERVAL_DAYS = Object.freeze([0, 1, 3, 7, 14, 30]);
   var DAY_MS = 24 * 60 * 60 * 1000;
+  // Uma resposta certa não prova a mesma coisa em toda situação: digitar de
+  // cabeça é evidência forte, acertar devagar entre quatro alternativas pode ser
+  // eliminação ou sorte. A nota traduz isso no tamanho do passo e do intervalo.
+  var ANSWER_GRADES = Object.freeze(['again', 'hard', 'good', 'easy']);
+  // Segundos de referência para separar "veio na hora" de "custou a vir". Não é
+  // cronômetro de prova: é só o sinal de recuperação fluente contra reconstrução.
+  var FLUENT_SECONDS = 3.5;
+  var LABORED_SECONDS = 12;
   var ROOT_KEYS = Object.freeze([
     'schemaVersion', 'generation', 'epoch', 'revision', 'updatedAt', 'bestStreak', 'countries'
   ]);
@@ -754,6 +762,41 @@
     return skillOf(progress, countryId, direction).level;
   }
 
+  // Traduz o modo como a resposta veio numa das quatro notas. `optionCount`
+  // importa porque acertar entre quatro alternativas carrega 25% de chance
+  // cega; digitar não carrega nenhuma. Sem tempo medido a nota fica em 'good',
+  // que é exatamente o comportamento antigo — nada regride por falta de dado.
+  function gradeAnswer(options) {
+    options = options || {};
+    if (!options.correct) return 'again';
+    var seconds = Number.isFinite(options.ms) && options.ms > 0 ? options.ms / 1000 : null;
+    var guessable = safeInteger(options.optionCount, 2, 64) ? options.optionCount : 0;
+    var typed = options.answerMode === 'type' || guessable === 0;
+    if (seconds === null) return 'good';
+    // Os limiares são fixos de propósito. O tempo de recuperação é propriedade
+    // da memória, não do cronômetro: sob teto de 15 s, quem responde em 3 s
+    // lembrou na hora do mesmo jeito. E o teto de 12 s já captura sozinho quem
+    // chegou perto de estourar o tempo.
+    if (seconds <= FLUENT_SECONDS) return typed ? 'easy' : 'good';
+    if (seconds >= LABORED_SECONDS && !typed) return 'hard';
+    return 'good';
+  }
+
+  // O passo de cada nota. 'again' derruba dois níveis, como sempre fez; 'hard'
+  // segura o nível onde está em vez de promover uma resposta hesitante; 'easy'
+  // promove e ainda estica o intervalo, para o que já está sabido parar de
+  // ocupar espaço na fila.
+  function scheduleFor(level, grade) {
+    if (grade === 'again') return { level: Math.max(0, level - 2), intervalDays: 0 };
+    if (grade === 'hard') {
+      return { level: level, intervalDays: REVIEW_INTERVAL_DAYS[level] };
+    }
+    var next = Math.min(MAX_LEVEL, level + 1);
+    var days = REVIEW_INTERVAL_DAYS[next];
+    if (grade === 'easy') days = Math.min(3650, Math.round(days * 1.5));
+    return { level: next, intervalDays: days };
+  }
+
   function recordAnswer(progress, countryId, direction, correct, options) {
     options = options || {};
     assertValidProgress(progress, options);
@@ -769,16 +812,23 @@
     var skill = skillOf(next, countryId, direction);
     skill.attempts += 1;
     skill.lastReviewedAt = now;
+    // A nota é opcional: sem ela, acerto vale 'good' e erro vale 'again', que
+    // reproduz exatamente o agendamento anterior. Progresso antigo e chamadas
+    // antigas continuam válidos.
+    var grade = ANSWER_GRADES.indexOf(options.grade) === -1
+      ? (correct ? 'good' : 'again')
+      : options.grade;
+    if (grade === 'again' && correct) grade = 'good';
+    if (grade !== 'again' && !correct) grade = 'again';
+    var schedule = scheduleFor(skill.level, grade);
     if (correct) {
       skill.correct += 1;
       skill.streak += 1;
-      skill.level = Math.min(MAX_LEVEL, skill.level + 1);
-      skill.intervalDays = REVIEW_INTERVAL_DAYS[skill.level];
     } else {
       skill.streak = 0;
-      skill.level = Math.max(0, skill.level - 2);
-      skill.intervalDays = 0;
     }
+    skill.level = schedule.level;
+    skill.intervalDays = schedule.intervalDays;
     skill.nextReviewAt = new Date(Date.parse(now) + skill.intervalDays * DAY_MS).toISOString();
     next.countries[countryId].skills[direction] = skill;
     next.revision += 1;
@@ -840,20 +890,52 @@
     return typeof item === 'string' ? item : item && item.id;
   }
 
+  // Quantos "intervalos" já se passaram desde que a revisão venceu. Zero
+  // significa em dia; 4 é o teto, para um item esquecido há meses não engolir a
+  // fila inteira sozinho.
+  function overdueFactor(skill, now) {
+    if (!skill || skill.attempts === 0 || skill.nextReviewAt === null) return 0;
+    var due = Date.parse(skill.nextReviewAt);
+    var current = Date.parse(isoTimestamp(now === undefined ? Date.now() : now));
+    if (!Number.isFinite(due) || current <= due) return 0;
+    var window = Math.max(DAY_MS, skill.intervalDays * DAY_MS);
+    return Math.min(4, (current - due) / window);
+  }
+
+  // O item que você erra sempre é o que mais precisa voltar. Acerto abaixo de
+  // 75% em pelo menos três tentativas caracteriza teimoso, e o peso sobe com o
+  // tamanho da dificuldade.
+  function struggleFactor(skill) {
+    if (!skill || skill.attempts < 3) return 1;
+    var accuracy = skill.correct / skill.attempts;
+    if (accuracy >= 0.75) return 1;
+    return 1 + Math.min(1.2, (0.75 - accuracy) * 2.4);
+  }
+
   function weightForItem(item, direction, progress, options) {
     options = options || {};
     assertDirection(direction);
     var id = itemId(item);
     if (typeof id !== 'string') throw new TypeError('weighted items require an id');
     var skill = skillOf(progress, id, direction);
-    var weight = Math.pow(MAX_LEVEL + 1 - skill.level, 2) + 1;
+    var now = hasOwn(options, 'now') ? options.now : Date.now();
+    var due = skill.attempts > 0 && isDue(skill, now);
+    // Uma habilidade vencida passa a valer como uma de nível mais baixo, e cai
+    // mais fundo quanto mais atrasada estiver, até empatar com o que nunca foi
+    // visto. Antes o vencimento era só um multiplicador fixo de 1,5, e por isso
+    // um nível 5 esquecido há meses (2×1,5 = 3) perdia de longe para um país
+    // inédito (37): o app reensinava o que ainda estava fresco e deixava
+    // escapar justamente o que estava no limite de ser perdido.
+    var effectiveLevel = due
+      ? Math.max(0, skill.level - 1 - Math.floor(overdueFactor(skill, now)))
+      : skill.level;
+    var weight = Math.pow(MAX_LEVEL + 1 - effectiveLevel, 2) + 1;
     var recent = options.recentIds || [];
     if (recent.indexOf(id) !== -1) {
       weight *= Number.isFinite(options.recentPenalty) ? options.recentPenalty : 0.12;
     }
-    if (skill.attempts > 0 && isDue(skill, hasOwn(options, 'now') ? options.now : Date.now())) {
-      weight *= Number.isFinite(options.dueBoost) ? options.dueBoost : 1.5;
-    }
+    if (due) weight *= Number.isFinite(options.dueBoost) ? options.dueBoost : 1.5;
+    weight *= struggleFactor(skill);
     return weight;
   }
 
@@ -876,6 +958,50 @@
       if (cursor < 0) return items[index];
     }
     return items[items.length - 1];
+  }
+
+  // Quanto do repertório daquela direção ainda está por aprender, de 0 (tudo no
+  // nível máximo) a 1 e pouco (nada visto, ou visto e errado).
+  function directionNeed(direction, pool, progress, now) {
+    var total = 0;
+    pool.forEach(function (item) {
+      var skill = skillOf(progress, itemId(item), direction);
+      var need = (MAX_LEVEL + 1 - skill.level) / (MAX_LEVEL + 1);
+      if (skill.attempts > 0 && isDue(skill, now)) need *= 1 + overdueFactor(skill, now) * 0.5;
+      total += need * struggleFactor(skill);
+    });
+    return pool.length ? total / pool.length : 1;
+  }
+
+  // A direção deixa de ser sorteio cego e passa a seguir onde está a fraqueza:
+  // quem erra capitais recebe mais capitais. O piso existe de propósito — zerar
+  // uma direção porque ela vai bem destruiria o intercalamento, que é o que faz
+  // a memória durar; o objetivo é inclinar o treino, não amputá-lo.
+  function pickDirection(directions, pool, progress, options) {
+    options = options || {};
+    if (!Array.isArray(directions) || !directions.length) {
+      throw new RangeError('directions must be a non-empty array');
+    }
+    directions.forEach(assertDirection);
+    if (directions.length === 1) return directions[0];
+    if (!Array.isArray(pool) || !pool.length) throw new RangeError('pool must be a non-empty array');
+    var now = hasOwn(options, 'now') ? options.now : Date.now();
+    var needs = directions.map(function (direction) {
+      return directionNeed(direction, pool, progress, now);
+    });
+    var strongest = Math.max.apply(null, needs);
+    var floor = Number.isFinite(options.directionFloor) ? options.directionFloor : 0.45;
+    var weights = needs.map(function (need) {
+      var relative = strongest > 0 ? need / strongest : 1;
+      return floor + (1 - floor) * relative;
+    });
+    var totalWeight = weights.reduce(function (sum, weight) { return sum + weight; }, 0);
+    var cursor = sampleUnit(options.rng) * totalWeight;
+    for (var index = 0; index < directions.length; index += 1) {
+      cursor -= weights[index];
+      if (cursor < 0) return directions[index];
+    }
+    return directions[directions.length - 1];
   }
 
   function shuffled(values, rng) {
@@ -938,6 +1064,78 @@
     }).sort(function (left, right) {
       return left.score - right.score || itemId(left.country).localeCompare(itemId(right.country));
     }).slice(0, count).map(function (entry) { return entry.country; });
+  }
+
+  // Por que essas duas respostas se confundem. Devolve um código, não uma
+  // frase: todo texto em português mora na camada de interface. O primeiro
+  // motivo que casa vence, do mais específico para o mais genérico.
+  function confusionReason(target, chosen, direction) {
+    if (!target || !chosen || itemId(target) === itemId(chosen)) return null;
+    if (direction === 'flag' || direction === 'flagOf') {
+      if (Array.isArray(target.fs) && target.fs.indexOf(itemId(chosen)) !== -1) return 'flag-similar';
+    }
+    if (direction === 'cap' || direction === 'capOf') {
+      if (target.cap && chosen.cap) {
+        // O limiar é apertado de propósito. Com 0,45, "Mônaco" e "Conacri"
+        // passavam como nomes parecidos (distância 0,43) e o app afirmava uma
+        // confusão que ninguém comete. Em 0,34 sobra o que de fato se troca:
+        // Kingston/Kingstown (0,11), Bissau/Nassau (0,33).
+        if (normalizedDistance(target.cap, chosen.cap) <= 0.34) return 'capital-similar';
+        if (normalizeText(target.cap).charAt(0) === normalizeText(chosen.cap).charAt(0)) return 'capital-initial';
+      }
+    }
+    if (projectedDistance(target, chosen) <= 0.08) return 'neighbour';
+    if (target.sr && target.sr === chosen.sr) return 'same-subregion';
+    if (target.r && target.r === chosen.r) return 'same-region';
+    if (Array.isArray(target.fs) && target.fs.indexOf(itemId(chosen)) !== -1) return 'flag-similar';
+    return null;
+  }
+
+  // Ordena os erros de uma sessão pelo que mais precisa voltar: primeiro o que
+  // foi errado mais vezes, depois o que ficou sem ser recuperado, depois o que
+  // está em nível mais baixo. A ordem cronológica só desempata — revisar na
+  // ordem em que se errou trata um tropeço isolado igual a uma lacuna real.
+  function rankMistakes(answers, options) {
+    options = options || {};
+    if (!Array.isArray(answers)) throw new TypeError('answers must be an array');
+    var cards = Object.create(null);
+    var order = [];
+    answers.forEach(function (answer, index) {
+      if (!answer || typeof answer.id !== 'string') return;
+      assertDirection(answer.direction);
+      var key = answer.id + ':' + answer.direction;
+      if (!cards[key]) {
+        cards[key] = {
+          id: answer.id, direction: answer.direction,
+          misses: 0, attempts: 0, recovered: false, firstMissAt: index,
+        };
+        order.push(key);
+      }
+      var card = cards[key];
+      card.attempts += 1;
+      if (answer.correct) {
+        // Só conta como recuperado quem já tinha errado antes: acertar de
+        // primeira não é recuperação, é acerto.
+        if (card.misses > 0) card.recovered = true;
+      } else {
+        card.misses += 1;
+        card.recovered = false;
+        if (card.misses === 1) card.firstMissAt = index;
+      }
+    });
+    var progress = options.progress;
+    return order.map(function (key) { return cards[key]; })
+      .filter(function (card) { return card.misses > 0; })
+      .map(function (card) {
+        card.level = progress ? levelOf(progress, card.id, card.direction) : 0;
+        return card;
+      })
+      .sort(function (left, right) {
+        if (left.recovered !== right.recovered) return left.recovered ? 1 : -1;
+        if (left.misses !== right.misses) return right.misses - left.misses;
+        if (left.level !== right.level) return left.level - right.level;
+        return left.firstMissAt - right.firstMissAt;
+      });
   }
 
   function regionsOf(countries) {
@@ -1022,7 +1220,11 @@
       ? countries.slice()
       : countries.filter(function (country) { return country.r === region || country.sr === region; });
     if (!pool.length) throw new RangeError('No countries available for region: ' + region);
-    var direction = directions[Math.floor(sampleUnit(options.rng) * directions.length)];
+    var direction = pickDirection(directions, pool, options.progress, {
+      rng: options.rng,
+      now: options.now,
+      directionFloor: options.directionFloor,
+    });
     var target;
     if (options.forcedId !== undefined) {
       target = pool.find(function (country) { return country.id === options.forcedId; });
@@ -1523,6 +1725,14 @@
     skillOf: skillOf,
     levelOf: levelOf,
     recordAnswer: recordAnswer,
+    ANSWER_GRADES: ANSWER_GRADES,
+    gradeAnswer: gradeAnswer,
+    scheduleFor: scheduleFor,
+    overdueFactor: overdueFactor,
+    struggleFactor: struggleFactor,
+    pickDirection: pickDirection,
+    confusionReason: confusionReason,
+    rankMistakes: rankMistakes,
     resetProgress: resetProgress,
     updateSkill: updateSkill,
     isDue: isDue,

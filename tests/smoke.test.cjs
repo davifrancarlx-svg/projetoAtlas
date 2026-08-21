@@ -377,6 +377,101 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     }, { timeout: 15_000, interval: 60 });
     assert.match(nota, /^fim:\d+ de 10$/, `A prova de 10 não fechou com nota sobre 10. Recebido: ${nota}`);
 
+    // 3b-bis. A revisão focada do fim de sessão. Nenhum teste em Node enxerga
+    //     esse fluxo, que é todo de interface, e ele tem duas formas de falhar
+    //     feio: nunca terminar (a carta volta para sempre) ou terminar cedo
+    //     demais (o acerto único apaga a carta, que era o defeito antigo). O
+    //     teste erra de propósito, encerra a sessão e percorre a revisão inteira.
+    // A prova acima terminou na tela de resultado, que continua no ar até se
+    // sair dela: sem isso o treino livre nunca reaparece.
+    await evaluate(client, `[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Voltar ao treino livre')?.click()`);
+    await until('o treino livre voltar', async () => (
+      await evaluate(client, `!/Prova concluída/.test(document.getElementById('panel').textContent)`)
+    ));
+    await evaluate(client, `document.querySelector('[data-mode="cap"]').click()`);
+    await until('o treino de capitais voltar', async () => (
+      await evaluate(client, `document.querySelectorAll('[data-answer]').length > 0`)
+    ));
+
+    // Erra de propósito: escolhe sempre uma alternativa diferente da correta,
+    // que só é revelada depois da resposta.
+    let erros = 0;
+    for (let i = 0; i < 10; i += 1) {
+      const resultado = await evaluate(client, `(() => {
+        const opts = [...document.querySelectorAll('[data-answer]')];
+        if (!opts.length) return 'sem-opcoes';
+        opts[0].click();
+        const certa = document.querySelector('.opt.right');
+        const errou = /incorreta|Tempo esgotado/.test(document.getElementById('panel').textContent);
+        return errou ? 'errou' : 'acertou';
+      })()`);
+      if (resultado === 'errou') erros += 1;
+      await evaluate(client, `document.getElementById('nextQuestion')?.click()`);
+      await until('a próxima pergunta', async () => (
+        await evaluate(client, `document.querySelectorAll('[data-answer]').length > 0`)
+      ));
+    }
+    assert.ok(erros >= 2, `A amostra precisava conter erros para haver o que revisar (${erros}/10).`);
+
+    // Encerrar a sessão precisa oferecer a revisão focada como ação de destaque.
+    await evaluate(client, `[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Encerrar')?.click()`);
+    const convite = await until('o fechamento da sessão oferecer a revisão', async () => (
+      await evaluate(client, `(() => {
+        const b = [...document.querySelectorAll('button')].find(b => /Revisar (o erro|os \\d+ pontos fracos)/.test(b.textContent));
+        return b ? b.textContent.trim() : null;
+      })()`)
+    ));
+    assert.match(convite, /Revisar/, 'O fim de sessão não ofereceu a revisão focada.');
+
+    await evaluate(client, `[...document.querySelectorAll('button')].find(b => /Revisar (o erro|os \\d+ pontos fracos)/.test(b.textContent)).click()`);
+    await until('a revisão focada começar', async () => (
+      await evaluate(client, `/Revisão focada/.test(document.getElementById('panel').textContent)`)
+    ));
+
+    // Percorre a revisão respondendo certo. A resposta correta de cada pergunta
+    // só é conhecida depois de vê-la uma vez, então o percurso vai aprendendo —
+    // e é justamente a reaparição da carta que permite acertá-la na volta.
+    const percurso = await evaluate(client, `(async () => {
+      const espera = (ms) => new Promise(r => setTimeout(r, ms));
+      const gabarito = new Map();
+      const vistas = new Map();
+      let perguntas = 0;
+      for (let passo = 0; passo < 80; passo += 1) {
+        if (!/Revisão focada/.test(document.getElementById('panel').textContent)) break;
+        const titulo = (document.getElementById('questionTitle') || {}).textContent || '';
+        const opts = [...document.querySelectorAll('[data-answer]')];
+        if (!opts.length) break;
+        perguntas += 1;
+        vistas.set(titulo, (vistas.get(titulo) || 0) + 1);
+        const conhecida = gabarito.get(titulo);
+        const alvo = conhecida ? opts.find(o => o.dataset.answer === conhecida) : null;
+        (alvo || opts[0]).click();
+        await espera(30);
+        const certa = document.querySelector('.opt.right');
+        if (certa) gabarito.set(titulo, certa.dataset.answer);
+        document.getElementById('nextQuestion')?.click();
+        await espera(45);
+      }
+      return JSON.stringify({
+        perguntas,
+        distintas: vistas.size,
+        maxRepeticoes: Math.max(0, ...vistas.values()),
+        terminou: !/Revisão focada/.test(document.getElementById('panel').textContent),
+      });
+    })()`);
+    const revisao = JSON.parse(percurso);
+
+    assert.ok(revisao.distintas >= 2, `A revisão precisava ter mais de uma habilidade (${revisao.distintas}).`);
+    // A propriedade central: cada habilidade exige dois acertos, então o número
+    // de perguntas feitas supera o de habilidades distintas. Com o baralho
+    // antigo, de um acerto por carta, os dois números seriam iguais.
+    assert.ok(
+      revisao.perguntas > revisao.distintas,
+      `A revisão fechou com uma pergunta por habilidade (${revisao.perguntas} para ${revisao.distintas}): o acerto único voltou a encerrar a carta.`
+    );
+    assert.ok(revisao.maxRepeticoes >= 2, 'Nenhuma carta reapareceu para confirmação.');
+    assert.ok(revisao.terminou, 'A revisão focada não terminou dentro do limite: a carta pode estar voltando para sempre.');
+
     // 3c. O botão de tema precisa trocar a pintura de verdade, não só o estado
     //     interno: é o navegador que resolve tokens, media query e atributo na
     //     raiz, e só aqui dá para ver a cor final.

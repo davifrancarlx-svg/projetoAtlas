@@ -1296,6 +1296,36 @@ body.view-prog .side-body {
   border-inline-start-color: var(--coral);
 }
 
+/* A explicação da confusão é o que transforma o erro em aula: recebe o mesmo
+   dourado dos destaques para não se perder entre as notas de capital. */
+.note-confusion {
+  border-inline-start-color: var(--gold);
+  color: var(--ink);
+}
+
+/* Saldo da revisão recém-encerrada e a explicação de como ela funciona. */
+.review-done {
+  margin-block: 10px 0;
+  padding: 9px 11px;
+  border: 1px solid var(--mint);
+  border-radius: var(--radius);
+  background: var(--ok-surface);
+  color: var(--ok-ink);
+  font-size: 13px;
+}
+
+.review-hint {
+  margin-block-start: 8px;
+  color: var(--muted-2);
+  font-size: 12px;
+}
+
+/* O que ficou sem recuperação na sessão pesa mais que o que foi retomado. */
+.chip-urgent {
+  border-color: var(--coral);
+  color: var(--bad-ink);
+}
+
 .timerrow {
   display: flex;
   align-items: center;

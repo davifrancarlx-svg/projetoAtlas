@@ -126,6 +126,10 @@
     theme: 'auto',
     timeLimit: 0, askedAt: 0, expired: false,
     sessionAnswers: [], reviewQueue: [], fromDeck: false, deckPending: false, importStatus: null,
+    // Carta de revisão em jogo e o placar do baralho. A carta precisa
+    // sobreviver à resposta para poder ser reenfileirada em vez de descartada
+    // no primeiro acerto — ver `requeueReviewCard`.
+    reviewCard: null, reviewStats: null, reviewDone: null,
     // Prova: uma série fechada de perguntas com nota no fim. Vale para a sessão
     // atual e não é persistida — o que fica gravado é o progresso por país, que
     // a prova alimenta como qualquer outra resposta.
@@ -1006,11 +1010,22 @@
       state.fromDeck = true;
       if (!state.reviewQueue.length) announce('Última carta do baralho de erros.');
     } else if (!state.deckPending) {
+      // O baralho acabou: guarda o saldo para anunciar uma vez na próxima
+      // pergunta. Fechar a revisão em silêncio desperdiça o melhor momento para
+      // mostrar que o esforço virou resultado.
+      if (state.fromDeck && state.reviewStats && state.reviewStats.consolidated) {
+        state.reviewDone = state.reviewStats;
+      }
       state.fromDeck = false;
+      state.reviewCard = null;
+      state.reviewStats = null;
     }
     state.deckPending = false;
     const forced = state.forcedQuestion;
     state.forcedQuestion = null;
+    // A carta precisa sobreviver à resposta: é ela que volta para o fim da fila
+    // quando ainda falta um acerto de confirmação.
+    state.reviewCard = state.fromDeck && forced && Number.isFinite(forced.remaining) ? forced : null;
     const directions = forced ? [forced.direction] : effectiveDirections();
     const questionAnswerMode = directions.every((direction) => PICK_ONLY.has(direction))
       ? 'pick' : state.answerMode;
@@ -1146,14 +1161,26 @@
       ms: state.askedAt ? Math.max(0, Date.now() - state.askedAt) : null,
     };
     state.sessionAnswers.push(registro);
+    // A carta revisada volta para a fila em vez de sair no primeiro acerto.
+    if (state.fromDeck && state.reviewCard) requeueReviewCard(state.reviewCard, correct);
     // A revisão de erros não consome perguntas da prova: só contam as da série.
     if (state.exam && !state.fromDeck && state.exam.done < state.exam.total) {
       state.exam.done += 1;
       state.exam.answers.push(registro);
     }
     const regionWasComplete = regionMastery(target.r).complete;
+    // Acertar digitando de cabeça e acertar devagar entre quatro alternativas
+    // deixaram de valer a mesma promoção: a nota traduz a força da evidência no
+    // tamanho do intervalo até a próxima revisão.
+    const grade = Core.gradeAnswer({
+      correct,
+      ms: registro.ms,
+      answerMode: state.questionAnswerMode,
+      optionCount: Array.isArray(state.question.opts) ? state.question.opts.length : 0,
+      timeLimit: state.timeLimit || null,
+    });
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
-      countryIds: IDS, bestStreak: state.streak,
+      countryIds: IDS, bestStreak: state.streak, grade,
     });
     if (!regionWasComplete && regionMastery(target.r).complete) state.regionCelebration = target.r;
     refreshMapMastery();
@@ -1289,6 +1316,31 @@
     return notes;
   }
 
+  // O erro só ensina se disser por que a confusão era plausível. O núcleo diz
+  // qual é a relação entre o que foi respondido e a resposta certa; aqui ela
+  // vira frase, sempre terminando no traço que separa os dois.
+  function confusionCopy(country, chosen, direction) {
+    const reason = Core.confusionReason(country, chosen, direction);
+    if (!reason) return null;
+    const nome = chosen.n;
+    if (reason === 'flag-similar') {
+      return `${nome} tem bandeira parecida — compare as proporções e os símbolos, não só as cores.`;
+    }
+    if (reason === 'capital-similar') {
+      return `${chosen.cap} e ${country.cap} têm escrita muito parecida — repare no que muda entre as duas.`;
+    }
+    if (reason === 'capital-initial') {
+      return `${chosen.cap} começa com a mesma letra de ${country.cap}, o que facilita a troca.`;
+    }
+    if (reason === 'neighbour') {
+      return `${nome} é vizinho de ${country.n} no mapa — o erro foi de poucos graus.`;
+    }
+    if (reason === 'same-subregion') {
+      return `${nome} fica na mesma subregião, ${chosen.sr}: os dois disputam o mesmo lugar na memória.`;
+    }
+    return `${nome} fica na mesma região, ${chosen.r}.`;
+  }
+
   function renderVerdict(container) {
     const question = state.question;
     const country = byId[question.id];
@@ -1332,6 +1384,15 @@
       }
     }
 
+    // No erro, contrastar o que foi escolhido com a resposta certa. Só quando há
+    // uma escolha concreta de país: em "tempo esgotado" não houve confusão a
+    // explicar, e em região a comparação seria entre continentes, não países.
+    if (!isCorrect && !state.expired && question.direction !== 'reg') {
+      const chosen = byId[state.selectedAnswer];
+      const copy = chosen ? confusionCopy(country, chosen, question.direction) : null;
+      if (copy) verdict.append(create('p', { className: 'note note-confusion', text: copy }));
+    }
+
     explanatoryNotes(country).forEach((note) => verdict.append(create('p', { className: 'note', text: note })));
     const next = create('button', { id: 'nextQuestion', className: 'btn wide', text: 'Próxima pergunta', type: 'button' });
     next.addEventListener('click', () => createNextQuestion({ focus: true }));
@@ -1349,12 +1410,22 @@
     const [headline, eyebrow] = questionCopy(question);
     dom.panel.append(create('div', { className: 'plate' }, [
       create('span', { text: state.fromDeck
-        ? `Revisão de erros · ${state.reviewQueue.length ? `faltam ${state.reviewQueue.length + 1}` : 'última carta'}`
+        ? `Revisão focada · ${reviewRemaining() > 1 ? `faltam ${reviewRemaining()}` : 'última habilidade'}`
         : (state.exam
           ? `Prova · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
           : `Pergunta ${state.questionNumber}`) }),
       create('span', { text: DIRECTION_LABEL[question.direction] }),
     ]));
+    // Saldo da revisão que acabou de fechar. Aparece uma vez só, na primeira
+    // pergunta depois dela.
+    if (state.reviewDone && !state.answered) {
+      const saldo = state.reviewDone;
+      const pendentes = saldo.retired
+        ? ` ${saldo.retired} ${saldo.retired === 1 ? 'ficou' : 'ficaram'} para a próxima revisão.` : '';
+      dom.panel.append(create('p', { className: 'review-done', attrs: { role: 'status' },
+        text: `Revisão concluída: ${saldo.consolidated} ${saldo.consolidated === 1 ? 'habilidade consolidada' : 'habilidades consolidadas'} com dois acertos.${pendentes}` }));
+      state.reviewDone = null;
+    }
     if (state.timeLimit && !state.answered) {
       const total = state.timeLimit * 1000;
       const row = create('div', { className: 'timerrow' });
@@ -1685,6 +1756,76 @@
     announce(`Revisão de ${byId[id].n}: ${DIRECTION_LABEL[direction]}.`);
   }
 
+  // --- baralho de revisão ---------------------------------------------------
+  // Acertar uma vez não é ter aprendido: numa revisão logo depois do erro, o
+  // acerto costuma vir da memória de curto prazo, que não sobrevive ao dia
+  // seguinte. Por isso a carta exige dois acertos e volta espaçada entre outras
+  // — recuperação espaçada, que é o que transforma o acerto em memória durável.
+  const REVIEW_TARGET_CORRECT = 2;
+  const REVIEW_GAP_AFTER_HIT = 3;
+  const REVIEW_GAP_AFTER_MISS = 1;
+  // Teto de aparições da mesma carta num baralho: sem ele, quem trava numa
+  // habilidade fica preso num laço sem fim em vez de seguir e revisitá-la depois.
+  const REVIEW_MAX_TRIES = 6;
+
+  function reviewCard(item) {
+    return {
+      id: item.id,
+      direction: item.direction,
+      remaining: REVIEW_TARGET_CORRECT,
+      tries: 0,
+      misses: item.misses || 0,
+    };
+  }
+
+  function insertReviewCard(card, gap) {
+    const at = Math.min(state.reviewQueue.length, gap);
+    state.reviewQueue.splice(at, 0, card);
+  }
+
+  // Devolve a carta à fila conforme o resultado, ou a aposenta quando ela já
+  // cumpriu os dois acertos (ou esgotou o teto de tentativas).
+  function requeueReviewCard(card, correct) {
+    card.tries += 1;
+    if (!state.reviewStats) state.reviewStats = { consolidated: 0, retired: 0 };
+    if (correct) {
+      card.remaining -= 1;
+      if (card.remaining <= 0) { state.reviewStats.consolidated += 1; return; }
+      insertReviewCard(card, REVIEW_GAP_AFTER_HIT);
+      return;
+    }
+    // Errar de novo zera o ciclo: a carta volta a precisar de dois acertos
+    // limpos, senão um acerto sozinho apagaria a falha que acabou de acontecer.
+    card.remaining = REVIEW_TARGET_CORRECT;
+    if (card.tries >= REVIEW_MAX_TRIES) { state.reviewStats.retired += 1; return; }
+    insertReviewCard(card, REVIEW_GAP_AFTER_MISS);
+  }
+
+  // Quantas habilidades distintas ainda faltam fechar, contando a que está na
+  // tela. O tamanho bruto da fila conta reaparições e assustaria à toa.
+  function reviewRemaining() {
+    const keys = new Set(state.reviewQueue.map((card) => `${card.id}:${card.direction}`));
+    if (state.reviewCard && state.reviewCard.remaining > 0) {
+      keys.add(`${state.reviewCard.id}:${state.reviewCard.direction}`);
+    }
+    return keys.size;
+  }
+
+  function startDeck(items, message) {
+    const cards = items.map(reviewCard);
+    if (!cards.length) return false;
+    state.reviewStats = { consolidated: 0, retired: 0, total: cards.length };
+    state.reviewQueue = cards.slice(1);
+    state.forcedQuestion = cards[0];
+    state.fromDeck = true;
+    state.deckPending = true;
+    state.sessionEnded = false;
+    setView('quiz');
+    createNextQuestion({ focus: true });
+    if (message) announce(message);
+    return true;
+  }
+
   // Cada habilidade errada entra uma vez só no baralho, na ordem em que foi
   // errada, e sai se depois tiver sido acertada na mesma sessão.
   function sessionMistakes() {
@@ -1738,6 +1879,7 @@
     state.reviewQueue = [];
     state.forcedQuestion = null;
     state.fromDeck = false;
+    state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
     setView('quiz');
     createNextQuestion({ focus: true });
     announce(`Prova iniciada com ${total} perguntas.`);
@@ -1813,13 +1955,9 @@
       // revisão já existente cuida do resto.
       const revisar = create('button', { className: 'btn wide', type: 'button', text: 'Revisar os erros agora' });
       revisar.addEventListener('click', () => {
-        const cartas = errados.map((item) => ({ id: item.id, direction: item.direction }));
+        const cartas = Core.rankMistakes(state.exam ? state.exam.answers : [], { progress });
         state.exam = null;
-        state.reviewQueue = cartas.slice(1);
-        state.forcedQuestion = cartas[0];
-        state.fromDeck = true;
-        state.deckPending = true;
-        createNextQuestion({ focus: true });
+        startDeck(cartas.length ? cartas : errados);
       });
       bloco.append(revisar);
       dom.panel.append(bloco);
@@ -1841,16 +1979,17 @@
     if (titulo) titulo.focus();
   }
 
+  // Revisão focada: em vez da ordem em que os erros aconteceram, a ordem da
+  // gravidade — o que foi errado mais vezes primeiro, depois o que ficou sem
+  // recuperação, depois o que está em nível mais baixo.
+  function focusedMistakes() {
+    return Core.rankMistakes(state.sessionAnswers, { progress });
+  }
+
   function startMistakeDeck() {
-    const mistakes = sessionMistakes();
+    const mistakes = focusedMistakes();
     if (!mistakes.length) return;
-    state.reviewQueue = mistakes.slice(1);
-    state.forcedQuestion = mistakes[0];
-    state.fromDeck = true;
-    state.deckPending = true;
-    setView('quiz');
-    createNextQuestion({ focus: true });
-    announce(`Baralho de erros iniciado com ${mistakes.length} ${mistakes.length === 1 ? 'carta' : 'cartas'}.`);
+    startDeck(mistakes, `Revisão focada iniciada com ${mistakes.length} ${mistakes.length === 1 ? 'habilidade' : 'habilidades'}. Cada uma sai do baralho após dois acertos.`);
   }
 
   function renderSessionSummary(container) {
@@ -1938,7 +2077,10 @@
     const consolidated = [...outcome.entries()]
       .filter(([, result]) => result.correct > 0 && result.wrong === 0)
       .map(([id]) => byId[id]);
-    const mistakes = sessionMistakes();
+    // No fechamento vale a lista completa e ordenada por gravidade, não só o
+    // que ficou pendente: um país errado três vezes e acertado no fim continua
+    // sendo o mais frágil da sessão, e é ele que precisa voltar primeiro.
+    const mistakes = focusedMistakes();
     atlasElements = null;
     clear(dom.panel); clearMapMarks(); stopTimer();
     dom.shell.dataset.questionVisual = 'false';
@@ -1962,19 +2104,39 @@
     const difficult = create('section', { className: 'pgroup session-result-group' });
     difficult.append(create('h3', { text: 'Para reforçar' }));
     const weak = create('div', { className: 'weak' });
-    mistakes.slice(0, 10).forEach((item) => weak.append(create('span', { className: 'chip', text: `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}` })));
+    // A contagem de erros aparece no chip: ela é o critério da ordem, e sem ela
+    // a lista pareceria arbitrária.
+    mistakes.slice(0, 10).forEach((item) => weak.append(create('span', {
+      className: `chip${item.recovered ? '' : ' chip-urgent'}`,
+      text: item.misses > 1
+        ? `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]} · ${item.misses}×`
+        : `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}`,
+    })));
     if (!mistakes.length) weak.append(create('p', { className: 'empty', text: 'Nenhum erro pendente. Excelente fechamento.' }));
     difficult.append(weak, create('p', { className: 'next-review-copy', text: nextReviewCopy() }));
     dom.panel.append(difficult);
     const actions = create('div', { className: 'button-row session-result-actions' });
-    const again = create('button', { className: 'btn', type: 'button', text: 'Nova sessão' });
+    // Com erros na sessão, revisar é a ação principal: é o momento em que a
+    // revisão rende mais, e deixá-la como botão secundário fazia o fechamento
+    // convidar a começar tudo de novo sem fechar as lacunas que acabaram de
+    // aparecer.
+    if (mistakes.length) {
+      const review = create('button', {
+        className: 'btn wide', type: 'button',
+        text: mistakes.length === 1
+          ? 'Revisar o erro desta sessão'
+          : `Revisar os ${mistakes.length} pontos fracos desta sessão`,
+      });
+      review.addEventListener('click', startMistakeDeck);
+      dom.panel.append(review);
+      dom.panel.append(create('p', {
+        className: 'section-copy review-hint',
+        text: 'A revisão começa pelo que você mais errou, e cada habilidade só sai do baralho depois de dois acertos separados por outras perguntas.',
+      }));
+    }
+    const again = create('button', { className: mistakes.length ? 'btn ghost' : 'btn', type: 'button', text: 'Nova sessão' });
     again.addEventListener('click', startNewSession);
     actions.append(again);
-    if (mistakes.length) {
-      const review = create('button', { className: 'btn ghost', type: 'button', text: 'Revisar erros' });
-      review.addEventListener('click', startMistakeDeck);
-      actions.append(review);
-    }
     const seeProgress = create('button', { className: 'btn ghost', type: 'button', text: 'Ver progresso' });
     seeProgress.addEventListener('click', () => setView('prog'));
     actions.append(seeProgress);
@@ -1994,6 +2156,7 @@
     state.hits = 0; state.misses = 0; state.streak = 0; state.questionNumber = 0;
     state.sessionAnswers = []; state.reviewQueue = []; state.forcedQuestion = null;
     state.fromDeck = false; state.deckPending = false; state.sessionEnded = false;
+    state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
     createNextQuestion({ focus: true });
   }
 
