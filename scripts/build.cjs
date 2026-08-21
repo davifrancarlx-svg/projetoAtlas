@@ -87,6 +87,7 @@ function attachSimilarFlags(countries) {
 function loadCountries() {
   const countries = readJson('src/countries.base.json');
   const contentPolicy = readJson('src/content-policy.json');
+  const languages = readJson('src/languages.json');
   const indicators = readJson('data/indicators.json');
   const contextAreas = readJson('src/context-areas.json');
   const flagFile = readJson('data/flags.json');
@@ -120,6 +121,13 @@ function loadCountries() {
     const indicator = indicators.paises[country.id];
     if (!indicator) {
       throw new Error(`Indicadores ausentes para ${country.id} (${country.n}). Rode "npm run indicators".`);
+    }
+    // Idiomas seguem a mesma política dos indicadores: complementam a ficha e
+    // nunca viram resposta de pergunta. O que entra é o que é oficial por lei;
+    // a nota existe só quando o uso cotidiano diverge do estatuto oficial.
+    const language = languages[country.id];
+    if (!language || !Array.isArray(language.oficiais) || !language.oficiais.length) {
+      throw new Error(`Idiomas ausentes para ${country.id} (${country.n}). Preencha src/languages.json.`);
     }
     const policy = contentPolicy[country.id] || {};
     const nameAliases = policy.nameAliases ?? country.alt ?? [];
@@ -166,6 +174,8 @@ function loadCountries() {
       capitalMistakes,
       capitalType: policy.capitalType || 'official',
       capitalNote: policy.capitalNote || '',
+      idiomas: language.oficiais,
+      idiomasNota: language.nota || '',
     };
     delete normalizedContent.alt;
     delete normalizedContent.calt;

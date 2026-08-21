@@ -202,6 +202,14 @@
   }
   function formatPercent(value) { return `${Math.round(value)}%`; }
 
+  // "alemão, francês, italiano e romanche" — a última junção é "e", não vírgula,
+  // porque a lista é lida como frase na ficha e pelo leitor de tela.
+  function formatList(items) {
+    const list = (items || []).filter(Boolean);
+    if (list.length <= 1) return list[0] || '';
+    return `${list.slice(0, -1).join(', ')} e ${list[list.length - 1]}`;
+  }
+
   // População e IDH são complementos da ficha e nunca viram pergunta. Os dois
   // saem sempre com o ano ao lado: mudam a cada edição das fontes, e um número
   // solto passaria a impressão de valor fixo. Quem não tem o dado mostra o
@@ -1450,11 +1458,22 @@
     if (!atlasElements) return;
     const country = byId[state.atlasSelected] || DATA[0];
     clear(atlasElements.detail);
+    const idiomas = Array.isArray(country.idiomas) ? country.idiomas : [];
     const copy = create('div', { className: 'atlas-detail-copy' }, [
       create('h3', { text: country.n }),
       create('p', { text: `Capital: ${country.cap}` }),
       create('p', { text: `${country.sr} · ${formatArea(country.ar)}` }),
     ]);
+    // O idioma fica junto da capital: é do mesmo tipo de dado de identidade do
+    // país, não um indicador com ano. A nota só existe quando o que se fala no
+    // dia a dia diverge do que é oficial por lei.
+    if (idiomas.length) {
+      copy.append(create('p', {
+        className: 'idiomas',
+        text: `${idiomas.length === 1 ? 'Idioma' : 'Idiomas'}: ${formatList(idiomas)}`,
+      }));
+      if (country.idiomasNota) copy.append(create('p', { className: 'note', text: country.idiomasNota }));
+    }
     atlasElements.detail.append(flagImage(country, { eager: true }), copy);
 
     const indicadores = indicadoresDe(country);

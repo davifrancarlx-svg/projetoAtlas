@@ -10,7 +10,7 @@
 // VERSION é o hash do artefato, injetado no build: publicar uma versão nova
 // troca o nome do cache e o antigo é descartado no activate.
 
-const VERSION = '2b8554f387ee';
+const VERSION = '038371990433';
 const CACHE = `atlas-195-${VERSION}`;
 const ASSETS = [
   "./atlas-195.html",

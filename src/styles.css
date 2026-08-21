@@ -1958,6 +1958,20 @@ a.chip {
   font-size: 12px;
 }
 
+/* O idioma é dado de identidade do país, como a capital, então acompanha a cor
+   do texto principal em vez do cinza dos complementos. */
+.atlas-detail .idiomas {
+  margin-block-start: 5px;
+  color: var(--ink);
+}
+
+/* A ressalva do idioma vive colada à linha que explica, dentro do bloco compacto
+   da ficha: sem o respiro nem o corpo maior que a nota solta usa lá embaixo. */
+.atlas-detail .atlas-detail-copy .note {
+  margin-block-start: 6px;
+  font-size: 12px;
+}
+
 .territory-card .btn {
   margin-block-start: 12px;
 }

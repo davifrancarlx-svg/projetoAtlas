@@ -134,6 +134,48 @@ A silhueta fundida continua em `data/map-geometry.json`, onde o gerador a valida
 mas não viaja no artefato — levar as duas duplicaria 285 KB de contorno para
 desenhar a mesma coisa.
 
+## Idiomas
+
+Ficam em `src/languages.json`, um registro por país, e são **complemento da ficha:
+nunca viram pergunta**. O motivo é o mesmo dos indicadores, e um a mais: os nomes
+de idioma colidiriam com nomes de país no universo de respostas — "português"
+disputaria com "Portugal" na validação por semelhança, exatamente o tipo de
+ambiguidade que a política de Kingston/Kingstown existe para impedir. Um teste
+barra a entrada de qualquer nome de idioma nas respostas aceitas.
+
+O dado é **editorial**, como as capitais e os nomes de país, e não gerado de uma
+API: nenhuma fonte global entrega os nomes em português nem resolve as ressalvas
+abaixo, e uma tradução automática de rótulos em inglês daria uma procedência só
+aparente. A base são os textos constitucionais e a legislação linguística de cada
+país.
+
+O campo `oficiais` lista o que é **oficial por lei**, na ordem em que a própria lei
+estabelece hierarquia — na Irlanda o irlandês vem antes por ser a primeira língua
+oficial pela Constituição. Onde a lei **não** elege uma principal, o Atlas também
+não elege: Suíça, Bélgica, Canadá e Bósnia aparecem com os idiomas lado a lado,
+sem ranking. É a mesma postura já adotada para as três capitais da África do Sul e
+para a capital de facto da Suíça.
+
+O campo `nota` existe **só quando o estatuto legal e o uso cotidiano divergem**, e
+é uma frase:
+
+| Caso | Por que a nota existe |
+| --- | --- |
+| Nigéria | O inglês é o único oficial, mas hauçá, iorubá e igbo dominam o cotidiano. |
+| Suíça | Quatro línguas nacionais e nenhuma principal — a ausência de hierarquia é o fato. |
+| Paraguai | Guarani cooficial e falado pela maioria, muito além das comunidades indígenas. |
+| Argentina, Austrália, Uruguai | O idioma é de facto: a lei não declara idioma oficial. |
+| Bolívia, México, Zimbábue, Índia | O número real de idiomas reconhecidos não cabe na lista sem virar parágrafo. |
+
+Três países mudaram de regime linguístico recentemente e merecem reconferência
+periódica: **Burkina Faso** (2024) e **Mali** (2023) promoveram as línguas
+nacionais a oficiais e rebaixaram o francês a língua de trabalho, e o **Níger**
+elevou o hauçá a língua nacional em 2025.
+
+O build **recusa** um país sem idioma registrado, e os testes recusam nome
+capitalizado (em português, língua é substantivo comum), idioma repetido na mesma
+lista, campo fora do esquema e nota que não seja frase completa.
+
 ## Indicadores e fatos derivados
 
 São **complementos da ficha do país e nunca viram pergunta**. Adivinhar IDH não é
