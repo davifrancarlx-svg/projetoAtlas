@@ -9,6 +9,10 @@ const ROOT = path.resolve(__dirname, '..');
 // justifica. `src/app.js` foi de 140 para 150 KiB com a revisão focada e o
 // contraste didático do erro (2026-08-21).
 const LIMITS = {
+  'src/audio.js': 8 * 1024,
+  'src/study.js': 8 * 1024,
+  'src/achievements.js': 16 * 1024,
+  'src/achievements-ui.js': 14 * 1024,
   'atlas-195.html': 5.25 * 1024 * 1024,
   'src/app.js': 150 * 1024,
   'src/core.js': 80 * 1024,

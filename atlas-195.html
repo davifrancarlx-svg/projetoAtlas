@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d222e" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-JHkadxb4iXIf6dh+ON1iiE2cMDYgwBWw7rkvV1o2hcY='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-SymZ5PJpAhD2bciezd0B+XKTQ19iWohMI/M9M6Lzp/c=' 'sha256-n6i4G9zcY1rMlNmOMpZw1Wy4kJBBxsGKKl61lGryX2s=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-GjX4P9hMF5QKzKVoq2Uh42//J+O7MMSNMDrivnIm1lA='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-hdGoBiE42N+T/lHyFPtmYFSnTekzVAdLIxckKD1IyBg='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-SymZ5PJpAhD2bciezd0B+XKTQ19iWohMI/M9M6Lzp/c=' 'sha256-vc7OCBaEQVcWS0JBq9vgorV3M/PnvnKez3OfAahrsl8=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-leZ4QOAjXoe9WZqW1m7rR4PHhClnKVUtZvipo6hn7og='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <title>Atlas 195 — bandeiras, capitais e localização</title>
   <meta name="description" content="Treino de geografia dos 195 países: bandeiras, capitais, localização no mapa e regiões, com revisão espaçada. Funciona sem internet e guarda o progresso só no seu aparelho.">
 
@@ -350,6 +350,12 @@ input {
   padding-inline: max(18px, var(--safe-left)) max(18px, var(--safe-right));
   border-bottom: 1px solid var(--line-soft);
   background: var(--panel);
+}
+
+.sound-toggle { min-height: var(--tap); font-size: 11px; padding: 8px 10px; }
+
+@media (min-width: 821px) and (max-width: 1400px) {
+  .topbar .brand-sub { display: none; }
 }
 
 .brand {
@@ -804,7 +810,7 @@ select {
   outline-offset: -4px;
 }
 
-.grat {
+.grat path {
   fill: none;
   stroke: var(--line-soft);
   stroke-width: 0.55;
@@ -2128,6 +2134,28 @@ a.chip {
   margin-block-start: 12px;
 }
 
+.account-nickname {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-start: 12px;
+}
+
+.account-nickname label { flex-basis: 100%; }
+.account-nickname .search { flex: 1 1 180px; min-width: 0; width: 100%; }
+.btn[aria-disabled="true"] { opacity: .65; cursor: wait; }
+
+.achievement-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+.achievement-list li { border: 1px solid var(--line-soft); padding: 12px; }
+.achievement-list strong, .achievement-list span { display: block; }
+.achievement-list .achievement-earned { border-color: var(--gold); }
+.achievement-earned strong { color: var(--gold); }
+.achievements summary { cursor: pointer; min-height: var(--tap); padding-block: 12px; }
+.app-status:has(.achievement-notice) { flex-wrap: wrap; }
+.achievement-notice { width: 100%; min-width: 0; color: var(--ink); background: var(--panel-2); border: 1px solid var(--gold); padding: 8px 12px; pointer-events: none; }
+.achievement-notice strong { color: var(--gold); }
+.achievement-notice span { display: block; font-size: 12px; }
+
 .btn.danger {
   border-color: var(--coral);
   background: var(--coral);
@@ -2670,6 +2698,7 @@ a.chip {
         <span aria-hidden="true">◎</span>
         <span class="focus-toggle-label">Foco</span>
       </button>
+      <button class="btn ghost sound-toggle" id="soundToggle" type="button">Som: desligado</button>
     </header>
 
     <section class="controls" id="controls" aria-labelledby="controlsTitle">
@@ -3012,11 +3041,128 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   <script data-atlas-slot="core">
 (function (root, factory) {
   'use strict';
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.AtlasAchievementRules = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  'use strict';
+  const catalog = [
+    ['first', 'Já Posso Apontar no Globo', 'Primeiro acerto. O dedo já tem destino.', 'Bronze'],
+    ['countries25', 'Só Mais Um País', 'Responda sobre 25 países diferentes. Só mais um, prometo.', 'Bronze'],
+    ['countries195', 'Meu Sofá Deu a Volta ao Mundo', 'Responda sobre os 195 países. Milhas do sofá acumuladas.', 'Prata'],
+    ['master1', 'Esse Já Mora na Minha Cabeça', 'Domine um país nas sete direções. Aluguel: zero.', 'Bronze'],
+    ['master10', 'Condomínio na Memória', 'Domine dez países nas sete direções. A memória ganhou vizinhos.', 'Prata'],
+    ['region', 'Autoridade Regional', 'Domine todos os países de uma região nas sete direções. Pode conferir.', 'Prata'],
+    ['world', 'Rodei o Mundo Sem Sair de Casa', 'Nível máximo nos 195 países, nas sete direções. O sofá merece férias.', 'Platina'],
+    ['flags', 'Varal de Respeito', 'Domine as duas direções de bandeiras nos 195 países. Haja espaço no varal.', 'Ouro'],
+    ['capitals', 'Agenda de Endereços', 'Domine as duas direções de capitais nos 195 países. Agenda mental lotada.', 'Ouro'],
+    ['maps', 'GPS de Cabeça', 'Domine as duas direções de localização nos 195 países. Recalculando? Hoje não.', 'Ouro'],
+    ['regions', 'Cada Um no Seu Quadrado', 'Domine país → região nos 195 países. Tudo no lugar.', 'Ouro'],
+    ['typed10', 'Sei de Cor e Salteado', 'Dez acertos seguidos digitando. Erro ou resposta por escolha interrompe a sequência.', 'Prata'],
+    ['streak25', 'Hoje Meu Cérebro Veio', 'Alcance 25 acertos seguidos. Presença confirmada.', 'Prata'],
+    ['last5', 'No Último Suspiro', 'Acerte com até cinco segundos restantes, antes de o tempo acabar. Ufa.', 'Bronze'],
+    ['exam10', 'Dez de Dez, Sem Conversa', 'Conclua uma prova de dez perguntas sem erros. Pode contar de novo.', 'Prata'],
+    ['exam30', 'Gabaritei Geografia', 'Conclua uma prova de 30 perguntas sem erros. A caneta imaginária agradece.', 'Ouro'],
+    ['examDone', 'Fui Até os Créditos', 'Conclua uma prova de 30 perguntas. Fiquei até o fim.', 'Bronze'],
+    ['review', 'Agora Vai Ficar', 'Consolide uma habilidade no baralho de erros com os dois acertos exigidos. Agora vai.', 'Bronze'],
+    ['six', 'Essa Aqui Não Me Deixa em Paz', 'Responda à sexta aparição de uma habilidade no mesmo baralho. Nos encontramos de novo.', 'Bronze'],
+    ['debt', 'Zerei a Dívida', 'Revise corretamente todas as habilidades vencidas no início do seu dia de treino. A lista respirou.', 'Ouro'],
+    ['loupe', 'Achei Com Lupa', 'Acerte localização de Vaticano, Mônaco, Tuvalu, Nauru ou San Marino em 60×. Achei!', 'Bronze'],
+    ['micro5', 'Minha Lupa Tem Quilometragem', 'Acerte localização dos cinco microestados destacados. A lupa trabalhou.', 'Prata'],
+    ['theme', 'Indeciso Com Estilo', 'Troque de tema três vezes na mesma abertura do app. Agora ficou. Talvez.', 'Bronze'],
+    ['backup', 'Backup é Vida', 'Exporte o progresso. Seu futuro eu agradeceu.', 'Bronze'],
+    ['cloud', 'Meu Progresso Veio Junto', 'Receba da conta aprendizado que acrescente ao navegador. A memória veio na bagagem.', 'Prata'],
+  ].map(([id, name, description, rarity]) => Object.freeze({ id, name, description, rarity }));
+  const ids = catalog.map(item => item.id);
+  const microIds = ['VA', 'MC', 'TV', 'NR', 'SM'];
+  const directions = ['flag', 'flagOf', 'cap', 'capOf', 'locate', 'mapId', 'reg'];
+  const union = (a, b) => [...new Set([...a, ...b])].sort();
+  const boundary = (a, b) => a.generation - b.generation || (a.epoch > b.epoch ? 1 : a.epoch < b.epoch ? -1 : 0);
+  function create(progress) {
+    return { version: 1, generation: progress.generation || 0, epoch: progress.epoch || '', unlocked: [], micro: [], day: null };
+  }
+  function valid(value) {
+    const strings = (list, allowed) => Array.isArray(list) && list.length <= allowed.length
+      && new Set(list).size === list.length && list.every(id => allowed.includes(id));
+    const skills = list => Array.isArray(list) && list.length <= 1365 && new Set(list).size === list.length
+      && list.every(key => /^[A-Z]{2}:(flag|flagOf|cap|capOf|locate|mapId|reg)$/.test(key));
+    return Boolean(value && value.version === 1 && Number.isSafeInteger(value.generation) && value.generation >= 0
+      && typeof value.epoch === 'string' && value.epoch.length <= 100
+      && Object.keys(value).every(k => ['version', 'generation', 'epoch', 'unlocked', 'micro', 'day'].includes(k))
+      && strings(value.unlocked, ids) && strings(value.micro, microIds)
+      && (value.day === null || (value.day && /^\d{4}-\d{2}-\d{2}$/.test(value.day.date)
+        && Object.keys(value.day).every(k => ['date', 'due', 'cleared'].includes(k))
+        && skills(value.day.due) && skills(value.day.cleared))));
+  }
+  function merge(a, b) {
+    if (!valid(a) || !valid(b)) throw new TypeError('Conquistas inválidas');
+    const order = boundary(a, b);
+    if (order) return JSON.parse(JSON.stringify(order > 0 ? a : b));
+    let day = a.day;
+    if (!day || (b.day && b.day.date > day.date)) day = b.day;
+    else if (b.day && day.date === b.day.date) day = {
+      date: day.date, due: union(day.due, b.day.due), cleared: union(day.cleared, b.day.cleared),
+    };
+    return { ...a, unlocked: union(a.unlocked, b.unlocked), micro: union(a.micro, b.micro), day: day && JSON.parse(JSON.stringify(day)) };
+  }
+  function evaluate(saved, progress, countries, event = {}) {
+    const blank = create(progress);
+    let next = valid(saved) && boundary(saved, blank) === 0 ? merge(saved, blank) : blank;
+    const before = new Set(next.unlocked);
+    const unlock = (id, condition) => { if (condition) next.unlocked = union(next.unlocked, [id]); };
+    const skill = (id, d) => progress.countries[id]?.skills[d];
+    const all = (group, ds) => group.length > 0 && group.every(c => ds.every(d => skill(c.id, d)?.level === 5));
+    const studied = countries.filter(c => directions.some(d => skill(c.id, d)?.attempts > 0));
+    const mastered = countries.filter(c => all([c], directions));
+    unlock('first', studied.some(c => directions.some(d => skill(c.id, d)?.correct > 0)));
+    unlock('countries25', studied.length >= 25);
+    unlock('countries195', studied.length === 195);
+    unlock('master1', mastered.length >= 1);
+    unlock('master10', mastered.length >= 10);
+    unlock('region', [...new Set(countries.map(c => c.r))].some(r => all(countries.filter(c => c.r === r), directions)));
+    unlock('world', countries.length === 195 && all(countries, directions));
+    for (const [id, ds] of [['flags', ['flag', 'flagOf']], ['capitals', ['cap', 'capOf']], ['maps', ['locate', 'mapId']], ['regions', ['reg']]]) {
+      unlock(id, countries.length === 195 && all(countries, ds));
+    }
+    unlock('streak25', progress.bestStreak >= 25);
+    if (event.date && (!next.day || next.day.date !== event.date)) {
+      next.day = { date: event.date, due: studied.flatMap(c => directions.filter(d => {
+        const s = skill(c.id, d); return s?.attempts > 0 && s.nextReviewAt && Date.parse(s.nextReviewAt) <= event.now;
+      }).map(d => `${c.id}:${d}`)), cleared: [] };
+    }
+    if (event.type === 'answer') {
+      unlock('typed10', event.correct && event.typedStreak >= 10);
+      unlock('last5', event.correct && event.remaining > 0 && event.remaining <= 5000);
+      unlock('six', event.tries >= 6);
+      unlock('review', event.consolidated === true);
+      if (event.correct && event.direction === 'locate' && microIds.includes(event.id)) {
+        next.micro = union(next.micro, [event.id]);
+        unlock('loupe', event.zoom >= 60 - 1e-6);
+      }
+      if (event.correct && next.day && next.day.date === event.date) {
+        const key = `${event.id}:${event.direction}`;
+        if (next.day.due.includes(key)) next.day.cleared = union(next.day.cleared, [key]);
+      }
+    }
+    unlock('micro5', next.micro.length === 5);
+    unlock('debt', next.day?.due.length > 0 && next.day.due.every(key => next.day.cleared.includes(key)));
+    unlock('exam10', event.type === 'exam' && event.total === 10 && event.correct === 10);
+    unlock('exam30', event.type === 'exam' && event.total === 30 && event.correct === 30);
+    unlock('examDone', event.type === 'exam' && event.total === 30);
+    unlock('theme', event.type === 'theme' && event.count >= 3);
+    unlock('backup', event.type === 'backup');
+    unlock('cloud', event.type === 'cloud' && event.added === true);
+    return { state: next, added: next.unlocked.filter(id => !before.has(id)) };
+  }
+  return Object.freeze({ catalog: Object.freeze(catalog), create, valid, merge, evaluate });
+});
+(function (root, factory) {
+  'use strict';
 
-  var api = factory();
+  var api = factory(typeof module === 'object' && module.exports ? require('./achievements.js') : root.AtlasAchievementRules);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.AtlasCore = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (achievementRules) {
   'use strict';
 
   var SCHEMA_VERSION = 2;
@@ -4690,6 +4836,11 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   }
 
   return Object.freeze({
+    achievementCatalog: achievementRules && achievementRules.catalog,
+    createAchievements: function (p) { return achievementRules.create(p); },
+    validateAchievements: function (a) { return achievementRules.valid(a); },
+    mergeAchievements: function (a, b) { return achievementRules.merge(a, b); },
+    evaluateAchievements: function (a, p, countries, event) { return achievementRules.evaluate(a, p, countries, event); },
     derivedFacts: derivedFacts,
     SCHEMA_VERSION: SCHEMA_VERSION,
     MAX_LEVEL: MAX_LEVEL,
@@ -4829,10 +4980,314 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 });
   </script>
   <script data-atlas-slot="app">
+(function (root) {
+  'use strict';
+  const LEVELS = ['desligado', 'baixo', 'médio'];
+  const VOLUME = [0, 0.12, 0.23];
+  const PRIORITY = { error: 1, correct: 2, achievement: 3 };
+  const KEY = 'atlas195:som:v1';
+
+  function sequence(kind, variant = 0) {
+    if (kind === 'error') return [[196, 0, 0.12]];
+    if (kind === 'achievement') return [[523.25, 0, 0.20], [659.25, 0.09, 0.20], [783.99, 0.18, 0.25]];
+    const base = [523.25, 587.33, 659.25][variant % 3];
+    return [[base, 0, 0.15], [base * 1.259921, 0.07, 0.19]];
+  }
+
+  // A mesma síntese serve para reprodução e amostras com OfflineAudioContext.
+  function render(context, destination, kind, volume, variant = 0, start = context.currentTime) {
+    const voices = [];
+    for (const [frequency, offset, duration] of sequence(kind, variant)) {
+      for (const [harmonic, strength] of [[1, 0.62], [2, 0.07]]) {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        const at = start + offset;
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency * harmonic;
+        gain.gain.setValueAtTime(0.0001, at);
+        gain.gain.linearRampToValueAtTime(volume * strength, at + 0.006);
+        gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+        oscillator.connect(gain); gain.connect(destination);
+        oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+        oscillator.start(at); oscillator.stop(at + duration + 0.01);
+        voices.push({ stop() {
+          gain.gain.cancelAndHoldAtTime(context.currentTime);
+          gain.gain.linearRampToValueAtTime(0.0001, context.currentTime + 0.012);
+          oscillator.stop(context.currentTime + 0.013);
+        } });
+      }
+    }
+    return voices;
+  }
+
+  function create(host = root) {
+    const doc = host.document;
+    const button = doc.getElementById('soundToggle');
+    const Constructor = host.AudioContext || host.webkitAudioContext;
+    let level = 0, context, voices = [], pending, timer, variant = 0, revision = 0;
+    try {
+      const stored = JSON.parse(host.localStorage.getItem(KEY));
+      if (Number.isInteger(stored) && stored >= 0 && stored < 3) level = stored;
+    } catch (_) { /* preferência inválida ou armazenamento indisponível */ }
+    function updateButton() {
+      if (!button) return;
+      button.textContent = `Som: ${Constructor ? LEVELS[level] : 'indisponível'}`;
+      button.disabled = !Constructor;
+      button.setAttribute('aria-label', `Som ${LEVELS[level]}. Ativar som ${LEVELS[(level + 1) % 3]}.`);
+    }
+    function stop() {
+      revision++;
+      host.clearTimeout(timer); timer = null; pending = null;
+      for (const voice of voices) { try { voice.stop(); } catch (_) { /* já terminou */ } }
+      voices = [];
+    }
+    async function unlock() {
+      if (!level || !Constructor || doc.hidden) return false;
+      try {
+        context ||= new Constructor();
+        if (context.state === 'suspended') await context.resume();
+        return context.state === 'running';
+      } catch (_) { return false; }
+    }
+    function play(kind) {
+      if (!level || doc.hidden || !PRIORITY[kind]) return;
+      if (!pending || PRIORITY[kind] > PRIORITY[pending]) pending = kind;
+      if (timer != null) return;
+      const ticket = revision;
+      timer = host.setTimeout(async () => {
+        const sound = pending; pending = null; timer = null;
+        if (!context) return; // aguarda um gesto; não acumula avisos de autoplay bloqueado
+        if (!await unlock() || ticket !== revision || !level || doc.hidden) return;
+        stop();
+        try { voices = render(context, context.destination, sound, VOLUME[level], variant++ % 3); }
+        catch (_) { /* áudio nunca impede uma resposta */ }
+      }, 0);
+    }
+    function changeLevel() {
+      stop(); level = (level + 1) % 3;
+      try { host.localStorage.setItem(KEY, JSON.stringify(level)); } catch (_) { /* só nesta abertura */ }
+      updateButton();
+      if (level) { void unlock(); play('correct'); }
+      else if (context?.state === 'running') void context.suspend().catch(() => {});
+    }
+    button?.addEventListener('click', changeLevel);
+    doc.addEventListener('pointerdown', () => { void unlock(); }, { passive: true });
+    doc.addEventListener('keydown', () => { void unlock(); });
+    doc.addEventListener('visibilitychange', () => {
+      if (doc.hidden) {
+        stop();
+        if (context?.state === 'running') void context.suspend().catch(() => {});
+      }
+    });
+    updateButton();
+    return { play, stop };
+  }
+  const api = { create, render, sequence };
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else root.AtlasAudio = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+(function(root) {
+  'use strict';
+  function plan(Core, countries, progress, directions, region, now = Date.now()) {
+    const date = new Date(now).toLocaleDateString('sv-SE');
+    const hash = text => [...text].reduce((h,c) => ((h * 31) + c.charCodeAt(0)) >>> 0, 7);
+    const cards = countries.filter(c => region === 'Mundo inteiro' || c.r === region || c.sr === region)
+      .flatMap(c => directions.map(direction => ({ id:c.id, direction, skill:Core.skillOf(progress,c.id,direction) })))
+      .sort((a,b) => hash(date+a.id+a.direction)-hash(date+b.id+b.direction));
+    const due = cards.filter(c => c.skill.attempts && Date.parse(c.skill.nextReviewAt) <= now)
+      .sort((a,b) => Date.parse(a.skill.nextReviewAt)-Date.parse(b.skill.nextReviewAt));
+    const weak = cards.filter(c => c.skill.attempts && c.skill.level <= 1 && !due.includes(c));
+    const fresh = cards.filter(c => !c.skill.attempts);
+    const chosen = [];
+    function take(list, count) {
+      for(let i=0;i<count;i++) {
+        const remaining=list.filter(c => !chosen.includes(c));
+        const next=remaining.find(c => !chosen.some(s => s.id===c.id)) || remaining[0];
+        if(!next) break;
+        chosen.push(next);
+      }
+    }
+    take(due,6);take(weak,2);take(fresh,2);
+    take([...due,...weak,...fresh,...cards],10-chosen.length);
+    return chosen.map(({id,direction})=>({id,direction}));
+  }
+  function nextReview(items, now = Date.now()) {
+    const dates=items.map(i=>Date.parse(i.skill.nextReviewAt)).filter(Number.isFinite).sort((a,b)=>a-b);
+    if(!dates.length) return 'Responda algumas perguntas para iniciar seu ciclo de revisão.';
+    const due=dates.filter(d=>d<=now).length;
+    if(due) return `${due} ${due===1?'habilidade está pronta':'habilidades estão prontas'} para revisar agora.`;
+    const day=d=>new Date(d).toLocaleDateString('pt-BR');
+    const next=day(dates[0]), today=day(now), tomorrow=new Date(now);
+    tomorrow.setDate(tomorrow.getDate()+1);
+    const when=next===today?'hoje':next===day(tomorrow.getTime())?'amanhã':`em ${next}`;
+    const count=dates.filter(d=>day(d)===next).length;
+    return `Tudo revisado por enquanto. Próxima revisão ${when}, a partir das ${new Date(dates[0]).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}: ${count} ${count===1?'habilidade':'habilidades'}.`;
+  }
+  function evolution(answers) {
+    const skills=new Map();
+    for(const a of answers) {
+      const key=a.id+':'+a.direction, s=skills.get(key)||{fresh:false,difficult:false,correct:false};
+      s.fresh ||= Boolean(a.wasNew);s.difficult ||= Boolean(a.wasDifficult) || !a.correct;s.correct=a.correct;
+      skills.set(key,s);
+    }
+    const fresh=[...skills.values()].filter(s=>s.fresh).length;
+    const recovered=[...skills.values()].filter(s=>s.difficult&&s.correct).length;
+    const parts=[];
+    if(fresh) parts.push(`Você praticou ${fresh} ${fresh===1?'habilidade nova':'habilidades novas'}.`);
+    if(recovered) parts.push(`Voltou a acertar ${recovered} ${recovered===1?'habilidade que apresentou dificuldade':'habilidades que apresentaram dificuldade'}.`);
+    return parts.join(' ') || (answers.length?'Cada resposta atualizou seu plano de revisão.':'');
+  }
+  function note(container,text) {
+    if(!text)return;
+    const p=document.createElement('p');p.className='section-copy study-summary';p.textContent=text;container.append(p);
+  }
+  function card(container,start) {
+    const section=document.createElement('section');section.className='pgroup';
+    const button=document.createElement('button');button.id='dailyTraining';button.className='btn';button.type='button';
+    button.textContent='Treino de hoje';button.addEventListener('click',start);section.append(button);
+    note(section,'Até 10 perguntas: revisões vencidas, pontos fracos e novidades, conforme o modo e a área selecionados.');
+    container.append(section);
+  }
+  const api={plan,nextReview,evolution,note,card};
+  if(typeof module==='object'&&module.exports)module.exports=api;else root.AtlasStudy=api;
+})(globalThis);
+(function (root) {
+  'use strict';
+  root.AtlasAchievementsUI = { create({ Core, countries, getProgress, request, connected, schedule, changed = () => {}, unlocked = () => {} }) {
+    const KEY = 'atlas195:conquistas:v1';
+    let saved = null;
+    let typedStreak = 0;
+    let themes = 0;
+    let status = '';
+    let timer;
+    const notices = [];
+    const element = (tag, text, className) => {
+      const node = document.createElement(tag);
+      if (text) node.textContent = text;
+      if (className) node.className = className;
+      return node;
+    };
+    function read() {
+      try {
+        const value = JSON.parse(localStorage.getItem(KEY));
+        return Core.validateAchievements(value) ? value : null;
+      } catch (_) { return null; }
+    }
+    function align() {
+      const blank = Core.createAchievements(getProgress());
+      if (!saved || saved.generation !== blank.generation || saved.epoch !== blank.epoch) {
+        saved = blank; typedStreak = 0; themes = 0;
+        notices.length = 0;
+        clearTimeout(timer); timer = null;
+        document.getElementById('achievementNotice')?.remove();
+      }
+      const stored = read();
+      if (stored && stored.generation === blank.generation && stored.epoch === blank.epoch) saved = Core.mergeAchievements(saved, stored);
+    }
+    function persist() {
+      const stored = read();
+      if (stored && (stored.generation > saved.generation || (stored.generation === saved.generation && stored.epoch > saved.epoch))) return;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); }
+      catch (_) { status = 'Não foi possível salvar as conquistas neste navegador.'; }
+      const note = document.getElementById('achievementStatus');
+      if (note) note.textContent = status;
+    }
+    function showNext() {
+      document.getElementById('achievementNotice')?.remove();
+      timer = null;
+      if (!notices.length) return;
+      const id = notices.shift();
+      const item = Core.achievementCatalog.find(c => c.id === id);
+      const notice = element('div', '', 'achievement-notice');
+      notice.id = 'achievementNotice';
+      notice.setAttribute('role', 'status');
+      notice.setAttribute('aria-live', 'polite');
+      notice.append(element('strong', `◆ ${item.name}`), element('span', `${item.rarity} · Conquista desbloqueada. Pode comemorar sem perder a próxima!`));
+      document.querySelector('.app-status')?.append(notice);
+      timer = setTimeout(showNext, 6000);
+    }
+    function record(event = {}, silent = false) {
+      align();
+      const now = new Date();
+      const date = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+      if (event.type === 'answer') typedStreak = event.correct && event.typed ? typedStreak + 1 : 0;
+      if (event.type === 'theme') themes++;
+      const result = Core.evaluateAchievements(saved, getProgress(), countries, { ...event, now: now.getTime(), date, typedStreak, count: themes });
+      saved = result.state;
+      persist();
+      if (!silent) {
+        if (result.added.length) unlocked();
+        notices.push(...result.added);
+        if (!timer) showNext();
+      }
+      if (result.added.length) schedule();
+      return saved;
+    }
+    function render(container) {
+      record({}, true);
+      const section = element('section', '', 'source-card achievements');
+      section.setAttribute('aria-labelledby', 'achievementsTitle');
+      const title = element('h3', `Conquistas · ${saved.unlocked.length} de ${Core.achievementCatalog.length}`);
+      title.id = 'achievementsTitle';
+      section.append(title, element('p', '◆ Desbloqueada · ◇ Ainda não desbloqueada. Dominar significa atingir o nível máximo.'));
+      const details = element('details');
+      details.id = 'achievementDetails';
+      const toggle = element('summary', 'Ver todas as conquistas');
+      toggle.id = 'achievementsToggle';
+      details.append(toggle);
+      const list = element('ul', '', 'achievement-list');
+      for (const item of Core.achievementCatalog) {
+        const unlocked = saved.unlocked.includes(item.id);
+        const row = element('li', '', unlocked ? 'achievement-earned' : '');
+        row.append(element('strong', `${unlocked ? '◆' : '◇'} ${item.name}`),
+          element('span', `${item.rarity} · ${unlocked ? 'Desbloqueada' : 'Não desbloqueada'}`, 'source-note'), element('p', item.description));
+        list.append(row);
+      }
+      details.append(list);
+      const note = element('p', status, 'source-note');
+      note.id = 'achievementStatus'; note.setAttribute('role', 'status');
+      section.append(details, note);
+      container.append(section);
+    }
+    async function sync() {
+      const user = connected();
+      if (!user) return;
+      align();
+      const before = saved;
+      try {
+        const response = await request('/rest/v1/rpc/atlas_merge_conquistas', { method: 'POST', body: JSON.stringify({
+          p_generation: before.generation, p_epoch: before.epoch, p_unlocked: before.unlocked,
+        }) });
+        if (!response.ok) throw new Error('sincronização indisponível');
+        const rows = await response.json();
+        const row = Array.isArray(rows) ? rows[0] : null;
+        const remote = row && { ...Core.createAchievements(getProgress()), generation: row.generation, epoch: row.epoch, unlocked: row.unlocked };
+        if (!Core.validateAchievements(remote)) throw new Error('conquistas inválidas');
+        align();
+        if (connected() !== user || remote.generation !== saved.generation || remote.epoch !== saved.epoch) return;
+        saved = Core.mergeAchievements(saved, remote);
+        status = 'Conquistas sincronizadas.';
+        persist();
+        // Novos desbloqueios durante o pedido precisam de outro envio.
+        if (saved.unlocked.some(id => !remote.unlocked.includes(id))) schedule();
+      } catch (_) {
+        if (connected() !== user) return;
+        status = 'Sem sincronizar conquistas agora. Elas continuam disponíveis neste navegador.';
+        persist();
+      }
+    }
+    window.addEventListener('storage', event => {
+      if (event.key === KEY) { align(); record({}, true); changed(); }
+    });
+    return { record, render, sync };
+  } };
+})(globalThis);
 (() => {
   'use strict';
 
   const Core = globalThis.AtlasCore;
+  const Study = globalThis.AtlasStudy;
+  const sounds = globalThis.AtlasAudio.create();
   if (!Core) throw new Error('AtlasCore não foi carregado.');
   const SyncQueue = globalThis.AtlasSyncQueue;
   if (!SyncQueue) throw new Error('AtlasSyncQueue não foi carregado.');
@@ -5425,6 +5880,10 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       if (document.activeElement === dom.map) path.classList.add('is-current');
     }
     dom.map.setAttribute('aria-activedescendant', `map-country-${id}`);
+    if (shouldAnnounce && !pointInView(byId[id].c)) {
+      const [x, y] = byId[id].c;
+      setMapView(x - mapState.view.w / 2, y - mapState.view.h / 2, mapState.view.w);
+    }
     if (shouldAnnounce) announce(state.view === 'atlas'
       ? `${byId[id].n}. Use Enter para selecionar.`
       : 'Posição atualizada no mapa. Use Enter para selecionar ou pule a pergunta visual.');
@@ -5496,7 +5955,16 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   }
 
   function zoomAt(factor, center) {
+    const selected = state.view === 'atlas' && byId[state.atlasSelected]?.c;
+    if (!center && selected && pointInView(selected)) center = selected;
     applyMapView(Core.zoomView(mapState.view, factor, center, WORLD, VIEW_OPTIONS));
+  }
+
+  function pointInView([x, y]) {
+    const v = mapState.view;
+    const margin = v.w * 0.015;
+    return x >= v.x + margin && x <= v.x + v.w - margin
+      && y >= v.y + margin && y <= v.y + v.h - margin;
   }
 
   function updateZoomControls() {
@@ -5852,7 +6320,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       state.reviewStats = null;
     }
     state.deckPending = false;
-    const forced = state.forcedQuestion;
+    const forced = state.exam?.daily?.[state.exam.done] || state.forcedQuestion;
     state.forcedQuestion = null;
     // A carta precisa sobreviver à resposta: é ela que volta para o fim da fila
     // quando ainda falta um acerto de confirmação.
@@ -5955,6 +6423,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 
   function answerQuestion(value, territory) {
     if (!state.question || state.answered) return;
+    trophies.record({}, true);
     const target = byId[state.question.id];
     let correct;
     let match = null;
@@ -5984,7 +6453,10 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     if (correct) { state.hits += 1; state.streak += 1; }
     else { state.misses += 1; state.streak = 0; }
     signalAnswer(correct);
+    const previousSkill = Core.skillOf(progress,target.id,state.question.direction);
     const registro = {
+      wasNew: !previousSkill.attempts,
+      wasDifficult: previousSkill.level <= 1 && previousSkill.attempts > previousSkill.correct,
       id: target.id,
       direction: state.question.direction,
       correct,
@@ -6013,6 +6485,14 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
       countryIds: IDS, bestStreak: state.streak, grade,
     });
+    trophies.record({ type: 'answer', id: target.id, direction: state.question.direction, correct,
+      typed: state.questionAnswerMode === 'type',
+      remaining: state.timeLimit && registro.ms !== null ? state.timeLimit * 1000 - registro.ms : null,
+      zoom: WORLD.w / mapState.view.w, tries: state.reviewCard?.tries || 0,
+      consolidated: Boolean(state.fromDeck && state.reviewCard?.remaining <= 0),
+    });
+    if (examFinished() && !state.exam.daily) trophies.record({ type: 'exam', total: state.exam.total,
+      correct: state.exam.answers.filter(answer => answer.correct).length });
     if (!regionWasComplete && regionMastery(target.r).complete) state.regionCelebration = target.r;
     refreshMapMastery();
     queueProgressSave();
@@ -6031,6 +6511,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 
   function skipVisualQuestion() {
     if (!isVisualQuestion() || state.answered) return;
+    if (state.exam?.daily) { state.exam.daily.splice(state.exam.done,1); state.exam.total--; }
     createNextQuestion({ focus: true });
     announce('Pergunta visual pulada sem alterar o progresso.');
   }
@@ -6243,7 +6724,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       create('span', { text: state.fromDeck
         ? `Revisão focada · ${reviewRemaining() > 1 ? `faltam ${reviewRemaining()}` : 'última habilidade'}`
         : (state.exam
-          ? `Prova · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
+          ? `${state.exam.daily ? 'Treino de hoje' : 'Prova'} · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
           : `Pergunta ${state.questionNumber}`) }),
       create('span', { text: DIRECTION_LABEL[question.direction] }),
     ]));
@@ -6696,6 +7177,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   // erro, porque vibrar a cada acerto vira ruído numa sessão longa. Quem pediu
   // menos movimento ao sistema não recebe nada disso.
   function signalAnswer(correct) {
+    sounds.play(correct ? 'correct' : 'error');
     if (correct || typeof navigator.vibrate !== 'function') return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     try { navigator.vibrate(35); } catch (_) { /* aparelho pode recusar */ }
@@ -6705,15 +7187,15 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   // O treino livre não termina nunca, o que é bom para revisar e ruim para
   // medir. A prova fecha uma série de N perguntas e entrega uma nota.
 
-  function startExam(total) {
-    state.exam = { total, done: 0, answers: [], startedAt: Date.now() };
+  function startExam(total, daily) {
+    state.exam = { total, daily, done: 0, answers: [], startedAt: Date.now() };
     state.reviewQueue = [];
     state.forcedQuestion = null;
     state.fromDeck = false;
     state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
     setView('quiz');
     createNextQuestion({ focus: true });
-    announce(`Prova iniciada com ${total} perguntas.`);
+    announce(`${daily ? 'Treino de hoje' : 'Prova'} iniciado com ${total} perguntas.`);
   }
 
   function endExam() {
@@ -6749,7 +7231,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     clearMapMarks();
 
     dom.panel.append(create('div', { className: 'plate' }, [
-      create('span', { text: 'Prova concluída' }),
+      create('span', { text: state.exam.daily ? 'Treino de hoje concluído' : 'Prova concluída' }),
       create('span', { text: `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}` }),
     ]));
     dom.panel.append(create('h2', {
@@ -6766,11 +7248,13 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     ].filter(Boolean);
     dom.panel.append(create('p', { className: 'section-copy', text: linha.join(' · ') }));
     dom.panel.append(sessionMiniMap(state.exam.answers));
+    Study.note(dom.panel, Study.evolution(state.exam.answers));
+    Study.note(dom.panel, nextReviewCopy());
 
     const errados = state.exam.answers.filter((answer) => !answer.correct);
     if (errados.length) {
       const bloco = create('section', { className: 'pgroup' });
-      bloco.append(create('h3', { text: errados.length === 1 ? 'O erro da prova' : `Os ${errados.length} erros da prova` }));
+      bloco.append(create('h3', { text: errados.length === 1 ? 'O erro da série' : `Os ${errados.length} erros da série` }));
       const lista = create('div', { className: 'weak' });
       errados.slice(0, 20).forEach((item) => {
         const chip = create('button', {
@@ -6793,19 +7277,20 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       bloco.append(revisar);
       dom.panel.append(bloco);
     } else {
-      dom.panel.append(create('p', { className: 'empty', text: 'Nenhum erro. Prova perfeita.' }));
+      dom.panel.append(create('p', { className: 'empty', text: 'Nenhum erro nesta série.' }));
     }
 
     const acoes = create('div', { className: 'button-row' });
     const refazer = create('button', { className: 'btn', type: 'button', text: 'Nova prova' });
-    refazer.addEventListener('click', () => startExam(state.exam ? state.exam.total : 20));
+    if (state.exam.daily) refazer.textContent = 'Treino de hoje';
+    refazer.addEventListener('click', () => state.exam?.daily ? startDaily() : startExam(state.exam ? state.exam.total : 20));
     const voltar = create('button', { className: 'btn ghost', type: 'button', text: 'Voltar ao treino livre' });
     voltar.addEventListener('click', endExam);
     acoes.append(refazer, voltar);
     dom.panel.append(acoes);
 
     renderScorebar();
-    announce(`Prova concluída. ${stats.hits} de ${stats.total} corretas.`);
+    announce(`${state.exam.daily ? 'Treino de hoje concluído' : 'Prova concluída'}. ${stats.hits} de ${stats.total} corretas.`);
     const titulo = document.getElementById('questionTitle');
     if (titulo) titulo.focus();
   }
@@ -6839,6 +7324,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       stats.expired ? `${stats.expired} por tempo esgotado` : null,
     ].filter(Boolean);
     section.append(create('p', { className: 'section-copy', text: facts.join(' · ') }));
+    Study.note(section, Study.evolution(state.sessionAnswers));
 
     const mistakes = sessionMistakes();
     if (mistakes.length) {
@@ -6895,11 +7381,12 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   }
 
   function nextReviewCopy() {
-    const dates = attemptedSkills().map((item) => Date.parse(item.skill.nextReviewAt)).filter(Number.isFinite).sort((a, b) => a - b);
-    if (!dates.length) return 'Continue treinando para formar seu ciclo de revisão.';
-    const days = Math.max(0, Math.ceil((dates[0] - Date.now()) / 86400000));
-    if (!days) return 'Há conteúdo pronto para revisar hoje.';
-    return `Próxima revisão recomendada em ${days} ${days === 1 ? 'dia' : 'dias'}.`;
+    return Study.nextReview(attemptedSkills());
+  }
+
+  function startDaily() {
+    const cards = Study.plan(Core, DATA, progress, effectiveDirections(), state.region);
+    if (cards.length) startExam(cards.length, cards);
   }
 
   function renderSessionResult() {
@@ -6926,6 +7413,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       create('span', {}, [create('b', { text: stats.averageSeconds === null ? '—' : `${stats.averageSeconds.toFixed(1).replace('.', ',')}s` }), document.createTextNode(' por resposta')]),
     ]));
     dom.panel.append(sessionMiniMap());
+    Study.note(dom.panel, Study.evolution(state.sessionAnswers));
     const learned = create('section', { className: 'pgroup session-result-group' });
     learned.append(create('h3', { text: 'Consolidados nesta sessão' }));
     learned.append(create('p', { className: 'section-copy', text: consolidated.length
@@ -7009,6 +7497,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     document.body.append(link);
     link.click();
     link.remove();
+    trophies.record({ type: 'backup' });
     // O objeto fica vivo até o download começar; um tempo curto basta e evita
     // vazar a URL na sessão.
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
@@ -7074,7 +7563,70 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 
   const SESSION_KEY = 'atlas195:conta:v1';
   const CLOUD_CONFIG = typeof CLOUD === 'undefined' ? null : CLOUD;
-  const cloud = { session: null, status: null, lastSyncAt: null, queue: null, requestingLink: false };
+  const cloud = { session: null, status: null, lastSyncAt: null, queue: null, requestingLink: false,
+    emailDraft: '', identityPending: false,
+    nicknameDraft: null, nicknameStatus: null, savingNickname: false, nicknameRevision: 0 };
+  const trophies = globalThis.AtlasAchievementsUI.create({ Core, countries: DATA, getProgress: () => progress,
+    request: cloudRequest, connected: () => cloud.session?.user_id, schedule: scheduleCloudSync,
+    changed: () => { if (state.view === 'prog') renderProgress(); },
+    unlocked: () => sounds.play('achievement') });
+
+  function nicknameOf(user) {
+    const value = user && user.user_metadata && user.user_metadata.atlas_nickname;
+    return typeof value === 'string' && Array.from(value).length <= 40 ? value.trim() : '';
+  }
+
+  async function loadNickname() {
+    const session = cloud.session;
+    const revision = cloud.nicknameRevision;
+    if (!session || cloud.savingNickname) return;
+    try {
+      const response = await cloudRequest('/auth/v1/user');
+      if (!response.ok) throw new Error('perfil indisponível');
+      const user = await response.json();
+      if (!cloud.session || user.id !== cloud.session.user_id || session.user_id !== user.id
+        || revision !== cloud.nicknameRevision) return;
+      writeSession({ ...cloud.session, nickname: nicknameOf(user) });
+      cloud.nicknameStatus = null;
+    } catch (_) {
+      if (revision !== cloud.nicknameRevision || !cloud.session || session.user_id !== cloud.session.user_id) return;
+      cloud.nicknameStatus = { text: 'Não foi possível atualizar o apelido agora.', kind: 'error' };
+    }
+    if (state.view === 'prog') renderProgress();
+  }
+
+  async function saveNickname() {
+    if (!cloud.session?.user_id || cloud.savingNickname) return;
+    const value = (cloud.nicknameDraft ?? cloud.session.nickname ?? '').trim();
+    if (Array.from(value).length > 40 || /[\u0000-\u001f\u007f]/u.test(value)) {
+      cloud.nicknameStatus = { text: 'Use até 40 caracteres, sem quebras de linha ou caracteres de controle.', kind: 'error' };
+      renderProgress();
+      return;
+    }
+    const userId = cloud.session.user_id;
+    cloud.nicknameRevision += 1;
+    cloud.savingNickname = true;
+    cloud.nicknameStatus = { text: 'Salvando apelido…' };
+    renderProgress();
+    try {
+      const response = await cloudRequest('/auth/v1/user', {
+        method: 'PUT', body: JSON.stringify({ data: { atlas_nickname: value || null } }),
+      });
+      if (!response.ok) throw new Error('gravação indisponível');
+      const user = await response.json();
+      if (!cloud.session || cloud.session.user_id !== userId || user.id !== userId) return;
+      writeSession({ ...cloud.session, nickname: nicknameOf(user) });
+      cloud.nicknameDraft = null;
+      cloud.nicknameStatus = { text: value ? 'Apelido salvo.' : 'Apelido removido.', kind: 'ok' };
+    } catch (_) {
+      if (cloud.session && cloud.session.user_id === userId) {
+        cloud.nicknameStatus = { text: 'Não foi possível salvar o apelido. Seu texto foi mantido; tente novamente.', kind: 'error' };
+      }
+    } finally {
+      cloud.savingNickname = false;
+      if (state.view === 'prog') renderProgress();
+    }
+  }
 
   function cloudEnabled() {
     return Core.cloudReady(CLOUD_CONFIG, location.protocol);
@@ -7130,6 +7682,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       refresh_token: dados.refresh_token,
       email: (dados.user && dados.user.email) || cloud.session.email,
       user_id: (dados.user && dados.user.id) || cloud.session.user_id,
+      nickname: dados.user ? nicknameOf(dados.user) : cloud.session.nickname,
     });
     return true;
   }
@@ -7162,12 +7715,22 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   async function ensureCloudIdentity() {
     if (!cloud.session) return false;
     if (cloud.session.user_id && cloud.session.email) return true;
-    const perfil = await cloudRequest('/auth/v1/user');
-    if (!perfil.ok) return false;
-    const usuario = await perfil.json();
-    if (!usuario || typeof usuario.id !== 'string' || !usuario.id) return false;
-    writeSession({ ...cloud.session, email: usuario.email || cloud.session.email, user_id: usuario.id });
-    return true;
+    const revision = cloud.nicknameRevision;
+    cloud.identityPending = true;
+    if (state.view === 'prog') renderProgress();
+    try {
+      const perfil = await cloudRequest('/auth/v1/user');
+      if (!perfil.ok) return false;
+      const usuario = await perfil.json();
+      if (!cloud.session || revision !== cloud.nicknameRevision
+        || typeof usuario?.id !== 'string' || !usuario.id
+        || typeof usuario.email !== 'string' || !usuario.email) return false;
+      writeSession({ ...cloud.session, email: usuario.email, user_id: usuario.id, nickname: nicknameOf(usuario) });
+      return true;
+    } finally {
+      cloud.identityPending = false;
+      if (state.view === 'prog') renderProgress();
+    }
   }
 
   // O link do e-mail volta para o app com os tokens no fragmento da URL. Ele é
@@ -7223,11 +7786,15 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       const remoto = await pullRemoteProgress();
       const plano = Core.planSync(progress, remoto, { countryIds: IDS });
       if (plano.download) {
+        const addedLearning = DATA.some(c => DIRECTIONS.some(d =>
+          Core.skillOf(plano.merged, c.id, d).correct > Core.skillOf(progress, c.id, d).correct));
         progress = plano.merged;
+        trophies.record({ type: 'cloud', added: addedLearning });
         queueProgressSave(true);
         if (state.view === 'quiz') renderScorebar();
       }
       if (plano.upload) await pushRemoteProgress(Core.serializeProgress(plano.merged, { countryIds: IDS }));
+      await trophies.sync();
       cloud.lastSyncAt = new Date();
       setCloudStatus(plano.unchanged ? 'Tudo sincronizado.' : 'Progresso sincronizado com a conta.', 'ok');
     } catch (erro) {
@@ -7258,6 +7825,9 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     if (cloud.queue) cloud.queue.cancel();
     try { await cloudRequest('/auth/v1/logout', { method: 'POST' }); } catch (_) { /* melhor esforço */ }
     writeSession(null);
+    cloud.nicknameDraft = null;
+    cloud.nicknameStatus = null;
+    cloud.nicknameRevision += 1;
     cloud.lastSyncAt = null;
     setCloudStatus('Você saiu da conta. O progresso continua neste aparelho.', 'ok');
   }
@@ -7270,6 +7840,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       if (cloud.session) {
         if (!await ensureCloudIdentity()) throw new Error('perfil da conta indisponível');
         if (entrou) setCloudStatus('Conta conectada. Juntando o progresso…', 'ok');
+        if (!entrou) void loadNickname();
         await syncCloud({ silencioso: !entrou });
       }
     } catch (_) {
@@ -7285,8 +7856,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     if (!cloud.session) {
       card.append(create('p', {
         text: 'Entrar é opcional e serve só para levar o progresso a outro aparelho. '
-          + 'Sem conta, nada sai daqui. Com conta, saem o seu e-mail e o seu progresso '
-          + '— países, níveis e datas de revisão. Nunca há anúncio, rastreio ou venda de dados.',
+          + 'Sem conta, nada sai daqui. Com conta, são enviados ao Supabase o seu e-mail, o apelido opcional e o seu progresso '
+          + '— países, níveis, datas de revisão e conquistas desbloqueadas. Nunca há anúncio, rastreio ou venda de dados.',
       }));
       const linha = create('div', { className: 'button-row' });
       const email = create('input', {
@@ -7296,12 +7867,15 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
         },
       });
       const entrar = create('button', {
-        className: 'btn', type: 'button', text: 'Receber link de acesso',
-        attrs: { disabled: cloud.requestingLink ? '' : null },
+        id: 'pedirLink', className: 'btn', type: 'button', text: 'Receber link de acesso',
+        attrs: { 'aria-disabled': cloud.requestingLink ? 'true' : null },
       });
+      email.value = cloud.emailDraft;
+      email.addEventListener('input', () => { cloud.emailDraft = email.value; });
       const pedir = async () => {
         if (cloud.requestingLink) return;
         const valor = email.value.trim();
+        cloud.emailDraft = email.value;
         if (!valor || !valor.includes('@')) {
           setCloudStatus('Digite um e-mail válido para receber o link.', 'error');
           return;
@@ -7329,9 +7903,36 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
         className: 'source-note',
         text: 'Sem senha: você recebe um link por e-mail e entra clicando nele.',
       }));
+    } else if (!cloud.session.user_id || !cloud.session.email) {
+      card.append(create('p', { text: cloud.identityPending
+        ? 'Confirmando sua conexão… O treino continua disponível.'
+        : 'A conexão ainda não foi confirmada. Tente novamente para acessar sua conta.' }));
+      const retry = create('button', { id: 'retomarConta', className: 'btn ghost', type: 'button',
+        text: 'Tentar novamente', attrs: { 'aria-disabled': cloud.identityPending ? 'true' : null } });
+      retry.addEventListener('click', () => { if (!cloud.identityPending) void syncCloud(); });
+      const leave = create('button', { className: 'btn ghost', type: 'button', text: 'Sair da conta' });
+      leave.addEventListener('click', signOutCloud);
+      card.append(retry, leave);
     } else {
       card.append(create('p', {
         text: `Conectado como ${cloud.session.email || 'sua conta'}. O progresso deste aparelho e o da conta são fundidos, nunca substituídos.`,
+      }));
+      const nicknameRow = create('form', { className: 'account-nickname' });
+      const nickname = create('input', { id: 'contaApelido', className: 'search', attrs: {
+        type: 'text', autocomplete: 'nickname', 'aria-describedby': 'apelidoAjuda',
+        readonly: cloud.savingNickname ? '' : null,
+      } });
+      nickname.value = cloud.nicknameDraft ?? cloud.session.nickname ?? '';
+      nickname.addEventListener('input', () => { cloud.nicknameDraft = nickname.value; });
+      nicknameRow.append(create('label', { text: 'Apelido (opcional)', attrs: { for: 'contaApelido' } }), nickname,
+        create('button', { id: 'salvarApelido', className: 'btn ghost', type: 'submit', text: 'Salvar apelido',
+          attrs: { 'aria-disabled': cloud.savingNickname ? 'true' : null } }));
+      nicknameRow.addEventListener('submit', (event) => { event.preventDefault(); void saveNickname(); });
+      card.append(nicknameRow, create('p', { id: 'apelidoAjuda', className: 'source-note',
+        text: 'Até 40 caracteres. Ao salvar, o apelido é enviado ao Supabase para aparecer nos seus aparelhos. Para removê-lo, apague o texto e salve. É necessário estar online para salvar.' }));
+      if (cloud.nicknameStatus) card.append(create('p', {
+        className: `note${cloud.nicknameStatus.kind === 'error' ? ' note-error' : ''}`,
+        text: cloud.nicknameStatus.text, attrs: { role: 'status' },
       }));
       if (cloud.lastSyncAt) {
         card.append(create('p', {
@@ -7341,7 +7942,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       }
       const linha = create('div', { className: 'button-row' });
       const sincronizar = create('button', { className: 'btn ghost', type: 'button', text: 'Sincronizar agora' });
-      sincronizar.addEventListener('click', () => syncCloud());
+      sincronizar.addEventListener('click', () => { void loadNickname(); void syncCloud(); });
       const sair = create('button', { className: 'btn ghost', type: 'button', text: 'Sair da conta' });
       sair.addEventListener('click', signOutCloud);
       linha.append(sincronizar, sair);
@@ -7380,7 +7981,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       className: 'btn ghost', text: 'Importar progresso',
       attrs: { for: 'importProgressInput' },
     });
-    actions.append(exportButton, label, input);
+    actions.append(exportButton, input, label);
     card.append(actions);
     if (state.importStatus) {
       card.append(create('p', {
@@ -7392,6 +7993,10 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   }
 
   function renderProgress() {
+    const achievementOpen = document.getElementById('achievementDetails')?.open;
+    const focused = document.activeElement;
+    const accountFocus = focused && ['contaEmail', 'pedirLink', 'retomarConta', 'contaApelido', 'salvarApelido', 'achievementsToggle'].includes(focused.id)
+      ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
     atlasElements = null;
     clear(dom.panel);
     renderScorebar();
@@ -7406,6 +8011,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     dom.panel.append(create('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
 
     renderSessionSummary(dom.panel);
+    Study.card(dom.panel, startDaily);
+    Study.note(dom.panel, nextReviewCopy());
 
     // O treino livre é infinito, o que serve para revisar mas não para medir.
     // A prova fecha uma série e dá uma nota, respeitando o modo e a área de
@@ -7466,6 +8073,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     dom.panel.append(weakSection);
 
     renderAccount(dom.panel);
+    trophies.render(dom.panel);
+    if (achievementOpen) document.getElementById('achievementDetails').open = true;
     renderBackup(dom.panel);
 
     const source = MAP_META && MAP_META.source || {};
@@ -7493,7 +8102,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
         className: 'note',
         text: state.resetPending
           ? 'Conferindo os dados mais recentes antes de apagar…'
-          : 'Esta ação apaga níveis, histórico de revisão e recorde. As preferências serão mantidas.',
+          : 'Esta ação apaga níveis, histórico de revisão, recorde e conquistas. As preferências e o apelido serão mantidos.',
         attrs: state.resetPending ? { role: 'status', 'aria-live': 'polite', tabindex: '-1' } : {},
       }));
       const actions = create('div', { className: 'button-row' });
@@ -7557,6 +8166,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
           if (navigator.locks && typeof navigator.locks.request === 'function') {
             await navigator.locks.request(RESET_LOCK_KEY, performReset);
           } else await performReset();
+          trophies.record({}, true);
+          scheduleCloudSync();
           state.resetPending = false;
           state.resetArmed = false;
           dom.shell.classList.remove('is-resetting');
@@ -7582,6 +8193,14 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       reset.append(actions);
     }
     dom.panel.append(reset);
+    if (accountFocus) {
+      const restored = document.getElementById(accountFocus.id)
+        || (accountFocus.id === 'retomarConta' && document.getElementById('contaApelido'));
+      restored?.focus({ preventScroll: true });
+      if (restored && accountFocus.start !== null && accountFocus.start !== undefined) {
+        restored.setSelectionRange(accountFocus.start, accountFocus.end);
+      }
+    }
   }
 
   function setView(view) {
@@ -7676,6 +8295,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       createNextQuestion();
     });
     dom.themeToggle.addEventListener('click', () => {
+      trophies.record({ type: 'theme' });
       state.theme = THEMES[(themeStep(state.theme) + 1) % THEMES.length].id;
       const atual = applyTheme(true);
       showThemeHint(atual.curto);
@@ -7806,6 +8426,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       loadPreferences();
       syncControls();
       await hydrateProgress();
+      trophies.record({}, true);
       refreshMapMastery();
       absorbPendingProgress();
       state.ready = true;

@@ -2,6 +2,8 @@
   'use strict';
 
   const Core = globalThis.AtlasCore;
+  const Study = globalThis.AtlasStudy;
+  const sounds = globalThis.AtlasAudio.create();
   if (!Core) throw new Error('AtlasCore não foi carregado.');
   const SyncQueue = globalThis.AtlasSyncQueue;
   if (!SyncQueue) throw new Error('AtlasSyncQueue não foi carregado.');
@@ -594,6 +596,10 @@
       if (document.activeElement === dom.map) path.classList.add('is-current');
     }
     dom.map.setAttribute('aria-activedescendant', `map-country-${id}`);
+    if (shouldAnnounce && !pointInView(byId[id].c)) {
+      const [x, y] = byId[id].c;
+      setMapView(x - mapState.view.w / 2, y - mapState.view.h / 2, mapState.view.w);
+    }
     if (shouldAnnounce) announce(state.view === 'atlas'
       ? `${byId[id].n}. Use Enter para selecionar.`
       : 'Posição atualizada no mapa. Use Enter para selecionar ou pule a pergunta visual.');
@@ -665,7 +671,16 @@
   }
 
   function zoomAt(factor, center) {
+    const selected = state.view === 'atlas' && byId[state.atlasSelected]?.c;
+    if (!center && selected && pointInView(selected)) center = selected;
     applyMapView(Core.zoomView(mapState.view, factor, center, WORLD, VIEW_OPTIONS));
+  }
+
+  function pointInView([x, y]) {
+    const v = mapState.view;
+    const margin = v.w * 0.015;
+    return x >= v.x + margin && x <= v.x + v.w - margin
+      && y >= v.y + margin && y <= v.y + v.h - margin;
   }
 
   function updateZoomControls() {
@@ -1021,7 +1036,7 @@
       state.reviewStats = null;
     }
     state.deckPending = false;
-    const forced = state.forcedQuestion;
+    const forced = state.exam?.daily?.[state.exam.done] || state.forcedQuestion;
     state.forcedQuestion = null;
     // A carta precisa sobreviver à resposta: é ela que volta para o fim da fila
     // quando ainda falta um acerto de confirmação.
@@ -1124,6 +1139,7 @@
 
   function answerQuestion(value, territory) {
     if (!state.question || state.answered) return;
+    trophies.record({}, true);
     const target = byId[state.question.id];
     let correct;
     let match = null;
@@ -1153,7 +1169,10 @@
     if (correct) { state.hits += 1; state.streak += 1; }
     else { state.misses += 1; state.streak = 0; }
     signalAnswer(correct);
+    const previousSkill = Core.skillOf(progress,target.id,state.question.direction);
     const registro = {
+      wasNew: !previousSkill.attempts,
+      wasDifficult: previousSkill.level <= 1 && previousSkill.attempts > previousSkill.correct,
       id: target.id,
       direction: state.question.direction,
       correct,
@@ -1182,6 +1201,14 @@
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
       countryIds: IDS, bestStreak: state.streak, grade,
     });
+    trophies.record({ type: 'answer', id: target.id, direction: state.question.direction, correct,
+      typed: state.questionAnswerMode === 'type',
+      remaining: state.timeLimit && registro.ms !== null ? state.timeLimit * 1000 - registro.ms : null,
+      zoom: WORLD.w / mapState.view.w, tries: state.reviewCard?.tries || 0,
+      consolidated: Boolean(state.fromDeck && state.reviewCard?.remaining <= 0),
+    });
+    if (examFinished() && !state.exam.daily) trophies.record({ type: 'exam', total: state.exam.total,
+      correct: state.exam.answers.filter(answer => answer.correct).length });
     if (!regionWasComplete && regionMastery(target.r).complete) state.regionCelebration = target.r;
     refreshMapMastery();
     queueProgressSave();
@@ -1200,6 +1227,7 @@
 
   function skipVisualQuestion() {
     if (!isVisualQuestion() || state.answered) return;
+    if (state.exam?.daily) { state.exam.daily.splice(state.exam.done,1); state.exam.total--; }
     createNextQuestion({ focus: true });
     announce('Pergunta visual pulada sem alterar o progresso.');
   }
@@ -1412,7 +1440,7 @@
       create('span', { text: state.fromDeck
         ? `Revisão focada · ${reviewRemaining() > 1 ? `faltam ${reviewRemaining()}` : 'última habilidade'}`
         : (state.exam
-          ? `Prova · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
+          ? `${state.exam.daily ? 'Treino de hoje' : 'Prova'} · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
           : `Pergunta ${state.questionNumber}`) }),
       create('span', { text: DIRECTION_LABEL[question.direction] }),
     ]));
@@ -1865,6 +1893,7 @@
   // erro, porque vibrar a cada acerto vira ruído numa sessão longa. Quem pediu
   // menos movimento ao sistema não recebe nada disso.
   function signalAnswer(correct) {
+    sounds.play(correct ? 'correct' : 'error');
     if (correct || typeof navigator.vibrate !== 'function') return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     try { navigator.vibrate(35); } catch (_) { /* aparelho pode recusar */ }
@@ -1874,15 +1903,15 @@
   // O treino livre não termina nunca, o que é bom para revisar e ruim para
   // medir. A prova fecha uma série de N perguntas e entrega uma nota.
 
-  function startExam(total) {
-    state.exam = { total, done: 0, answers: [], startedAt: Date.now() };
+  function startExam(total, daily) {
+    state.exam = { total, daily, done: 0, answers: [], startedAt: Date.now() };
     state.reviewQueue = [];
     state.forcedQuestion = null;
     state.fromDeck = false;
     state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
     setView('quiz');
     createNextQuestion({ focus: true });
-    announce(`Prova iniciada com ${total} perguntas.`);
+    announce(`${daily ? 'Treino de hoje' : 'Prova'} iniciado com ${total} perguntas.`);
   }
 
   function endExam() {
@@ -1918,7 +1947,7 @@
     clearMapMarks();
 
     dom.panel.append(create('div', { className: 'plate' }, [
-      create('span', { text: 'Prova concluída' }),
+      create('span', { text: state.exam.daily ? 'Treino de hoje concluído' : 'Prova concluída' }),
       create('span', { text: `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}` }),
     ]));
     dom.panel.append(create('h2', {
@@ -1935,11 +1964,13 @@
     ].filter(Boolean);
     dom.panel.append(create('p', { className: 'section-copy', text: linha.join(' · ') }));
     dom.panel.append(sessionMiniMap(state.exam.answers));
+    Study.note(dom.panel, Study.evolution(state.exam.answers));
+    Study.note(dom.panel, nextReviewCopy());
 
     const errados = state.exam.answers.filter((answer) => !answer.correct);
     if (errados.length) {
       const bloco = create('section', { className: 'pgroup' });
-      bloco.append(create('h3', { text: errados.length === 1 ? 'O erro da prova' : `Os ${errados.length} erros da prova` }));
+      bloco.append(create('h3', { text: errados.length === 1 ? 'O erro da série' : `Os ${errados.length} erros da série` }));
       const lista = create('div', { className: 'weak' });
       errados.slice(0, 20).forEach((item) => {
         const chip = create('button', {
@@ -1962,19 +1993,20 @@
       bloco.append(revisar);
       dom.panel.append(bloco);
     } else {
-      dom.panel.append(create('p', { className: 'empty', text: 'Nenhum erro. Prova perfeita.' }));
+      dom.panel.append(create('p', { className: 'empty', text: 'Nenhum erro nesta série.' }));
     }
 
     const acoes = create('div', { className: 'button-row' });
     const refazer = create('button', { className: 'btn', type: 'button', text: 'Nova prova' });
-    refazer.addEventListener('click', () => startExam(state.exam ? state.exam.total : 20));
+    if (state.exam.daily) refazer.textContent = 'Treino de hoje';
+    refazer.addEventListener('click', () => state.exam?.daily ? startDaily() : startExam(state.exam ? state.exam.total : 20));
     const voltar = create('button', { className: 'btn ghost', type: 'button', text: 'Voltar ao treino livre' });
     voltar.addEventListener('click', endExam);
     acoes.append(refazer, voltar);
     dom.panel.append(acoes);
 
     renderScorebar();
-    announce(`Prova concluída. ${stats.hits} de ${stats.total} corretas.`);
+    announce(`${state.exam.daily ? 'Treino de hoje concluído' : 'Prova concluída'}. ${stats.hits} de ${stats.total} corretas.`);
     const titulo = document.getElementById('questionTitle');
     if (titulo) titulo.focus();
   }
@@ -2008,6 +2040,7 @@
       stats.expired ? `${stats.expired} por tempo esgotado` : null,
     ].filter(Boolean);
     section.append(create('p', { className: 'section-copy', text: facts.join(' · ') }));
+    Study.note(section, Study.evolution(state.sessionAnswers));
 
     const mistakes = sessionMistakes();
     if (mistakes.length) {
@@ -2064,11 +2097,12 @@
   }
 
   function nextReviewCopy() {
-    const dates = attemptedSkills().map((item) => Date.parse(item.skill.nextReviewAt)).filter(Number.isFinite).sort((a, b) => a - b);
-    if (!dates.length) return 'Continue treinando para formar seu ciclo de revisão.';
-    const days = Math.max(0, Math.ceil((dates[0] - Date.now()) / 86400000));
-    if (!days) return 'Há conteúdo pronto para revisar hoje.';
-    return `Próxima revisão recomendada em ${days} ${days === 1 ? 'dia' : 'dias'}.`;
+    return Study.nextReview(attemptedSkills());
+  }
+
+  function startDaily() {
+    const cards = Study.plan(Core, DATA, progress, effectiveDirections(), state.region);
+    if (cards.length) startExam(cards.length, cards);
   }
 
   function renderSessionResult() {
@@ -2095,6 +2129,7 @@
       create('span', {}, [create('b', { text: stats.averageSeconds === null ? '—' : `${stats.averageSeconds.toFixed(1).replace('.', ',')}s` }), document.createTextNode(' por resposta')]),
     ]));
     dom.panel.append(sessionMiniMap());
+    Study.note(dom.panel, Study.evolution(state.sessionAnswers));
     const learned = create('section', { className: 'pgroup session-result-group' });
     learned.append(create('h3', { text: 'Consolidados nesta sessão' }));
     learned.append(create('p', { className: 'section-copy', text: consolidated.length
@@ -2178,6 +2213,7 @@
     document.body.append(link);
     link.click();
     link.remove();
+    trophies.record({ type: 'backup' });
     // O objeto fica vivo até o download começar; um tempo curto basta e evita
     // vazar a URL na sessão.
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
@@ -2243,7 +2279,70 @@
 
   const SESSION_KEY = 'atlas195:conta:v1';
   const CLOUD_CONFIG = typeof CLOUD === 'undefined' ? null : CLOUD;
-  const cloud = { session: null, status: null, lastSyncAt: null, queue: null, requestingLink: false };
+  const cloud = { session: null, status: null, lastSyncAt: null, queue: null, requestingLink: false,
+    emailDraft: '', identityPending: false,
+    nicknameDraft: null, nicknameStatus: null, savingNickname: false, nicknameRevision: 0 };
+  const trophies = globalThis.AtlasAchievementsUI.create({ Core, countries: DATA, getProgress: () => progress,
+    request: cloudRequest, connected: () => cloud.session?.user_id, schedule: scheduleCloudSync,
+    changed: () => { if (state.view === 'prog') renderProgress(); },
+    unlocked: () => sounds.play('achievement') });
+
+  function nicknameOf(user) {
+    const value = user && user.user_metadata && user.user_metadata.atlas_nickname;
+    return typeof value === 'string' && Array.from(value).length <= 40 ? value.trim() : '';
+  }
+
+  async function loadNickname() {
+    const session = cloud.session;
+    const revision = cloud.nicknameRevision;
+    if (!session || cloud.savingNickname) return;
+    try {
+      const response = await cloudRequest('/auth/v1/user');
+      if (!response.ok) throw new Error('perfil indisponível');
+      const user = await response.json();
+      if (!cloud.session || user.id !== cloud.session.user_id || session.user_id !== user.id
+        || revision !== cloud.nicknameRevision) return;
+      writeSession({ ...cloud.session, nickname: nicknameOf(user) });
+      cloud.nicknameStatus = null;
+    } catch (_) {
+      if (revision !== cloud.nicknameRevision || !cloud.session || session.user_id !== cloud.session.user_id) return;
+      cloud.nicknameStatus = { text: 'Não foi possível atualizar o apelido agora.', kind: 'error' };
+    }
+    if (state.view === 'prog') renderProgress();
+  }
+
+  async function saveNickname() {
+    if (!cloud.session?.user_id || cloud.savingNickname) return;
+    const value = (cloud.nicknameDraft ?? cloud.session.nickname ?? '').trim();
+    if (Array.from(value).length > 40 || /[\u0000-\u001f\u007f]/u.test(value)) {
+      cloud.nicknameStatus = { text: 'Use até 40 caracteres, sem quebras de linha ou caracteres de controle.', kind: 'error' };
+      renderProgress();
+      return;
+    }
+    const userId = cloud.session.user_id;
+    cloud.nicknameRevision += 1;
+    cloud.savingNickname = true;
+    cloud.nicknameStatus = { text: 'Salvando apelido…' };
+    renderProgress();
+    try {
+      const response = await cloudRequest('/auth/v1/user', {
+        method: 'PUT', body: JSON.stringify({ data: { atlas_nickname: value || null } }),
+      });
+      if (!response.ok) throw new Error('gravação indisponível');
+      const user = await response.json();
+      if (!cloud.session || cloud.session.user_id !== userId || user.id !== userId) return;
+      writeSession({ ...cloud.session, nickname: nicknameOf(user) });
+      cloud.nicknameDraft = null;
+      cloud.nicknameStatus = { text: value ? 'Apelido salvo.' : 'Apelido removido.', kind: 'ok' };
+    } catch (_) {
+      if (cloud.session && cloud.session.user_id === userId) {
+        cloud.nicknameStatus = { text: 'Não foi possível salvar o apelido. Seu texto foi mantido; tente novamente.', kind: 'error' };
+      }
+    } finally {
+      cloud.savingNickname = false;
+      if (state.view === 'prog') renderProgress();
+    }
+  }
 
   function cloudEnabled() {
     return Core.cloudReady(CLOUD_CONFIG, location.protocol);
@@ -2299,6 +2398,7 @@
       refresh_token: dados.refresh_token,
       email: (dados.user && dados.user.email) || cloud.session.email,
       user_id: (dados.user && dados.user.id) || cloud.session.user_id,
+      nickname: dados.user ? nicknameOf(dados.user) : cloud.session.nickname,
     });
     return true;
   }
@@ -2331,12 +2431,22 @@
   async function ensureCloudIdentity() {
     if (!cloud.session) return false;
     if (cloud.session.user_id && cloud.session.email) return true;
-    const perfil = await cloudRequest('/auth/v1/user');
-    if (!perfil.ok) return false;
-    const usuario = await perfil.json();
-    if (!usuario || typeof usuario.id !== 'string' || !usuario.id) return false;
-    writeSession({ ...cloud.session, email: usuario.email || cloud.session.email, user_id: usuario.id });
-    return true;
+    const revision = cloud.nicknameRevision;
+    cloud.identityPending = true;
+    if (state.view === 'prog') renderProgress();
+    try {
+      const perfil = await cloudRequest('/auth/v1/user');
+      if (!perfil.ok) return false;
+      const usuario = await perfil.json();
+      if (!cloud.session || revision !== cloud.nicknameRevision
+        || typeof usuario?.id !== 'string' || !usuario.id
+        || typeof usuario.email !== 'string' || !usuario.email) return false;
+      writeSession({ ...cloud.session, email: usuario.email, user_id: usuario.id, nickname: nicknameOf(usuario) });
+      return true;
+    } finally {
+      cloud.identityPending = false;
+      if (state.view === 'prog') renderProgress();
+    }
   }
 
   // O link do e-mail volta para o app com os tokens no fragmento da URL. Ele é
@@ -2392,11 +2502,15 @@
       const remoto = await pullRemoteProgress();
       const plano = Core.planSync(progress, remoto, { countryIds: IDS });
       if (plano.download) {
+        const addedLearning = DATA.some(c => DIRECTIONS.some(d =>
+          Core.skillOf(plano.merged, c.id, d).correct > Core.skillOf(progress, c.id, d).correct));
         progress = plano.merged;
+        trophies.record({ type: 'cloud', added: addedLearning });
         queueProgressSave(true);
         if (state.view === 'quiz') renderScorebar();
       }
       if (plano.upload) await pushRemoteProgress(Core.serializeProgress(plano.merged, { countryIds: IDS }));
+      await trophies.sync();
       cloud.lastSyncAt = new Date();
       setCloudStatus(plano.unchanged ? 'Tudo sincronizado.' : 'Progresso sincronizado com a conta.', 'ok');
     } catch (erro) {
@@ -2427,6 +2541,9 @@
     if (cloud.queue) cloud.queue.cancel();
     try { await cloudRequest('/auth/v1/logout', { method: 'POST' }); } catch (_) { /* melhor esforço */ }
     writeSession(null);
+    cloud.nicknameDraft = null;
+    cloud.nicknameStatus = null;
+    cloud.nicknameRevision += 1;
     cloud.lastSyncAt = null;
     setCloudStatus('Você saiu da conta. O progresso continua neste aparelho.', 'ok');
   }
@@ -2439,6 +2556,7 @@
       if (cloud.session) {
         if (!await ensureCloudIdentity()) throw new Error('perfil da conta indisponível');
         if (entrou) setCloudStatus('Conta conectada. Juntando o progresso…', 'ok');
+        if (!entrou) void loadNickname();
         await syncCloud({ silencioso: !entrou });
       }
     } catch (_) {
@@ -2454,8 +2572,8 @@
     if (!cloud.session) {
       card.append(create('p', {
         text: 'Entrar é opcional e serve só para levar o progresso a outro aparelho. '
-          + 'Sem conta, nada sai daqui. Com conta, saem o seu e-mail e o seu progresso '
-          + '— países, níveis e datas de revisão. Nunca há anúncio, rastreio ou venda de dados.',
+          + 'Sem conta, nada sai daqui. Com conta, são enviados ao Supabase o seu e-mail, o apelido opcional e o seu progresso '
+          + '— países, níveis, datas de revisão e conquistas desbloqueadas. Nunca há anúncio, rastreio ou venda de dados.',
       }));
       const linha = create('div', { className: 'button-row' });
       const email = create('input', {
@@ -2465,12 +2583,15 @@
         },
       });
       const entrar = create('button', {
-        className: 'btn', type: 'button', text: 'Receber link de acesso',
-        attrs: { disabled: cloud.requestingLink ? '' : null },
+        id: 'pedirLink', className: 'btn', type: 'button', text: 'Receber link de acesso',
+        attrs: { 'aria-disabled': cloud.requestingLink ? 'true' : null },
       });
+      email.value = cloud.emailDraft;
+      email.addEventListener('input', () => { cloud.emailDraft = email.value; });
       const pedir = async () => {
         if (cloud.requestingLink) return;
         const valor = email.value.trim();
+        cloud.emailDraft = email.value;
         if (!valor || !valor.includes('@')) {
           setCloudStatus('Digite um e-mail válido para receber o link.', 'error');
           return;
@@ -2498,9 +2619,36 @@
         className: 'source-note',
         text: 'Sem senha: você recebe um link por e-mail e entra clicando nele.',
       }));
+    } else if (!cloud.session.user_id || !cloud.session.email) {
+      card.append(create('p', { text: cloud.identityPending
+        ? 'Confirmando sua conexão… O treino continua disponível.'
+        : 'A conexão ainda não foi confirmada. Tente novamente para acessar sua conta.' }));
+      const retry = create('button', { id: 'retomarConta', className: 'btn ghost', type: 'button',
+        text: 'Tentar novamente', attrs: { 'aria-disabled': cloud.identityPending ? 'true' : null } });
+      retry.addEventListener('click', () => { if (!cloud.identityPending) void syncCloud(); });
+      const leave = create('button', { className: 'btn ghost', type: 'button', text: 'Sair da conta' });
+      leave.addEventListener('click', signOutCloud);
+      card.append(retry, leave);
     } else {
       card.append(create('p', {
         text: `Conectado como ${cloud.session.email || 'sua conta'}. O progresso deste aparelho e o da conta são fundidos, nunca substituídos.`,
+      }));
+      const nicknameRow = create('form', { className: 'account-nickname' });
+      const nickname = create('input', { id: 'contaApelido', className: 'search', attrs: {
+        type: 'text', autocomplete: 'nickname', 'aria-describedby': 'apelidoAjuda',
+        readonly: cloud.savingNickname ? '' : null,
+      } });
+      nickname.value = cloud.nicknameDraft ?? cloud.session.nickname ?? '';
+      nickname.addEventListener('input', () => { cloud.nicknameDraft = nickname.value; });
+      nicknameRow.append(create('label', { text: 'Apelido (opcional)', attrs: { for: 'contaApelido' } }), nickname,
+        create('button', { id: 'salvarApelido', className: 'btn ghost', type: 'submit', text: 'Salvar apelido',
+          attrs: { 'aria-disabled': cloud.savingNickname ? 'true' : null } }));
+      nicknameRow.addEventListener('submit', (event) => { event.preventDefault(); void saveNickname(); });
+      card.append(nicknameRow, create('p', { id: 'apelidoAjuda', className: 'source-note',
+        text: 'Até 40 caracteres. Ao salvar, o apelido é enviado ao Supabase para aparecer nos seus aparelhos. Para removê-lo, apague o texto e salve. É necessário estar online para salvar.' }));
+      if (cloud.nicknameStatus) card.append(create('p', {
+        className: `note${cloud.nicknameStatus.kind === 'error' ? ' note-error' : ''}`,
+        text: cloud.nicknameStatus.text, attrs: { role: 'status' },
       }));
       if (cloud.lastSyncAt) {
         card.append(create('p', {
@@ -2510,7 +2658,7 @@
       }
       const linha = create('div', { className: 'button-row' });
       const sincronizar = create('button', { className: 'btn ghost', type: 'button', text: 'Sincronizar agora' });
-      sincronizar.addEventListener('click', () => syncCloud());
+      sincronizar.addEventListener('click', () => { void loadNickname(); void syncCloud(); });
       const sair = create('button', { className: 'btn ghost', type: 'button', text: 'Sair da conta' });
       sair.addEventListener('click', signOutCloud);
       linha.append(sincronizar, sair);
@@ -2549,7 +2697,7 @@
       className: 'btn ghost', text: 'Importar progresso',
       attrs: { for: 'importProgressInput' },
     });
-    actions.append(exportButton, label, input);
+    actions.append(exportButton, input, label);
     card.append(actions);
     if (state.importStatus) {
       card.append(create('p', {
@@ -2561,6 +2709,10 @@
   }
 
   function renderProgress() {
+    const achievementOpen = document.getElementById('achievementDetails')?.open;
+    const focused = document.activeElement;
+    const accountFocus = focused && ['contaEmail', 'pedirLink', 'retomarConta', 'contaApelido', 'salvarApelido', 'achievementsToggle'].includes(focused.id)
+      ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
     atlasElements = null;
     clear(dom.panel);
     renderScorebar();
@@ -2575,6 +2727,8 @@
     dom.panel.append(create('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
 
     renderSessionSummary(dom.panel);
+    Study.card(dom.panel, startDaily);
+    Study.note(dom.panel, nextReviewCopy());
 
     // O treino livre é infinito, o que serve para revisar mas não para medir.
     // A prova fecha uma série e dá uma nota, respeitando o modo e a área de
@@ -2635,6 +2789,8 @@
     dom.panel.append(weakSection);
 
     renderAccount(dom.panel);
+    trophies.render(dom.panel);
+    if (achievementOpen) document.getElementById('achievementDetails').open = true;
     renderBackup(dom.panel);
 
     const source = MAP_META && MAP_META.source || {};
@@ -2662,7 +2818,7 @@
         className: 'note',
         text: state.resetPending
           ? 'Conferindo os dados mais recentes antes de apagar…'
-          : 'Esta ação apaga níveis, histórico de revisão e recorde. As preferências serão mantidas.',
+          : 'Esta ação apaga níveis, histórico de revisão, recorde e conquistas. As preferências e o apelido serão mantidos.',
         attrs: state.resetPending ? { role: 'status', 'aria-live': 'polite', tabindex: '-1' } : {},
       }));
       const actions = create('div', { className: 'button-row' });
@@ -2726,6 +2882,8 @@
           if (navigator.locks && typeof navigator.locks.request === 'function') {
             await navigator.locks.request(RESET_LOCK_KEY, performReset);
           } else await performReset();
+          trophies.record({}, true);
+          scheduleCloudSync();
           state.resetPending = false;
           state.resetArmed = false;
           dom.shell.classList.remove('is-resetting');
@@ -2751,6 +2909,14 @@
       reset.append(actions);
     }
     dom.panel.append(reset);
+    if (accountFocus) {
+      const restored = document.getElementById(accountFocus.id)
+        || (accountFocus.id === 'retomarConta' && document.getElementById('contaApelido'));
+      restored?.focus({ preventScroll: true });
+      if (restored && accountFocus.start !== null && accountFocus.start !== undefined) {
+        restored.setSelectionRange(accountFocus.start, accountFocus.end);
+      }
+    }
   }
 
   function setView(view) {
@@ -2845,6 +3011,7 @@
       createNextQuestion();
     });
     dom.themeToggle.addEventListener('click', () => {
+      trophies.record({ type: 'theme' });
       state.theme = THEMES[(themeStep(state.theme) + 1) % THEMES.length].id;
       const atual = applyTheme(true);
       showThemeHint(atual.curto);
@@ -2975,6 +3142,7 @@
       loadPreferences();
       syncControls();
       await hydrateProgress();
+      trophies.record({}, true);
       refreshMapMastery();
       absorbPendingProgress();
       state.ready = true;

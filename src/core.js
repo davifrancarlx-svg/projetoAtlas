@@ -1,10 +1,10 @@
 (function (root, factory) {
   'use strict';
 
-  var api = factory();
+  var api = factory(typeof module === 'object' && module.exports ? require('./achievements.js') : root.AtlasAchievementRules);
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.AtlasCore = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (achievementRules) {
   'use strict';
 
   var SCHEMA_VERSION = 2;
@@ -1678,6 +1678,11 @@
   }
 
   return Object.freeze({
+    achievementCatalog: achievementRules && achievementRules.catalog,
+    createAchievements: function (p) { return achievementRules.create(p); },
+    validateAchievements: function (a) { return achievementRules.valid(a); },
+    mergeAchievements: function (a, b) { return achievementRules.merge(a, b); },
+    evaluateAchievements: function (a, p, countries, event) { return achievementRules.evaluate(a, p, countries, event); },
     derivedFacts: derivedFacts,
     SCHEMA_VERSION: SCHEMA_VERSION,
     MAX_LEVEL: MAX_LEVEL,

@@ -1,0 +1,13 @@
+# Sugestões novas — somente para avaliação
+
+A sugestão 3 foi implementada na rodada posterior de Treino de hoje, próxima revisão e resumo de evolução. As demais continuam somente para avaliação. A ordem considera benefício para quem joga, esforço e risco de alterar o comportamento atual. Não inclui inglês nem fichas para terras fora dos 195.
+
+| Ordem | Sugestão | Por que faz sentido neste código | Decisão e custo a avaliar |
+| --- | --- | --- | --- |
+| 1 | Backup completo opcional, incluindo conquistas | `exportProgress` exporta apenas o progresso educacional. Troféus de eventos, como uma prova perfeita, estão no registro separado e não podem ser reconstruídos desse arquivo. Quem usa o app sem conta não tem hoje uma cópia portátil desses troféus. | Criar uma nova versão do arquivo, mantendo leitura dos backups antigos e a união segura após exclusões. Esforço médio. Não incluir tokens de conta. |
+| 2 | Retomar uma prova ou revisão interrompida | O progresso das respostas é salvo, mas a sessão/prova em andamento vive na memória da página. Fechar a aba não permite continuar exatamente aquela série e seu placar. | Salvar um rascunho local da sessão, oferecer retomar ou descartar e definir como contar o tempo interrompido. Esforço médio; exige regras claras para a prova. |
+| 3 | Mostrar quando será a próxima revisão | A tela já calcula habilidades vencidas e informa quando não há nenhuma. As datas futuras já estão no progresso, mas o jogador recebe apenas “Novas revisões aparecerão na data adequada”. | Mostrar a primeira data futura e quantas revisões estão previstas, sem notificações nem novos dados enviados. Esforço baixo. |
+| 4 | Filtrar conquistas pendentes e concluídas | A lista atual apresenta todos os 25 troféus. Com muitos desbloqueados, procurar o próximo objetivo exige percorrer itens já concluídos. | Acrescentar um filtro simples e manter a indicação de que a conquista ainda não foi obtida. Esforço baixo; observar orçamento e uso por teclado. |
+| 5 | Separar o código da conta em um módulo próprio | `src/app.js` está perto do limite de 150 KiB. Conta, perfil e login formam um conjunto que pode ser mantido separadamente, como já ocorre com conquistas. Isso facilita revisar mudanças sem crescer indefinidamente o arquivo principal. | Reorganização interna, sem mudar a interface nem adicionar dependências. Manter orçamento total e testes; não apenas transferir bytes para esconder crescimento. Esforço médio. |
+
+A instalação real da PWA e a validação da migration no Supabase são pendências de verificação, não sugestões de funcionalidades. Estão registradas no HANDOFF e na auditoria visual.

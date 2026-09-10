@@ -59,6 +59,14 @@ em [`data/flag-icons/README.md`](data/flag-icons/README.md). O gerador
 `scripts/update-flags.cjs` fixa e valida todos esses dados antes de produzir
 `data/flags.json`.
 
+## Plano de treino e resumo de evolução
+
+`src/study.js` deriva o treino diário, a próxima revisão e o resumo dos dados de progresso já existentes. Não usa fonte externa nem altera dados educacionais. As datas são apresentadas no horário local do aparelho. Os marcadores de habilidade nova/dificuldade anterior existem somente na memória da sessão e não são acrescentados ao envelope enviado ao Supabase ou exportado.
+
+## Sons
+
+Os efeitos de acerto, erro e conquista são composições sintetizadas pelo próprio código em `src/audio.js`, com osciladores e controle de volume da Web Audio API. Não usam gravações, músicas, amostras de terceiros nem serviço externo. O botão de som salva somente uma preferência local (`atlas195:som:v1`); ela não integra a conta, o progresso nem o backup. Nenhum dado adicional é enviado. Os WAV em `docs/audio-samples/` foram renderizados a partir do mesmo sintetizador para revisão e não são recursos carregados pelo app.
+
 ## Tipografia
 
 As três famílias do Atlas são embutidas no artefato em base64, no subset latino
@@ -102,7 +110,8 @@ O backend de contas é o Supabase provisionado pelo Lovable. O aplicativo fala c
 - Configuração: `src/cloud.json` (endereço e chave `anon`). O build embute esses valores e usa a origem para montar o `connect-src` da CSP. Sem o arquivo, o app não mostra a área de conta e a CSP volta a `'none'`.
 - A chave `anon` é publicável por definição: quem protege os dados é a política de linha do banco. A tabela `progresso_atlas` tem RLS ligado e quatro políticas (leitura, criação, atualização, exclusão), todas restritas a `auth.uid() = usuario`. Um leitor anônimo recebe lista vazia, não erro. A definição reproduzível da tabela, limites e políticas vive em `supabase/migrations/`.
 - Entrada por link mágico no e-mail, sem senha. Os tokens voltam no fragmento da URL, são guardados e imediatamente apagados da barra de endereços, para não ficarem no histórico nem vazarem num "copiar link".
-- O que trafega é o mesmo envelope validado do backup por arquivo. Envelope corrompido no servidor é recusado pela validação e não contamina o aparelho.
+- O cartão distingue tokens recebidos de identidade confirmada: as ações de perfil só aparecem após obter identificador e e-mail válidos. Uma consulta pendente ou com falha não é apresentada como conexão concluída; pode ser retomada sem impedir o treino. Isso não muda os dados enviados nem a fonte de autenticação.
+- O progresso trafega no mesmo envelope validado do backup por arquivo; o apelido opcional trafega separadamente pelo perfil da conta. Envelope corrompido no servidor é recusado pela validação e não contamina o aparelho.
 - Nunca existe sobrescrita: `Core.planSync` funde os dois lados com `Core.mergeProgress` e diz quem precisa ser atualizado. Um apagar de progresso feito num aparelho vence os desatualizados pela geração do envelope.
 
 ## Terras fora dos 195
@@ -236,3 +245,23 @@ restantes simplesmente não exibem nada.
 
 No acerto de uma pergunta aparece **um** destaque, escolhido pelo número da
 pergunta, para que repetir o país não repita a frase.
+
+## Apelido opcional da conta
+
+O cartão de conta permite cadastrar, editar e remover um apelido de até 40 caracteres depois de entrar. O login por e-mail não exige apelido. Contas antigas sem apelido continuam válidas. Para remover, apague o campo e salve.
+
+Com conta, são enviados ao Supabase o e-mail usado para entrar, o progresso e, se cadastrado, o apelido. O apelido fica nos dados do perfil do Supabase Auth (`user_metadata.atlas_nickname`), atualizado por `PUT /auth/v1/user`, com HTTP direto e sem SDK. Não integra o backup de progresso nem é apagado ao zerar o aprendizado. O apelido não exige alteração de tabela ou política de acesso.
+
+O perfil é consultado ao reabrir uma sessão e ao usar “Sincronizar agora”. Entre edições em aparelhos diferentes, prevalece a última gravação aceita pelo servidor. Salvar requer conexão; uma falha mantém o texto em edição para nova tentativa enquanto a página continuar aberta, sem impedir o treino ou a sincronização do progresso.
+
+## Conquistas
+
+São 25 troféus nomeados, exibidos na aba Progresso com ◆/◇, descrição e raridade. Domínio significa nível máximo nas direções indicadas. O aviso de desbloqueio é temporário, não recebe foco e não exige fechamento. O humor fica apenas nos nomes, descrições e avisos de conquistas.
+
+Há retroação parcial: níveis, países estudados e recorde existentes permitem reconhecer feitos comprováveis, sem avisos em massa nem datas antigas inventadas. Provas perfeitas, sequência digitada, zoom, revisão focada, exportação e troca de tema só contam a partir desta versão. A sequência digitada e as três trocas de tema valem na mesma abertura do app. A lista diária de revisões vencidas é registrada no primeiro uso de cada dia, pelo horário local; precisa ser não vazia e cada habilidade da lista precisa receber um acerto no mesmo dia.
+
+As conquistas ficam num registro local separado (`atlas195:conquistas:v1`). Com conta, também são enviados ao Supabase os identificadores dos troféus desbloqueados e a geração/época de exclusão do progresso. Não são enviados identificadores de aparelhos. Contadores temporários, a lista diária e os cinco microestados acertados ficam locais; somente os troféus concluídos acompanham a conta. O backup por arquivo continua contendo o progresso educacional, sem apelido nem o registro separado de conquistas; ao importar, os troféus comprováveis por esse progresso são reavaliados.
+
+A migration `supabase/migrations/202609100001_conquistas_atlas.sql` cria uma tabela separada com acesso restrito à própria conta e uma operação de união atômica — o banco combina os troféus em uma única gravação para evitar perda entre aparelhos. Clientes antigos continuam usando a tabela de progresso existente. Apagar progresso também apaga conquistas; a geração/época impede que versões antigas do registro restaurem troféus apagados. Sem rede ou sem a migration, o treino e o progresso continuam funcionando, com aviso separado para conquistas.
+
+Implementação: `src/achievements.js` contém catálogo e regras puras expostas por `Core`; `src/achievements-ui.js` cuida da interface e persistência; `tests/achievements.test.cjs` verifica os desbloqueios sem DOM. Não há dependências novas, imagens ou mudança de geometria/dados educacionais.

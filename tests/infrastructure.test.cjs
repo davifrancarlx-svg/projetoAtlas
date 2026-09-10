@@ -63,7 +63,8 @@ test('falhas de rede da conta são recuperáveis pela interface', () => {
   assert.match(app, /async function ensureCloudIdentity/);
   assert.match(app, /if \(!await ensureCloudIdentity\(\)\)/);
   assert.match(app, /Sem conexão para enviar o link agora/);
-  assert.match(app, /disabled: cloud\.requestingLink/);
+  assert.match(app, /'aria-disabled': cloud\.requestingLink/);
+  assert.match(app, /if \(cloud\.requestingLink\) return;/);
   assert.match(app, /finally \{\s*cloud\.requestingLink = false;/);
   assert.match(app, /SyncQueue\.create/);
 });

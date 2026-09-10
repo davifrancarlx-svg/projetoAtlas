@@ -255,6 +255,12 @@ input {
   background: var(--panel);
 }
 
+.sound-toggle { min-height: var(--tap); font-size: 11px; padding: 8px 10px; }
+
+@media (min-width: 821px) and (max-width: 1400px) {
+  .topbar .brand-sub { display: none; }
+}
+
 .brand {
   margin: 0;
   font-family: var(--display);
@@ -707,7 +713,7 @@ select {
   outline-offset: -4px;
 }
 
-.grat {
+.grat path {
   fill: none;
   stroke: var(--line-soft);
   stroke-width: 0.55;
@@ -2030,6 +2036,28 @@ a.chip {
   gap: 8px;
   margin-block-start: 12px;
 }
+
+.account-nickname {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-start: 12px;
+}
+
+.account-nickname label { flex-basis: 100%; }
+.account-nickname .search { flex: 1 1 180px; min-width: 0; width: 100%; }
+.btn[aria-disabled="true"] { opacity: .65; cursor: wait; }
+
+.achievement-list { list-style: none; padding: 0; display: grid; gap: 12px; }
+.achievement-list li { border: 1px solid var(--line-soft); padding: 12px; }
+.achievement-list strong, .achievement-list span { display: block; }
+.achievement-list .achievement-earned { border-color: var(--gold); }
+.achievement-earned strong { color: var(--gold); }
+.achievements summary { cursor: pointer; min-height: var(--tap); padding-block: 12px; }
+.app-status:has(.achievement-notice) { flex-wrap: wrap; }
+.achievement-notice { width: 100%; min-width: 0; color: var(--ink); background: var(--panel-2); border: 1px solid var(--gold); padding: 8px 12px; pointer-events: none; }
+.achievement-notice strong { color: var(--gold); }
+.achievement-notice span { display: block; font-size: 12px; }
 
 .btn.danger {
   border-color: var(--coral);

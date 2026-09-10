@@ -314,9 +314,9 @@ function embedFonts() {
 
 const template = read('src/index.template.html');
 const css = embedFonts() + read('src/styles.css').trim();
-const core = read('src/core.js').trim();
+const core = read('src/achievements.js').trim() + '\n' + read('src/core.js').trim();
 const syncQueue = read('src/sync-queue.js').trim();
-const app = read('src/app.js').trim();
+const app = ['src/audio.js', 'src/study.js', 'src/achievements-ui.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
 const themeBoot = read('src/theme-boot.js').trim();
 // A configuração de conta entra no artefato e também define a única origem que
 // a CSP vai autorizar. Se o arquivo sumir ou vier incompleto, o build segue: o

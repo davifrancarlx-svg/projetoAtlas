@@ -2,7 +2,7 @@
 
 Aplicação educacional offline para praticar bandeiras, capitais e localização de 193 Estados-membros da ONU, da Santa Sé e do Estado da Palestina.
 
-O treino combina sete direções independentes (bandeira ↔ país, capital ↔ país, mapa ↔ país e país → região), escolha ou digitação, tempo por pergunta opcional, revisão espaçada e reforço das habilidades mais fracas. O Atlas é navegável por teclado, aceita pular questões visuais sem penalidade e mantém o progresso somente no dispositivo.
+O treino combina sete direções independentes (bandeira ↔ país, capital ↔ país, mapa ↔ país e país → região), escolha ou digitação, tempo por pergunta opcional, revisão espaçada e reforço das habilidades mais fracas. O Atlas é navegável por teclado, aceita pular questões visuais sem penalidade e mantém o progresso no dispositivo, com conta opcional para sincronizar.
 
 ## Treino
 
@@ -15,6 +15,22 @@ O treino combina sete direções independentes (bandeira ↔ país, capital ↔ 
 - **Explicação do erro**: quando a resposta errada é um país concreto, o Atlas diz por que a confusão era plausível — bandeira parecida, capitais de escrita próxima ou de mesma inicial, vizinhança no mapa ou mesma subregião.
 - **Backup**: exportar gera um arquivo com o envelope validado do progresso; importar funde com o que já existe no aparelho, sem apagar nada. O arquivo é o mesmo formato lido pelo `AtlasCore`, então um progresso corrompido é recusado sem efeito colateral.
 - **Tema**: o botão na barra do topo cicla automático → claro → escuro. Automático é o padrão e segue o sistema; escolher claro ou escuro fixa a paleta mesmo que o sistema diga o contrário, e a escolha fica salva com as demais preferências. Um script no `<head>` aplica o tema salvo antes da primeira pintura, para a página não nascer com a paleta errada e piscar.
+
+## Treino de hoje e evolução
+
+Na aba Progresso, **Treino de hoje** inicia uma série de até 10 perguntas com os filtros atuais. Reserva até seis perguntas para revisões vencidas, duas para habilidades de nível baixo e duas para novidades; quando falta algum grupo, completa com os demais. Não repete a mesma habilidade na série. Pode ser repetido e não exige conta. Questões visuais podem ser puladas sem penalidade, reduzindo o tamanho da série. Esse treino não concede troféus exclusivos de prova.
+
+Progresso e os fechamentos mostram quando revisar novamente, incluindo horário local e quantidade de habilidades no primeiro dia previsto. Se já houver revisões vencidas, mostram quantas estão disponíveis agora. O resumo destaca habilidades novas praticadas e aquelas que voltaram a ser acertadas após dificuldade, sem tratar um único acerto como domínio definitivo.
+
+O plano usa o progresso existente. Os marcadores do resumo vivem apenas na sessão aberta; não criam histórico remoto adicional nem permitem retomar uma série depois de fechar a página. `src/study.js` contém seleção, textos e pequenos componentes da interface.
+
+## Sons opcionais
+
+O botão **Som** alterna entre desligado, baixo e médio. Começa desligado; ativar ou mudar o volume reproduz uma amostra curta. A escolha fica salva somente neste navegador, separada da conta e do progresso.
+
+Acertos usam duas notas suaves com três variações; erros e tempo esgotado usam uma nota baixa e curta; conquistas novas usam três notas. Quando acerto e conquista coincidem, toca somente a conquista. Não há música de fundo, tique-taque, sons de navegação nem aumento de volume por sequência. Ao ocultar a aba ou desligar o som, a reprodução é interrompida.
+
+Os sons são sintetizados localmente pela Web Audio API, sem downloads, arquivos de áudio no app ou dependências. Funcionam offline após a interação necessária para o navegador liberar áudio. Se o áudio não estiver disponível, o treino continua funcionando. `src/audio.js` contém síntese, preferência e controle; as amostras em `docs/audio-samples/` são apenas para revisão e não entram no build.
 
 ## Desenvolvimento
 
@@ -57,6 +73,8 @@ A projeção Robinson preserva a leitura global, mas, como toda projeção plana
 
 O zoom vai de 1× a 60× e é ancorado no ponto apontado: nos dois extremos a janela para de mudar em vez de deslizar, e os botões `+` e `−` desabilitam quando o limite é alcançado.
 
+No Atlas, o zoom por botão usa como âncora o país selecionado enquanto ele estiver visível; isso mantém microestados como Tuvalu no enquadramento. A navegação por teclado desloca a janela para manter visível o país ativo, sem mudar o nível de zoom. As linhas de latitude e longitude mantêm espessura constante.
+
 Cada país guarda também os limites do seu **aglomerado principal** (`pb`): o componente que contém o ponto de rótulo mais tudo que estiver a menos de seis unidades projetadas dele. É esse retângulo que o Atlas enquadra. O bounding box completo abria o mundo inteiro em 29 países — o dos Estados Unidos vai de Guam a Porto Rico, o da França vai do Caribe ao Índico —, enquanto o aglomerado mantém arquipélagos inteiros (as duas ilhas da Nova Zelândia, a Indonésia) e deixa de fora o que está a um oceano de distância.
 
 Vaticano, Mônaco, Tuvalu, Nauru e San Marino ocupam frações de pixel nessa escala mesmo no zoom máximo; a partir de 6× eles recebem um anel de tamanho fixo em pixels, que não intercepta o ponteiro — a resolução de cliques continua sendo a geometria real mais as âncoras de toque.
@@ -69,10 +87,32 @@ As bandeiras usam a coleção flag-icons 7.5.0 sob licença MIT. O progresso pos
 
 **Sem conta, nada sai.** Sem entrar, o Atlas não faz nenhuma requisição de rede — nem para o backend, nem para qualquer outro lugar. É verificável: a política de segurança do artefato autoriza exatamente uma origem em `connect-src`, a do backend de contas, e nada dispara pedido sem sessão iniciada. Todo o resto (mapa, bandeiras, fontes) vem embutido no próprio arquivo.
 
-**Com conta, saem duas coisas:** o e-mail usado para entrar e o seu progresso — países, níveis, datas de revisão e recorde. Isso é derivado das suas respostas. Não há anúncio, rastreio, analytics nem terceiro envolvido; a conta existe só para levar o progresso a outro aparelho.
+**Com conta, são enviados ao Supabase:** o e-mail usado para entrar, o apelido (se você cadastrar) e o seu progresso — países, níveis, datas de revisão, recorde e conquistas desbloqueadas. Isso é derivado das suas respostas. Não há anúncio, rastreio, analytics nem terceiro envolvido; a conta existe só para levar o progresso a outro aparelho.
 
 A conta é sempre opcional e nunca aparece na frente de quem quer treinar: ela vive num cartão da aba Progresso. Aberto direto do disco, o cartão nem existe. O aparelho continua sendo o dono do progresso — a conta é uma cópia que sincroniza, e o que decide conflito é o mesmo `Core.mergeProgress` que já reconcilia duas abas abertas, fundindo os dois lados em vez de escolher um. Se a rede cair ou o serviço sair do ar, aparece um aviso discreto e o treino continua igual.
 
 O backup por arquivo continua existindo para quem prefere não criar conta nenhuma.
 
 O servidor local negocia `Accept-Encoding` e responde comprimido: os 4,9 MB do artefato viram cerca de 1,6 MB na primeira resposta e 1,1 MB nas seguintes, quando o brotli de qualidade máxima termina em segundo plano e substitui o cache. Nenhuma dependência é usada para isso.
+
+## Apelido opcional da conta
+
+O cartão de conta permite cadastrar, editar e remover um apelido de até 40 caracteres depois de entrar. O login por e-mail não exige apelido. Contas antigas sem apelido continuam válidas. Para remover, apague o campo e salve.
+
+Com conta, são enviados ao Supabase o e-mail usado para entrar, o progresso e, se cadastrado, o apelido. O apelido fica nos dados do perfil do Supabase Auth (`user_metadata.atlas_nickname`), atualizado por `PUT /auth/v1/user`, com HTTP direto e sem SDK. Não integra o backup de progresso nem é apagado ao zerar o aprendizado. O apelido não exige alteração de tabela ou política de acesso.
+
+O perfil é consultado ao reabrir uma sessão e ao usar “Sincronizar agora”. Entre edições em aparelhos diferentes, prevalece a última gravação aceita pelo servidor. Salvar requer conexão; uma falha mantém o texto em edição para nova tentativa enquanto a página continuar aberta, sem impedir o treino ou a sincronização do progresso.
+
+Enquanto o magic link confirma a identidade, o cartão informa o carregamento e permite sair. Uma falha oferece nova tentativa; editar o apelido só aparece depois da confirmação. O envio do link preserva o e-mail digitado e o foco, inclusive quando a rede falha.
+
+## Conquistas
+
+São 25 troféus nomeados, exibidos na aba Progresso com ◆/◇, descrição e raridade. Domínio significa nível máximo nas direções indicadas. O aviso de desbloqueio é temporário, não recebe foco e não exige fechamento. O humor fica apenas nos nomes, descrições e avisos de conquistas.
+
+Há retroação parcial: níveis, países estudados e recorde existentes permitem reconhecer feitos comprováveis, sem avisos em massa nem datas antigas inventadas. Provas perfeitas, sequência digitada, zoom, revisão focada, exportação e troca de tema só contam a partir desta versão. A sequência digitada e as três trocas de tema valem na mesma abertura do app. A lista diária de revisões vencidas é registrada no primeiro uso de cada dia, pelo horário local; precisa ser não vazia e cada habilidade da lista precisa receber um acerto no mesmo dia.
+
+As conquistas ficam num registro local separado (`atlas195:conquistas:v1`). Com conta, também são enviados ao Supabase os identificadores dos troféus desbloqueados e a geração/época de exclusão do progresso. Não são enviados identificadores de aparelhos. Contadores temporários, a lista diária e os cinco microestados acertados ficam locais; somente os troféus concluídos acompanham a conta. O backup por arquivo continua contendo o progresso educacional, sem apelido nem o registro separado de conquistas; ao importar, os troféus comprováveis por esse progresso são reavaliados.
+
+A migration `supabase/migrations/202609100001_conquistas_atlas.sql` cria uma tabela separada com acesso restrito à própria conta e uma operação de união atômica — o banco combina os troféus em uma única gravação para evitar perda entre aparelhos. Clientes antigos continuam usando a tabela de progresso existente. Apagar progresso também apaga conquistas; a geração/época impede que versões antigas do registro restaurem troféus apagados. Sem rede ou sem a migration, o treino e o progresso continuam funcionando, com aviso separado para conquistas.
+
+Implementação: `src/achievements.js` contém catálogo e regras puras expostas por `Core`; `src/achievements-ui.js` cuida da interface e persistência; `tests/achievements.test.cjs` verifica os desbloqueios sem DOM. Não há dependências novas, imagens ou mudança de geometria/dados educacionais.

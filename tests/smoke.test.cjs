@@ -513,12 +513,97 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
       );
     });
 
+    // Conta simulada: nenhum e-mail ou dado é enviado ao serviço real.
+    assert.ok(await evaluate(client, `JSON.parse(localStorage.getItem('atlas195:conquistas:v1')).unlocked.includes('theme')`), 'Três trocas de tema desbloqueiam a conquista.');
+    assert.equal(await evaluate(client, `getComputedStyle(document.getElementById('achievementNotice')).pointerEvents`), 'none');
+    const noticeShot = await client.send('Page.captureScreenshot', {format:'png'});
+    fs.writeFileSync(path.join(os.tmpdir(), 'atlas-achievement-notice.png'), Buffer.from(noticeShot.data, 'base64'));
+    await client.send('Page.addScriptToEvaluateOnNewDocument', { source: `
+      localStorage.setItem('atlas195:conta:v1', JSON.stringify({user_id:'test-user',email:'teste@example.invalid',access_token:'fake',refresh_token:'fake'}));
+      window.accountMock = { nickname: '', fail: false, failTrophies: false, trophies: null };
+      window.fetch = async (url, options = {}) => {
+        if (String(url).includes('/rpc/atlas_merge_conquistas')) {
+          if (accountMock.failTrophies) return new Response('{}', {status:404});
+          const p = JSON.parse(options.body);
+          const old = accountMock.trophies;
+          const newer = !old || p.p_generation > old.generation || (p.p_generation === old.generation && p.p_epoch > old.epoch);
+          if (newer) accountMock.trophies = {generation:p.p_generation,epoch:p.p_epoch,unlocked:p.p_unlocked};
+          else if (p.p_generation === old.generation && p.p_epoch === old.epoch) old.unlocked = [...new Set([...old.unlocked,...p.p_unlocked])];
+          return new Response(JSON.stringify([accountMock.trophies]), {status:200});
+        }
+        if (String(url).includes('/auth/v1/user')) {
+          if (accountMock.fail) throw new Error('offline simulado');
+          if (options.method === 'PUT') accountMock.nickname = JSON.parse(options.body).data.atlas_nickname || '';
+          return new Response(JSON.stringify({id:'test-user',email:'teste@example.invalid',user_metadata:{atlas_nickname:accountMock.nickname}}), {status:200});
+        }
+        return new Response(JSON.stringify([]), {status:200});
+      };
+    ` });
+    await client.send('Page.reload');
+    await until('o campo de apelido aparecer', async () => evaluate(client, `(() => {
+      document.querySelector('button[data-view="prog"]')?.click();
+      return Boolean(document.getElementById('contaApelido'));
+    })()`));
+    assert.equal(await evaluate(client, `document.getElementById('contaApelido').value`), '');
+    await evaluate(client, `(() => { const input = document.getElementById('contaApelido'); input.focus(); input.value = 'João 🌍'; input.dispatchEvent(new Event('input')); })()`);
+    await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', text: '\r', windowsVirtualKeyCode: 13 });
+    await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+    await until('salvar apelido por teclado', async () => evaluate(client, `document.getElementById('panel').textContent.includes('Apelido salvo.')`));
+    assert.equal(await evaluate(client, `document.activeElement.id`), 'contaApelido');
+    await evaluate(client, `accountMock.nickname = 'Outro aparelho'; document.getElementById('contaApelido').value = 'Rascunho'; document.getElementById('contaApelido').dispatchEvent(new Event('input')); [...document.querySelectorAll('button')].find(b => b.textContent === 'Sincronizar agora').click()`);
+    await until('o perfil remoto atualizar', async () => evaluate(client, `JSON.parse(localStorage.getItem('atlas195:conta:v1')).nickname === 'Outro aparelho'`));
+    assert.equal(await evaluate(client, `document.getElementById('contaApelido').value`), 'Rascunho');
+    await evaluate(client, `accountMock.fail = true; document.getElementById('salvarApelido').click()`);
+    await until('o erro de apelido aparecer', async () => evaluate(client, `document.getElementById('panel').textContent.includes('Não foi possível salvar o apelido.')`));
+    assert.equal(await evaluate(client, `document.getElementById('contaApelido').value`), 'Rascunho');
+    for (const width of [1280, 768, 390]) for (const theme of ['light', 'dark']) {
+      await client.send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: width < 821 });
+      await evaluate(client, `document.documentElement.dataset.theme = '${theme}'; document.getElementById('contaApelido').scrollIntoView({block:'center',behavior:'instant'})`);
+      await until('o cartão ficar visível', async () => evaluate(client, `(() => { const r = document.getElementById('contaApelido').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; })()`));
+      assert.equal(await evaluate(client, `document.documentElement.scrollWidth <= innerWidth`), true, 'O cartão não pode alargar a página no celular.');
+      const screenshot = await client.send('Page.captureScreenshot', { format: 'png' });
+      fs.writeFileSync(path.join(os.tmpdir(), 'atlas-account-' + width + '-' + theme + '.png'), Buffer.from(screenshot.data, 'base64'));
+    }
+    await evaluate(client, `accountMock.fail = false; const input = document.getElementById('contaApelido'); input.value = ''; input.dispatchEvent(new Event('input')); document.getElementById('salvarApelido').click()`);
+    await until('remover apelido', async () => evaluate(client, `document.getElementById('panel').textContent.includes('Apelido removido.')`));
+    await evaluate(client, `document.getElementById('achievementsToggle').focus()`);
+    await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', text: '\r', windowsVirtualKeyCode: 13 });
+    await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+    assert.equal(await evaluate(client, `document.getElementById('achievementDetails').open`), true);
+    assert.equal(await evaluate(client, `document.querySelectorAll('.achievement-list li').length`), 25);
+    await evaluate(client, `accountMock.failTrophies = true; [...document.querySelectorAll('button')].find(b => b.textContent === 'Sincronizar agora').click()`);
+    await until('falha de conquistas sem interromper progresso', async () => evaluate(client, `document.getElementById('achievementStatus').textContent.includes('Sem sincronizar conquistas')`));
+    assert.equal(await evaluate(client, `document.getElementById('achievementDetails').open`), true, 'Sincronização preserva a lista aberta.');
+    assert.equal(await evaluate(client, `document.activeElement.id`), 'achievementsToggle', 'Sincronização preserva o foco na lista.');
+    for (const width of [1280, 390]) for (const theme of ['light', 'dark']) {
+      await client.send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: width < 821 });
+      await evaluate(client, `document.documentElement.dataset.theme = '${theme}'; document.getElementById('achievementsTitle').scrollIntoView({block:'start',behavior:'instant'})`);
+      assert.equal(await evaluate(client, `document.documentElement.scrollWidth <= innerWidth`), true);
+      const shot = await client.send('Page.captureScreenshot', {format:'png'});
+      fs.writeFileSync(path.join(os.tmpdir(), 'atlas-achievements-' + width + '-' + theme + '.png'), Buffer.from(shot.data, 'base64'));
+    }
+    await evaluate(client, `accountMock.failTrophies = false; document.getElementById('resetProgress').click()`);
+    assert.ok(await evaluate(client, `document.getElementById('panel').textContent.includes('recorde e conquistas')`));
+    await evaluate(client, `document.getElementById('confirmReset').click()`);
+    await until('reset apagar conquistas locais e remotas', async () => evaluate(client, `(() => {
+      const a = JSON.parse(localStorage.getItem('atlas195:conquistas:v1'));
+      return a.unlocked.length === 0 && accountMock.trophies?.generation === a.generation && accountMock.trophies.unlocked.length === 0;
+    })()`));
+
+    await require('./visual-regression.cjs')(client, evaluate, until);
+    await require('./study-browser.cjs')(client, evaluate, until);
+    await require('./audio-browser.cjs')(client, evaluate, until);
+
     // 4. Nenhuma violação de CSP: é o sintoma exato do defeito que motivou o teste.
     const violacoes = client.events
       .filter((evento) => evento.method === 'Log.entryAdded')
       .map((evento) => evento.params.entry)
       .filter((entrada) => entrada.source === 'security' || /Content Security Policy/i.test(entrada.text || ''));
     assert.deepEqual(violacoes.map((entrada) => entrada.text), [], 'O navegador registrou violação de CSP.');
+    assert.deepEqual(client.events.filter(event => event.method === 'Runtime.exceptionThrown'), [], 'O navegador registrou erro de execução.');
+  } catch (error) {
+    if (client) t.diagnostic(JSON.stringify(client.events.filter(event => event.method === 'Runtime.exceptionThrown')));
+    throw error;
   } finally {
     if (client) client.close();
     cleanup();
