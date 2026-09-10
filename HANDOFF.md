@@ -149,7 +149,9 @@ localmente não é licença para publicar sozinho.
 
 Apelido, conquistas, sons e rotina de treino implementados localmente após aprovação, sem publicação. A auditoria visual encontrou seis bugs; todos foram corrigidos após aprovação e receberam verificação no Chrome. A verificação final (`npm run check`) passou com 150 testes, sem falhas ou testes ignorados. O diagnóstico e as evidências estão em `VISUAL_AUDIT.md`; os arquivos por tarefa, em `DELIVERY.md`; as sugestões restantes, em `IMPROVEMENTS.md`.
 
-Não há correção pendente entre os seis bugs encontrados, mas há duas verificações externas pendentes: aplicar e validar a migration de conquistas no Supabase e verificar a instalação efetiva da PWA. Portanto, não declarar ausência de pendências técnicas nem prontidão para publicação. O estado é **testado localmente, pronto para revisão**.
+Não há correção pendente entre os seis bugs encontrados, mas há duas verificações externas pendentes: aplicar e validar a migration de conquistas no Supabase e verificar a instalação efetiva da PWA. Portanto, não declarar ausência de pendências técnicas.
+
+**Atualização de 2026-09-10:** publicado no GitHub (commit `0692447`, CI verde) e no Lovable a pedido do usuário, mesmo com a migration de conquistas ainda pendente — decisão explícita dele, ciente de que a sincronização de troféus entre aparelhos mostra aviso à parte até a migration ser aplicada. `npm run verify:production` confirmou hash idêntico ao release após o publish. A instalação da PWA (service worker) foi verificada ao vivo em `atlas-195.lovable.app`: registro ativo, sem erros de console. Segue pendente apenas: aplicar `supabase/migrations/202609100001_conquistas_atlas.sql` no projeto Supabase.
 
 As duas grandes tarefas do briefing anterior (botão de tema, conta com
 sincronização) foram concluídas, testadas e publicadas. O funcionamento
