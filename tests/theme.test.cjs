@@ -47,6 +47,47 @@ test('nenhuma regra escreve cor fixa fora das paletas', () => {
   );
 });
 
+// O alto contraste do sistema descarta a paleta inteira do app. Um destaque
+// feito só de cor — os vizinhos da pergunta de fronteira, por exemplo — some
+// sem quebrar teste nenhum e sem ninguém perceber, que foi exatamente o que
+// aconteceu quando a pergunta de fronteira entrou.
+function blocoDeMedia(css, cabecalho) {
+  const inicio = css.indexOf(cabecalho);
+  assert.notEqual(inicio, -1, `${cabecalho} não existe no CSS.`);
+  let profundidade = 0;
+  for (let i = css.indexOf('{', inicio); i < css.length; i += 1) {
+    if (css[i] === '{') profundidade += 1;
+    else if (css[i] === '}') {
+      profundidade -= 1;
+      if (profundidade === 0) return css.slice(inicio, i + 1);
+    }
+  }
+  throw new Error(`${cabecalho} não fecha.`);
+}
+
+test('todo destaque do mapa continua visível no alto contraste', () => {
+  const app = fs.readFileSync(path.join(__dirname, '..', 'src', 'app.js'), 'utf8');
+  const contraste = blocoDeMedia(CSS, '@media (forced-colors: active)');
+
+  // A lista vem do próprio app: um destaque novo entra no teste sozinho.
+  const destaques = [...new Set(
+    [...app.matchAll(/markCountry\([^,]+,\s*'([a-z-]+)'\)/g)].map((achado) => achado[1])
+  )];
+  assert.ok(destaques.length >= 4, `Poucos destaques encontrados em app.js: ${destaques.join(', ')}`);
+  destaques.forEach((nome) => {
+    assert.match(
+      contraste, new RegExp(`\\.cty\\.${nome}\\b`),
+      `O destaque "${nome}" depende só de cor: declare .cty.${nome} dentro de forced-colors.`
+    );
+  });
+
+  // Os outros avisos que nasceram coloridos e nada mais.
+  [['.legend-swatch', 'a legenda da fronteira'], ['.atlas-area.is-active', 'o filtro de área ativo'],
+    ['.shape-svg path', 'a silhueta']].forEach(([seletor, nome]) => {
+    assert.ok(contraste.includes(seletor), `${nome} some no alto contraste: falta ${seletor}.`);
+  });
+});
+
 test('o tema claro redefine as superfícies e os acentos', () => {
   const bloco = CSS.match(/@media \(prefers-color-scheme: light\)\s*\{[\s\S]*?\n\}/);
   assert.ok(bloco, 'O tema claro sumiu.');

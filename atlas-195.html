@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d222e" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-XlWh3+ff7SPY56tQK/eP6rW5m6Lvr4cCXNhGkJO4zYU='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-x2nuvR50DUrjvEFi5rJUjvqvatDHYt+RDr4j1hfu+o0=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-toc8Q1/jeASYz2lhI3Qcwl+E5aLuptIkrZ5yIsudcTM='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-1J29nuG9GARxd+x/LGvjbNjTY6al3NyLp3OCrE2yK6Q='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-x2nuvR50DUrjvEFi5rJUjvqvatDHYt+RDr4j1hfu+o0=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-toc8Q1/jeASYz2lhI3Qcwl+E5aLuptIkrZ5yIsudcTM='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <title>Atlas 195 — bandeiras, capitais e localização</title>
   <meta name="description" content="Treino de geografia dos 195 países: bandeiras, capitais, localização no mapa e regiões, com revisão espaçada. Funciona sem internet e guarda o progresso só no seu aparelho.">
 
@@ -2166,7 +2166,6 @@ a.chip {
 .account-nickname .search { flex: 1 1 180px; min-width: 0; width: 100%; }
 .btn[aria-disabled="true"] { opacity: .65; cursor: wait; }
 
-
 .btn.danger {
   border-color: var(--coral);
   background: var(--coral);
@@ -2514,33 +2513,6 @@ a.chip {
   }
 }
 
-@media (forced-colors: active) {
-  :focus-visible {
-    outline-color: Highlight;
-  }
-
-  .cty,
-  .dot {
-    fill: CanvasText;
-    stroke: Canvas;
-  }
-
-  .cty.on,
-  .dot.on,
-  .cty.ok,
-  .dot.ok,
-  .cty.bad,
-  .dot.bad {
-    fill: Highlight;
-  }
-
-  .track,
-  progress.progress-native,
-  .pgroup progress {
-    border: 1px solid CanvasText;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -2791,6 +2763,109 @@ a.chip {
 .atlas-detail .moedas {
   color: var(--muted);
   font-size: 13px;
+}
+
+/* Último bloco do arquivo de propósito: o alto contraste é uma correção de
+   acessibilidade e precisa vencer qualquer regra de componente, inclusive as
+   que forem acrescentadas depois. Media query não soma especificidade — só a
+   ordem no arquivo decide. */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+
+  /* O mapa é o único lugar onde a diferença entre "país comum", "resposta
+     certa" e "vizinho" é só pintura. No alto contraste o navegador substitui a
+     pintura de todo mundo pela mesma cor do sistema, e os três viram um bloco
+     só — medido num Chrome real, não deduzido. `forced-color-adjust: none`
+     devolve a escolha ao CSS, e aqui ela é feita inteira com cores do sistema:
+     nada volta a ser a paleta do app. */
+  .cty,
+  .dot {
+    forced-color-adjust: none;
+    /* Sem transição: animar a troca de uma cor do sistema não comunica nada e
+       ainda atrasa a leitura de quem depende do contraste. */
+    transition: none;
+    fill: CanvasText;
+    stroke: Canvas;
+  }
+
+  /* Os vizinhos da pergunta de fronteira passam a ser desenhados em vez de
+     pintados: contorno tracejado sobre o fundo, o oposto da resposta certa,
+     que é preenchida. A distinção deixa de depender de cor. */
+  .cty.neighbor,
+  .dot.neighbor {
+    fill: Canvas;
+    stroke: CanvasText;
+    stroke-width: 1.5;
+    stroke-dasharray: 3 2;
+  }
+
+  .cty.on,
+  .dot.on,
+  .cty.ok,
+  .dot.ok {
+    fill: Highlight;
+    stroke: CanvasText;
+  }
+
+  /* A resposta errada não pode ficar igual à certa: mesma cor de destaque, mas
+     contornada em pontilhado. */
+  .cty.bad,
+  .dot.bad {
+    fill: Highlight;
+    stroke: CanvasText;
+    stroke-width: 1.5;
+    stroke-dasharray: 1 2;
+  }
+
+  /* A legenda é um quadradinho colorido: sem cor, vira um bloco invisível ao
+     lado do rótulo. Aqui ela vira caixa desenhada, com o mesmo tracejado do
+     mapa para os vizinhos. */
+  .legend-swatch {
+    forced-color-adjust: none;
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+
+  .legend-swatch.current,
+  .legend-swatch.correct,
+  .legend-swatch.wrong {
+    background: Highlight;
+  }
+
+  /* A cor precisa ser repetida aqui: a regra normal `.legend-swatch.neighbor`
+     tem a mesma especificidade e usa o atalho `border`, que traz a cor do app
+     junto. Especificidade empatada é decidida pela ordem, mas só entre
+     declarações da mesma propriedade. */
+  .legend-swatch.neighbor {
+    border-style: dashed;
+    border-color: CanvasText;
+    background: Canvas;
+  }
+
+  /* A silhueta é a pergunta inteira: precisa de forma cheia contra o fundo. */
+  .shape-svg path {
+    forced-color-adjust: none;
+    fill: CanvasText;
+    stroke: Canvas;
+    filter: none;
+  }
+
+  /* O filtro de área ativo se distinguia só pelo fundo dourado. A borda entra
+     junto: sem ela, o dourado do app sobreviveria na moldura. */
+  .atlas-area.is-active {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .track,
+  progress.progress-native,
+  .pgroup progress {
+    border: 1px solid CanvasText;
+  }
 }
   </style>
 </head>
