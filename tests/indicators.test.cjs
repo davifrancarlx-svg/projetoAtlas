@@ -116,6 +116,44 @@ test('os fatos derivados são só extremos, e cobrem quase todo o mundo', () => 
   assert.equal(JSON.stringify(built.DATA[0]), antes);
 });
 
+// A fronteira é o único fato derivado com empate previsto: Rússia e China têm
+// 14 vizinhos cada. Um desempate silencioso — o primeiro da lista levar o título
+// — passaria em qualquer teste que só olhasse uma frase por vez.
+test('o fato de fronteira sai da contagem e respeita o empate', () => {
+  const facts = (country) => Core.derivedFacts(country, built.DATA, { territories: built.TERRITORIES });
+  const frase = (country) => facts(country).join(' | ');
+  const vizinhos = (country) => country.nb.length;
+
+  const maximo = Math.max(...built.DATA.map(vizinhos));
+  const topo = built.DATA.filter((country) => vizinhos(country) === maximo);
+  assert.ok(maximo >= 10, `O máximo de vizinhos caiu para ${maximo}: a fronteira sumiu do artefato?`);
+  topo.forEach((country) => {
+    assert.match(frase(country), new RegExp(`vizinhos do mundo, ${maximo}\\b`),
+      `${country.n} tem o máximo de vizinhos e não diz isso.`);
+    if (topo.length > 1) {
+      assert.doesNotMatch(frase(country), /\bo país com mais vizinhos/,
+        `${country.n} empata no topo com outro país e mesmo assim se declara o único.`);
+    }
+  });
+
+  const ilhados = built.DATA.filter((country) => !vizinhos(country));
+  assert.ok(ilhados.length > 1, 'Ninguém ficou sem fronteira terrestre: a contagem quebrou.');
+  ilhados.forEach((country) => {
+    assert.match(frase(country), new RegExp(`um dos ${ilhados.length} países sem fronteira terrestre`),
+      `${country.n} não tem fronteira e a ficha não conta quantos estão no mesmo caso.`);
+  });
+
+  const solitarios = built.DATA.filter((country) => vizinhos(country) === 1);
+  assert.match(frase(solitarios[0]), new RegExp(`um dos ${solitarios.length} países com um único vizinho`));
+
+  // O meio da tabela não ganha frase: sete vizinhos é verdade e não é extremo.
+  built.DATA.filter((country) => vizinhos(country) > 1 && vizinhos(country) < maximo)
+    .forEach((country) => {
+      assert.doesNotMatch(frase(country), /vizinho|fronteira terrestre/,
+        `${country.n} ganhou fato de fronteira sem ser extremo.`);
+    });
+});
+
 test('a ficha mostra cada número com o ano e credita as fontes', () => {
   // O ano viaja num campo próprio e é renderizado ao lado do valor, num span
   // secundário — sem ele o número passaria por permanente.

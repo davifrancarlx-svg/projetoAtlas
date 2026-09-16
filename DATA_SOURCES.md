@@ -73,7 +73,7 @@ Critérios editoriais:
 
 Desde 16 de setembro de 2026 as fronteiras também sustentam uma **variante de pergunta**: "qual destes faz fronteira com X?". Ela não é uma direção nova — é uma das três formas da direção `locate` (país → mapa), ao lado de apontar no mapa e de reconhecer a silhueta. A resposta certa é um vizinho sorteado entre os registrados aqui, e os três distratores saem de um universo do qual **todos os vizinhos foram removidos**, para não existir uma segunda resposta correta. O progresso continua sendo gravado no país da pergunta, na direção `locate`: muda a evidência, não a habilidade nem o esquema.
 
-É **complemento da ficha e do contraste didático do erro; a lista em si nunca é resposta de pergunta**. Na ficha aparece como "Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres". Quando alguém marca no mapa um país que faz fronteira com o certo, o veredito diz "faz fronteira com", que é mais concreto do que "fica perto". Os testes conferem simetria, IDs, contagens conhecidas (China e Rússia com 14, Brasil com 10, ilhas com zero) e plausibilidade geográfica: os contornos dos dois países precisam se aproximar no mapa, o que pega erro de digitação de ID.
+É **complemento da ficha, dos fatos derivados e do contraste didático do erro; a lista em si nunca é resposta de pergunta**. Na ficha aparece como "Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres", e a contagem alimenta os destaques descritos em [Fatos derivados](#fatos-derivados). Quando alguém marca no mapa um país que faz fronteira com o certo, o veredito diz "faz fronteira com", que é mais concreto do que "fica perto". Os testes conferem simetria, IDs, contagens conhecidas (China e Rússia com 14, Brasil com 10, ilhas com zero) e plausibilidade geográfica: os contornos dos dois países precisam se aproximar no mapa, o que pega erro de digitação de ID.
 
 ## Bandeiras
 
@@ -296,6 +296,17 @@ Como extremo é, por definição, para poucos, quem não é extremo em nada rece
 âncora de tamanho ("área parecida — Peru"), aceita apenas quando a diferença é
 de no máximo 10%. Com isso, 190 dos 195 países têm ao menos um destaque; os cinco
 restantes simplesmente não exibem nada.
+
+Desde 16 de setembro de 2026 as fronteiras também entram, pelos mesmos dois
+extremos da contagem de `nb`: nenhum vizinho ("um dos 39 países sem fronteira
+terrestre"), um único vizinho ("um dos 17 países com um único vizinho") e o
+máximo do mundo. A quantidade de países no mesmo caso vai junto porque é o que a
+ficha ainda não dizia — ela já lista os vizinhos, mas não diz se aquilo é comum
+ou raro. **O topo empata**: Rússia e China fazem fronteira com 14 países cada, e
+chamar as duas de "o país com mais vizinhos do mundo" seria falso, então o empate
+troca a frase ("entre os países com mais vizinhos do mundo, 14") em vez de
+escolher uma vencedora pela ordem da lista. Um teste cobre os três casos e o
+empate.
 
 No acerto de uma pergunta aparece **um** destaque, escolhido pelo número da
 pergunta, para que repetir o país não repita a frase.

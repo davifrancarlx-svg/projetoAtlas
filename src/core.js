@@ -1744,6 +1744,34 @@
         fatos.push('área parecida — ' + vizinho.n);
       }
     }
+
+    // Fronteiras: o último dado embarcado que ainda não rendia frase. Só entram
+    // os dois extremos da contagem — nenhum vizinho e o máximo do mundo — e
+    // sempre acompanhados de quantos países estão no mesmo caso. É justamente o
+    // que a ficha ainda não diz: ela lista os vizinhos, mas não diz se aquilo é
+    // comum ou raro. Sem a quantidade, a frase repetiria a linha de cima.
+    //
+    // Fica depois da âncora de tamanho de propósito: uma ilha sem fronteira
+    // alguma continua ganhando a comparação de área que teria antes.
+    if (Array.isArray(country.nb)) {
+      var quantos = country.nb.length;
+      var iguais = countries.filter(function (item) {
+        return Array.isArray(item && item.nb) && item.nb.length === quantos;
+      }).length;
+      var maximo = countries.reduce(function (maior, item) {
+        return Math.max(maior, Array.isArray(item && item.nb) ? item.nb.length : 0);
+      }, 0);
+      if (quantos <= 1) {
+        var caso = quantos ? 'com um único vizinho' : 'sem fronteira terrestre';
+        fatos.push(iguais > 1 ? 'um dos ' + iguais + ' países ' + caso : 'o único país do mundo ' + caso);
+      } else if (quantos === maximo) {
+        // Rússia e China fazem fronteira com 14 países cada. Chamar as duas de
+        // "o país com mais vizinhos do mundo" seria falso, e escolher uma pela
+        // ordem da lista seria pior ainda: o empate muda a frase.
+        fatos.push((iguais > 1 ? 'entre os países com mais vizinhos do mundo, '
+          : 'o país com mais vizinhos do mundo, ') + quantos);
+      }
+    }
     return fatos;
   }
 

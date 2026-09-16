@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d222e" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-1J29nuG9GARxd+x/LGvjbNjTY6al3NyLp3OCrE2yK6Q='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-x2nuvR50DUrjvEFi5rJUjvqvatDHYt+RDr4j1hfu+o0=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-toc8Q1/jeASYz2lhI3Qcwl+E5aLuptIkrZ5yIsudcTM='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-1J29nuG9GARxd+x/LGvjbNjTY6al3NyLp3OCrE2yK6Q='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-rkRfrKJPnTFUoDBnYHmIM5HM0mY6eq1jzHKaOvS8Mzg=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-toc8Q1/jeASYz2lhI3Qcwl+E5aLuptIkrZ5yIsudcTM='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <title>Atlas 195 — bandeiras, capitais e localização</title>
   <meta name="description" content="Treino de geografia dos 195 países: bandeiras, capitais, localização no mapa e regiões, com revisão espaçada. Funciona sem internet e guarda o progresso só no seu aparelho.">
 
@@ -4996,6 +4996,34 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       // Portugal") e montá-lo por regra erraria em vários casos.
       if (vizinho && menorDiferenca <= 0.1) {
         fatos.push('área parecida — ' + vizinho.n);
+      }
+    }
+
+    // Fronteiras: o último dado embarcado que ainda não rendia frase. Só entram
+    // os dois extremos da contagem — nenhum vizinho e o máximo do mundo — e
+    // sempre acompanhados de quantos países estão no mesmo caso. É justamente o
+    // que a ficha ainda não diz: ela lista os vizinhos, mas não diz se aquilo é
+    // comum ou raro. Sem a quantidade, a frase repetiria a linha de cima.
+    //
+    // Fica depois da âncora de tamanho de propósito: uma ilha sem fronteira
+    // alguma continua ganhando a comparação de área que teria antes.
+    if (Array.isArray(country.nb)) {
+      var quantos = country.nb.length;
+      var iguais = countries.filter(function (item) {
+        return Array.isArray(item && item.nb) && item.nb.length === quantos;
+      }).length;
+      var maximo = countries.reduce(function (maior, item) {
+        return Math.max(maior, Array.isArray(item && item.nb) ? item.nb.length : 0);
+      }, 0);
+      if (quantos <= 1) {
+        var caso = quantos ? 'com um único vizinho' : 'sem fronteira terrestre';
+        fatos.push(iguais > 1 ? 'um dos ' + iguais + ' países ' + caso : 'o único país do mundo ' + caso);
+      } else if (quantos === maximo) {
+        // Rússia e China fazem fronteira com 14 países cada. Chamar as duas de
+        // "o país com mais vizinhos do mundo" seria falso, e escolher uma pela
+        // ordem da lista seria pior ainda: o empate muda a frase.
+        fatos.push((iguais > 1 ? 'entre os países com mais vizinhos do mundo, '
+          : 'o país com mais vizinhos do mundo, ') + quantos);
       }
     }
     return fatos;

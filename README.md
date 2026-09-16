@@ -79,7 +79,7 @@ Abra `http://127.0.0.1:8743/atlas-195.html`.
 - `src/languages.json`: idiomas oficiais de cada país, com nota quando o uso cotidiano diverge do estatuto legal. Complemento da ficha, nunca resposta de pergunta — ver `DATA_SOURCES.md`.
 - `src/borders.json`: fronteiras terrestres entre os 195, um par por linha, com nota quando a fronteira acontece longe da metrópole. Alimentam a ficha, a explicação do erro e a variante de pergunta "quem faz fronteira com X".
 - `src/currencies.json`: moeda de cada país, com nome em português e código ISO 4217, e nota quando o curso legal não conta a história sozinho. Complemento da ficha, nunca resposta de pergunta — ver `DATA_SOURCES.md`.
-- `data/indicators.json`: seis indicadores oficiais (população, densidade, expectativa de vida, população urbana, área florestal e IDH), com origem, ano e hash registrados. São dados complementares da ficha e nunca viram pergunta; os destaques exibidos são derivados deles por `Core.derivedFacts`.
+- `data/indicators.json`: seis indicadores oficiais (população, densidade, expectativa de vida, população urbana, área florestal e IDH), com origem, ano e hash registrados. São dados complementares da ficha e nunca viram pergunta; os destaques exibidos são derivados deles — e da contagem de fronteiras — por `Core.derivedFacts`.
 - `src/territories.json`: territórios que a cartografia entrega dentro de outro país, com rótulo, capital regional e notas.
 - `data/map-geometry.json`: geometria projetada gerada a partir do Natural Earth.
 - `data/flags.json`: bandeiras SVG 4:3 geradas do flag-icons, com licença documentada.
