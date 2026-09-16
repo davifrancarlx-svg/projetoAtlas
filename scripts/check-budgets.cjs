@@ -14,9 +14,15 @@ const LIMITS = {
   // A conta saiu de app.js em 2026-09-16 para o app principal voltar a ter
   // folga: o orçamento dela é próprio, não uma transferência de bytes.
   'src/account.js': 24 * 1024,
+  // A aba Atlas saiu de app.js na mesma linha de raciocínio, junto do filtro
+  // por área e da moeda na ficha (2026-09-16).
+  'src/atlas.js': 20 * 1024,
   'atlas-195.html': 5.25 * 1024 * 1024,
   'src/app.js': 150 * 1024,
-  'src/core.js': 80 * 1024,
+  // 80 → 88 KiB com as três variantes de "país → mapa" (mapa, silhueta e
+  // fronteira): o núcleo é lógica pura e não tem bloco que valha separar sem
+  // espalhar as regras do jogo por mais arquivos.
+  'src/core.js': 88 * 1024,
   'src/styles.css': 55 * 1024,
 };
 

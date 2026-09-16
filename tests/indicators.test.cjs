@@ -123,8 +123,13 @@ test('a ficha mostra cada número com o ano e credita as fontes', () => {
   assert.match(html, /className: 'ano', text: String\(item\.ano\)/, 'O ano precisa ser renderizado ao lado do valor.');
   // Sem alternativa na regex: um nome de campo que não existe mais quebraria a
   // ficha em tempo de execução e passaria batido se o teste aceitasse o texto solto.
-  assert.match(html, /INDICATOR_META\.bancoMundial\.fonte/, 'A ficha precisa creditar o Banco Mundial.');
-  assert.match(html, /INDICATOR_META\.idh\.fonte/, 'A ficha precisa creditar o PNUD.');
+  // A ficha vive em src/atlas.js e recebe a procedência por injeção, mas o
+  // caminho dentro dela continua sendo o do objeto embarcado: um campo que não
+  // existe mais quebraria a ficha em execução e passaria batido se o teste
+  // aceitasse o texto solto.
+  assert.match(html, /indicatorMeta\.bancoMundial\.fonte/, 'A ficha precisa creditar o Banco Mundial.');
+  assert.match(html, /indicatorMeta\.idh\.fonte/, 'A ficha precisa creditar o PNUD.');
+  assert.match(html, /indicatorMeta: INDICATOR_META/, 'A procedência precisa chegar ao Atlas vinda do artefato.');
   assert.doesNotMatch(html, /INDICATOR_META\.populacao/, 'Referência a um campo que não existe mais.');
   assert.ok(built.INDICATOR_META && built.INDICATOR_META.idh.ano, 'O artefato precisa embarcar a procedência.');
   assert.ok(built.INDICATOR_META.bancoMundial.indicadores.vida, 'A procedência das séries precisa viajar junto.');

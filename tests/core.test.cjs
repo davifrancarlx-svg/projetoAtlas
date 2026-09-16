@@ -376,6 +376,80 @@ test('mapa → país alterna entre pin e silhueta, e a silhueta poupa quem não 
   }).question.variant, undefined, 'Só mapa → país tem variante.');
 });
 
+// "País → mapa" é uma habilidade só, com três evidências: apontar no mapa,
+// reconhecer a silhueta e saber quem faz fronteira. Nada disso pode mexer no
+// que é gravado no progresso — muda a pergunta, não o registro.
+const LOCATE_COUNTRIES = [
+  { id: 'BR', n: 'Brasil', cap: 'Brasília', r: 'América do Sul', ar: 1, a: 90, c: [0, 0], nb: ['AR', 'PE'] },
+  { id: 'AR', n: 'Argentina', cap: 'Buenos Aires', r: 'América do Sul', ar: 1, a: 60, c: [10, 10], nb: ['BR'] },
+  { id: 'PE', n: 'Peru', cap: 'Lima', r: 'América do Sul', ar: 1, a: 50, c: [20, 20], nb: ['BR'] },
+  { id: 'PT', n: 'Portugal', cap: 'Lisboa', r: 'Europa', ar: 1, a: 40, c: [900, 100], nb: [] },
+  { id: 'ES', n: 'Espanha', cap: 'Madri', r: 'Europa', ar: 1, a: 45, c: [905, 105], nb: [] },
+  { id: 'IT', n: 'Itália', cap: 'Roma', r: 'Europa', ar: 1, a: 35, c: [960, 140], nb: [] },
+  { id: 'VA', n: 'Vaticano', cap: 'Cidade do Vaticano', r: 'Europa', ar: 1, a: 0, c: [961, 141], nb: [] },
+];
+
+function locateQuestion(rng, forcedId = 'BR', countries = LOCATE_COUNTRIES) {
+  return Core.createQuestion({
+    countries, progress: Core.createProgress({ now: NOW }), directions: ['locate'],
+    forcedId, answerMode: 'pick', rng, now: NOW,
+  }).question;
+}
+
+test('país → mapa sorteia mapa, silhueta ou fronteira conforme o que cabe', () => {
+  assert.equal(locateQuestion(() => 0).variant, 'map', 'Clicar no mapa fica com metade dos sorteios.');
+  assert.equal(locateQuestion(() => 0.6).variant, 'shape');
+  assert.equal(locateQuestion(() => 0.9).variant, 'border');
+  assert.equal(locateQuestion(() => 0).opts, null, 'A variante de mapa não tem alternativas.');
+
+  // Sem vizinho registrado sobra a silhueta; sem forma no mapa sobra a
+  // fronteira; sem nenhum dos dois, o mapa.
+  assert.equal(locateQuestion(() => 0.9, 'PT').variant, 'shape', 'Uma ilha não tem fronteira a perguntar.');
+  const semForma = LOCATE_COUNTRIES.map((c) => (c.id === 'BR' ? { ...c, a: 0 } : c));
+  assert.equal(locateQuestion(() => 0.9, 'BR', semForma).variant, 'border');
+  assert.equal(locateQuestion(() => 0.6, 'BR', semForma).variant, 'border');
+  assert.equal(locateQuestion(() => 0.9, 'VA').variant, 'map', 'Sem forma e sem vizinho, resta o mapa.');
+});
+
+test('a silhueta entre quatro só concorre com quem também tem forma', () => {
+  for (let seed = 0; seed < 30; seed += 1) {
+    const question = locateQuestion(() => 0.5 + (seed * 0.008));
+    if (question.variant !== 'shape') continue;
+    assert.equal(question.opts.length, 4);
+    assert.ok(question.opts.includes('BR'), 'A resposta é o próprio país da pergunta.');
+    assert.equal(question.answerId, undefined, 'Sem resposta deslocada: o alvo é a resposta.');
+    question.opts.forEach((id) => {
+      const country = LOCATE_COUNTRIES.find((item) => item.id === id);
+      assert.ok(Core.isShapeable(country), `${id} não tem forma e não pode ser alternativa.`);
+    });
+    assert.deepEqual(Core.inspectQuestion(question, LOCATE_COUNTRIES), { valid: true, errors: [] });
+  }
+});
+
+test('a fronteira tem uma só resposta certa, e ela não é o país da pergunta', () => {
+  let testadas = 0;
+  for (let seed = 0; seed < 40; seed += 1) {
+    const question = locateQuestion(() => 0.75 + (seed * 0.006));
+    if (question.variant !== 'border') continue;
+    testadas += 1;
+    assert.equal(question.opts.length, 4);
+    assert.equal(question.opts.includes('BR'), false, 'O país da pergunta não pode ser alternativa.');
+    assert.ok(['AR', 'PE'].includes(question.answerId), 'A resposta precisa ser um vizinho real.');
+    assert.ok(question.opts.includes(question.answerId));
+    const vizinhas = question.opts.filter((id) => ['AR', 'PE'].includes(id));
+    assert.deepEqual(vizinhas, [question.answerId], 'Só pode haver uma alternativa que faz fronteira.');
+    // O progresso continua sendo do país da pergunta: a evidência mudou, a
+    // habilidade não.
+    assert.equal(question.id, 'BR');
+    assert.equal(question.direction, 'locate');
+    assert.deepEqual(Core.inspectQuestion(question, LOCATE_COUNTRIES), { valid: true, errors: [] });
+  }
+  assert.ok(testadas > 0, 'Nenhuma pergunta de fronteira foi sorteada.');
+  // Uma alternativa que não está no dataset precisa ser recusada.
+  const quebrada = { ...locateQuestion(() => 0.9), answerId: 'ZZ' };
+  assert.equal(Core.inspectQuestion(quebrada, LOCATE_COUNTRIES).valid, false);
+});
+
 test('region questions are rejected outside Mundo inteiro', () => {
   assert.throws(() => Core.createQuestion({
     countries: COUNTRIES,

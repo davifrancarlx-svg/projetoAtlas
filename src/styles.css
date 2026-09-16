@@ -2619,3 +2619,58 @@ a.chip {
 .overall-stats {
   margin-block: 4px 16px;
 }
+
+/* Silhueta entre quatro: mesma grade da bandeira, só o contorno visível. */
+.opt.shapeopt {
+  aspect-ratio: 3 / 2;
+  min-height: 100px;
+  justify-content: center;
+  padding: 8px;
+}
+
+.opt.shapeopt .shape-svg {
+  max-height: none;
+}
+
+.opt.shapeopt .shape-svg path {
+  filter: none;
+}
+
+/* Filtro de área do Atlas: o balde amplo e, sob ele, as subregiões. */
+.atlas-areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block: 10px 4px;
+}
+
+.atlas-area {
+  min-height: 32px;
+  padding-inline: 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.atlas-area:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--ink);
+}
+
+.atlas-area.is-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.atlas-area.is-active {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--on-accent);
+}
+
+.atlas-detail .moedas {
+  color: var(--muted);
+  font-size: 13px;
+}

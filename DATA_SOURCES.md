@@ -71,7 +71,9 @@ Critérios editoriais:
 - Fronteira é terrestre. Vizinhança só por mar (Espanha–Marrocos pelo estreito, Índia–Sri Lanka) não conta; a de Ceuta e Melilha conta porque é em terra.
 - Botsuana–Zâmbia entra: a fronteira em Kazungula é de poucas centenas de metros, mas existe.
 
-É **complemento da ficha e do contraste didático do erro; nunca resposta de pergunta**. Na ficha aparece como "Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres". Quando alguém marca no mapa um país que faz fronteira com o certo, o veredito diz "faz fronteira com", que é mais concreto do que "fica perto". Os testes conferem simetria, IDs, contagens conhecidas (China e Rússia com 14, Brasil com 10, ilhas com zero) e plausibilidade geográfica: os contornos dos dois países precisam se aproximar no mapa, o que pega erro de digitação de ID.
+Desde 16 de setembro de 2026 as fronteiras também sustentam uma **variante de pergunta**: "qual destes faz fronteira com X?". Ela não é uma direção nova — é uma das três formas da direção `locate` (país → mapa), ao lado de apontar no mapa e de reconhecer a silhueta. A resposta certa é um vizinho sorteado entre os registrados aqui, e os três distratores saem de um universo do qual **todos os vizinhos foram removidos**, para não existir uma segunda resposta correta. O progresso continua sendo gravado no país da pergunta, na direção `locate`: muda a evidência, não a habilidade nem o esquema.
+
+É **complemento da ficha e do contraste didático do erro; a lista em si nunca é resposta de pergunta**. Na ficha aparece como "Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres". Quando alguém marca no mapa um país que faz fronteira com o certo, o veredito diz "faz fronteira com", que é mais concreto do que "fica perto". Os testes conferem simetria, IDs, contagens conhecidas (China e Rússia com 14, Brasil com 10, ilhas com zero) e plausibilidade geográfica: os contornos dos dois países precisam se aproximar no mapa, o que pega erro de digitação de ID.
 
 ## Bandeiras
 
@@ -211,6 +213,31 @@ elevou o hauçá a língua nacional em 2025.
 O build **recusa** um país sem idioma registrado, e os testes recusam nome
 capitalizado (em português, língua é substantivo comum), idioma repetido na mesma
 lista, campo fora do esquema e nota que não seja frase completa.
+
+## Moedas
+
+Ficam em `src/currencies.json`, um registro por país, e seguem **a mesma política dos idiomas: complementam a ficha e nunca viram pergunta**. Adivinhar moeda não é conhecimento geográfico, e o dado muda com redenominações, adesões ao euro e trocas de regime cambial. Um teste barra a entrada de qualquer nome de moeda no universo de respostas aceitas.
+
+Cada entrada traz `moedas` — uma ou duas, cada uma com `nome` em português e `codigo` ISO 4217 — e uma `nota` opcional. O código acompanha o nome porque é ele que não muda de grafia entre línguas, e porque distingue os muitos "dólar", "franco" e "peso" entre si. O nome vai em minúscula: em português, moeda é substantivo comum. A única exceção registrada é o **ZiG** do Zimbábue, grafado assim pelo próprio banco central.
+
+O dado é **editorial**, como as capitais e os idiomas, e não gerado de uma API: nenhuma fonte global entrega os nomes em português nem resolve os casos abaixo. O critério é o curso legal, não o uso.
+
+A `nota` existe **só quando o curso legal não conta a história sozinho**:
+
+| Caso | Por que a nota existe |
+| --- | --- |
+| Equador, El Salvador, Timor-Leste | Adotaram o dólar americano no lugar da moeda própria; alguns ainda cunham centavos locais. |
+| Panamá | O balboa é paritário ao dólar e só existe em moedas metálicas; as cédulas são dólares. |
+| Andorra, Mônaco, San Marino, Vaticano | Usam o euro por acordo com a União Europeia, sem integrar a zona do euro. |
+| Montenegro | Usa o euro unilateralmente, o que é diferente dos acordos acima. |
+| Butão, Brunei, Essuatíni, Lesoto, Namíbia | Paridade fixa com a moeda do vizinho, que também circula. |
+| Líbano, Camboja, Venezuela, Zimbábue, RD Congo | O curso legal existe, mas o dólar americano domina o cotidiano. |
+| Bulgária | Adotou o euro em 1º de janeiro de 2026, no lugar do lev. |
+| Mauritânia, Serra Leoa | Redenominações recentes que ainda confundem quem consulta valores antigos. |
+
+São 142 moedas distintas para 195 países: o euro cobre 26 (os 21 da zona, mais quatro por acordo e Montenegro), o dólar americano 8, e os dois francos CFA e o dólar do Caribe Oriental cobrem blocos inteiros.
+
+**Merece reconferência periódica**, como os idiomas: adesões ao euro, redenominações e trocas de regime cambial são exatamente o tipo de mudança que envelhece este arquivo em silêncio. Como a moeda nunca é resposta, um dado defasado erra uma linha da ficha, não a correção de uma pergunta.
 
 ## Indicadores e fatos derivados
 

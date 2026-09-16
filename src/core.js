@@ -1007,6 +1007,42 @@
     return directions[directions.length - 1];
   }
 
+  // Um país só vira silhueta se render forma na escala do mapa: abaixo disso
+  // (Malta, Singapura, os microestados) o contorno é um ponto e a pergunta
+  // viraria sorte. Sem área registrada, o dataset é de teste e passa.
+  function isShapeable(country) {
+    return !Number.isFinite(country && country.a) || country.a >= SHAPE_MIN_AREA;
+  }
+
+  function neighboursOf(country, countries) {
+    var known = Object.create(null);
+    countries.forEach(function (item) { known[itemId(item)] = item; });
+    return (Array.isArray(country && country.nb) ? country.nb : [])
+      .map(function (id) { return known[id]; })
+      .filter(Boolean);
+  }
+
+  /**
+   * "País → mapa" tem três formas de provar a mesma coisa: apontar no mapa,
+   * reconhecer a silhueta entre quatro e saber quem faz fronteira. É uma
+   * habilidade só — saber onde o país fica — com evidências diferentes, então
+   * nada muda no esquema do progresso.
+   *
+   * Clicar no mapa é a interação que dá identidade ao app e fica com metade
+   * dos sorteios; as variantes disponíveis dividem a outra metade. Quando uma
+   * delas não cabe (país sem forma, país sem vizinho), sobra o mapa.
+   */
+  function locateVariant(target, countries, options) {
+    var extras = [];
+    if (isShapeable(target) && countries.filter(isShapeable).length >= 4) extras.push('shape');
+    var neighbours = neighboursOf(target, countries);
+    if (neighbours.length && countries.length - neighbours.length - 1 >= 3) extras.push('border');
+    if (!extras.length) return 'map';
+    var draw = sampleUnit(options.rng);
+    if (draw < 0.5) return 'map';
+    return extras[Math.min(extras.length - 1, Math.floor((draw - 0.5) * 2 * extras.length))];
+  }
+
   function shuffled(values, rng) {
     var copy = values.slice();
     for (var index = copy.length - 1; index > 0; index -= 1) {
@@ -1247,20 +1283,37 @@
     // habilidade (reconhecer o país pelo desenho dele), com duas evidências
     // diferentes. A silhueta só vale para quem tem forma na escala do mapa.
     if (direction === 'mapId') {
-      var shapeable = !Number.isFinite(target.a) || target.a >= SHAPE_MIN_AREA;
-      question.variant = shapeable && sampleUnit(options.rng) < 0.5 ? 'shape' : 'pin';
+      question.variant = isShapeable(target) && sampleUnit(options.rng) < 0.5 ? 'shape' : 'pin';
+    }
+    if (direction === 'locate') question.variant = locateVariant(target, countries, options);
+    function pickFrom(answer, localPool, globalPool) {
+      return shuffled(
+        [answer].concat(distractors(target, 3, localPool, globalPool, options.rng, direction)),
+        options.rng
+      ).map(itemId);
     }
     if (direction === 'reg') {
       // As alternativas de região vêm do dataset inteiro, não do pool filtrado:
       // num treino restrito a um continente a resposta seria a única opção.
       question.opts = regionOptions(target, countries, options.rng);
-    } else if (options.answerMode === 'pick' || direction === 'flagOf' || direction === 'locate') {
-      if (direction !== 'locate') {
-        question.opts = shuffled(
-          [target].concat(distractors(target, 3, pool, countries, options.rng, direction)),
-          options.rng
-        ).map(function (country) { return country.id; });
+    } else if (direction === 'locate') {
+      if (question.variant === 'shape') {
+        question.opts = pickFrom(target, pool.filter(isShapeable), countries.filter(isShapeable));
+      } else if (question.variant === 'border') {
+        // A resposta certa é um vizinho de verdade; os distratores saem de um
+        // universo sem nenhum vizinho, senão a pergunta teria duas respostas.
+        // Continuam sendo os mais próximos disponíveis, para o erro ser por
+        // geografia e não por sorteio de país distante.
+        var neighbours = neighboursOf(target, countries);
+        var answer = neighbours[Math.floor(sampleUnit(options.rng) * neighbours.length)];
+        var bordering = Object.create(null);
+        neighbours.forEach(function (item) { bordering[itemId(item)] = true; });
+        var eligible = function (item) { return !bordering[itemId(item)]; };
+        question.answerId = itemId(answer);
+        question.opts = pickFrom(answer, pool.filter(eligible), countries.filter(eligible));
       }
+    } else if (options.answerMode === 'pick' || direction === 'flagOf') {
+      question.opts = pickFrom(target, pool, countries);
     }
     var recent = (options.recentIds || []).concat(target.id);
     var limit = Math.min(14, Math.max(3, Math.floor(pool.length / 3)));
@@ -1552,8 +1605,12 @@
           if (!regions[region]) errors.push('unknown option region: ' + region);
         });
       } else {
+        // Na variante de fronteira a resposta certa é um vizinho, não o país da
+        // pergunta: é `answerId` que precisa estar entre as alternativas.
+        var expected = question.answerId || question.id;
+        if (question.answerId !== undefined && !ids[question.answerId]) errors.push('unknown answer id');
         if (uniqueStrings(question.opts).length !== question.opts.length) errors.push('opts must be unique');
-        if (question.opts.indexOf(question.id) === -1) errors.push('opts must contain the target');
+        if (question.opts.indexOf(expected) === -1) errors.push('opts must contain the target');
         question.opts.forEach(function (id) { if (!ids[id]) errors.push('unknown option id: ' + id); });
       }
     }
@@ -1740,6 +1797,8 @@
     recordAnswer: recordAnswer,
     ANSWER_GRADES: ANSWER_GRADES,
     SHAPE_MIN_AREA: SHAPE_MIN_AREA,
+    isShapeable: isShapeable,
+    neighboursOf: neighboursOf,
     gradeAnswer: gradeAnswer,
     scheduleFor: scheduleFor,
     overdueFactor: overdueFactor,

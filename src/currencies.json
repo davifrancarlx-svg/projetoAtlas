@@ -1,0 +1,1595 @@
+{
+  "AF": {
+    "moedas": [
+      {
+        "nome": "afegane",
+        "codigo": "AFN"
+      }
+    ]
+  },
+  "ZA": {
+    "moedas": [
+      {
+        "nome": "rand",
+        "codigo": "ZAR"
+      }
+    ]
+  },
+  "AL": {
+    "moedas": [
+      {
+        "nome": "lek",
+        "codigo": "ALL"
+      }
+    ]
+  },
+  "DE": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "AD": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ],
+    "nota": "Usa o euro por acordo com a União Europeia, sem integrar a zona do euro e sem emitir cédulas próprias."
+  },
+  "AO": {
+    "moedas": [
+      {
+        "nome": "kwanza",
+        "codigo": "AOA"
+      }
+    ]
+  },
+  "AG": {
+    "moedas": [
+      {
+        "nome": "dólar do Caribe Oriental",
+        "codigo": "XCD"
+      }
+    ]
+  },
+  "SA": {
+    "moedas": [
+      {
+        "nome": "rial saudita",
+        "codigo": "SAR"
+      }
+    ]
+  },
+  "DZ": {
+    "moedas": [
+      {
+        "nome": "dinar argelino",
+        "codigo": "DZD"
+      }
+    ]
+  },
+  "AR": {
+    "moedas": [
+      {
+        "nome": "peso argentino",
+        "codigo": "ARS"
+      }
+    ]
+  },
+  "AM": {
+    "moedas": [
+      {
+        "nome": "dram",
+        "codigo": "AMD"
+      }
+    ]
+  },
+  "AU": {
+    "moedas": [
+      {
+        "nome": "dólar australiano",
+        "codigo": "AUD"
+      }
+    ]
+  },
+  "AT": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "AZ": {
+    "moedas": [
+      {
+        "nome": "manat azeri",
+        "codigo": "AZN"
+      }
+    ]
+  },
+  "BS": {
+    "moedas": [
+      {
+        "nome": "dólar bahamense",
+        "codigo": "BSD"
+      }
+    ]
+  },
+  "BH": {
+    "moedas": [
+      {
+        "nome": "dinar bareinita",
+        "codigo": "BHD"
+      }
+    ]
+  },
+  "BD": {
+    "moedas": [
+      {
+        "nome": "taka",
+        "codigo": "BDT"
+      }
+    ]
+  },
+  "BB": {
+    "moedas": [
+      {
+        "nome": "dólar barbadiano",
+        "codigo": "BBD"
+      }
+    ]
+  },
+  "BE": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "BZ": {
+    "moedas": [
+      {
+        "nome": "dólar belizenho",
+        "codigo": "BZD"
+      }
+    ]
+  },
+  "BJ": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Ocidental",
+        "codigo": "XOF"
+      }
+    ]
+  },
+  "BY": {
+    "moedas": [
+      {
+        "nome": "rublo bielorrusso",
+        "codigo": "BYN"
+      }
+    ]
+  },
+  "BO": {
+    "moedas": [
+      {
+        "nome": "boliviano",
+        "codigo": "BOB"
+      }
+    ]
+  },
+  "BA": {
+    "moedas": [
+      {
+        "nome": "marco conversível",
+        "codigo": "BAM"
+      }
+    ]
+  },
+  "BW": {
+    "moedas": [
+      {
+        "nome": "pula",
+        "codigo": "BWP"
+      }
+    ]
+  },
+  "BR": {
+    "moedas": [
+      {
+        "nome": "real",
+        "codigo": "BRL"
+      }
+    ]
+  },
+  "BN": {
+    "moedas": [
+      {
+        "nome": "dólar de Brunei",
+        "codigo": "BND"
+      }
+    ],
+    "nota": "O dólar de Brunei circula em paridade fixa com o dólar de Singapura, aceito no país."
+  },
+  "BG": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ],
+    "nota": "Adotou o euro em 1º de janeiro de 2026, no lugar do lev."
+  },
+  "BF": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Ocidental",
+        "codigo": "XOF"
+      }
+    ]
+  },
+  "BI": {
+    "moedas": [
+      {
+        "nome": "franco burundiano",
+        "codigo": "BIF"
+      }
+    ]
+  },
+  "BT": {
+    "moedas": [
+      {
+        "nome": "ngultrum",
+        "codigo": "BTN"
+      }
+    ],
+    "nota": "O ngultrum tem paridade fixa com a rupia indiana, que também circula."
+  },
+  "CV": {
+    "moedas": [
+      {
+        "nome": "escudo cabo-verdiano",
+        "codigo": "CVE"
+      }
+    ]
+  },
+  "CM": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Central",
+        "codigo": "XAF"
+      }
+    ]
+  },
+  "KH": {
+    "moedas": [
+      {
+        "nome": "riel",
+        "codigo": "KHR"
+      }
+    ],
+    "nota": "O riel é a moeda oficial, mas o dólar americano domina as transações maiores."
+  },
+  "CA": {
+    "moedas": [
+      {
+        "nome": "dólar canadense",
+        "codigo": "CAD"
+      }
+    ]
+  },
+  "QA": {
+    "moedas": [
+      {
+        "nome": "rial catariano",
+        "codigo": "QAR"
+      }
+    ]
+  },
+  "KZ": {
+    "moedas": [
+      {
+        "nome": "tenge",
+        "codigo": "KZT"
+      }
+    ]
+  },
+  "TD": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Central",
+        "codigo": "XAF"
+      }
+    ]
+  },
+  "CL": {
+    "moedas": [
+      {
+        "nome": "peso chileno",
+        "codigo": "CLP"
+      }
+    ]
+  },
+  "CN": {
+    "moedas": [
+      {
+        "nome": "yuan",
+        "codigo": "CNY"
+      }
+    ]
+  },
+  "CY": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "CO": {
+    "moedas": [
+      {
+        "nome": "peso colombiano",
+        "codigo": "COP"
+      }
+    ]
+  },
+  "KM": {
+    "moedas": [
+      {
+        "nome": "franco comoriano",
+        "codigo": "KMF"
+      }
+    ]
+  },
+  "KP": {
+    "moedas": [
+      {
+        "nome": "won norte-coreano",
+        "codigo": "KPW"
+      }
+    ]
+  },
+  "KR": {
+    "moedas": [
+      {
+        "nome": "won sul-coreano",
+        "codigo": "KRW"
+      }
+    ]
+  },
+  "CI": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Ocidental",
+        "codigo": "XOF"
+      }
+    ]
+  },
+  "CR": {
+    "moedas": [
+      {
+        "nome": "colón costa-riquenho",
+        "codigo": "CRC"
+      }
+    ]
+  },
+  "HR": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "CU": {
+    "moedas": [
+      {
+        "nome": "peso cubano",
+        "codigo": "CUP"
+      }
+    ],
+    "nota": "O peso cubano convive com lojas que só aceitam moeda estrangeira."
+  },
+  "DK": {
+    "moedas": [
+      {
+        "nome": "coroa dinamarquesa",
+        "codigo": "DKK"
+      }
+    ]
+  },
+  "DJ": {
+    "moedas": [
+      {
+        "nome": "franco djibutiano",
+        "codigo": "DJF"
+      }
+    ]
+  },
+  "DM": {
+    "moedas": [
+      {
+        "nome": "dólar do Caribe Oriental",
+        "codigo": "XCD"
+      }
+    ]
+  },
+  "EG": {
+    "moedas": [
+      {
+        "nome": "libra egípcia",
+        "codigo": "EGP"
+      }
+    ]
+  },
+  "SV": {
+    "moedas": [
+      {
+        "nome": "dólar americano",
+        "codigo": "USD"
+      }
+    ],
+    "nota": "Adotou o dólar americano em 2001, no lugar do colón salvadorenho."
+  },
+  "AE": {
+    "moedas": [
+      {
+        "nome": "dirham dos Emirados",
+        "codigo": "AED"
+      }
+    ]
+  },
+  "EC": {
+    "moedas": [
+      {
+        "nome": "dólar americano",
+        "codigo": "USD"
+      }
+    ],
+    "nota": "Adotou o dólar americano em 2000, no lugar do sucre; emite apenas moedas metálicas próprias."
+  },
+  "ER": {
+    "moedas": [
+      {
+        "nome": "nakfa",
+        "codigo": "ERN"
+      }
+    ]
+  },
+  "SK": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "SI": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "ES": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "SZ": {
+    "moedas": [
+      {
+        "nome": "lilangeni",
+        "codigo": "SZL"
+      }
+    ],
+    "nota": "O lilangeni tem paridade fixa com o rand sul-africano, que também circula."
+  },
+  "US": {
+    "moedas": [
+      {
+        "nome": "dólar americano",
+        "codigo": "USD"
+      }
+    ]
+  },
+  "EE": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "ET": {
+    "moedas": [
+      {
+        "nome": "birr",
+        "codigo": "ETB"
+      }
+    ]
+  },
+  "FJ": {
+    "moedas": [
+      {
+        "nome": "dólar fijiano",
+        "codigo": "FJD"
+      }
+    ]
+  },
+  "PH": {
+    "moedas": [
+      {
+        "nome": "peso filipino",
+        "codigo": "PHP"
+      }
+    ]
+  },
+  "FI": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "FR": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "GA": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Central",
+        "codigo": "XAF"
+      }
+    ]
+  },
+  "GM": {
+    "moedas": [
+      {
+        "nome": "dalasi",
+        "codigo": "GMD"
+      }
+    ]
+  },
+  "GH": {
+    "moedas": [
+      {
+        "nome": "cedi",
+        "codigo": "GHS"
+      }
+    ]
+  },
+  "GE": {
+    "moedas": [
+      {
+        "nome": "lari",
+        "codigo": "GEL"
+      }
+    ]
+  },
+  "GD": {
+    "moedas": [
+      {
+        "nome": "dólar do Caribe Oriental",
+        "codigo": "XCD"
+      }
+    ]
+  },
+  "GR": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "GT": {
+    "moedas": [
+      {
+        "nome": "quetzal",
+        "codigo": "GTQ"
+      }
+    ]
+  },
+  "GY": {
+    "moedas": [
+      {
+        "nome": "dólar guianense",
+        "codigo": "GYD"
+      }
+    ]
+  },
+  "GN": {
+    "moedas": [
+      {
+        "nome": "franco guineano",
+        "codigo": "GNF"
+      }
+    ]
+  },
+  "GQ": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Central",
+        "codigo": "XAF"
+      }
+    ]
+  },
+  "GW": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Ocidental",
+        "codigo": "XOF"
+      }
+    ]
+  },
+  "HT": {
+    "moedas": [
+      {
+        "nome": "gourde",
+        "codigo": "HTG"
+      }
+    ]
+  },
+  "HN": {
+    "moedas": [
+      {
+        "nome": "lempira",
+        "codigo": "HNL"
+      }
+    ]
+  },
+  "HU": {
+    "moedas": [
+      {
+        "nome": "forinte",
+        "codigo": "HUF"
+      }
+    ]
+  },
+  "YE": {
+    "moedas": [
+      {
+        "nome": "rial iemenita",
+        "codigo": "YER"
+      }
+    ]
+  },
+  "MH": {
+    "moedas": [
+      {
+        "nome": "dólar americano",
+        "codigo": "USD"
+      }
+    ]
+  },
+  "SB": {
+    "moedas": [
+      {
+        "nome": "dólar das Ilhas Salomão",
+        "codigo": "SBD"
+      }
+    ]
+  },
+  "IN": {
+    "moedas": [
+      {
+        "nome": "rupia indiana",
+        "codigo": "INR"
+      }
+    ]
+  },
+  "ID": {
+    "moedas": [
+      {
+        "nome": "rupia indonésia",
+        "codigo": "IDR"
+      }
+    ]
+  },
+  "IR": {
+    "moedas": [
+      {
+        "nome": "rial iraniano",
+        "codigo": "IRR"
+      }
+    ]
+  },
+  "IQ": {
+    "moedas": [
+      {
+        "nome": "dinar iraquiano",
+        "codigo": "IQD"
+      }
+    ]
+  },
+  "IE": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "IS": {
+    "moedas": [
+      {
+        "nome": "coroa islandesa",
+        "codigo": "ISK"
+      }
+    ]
+  },
+  "IL": {
+    "moedas": [
+      {
+        "nome": "novo shekel",
+        "codigo": "ILS"
+      }
+    ]
+  },
+  "IT": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "JM": {
+    "moedas": [
+      {
+        "nome": "dólar jamaicano",
+        "codigo": "JMD"
+      }
+    ]
+  },
+  "JP": {
+    "moedas": [
+      {
+        "nome": "iene",
+        "codigo": "JPY"
+      }
+    ]
+  },
+  "JO": {
+    "moedas": [
+      {
+        "nome": "dinar jordaniano",
+        "codigo": "JOD"
+      }
+    ]
+  },
+  "KI": {
+    "moedas": [
+      {
+        "nome": "dólar australiano",
+        "codigo": "AUD"
+      }
+    ]
+  },
+  "KW": {
+    "moedas": [
+      {
+        "nome": "dinar kuwaitiano",
+        "codigo": "KWD"
+      }
+    ]
+  },
+  "LA": {
+    "moedas": [
+      {
+        "nome": "kip",
+        "codigo": "LAK"
+      }
+    ]
+  },
+  "LS": {
+    "moedas": [
+      {
+        "nome": "loti",
+        "codigo": "LSL"
+      }
+    ],
+    "nota": "O loti tem paridade fixa com o rand sul-africano, que também é curso legal."
+  },
+  "LV": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "LB": {
+    "moedas": [
+      {
+        "nome": "libra libanesa",
+        "codigo": "LBP"
+      }
+    ],
+    "nota": "A libra libanesa perdeu a maior parte do valor desde 2019; o dólar americano é usado no dia a dia."
+  },
+  "LR": {
+    "moedas": [
+      {
+        "nome": "dólar liberiano",
+        "codigo": "LRD"
+      }
+    ]
+  },
+  "LY": {
+    "moedas": [
+      {
+        "nome": "dinar líbio",
+        "codigo": "LYD"
+      }
+    ]
+  },
+  "LI": {
+    "moedas": [
+      {
+        "nome": "franco suíço",
+        "codigo": "CHF"
+      }
+    ],
+    "nota": "Usa o franco suíço por união monetária com a Suíça."
+  },
+  "LT": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "LU": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "MK": {
+    "moedas": [
+      {
+        "nome": "denar",
+        "codigo": "MKD"
+      }
+    ]
+  },
+  "MG": {
+    "moedas": [
+      {
+        "nome": "ariary",
+        "codigo": "MGA"
+      }
+    ]
+  },
+  "MY": {
+    "moedas": [
+      {
+        "nome": "ringgit",
+        "codigo": "MYR"
+      }
+    ]
+  },
+  "MW": {
+    "moedas": [
+      {
+        "nome": "kwacha malauiano",
+        "codigo": "MWK"
+      }
+    ]
+  },
+  "MV": {
+    "moedas": [
+      {
+        "nome": "rupia das Maldivas",
+        "codigo": "MVR"
+      }
+    ]
+  },
+  "ML": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Ocidental",
+        "codigo": "XOF"
+      }
+    ]
+  },
+  "MT": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "MA": {
+    "moedas": [
+      {
+        "nome": "dirham marroquino",
+        "codigo": "MAD"
+      }
+    ]
+  },
+  "MU": {
+    "moedas": [
+      {
+        "nome": "rupia mauriciana",
+        "codigo": "MUR"
+      }
+    ]
+  },
+  "MR": {
+    "moedas": [
+      {
+        "nome": "ouguiya",
+        "codigo": "MRU"
+      }
+    ],
+    "nota": "A ouguiya foi redenominada em 2018, na proporção de dez para um."
+  },
+  "MX": {
+    "moedas": [
+      {
+        "nome": "peso mexicano",
+        "codigo": "MXN"
+      }
+    ]
+  },
+  "FM": {
+    "moedas": [
+      {
+        "nome": "dólar americano",
+        "codigo": "USD"
+      }
+    ]
+  },
+  "MZ": {
+    "moedas": [
+      {
+        "nome": "metical",
+        "codigo": "MZN"
+      }
+    ]
+  },
+  "MD": {
+    "moedas": [
+      {
+        "nome": "leu moldávio",
+        "codigo": "MDL"
+      }
+    ]
+  },
+  "MC": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ],
+    "nota": "Usa o euro por acordo com a União Europeia e cunha moedas próprias."
+  },
+  "MN": {
+    "moedas": [
+      {
+        "nome": "tugrik",
+        "codigo": "MNT"
+      }
+    ]
+  },
+  "ME": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ],
+    "nota": "Usa o euro unilateralmente, sem integrar a zona do euro."
+  },
+  "MM": {
+    "moedas": [
+      {
+        "nome": "kyat",
+        "codigo": "MMK"
+      }
+    ]
+  },
+  "NA": {
+    "moedas": [
+      {
+        "nome": "dólar namibiano",
+        "codigo": "NAD"
+      }
+    ],
+    "nota": "O dólar namibiano tem paridade fixa com o rand sul-africano, que também é curso legal."
+  },
+  "NR": {
+    "moedas": [
+      {
+        "nome": "dólar australiano",
+        "codigo": "AUD"
+      }
+    ]
+  },
+  "NP": {
+    "moedas": [
+      {
+        "nome": "rupia nepalesa",
+        "codigo": "NPR"
+      }
+    ]
+  },
+  "NI": {
+    "moedas": [
+      {
+        "nome": "córdoba",
+        "codigo": "NIO"
+      }
+    ]
+  },
+  "NE": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Ocidental",
+        "codigo": "XOF"
+      }
+    ]
+  },
+  "NG": {
+    "moedas": [
+      {
+        "nome": "naira",
+        "codigo": "NGN"
+      }
+    ]
+  },
+  "NO": {
+    "moedas": [
+      {
+        "nome": "coroa norueguesa",
+        "codigo": "NOK"
+      }
+    ]
+  },
+  "NZ": {
+    "moedas": [
+      {
+        "nome": "dólar neozelandês",
+        "codigo": "NZD"
+      }
+    ]
+  },
+  "OM": {
+    "moedas": [
+      {
+        "nome": "rial omanense",
+        "codigo": "OMR"
+      }
+    ]
+  },
+  "NL": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "PW": {
+    "moedas": [
+      {
+        "nome": "dólar americano",
+        "codigo": "USD"
+      }
+    ]
+  },
+  "PS": {
+    "moedas": [
+      {
+        "nome": "novo shekel",
+        "codigo": "ILS"
+      },
+      {
+        "nome": "dinar jordaniano",
+        "codigo": "JOD"
+      }
+    ],
+    "nota": "Não emite moeda própria. O novo shekel predomina na Cisjordânia e em Gaza; o dinar jordaniano circula na Cisjordânia, e o dólar americano é aceito."
+  },
+  "PA": {
+    "moedas": [
+      {
+        "nome": "balboa",
+        "codigo": "PAB"
+      },
+      {
+        "nome": "dólar americano",
+        "codigo": "USD"
+      }
+    ],
+    "nota": "O balboa é paritário ao dólar e circula só em moedas metálicas; as cédulas são dólares americanos."
+  },
+  "PG": {
+    "moedas": [
+      {
+        "nome": "kina",
+        "codigo": "PGK"
+      }
+    ]
+  },
+  "PK": {
+    "moedas": [
+      {
+        "nome": "rupia paquistanesa",
+        "codigo": "PKR"
+      }
+    ]
+  },
+  "PY": {
+    "moedas": [
+      {
+        "nome": "guarani",
+        "codigo": "PYG"
+      }
+    ]
+  },
+  "PE": {
+    "moedas": [
+      {
+        "nome": "sol",
+        "codigo": "PEN"
+      }
+    ]
+  },
+  "PL": {
+    "moedas": [
+      {
+        "nome": "zloty",
+        "codigo": "PLN"
+      }
+    ]
+  },
+  "PT": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ]
+  },
+  "KE": {
+    "moedas": [
+      {
+        "nome": "xelim queniano",
+        "codigo": "KES"
+      }
+    ]
+  },
+  "KG": {
+    "moedas": [
+      {
+        "nome": "som quirguiz",
+        "codigo": "KGS"
+      }
+    ]
+  },
+  "GB": {
+    "moedas": [
+      {
+        "nome": "libra esterlina",
+        "codigo": "GBP"
+      }
+    ]
+  },
+  "CF": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Central",
+        "codigo": "XAF"
+      }
+    ]
+  },
+  "CD": {
+    "moedas": [
+      {
+        "nome": "franco congolês",
+        "codigo": "CDF"
+      }
+    ],
+    "nota": "O dólar americano circula ao lado do franco congolês nas transações maiores."
+  },
+  "CG": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Central",
+        "codigo": "XAF"
+      }
+    ]
+  },
+  "DO": {
+    "moedas": [
+      {
+        "nome": "peso dominicano",
+        "codigo": "DOP"
+      }
+    ]
+  },
+  "RO": {
+    "moedas": [
+      {
+        "nome": "leu romeno",
+        "codigo": "RON"
+      }
+    ]
+  },
+  "RW": {
+    "moedas": [
+      {
+        "nome": "franco ruandês",
+        "codigo": "RWF"
+      }
+    ]
+  },
+  "RU": {
+    "moedas": [
+      {
+        "nome": "rublo",
+        "codigo": "RUB"
+      }
+    ]
+  },
+  "WS": {
+    "moedas": [
+      {
+        "nome": "tala",
+        "codigo": "WST"
+      }
+    ]
+  },
+  "SM": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ],
+    "nota": "Usa o euro por acordo com a União Europeia e cunha moedas próprias."
+  },
+  "LC": {
+    "moedas": [
+      {
+        "nome": "dólar do Caribe Oriental",
+        "codigo": "XCD"
+      }
+    ]
+  },
+  "KN": {
+    "moedas": [
+      {
+        "nome": "dólar do Caribe Oriental",
+        "codigo": "XCD"
+      }
+    ]
+  },
+  "ST": {
+    "moedas": [
+      {
+        "nome": "dobra",
+        "codigo": "STN"
+      }
+    ]
+  },
+  "VC": {
+    "moedas": [
+      {
+        "nome": "dólar do Caribe Oriental",
+        "codigo": "XCD"
+      }
+    ]
+  },
+  "SC": {
+    "moedas": [
+      {
+        "nome": "rupia seichelense",
+        "codigo": "SCR"
+      }
+    ]
+  },
+  "SN": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Ocidental",
+        "codigo": "XOF"
+      }
+    ]
+  },
+  "SL": {
+    "moedas": [
+      {
+        "nome": "leone",
+        "codigo": "SLE"
+      }
+    ],
+    "nota": "O leone foi redenominado em 2022, cortando três zeros."
+  },
+  "RS": {
+    "moedas": [
+      {
+        "nome": "dinar sérvio",
+        "codigo": "RSD"
+      }
+    ]
+  },
+  "SG": {
+    "moedas": [
+      {
+        "nome": "dólar de Singapura",
+        "codigo": "SGD"
+      }
+    ]
+  },
+  "SY": {
+    "moedas": [
+      {
+        "nome": "libra síria",
+        "codigo": "SYP"
+      }
+    ]
+  },
+  "SO": {
+    "moedas": [
+      {
+        "nome": "xelim somali",
+        "codigo": "SOS"
+      }
+    ]
+  },
+  "LK": {
+    "moedas": [
+      {
+        "nome": "rupia cingalesa",
+        "codigo": "LKR"
+      }
+    ]
+  },
+  "SD": {
+    "moedas": [
+      {
+        "nome": "libra sudanesa",
+        "codigo": "SDG"
+      }
+    ]
+  },
+  "SS": {
+    "moedas": [
+      {
+        "nome": "libra sul-sudanesa",
+        "codigo": "SSP"
+      }
+    ]
+  },
+  "SE": {
+    "moedas": [
+      {
+        "nome": "coroa sueca",
+        "codigo": "SEK"
+      }
+    ]
+  },
+  "CH": {
+    "moedas": [
+      {
+        "nome": "franco suíço",
+        "codigo": "CHF"
+      }
+    ]
+  },
+  "SR": {
+    "moedas": [
+      {
+        "nome": "dólar surinamês",
+        "codigo": "SRD"
+      }
+    ]
+  },
+  "TH": {
+    "moedas": [
+      {
+        "nome": "baht",
+        "codigo": "THB"
+      }
+    ]
+  },
+  "TJ": {
+    "moedas": [
+      {
+        "nome": "somoni",
+        "codigo": "TJS"
+      }
+    ]
+  },
+  "TZ": {
+    "moedas": [
+      {
+        "nome": "xelim tanzaniano",
+        "codigo": "TZS"
+      }
+    ]
+  },
+  "CZ": {
+    "moedas": [
+      {
+        "nome": "coroa tcheca",
+        "codigo": "CZK"
+      }
+    ]
+  },
+  "TL": {
+    "moedas": [
+      {
+        "nome": "dólar americano",
+        "codigo": "USD"
+      }
+    ],
+    "nota": "Usa o dólar americano desde 2000 e emite apenas centavos próprios."
+  },
+  "TG": {
+    "moedas": [
+      {
+        "nome": "franco CFA da África Ocidental",
+        "codigo": "XOF"
+      }
+    ]
+  },
+  "TO": {
+    "moedas": [
+      {
+        "nome": "paanga",
+        "codigo": "TOP"
+      }
+    ]
+  },
+  "TT": {
+    "moedas": [
+      {
+        "nome": "dólar de Trinidad e Tobago",
+        "codigo": "TTD"
+      }
+    ]
+  },
+  "TN": {
+    "moedas": [
+      {
+        "nome": "dinar tunisiano",
+        "codigo": "TND"
+      }
+    ]
+  },
+  "TM": {
+    "moedas": [
+      {
+        "nome": "manat turcomeno",
+        "codigo": "TMT"
+      }
+    ]
+  },
+  "TR": {
+    "moedas": [
+      {
+        "nome": "lira turca",
+        "codigo": "TRY"
+      }
+    ]
+  },
+  "TV": {
+    "moedas": [
+      {
+        "nome": "dólar australiano",
+        "codigo": "AUD"
+      }
+    ]
+  },
+  "UA": {
+    "moedas": [
+      {
+        "nome": "hryvnia",
+        "codigo": "UAH"
+      }
+    ]
+  },
+  "UG": {
+    "moedas": [
+      {
+        "nome": "xelim ugandense",
+        "codigo": "UGX"
+      }
+    ]
+  },
+  "UY": {
+    "moedas": [
+      {
+        "nome": "peso uruguaio",
+        "codigo": "UYU"
+      }
+    ]
+  },
+  "UZ": {
+    "moedas": [
+      {
+        "nome": "som uzbeque",
+        "codigo": "UZS"
+      }
+    ]
+  },
+  "VU": {
+    "moedas": [
+      {
+        "nome": "vatu",
+        "codigo": "VUV"
+      }
+    ]
+  },
+  "VA": {
+    "moedas": [
+      {
+        "nome": "euro",
+        "codigo": "EUR"
+      }
+    ],
+    "nota": "Usa o euro por acordo com a União Europeia e cunha moedas próprias."
+  },
+  "VE": {
+    "moedas": [
+      {
+        "nome": "bolívar",
+        "codigo": "VES"
+      }
+    ],
+    "nota": "A hiperinflação levou ao uso corrente do dólar americano ao lado do bolívar."
+  },
+  "VN": {
+    "moedas": [
+      {
+        "nome": "dongue",
+        "codigo": "VND"
+      }
+    ]
+  },
+  "ZM": {
+    "moedas": [
+      {
+        "nome": "kwacha zambiano",
+        "codigo": "ZMW"
+      }
+    ]
+  },
+  "ZW": {
+    "moedas": [
+      {
+        "nome": "ZiG",
+        "codigo": "ZWG"
+      }
+    ],
+    "nota": "O ZiG, lastreado em ouro, substituiu o dólar zimbabuano em 2024; o dólar americano continua em uso."
+  }
+}

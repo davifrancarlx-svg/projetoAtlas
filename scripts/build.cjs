@@ -88,6 +88,7 @@ function loadCountries() {
   const countries = readJson('src/countries.base.json');
   const contentPolicy = readJson('src/content-policy.json');
   const languages = readJson('src/languages.json');
+  const currencies = readJson('src/currencies.json');
   const indicators = readJson('data/indicators.json');
   const contextAreas = readJson('src/context-areas.json');
   const flagFile = readJson('data/flags.json');
@@ -129,6 +130,18 @@ function loadCountries() {
     if (!language || !Array.isArray(language.oficiais) || !language.oficiais.length) {
       throw new Error(`Idiomas ausentes para ${country.id} (${country.n}). Preencha src/languages.json.`);
     }
+    // A moeda segue a mesma política dos idiomas: complementa a ficha e nunca
+    // vira resposta. O código ISO 4217 acompanha o nome porque é ele que não
+    // muda de grafia entre línguas.
+    const currency = currencies[country.id];
+    if (!currency || !Array.isArray(currency.moedas) || !currency.moedas.length) {
+      throw new Error(`Moeda ausente para ${country.id} (${country.n}). Preencha src/currencies.json.`);
+    }
+    currency.moedas.forEach((moeda) => {
+      if (!moeda || typeof moeda.nome !== 'string' || !/^[A-Z]{3}$/.test(moeda.codigo || '')) {
+        throw new Error(`Moeda malformada para ${country.id} (${country.n}).`);
+      }
+    });
     const policy = contentPolicy[country.id] || {};
     const nameAliases = policy.nameAliases ?? country.alt ?? [];
     const capitalAliases = policy.capitalAliases ?? country.calt ?? [];
@@ -177,6 +190,8 @@ function loadCountries() {
       capitalNote: policy.capitalNote || '',
       idiomas: language.oficiais,
       idiomasNota: language.nota || '',
+      moedas: currency.moedas,
+      moedaNota: currency.nota || '',
     };
     delete normalizedContent.alt;
     delete normalizedContent.calt;
@@ -369,7 +384,7 @@ const core = read('src/core.js').trim();
 const syncQueue = read('src/sync-queue.js').trim();
 // A conta vive em módulo próprio para o app principal não crescer sem fim; os
 // quatro entram no mesmo bloco de script, na ordem de dependência.
-const app = ['src/audio.js', 'src/study.js', 'src/account.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
+const app = ['src/audio.js', 'src/study.js', 'src/account.js', 'src/atlas.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
 const themeBoot = read('src/theme-boot.js').trim();
 // A configuração de conta entra no artefato e também define a única origem que
 // a CSP vai autorizar. Se o arquivo sumir ou vier incompleto, o build segue: o
