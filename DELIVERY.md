@@ -1,6 +1,6 @@
 # Entrega local — Atlas 195
 
-Rodada de 16 de setembro de 2026 (segunda do dia). Estado: **testado localmente, commitado e enviado ao GitHub; não publicado no Lovable** (publicar exige pedido explícito).
+Rodada de 16 de setembro de 2026 (segunda do dia). Estado: **testado, commitado, enviado ao GitHub e publicado no Lovable** a pedido do usuário, junto com a rodada anterior. `npm run verify:production` confirma "Produção confere com o release c8cf8b750232".
 
 ## Resultado
 
@@ -46,7 +46,7 @@ O teto de `src/core.js` subiu de 80 para 88 KiB, decisão consciente registrada 
 
 ## Limites da entrega
 
-- Nada foi publicado no Lovable. O site no ar continua duas versões atrás, ainda com conquistas.
+- O site no ar já traz as duas rodadas. Uma aba que já tinha o app aberto continua servindo a versão antiga do cache do service worker até o próprio worker atualizar e oferecer o aviso de recarregar — é o comportamento offline pretendido, não falha da publicação.
 - A pergunta de fronteira e a silhueta são visuais: quem desliga "incluir perguntas visuais" deixa de recebê-las junto com o restante da direção de localização.
 - A moeda é dado editorial, com data. Adesões ao euro, redenominações e dolarizações envelhecem o arquivo em silêncio; como a moeda nunca é resposta, um dado defasado erra uma linha da ficha, não a correção de um exercício. Vale uma conferência antes de publicar.
 - A retomada cobre séries fechadas e a revisão focada. O treino livre continua sem rascunho, de propósito: ele não tem fim nem placar a preservar.
