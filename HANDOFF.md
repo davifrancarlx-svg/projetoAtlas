@@ -56,7 +56,8 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
   territórios. Saiu de `app.js` pelo mesmo motivo da conta.
 - `src/sync-queue.js` — fila pequena e testável que serializa sincronizações e não perde mudanças concorrentes.
 - `src/study.js` — treino de hoje, próxima revisão e resumo de evolução.
-- `src/audio.js` — sons opcionais sintetizados (acerto e erro).
+- `src/audio.js` — sons opcionais sintetizados (acerto, erro e fim de série),
+  em quatro estilos de timbre, mais o painel de som da aba Progresso.
 - `src/styles.css` — visual. Toda cor é um token em `:root`; o tema claro é
   uma redefinição desses tokens, tanto por `prefers-color-scheme` (automático)
   quanto por `[data-theme]` (escolha fixada pelo botão do app).
@@ -251,7 +252,10 @@ pedido explícito do usuário.
   componente escrita depois — era por isso que nem os destaques antigos de
   certo e errado funcionavam. Dentro dele, `transition: none` também é
   necessário: a transição de cor de 160 ms do mapa atrasava a troca.
-- Fatos derivados de fronteira (esta rodada): `Core.derivedFacts` passou a usar
+- Som: quatro estilos de timbre, o efeito de fim de série, a opção de tocar só
+  nos erros e o painel da aba Progresso. O teto de `src/audio.js` subiu de 8
+  para 12 KiB — o painel não cabia em `app.js`, que está em 97%.
+- Fatos derivados de fronteira: `Core.derivedFacts` passou a usar
   a contagem de `nb`, só nos extremos, com empate tratado — ver a seção "Fatos
   derivados" do `DATA_SOURCES.md`. `src/core.js` foi de 79,3 para 80,9 KiB.
   160 testes passando com Chrome real, mais conferência da ficha num Chrome de

@@ -2105,6 +2105,10 @@
     clear(dom.panel);
     stopTimer();
     clearMapMarks();
+    // A série acabou: o som avisa que a tela mudou de pergunta para nota. Toca
+    // uma vez por série, e num gesto separado do da última resposta, então não
+    // disputa com o som do acerto nem do erro.
+    sounds.play('complete');
 
     clearExamDraft();
     const copy = SERIES_COPY[state.exam.kind];
@@ -2606,6 +2610,9 @@
     weakSection.append(weakList);
     dom.panel.append(weakSection);
 
+    // O botão do topo liga e desliga; volume, estilo e quando tocar ficam aqui,
+    // junto das outras preferências. O módulo monta o próprio painel.
+    sounds.panel(dom.panel);
     account.render(dom.panel);
     renderBackup(dom.panel);
 

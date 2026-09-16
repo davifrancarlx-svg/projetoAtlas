@@ -9,7 +9,10 @@ const ROOT = path.resolve(__dirname, '..');
 // justifica. `src/app.js` foi de 140 para 150 KiB com a revisão focada e o
 // contraste didático do erro (2026-08-21).
 const LIMITS = {
-  'src/audio.js': 8 * 1024,
+  // 8 → 12 KiB com quatro estilos de timbre, o som de fim de série e o painel
+  // de preferências que o próprio módulo monta (2026-09-16). O painel podia ter
+  // ido para `app.js`, que estava em 97% do teto dele: som mora com o som.
+  'src/audio.js': 12 * 1024,
   'src/study.js': 8 * 1024,
   // A conta saiu de app.js em 2026-09-16 para o app principal voltar a ter
   // folga: o orçamento dela é próprio, não uma transferência de bytes.

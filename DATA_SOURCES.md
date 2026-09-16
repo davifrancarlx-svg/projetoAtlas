@@ -94,7 +94,7 @@ em [`data/flag-icons/README.md`](data/flag-icons/README.md). O gerador
 
 ## Sons
 
-Os efeitos de acerto e erro são composições sintetizadas pelo próprio código em `src/audio.js`, com osciladores e controle de volume da Web Audio API. Não usam gravações, músicas, amostras de terceiros nem serviço externo. O botão de som salva somente uma preferência local (`atlas195:som:v1`); ela não integra a conta, o progresso nem o backup. Nenhum dado adicional é enviado. Os WAV em `docs/audio-samples/` foram renderizados a partir do mesmo sintetizador para revisão e não são recursos carregados pelo app.
+Os efeitos de acerto, erro e fim de série são composições sintetizadas pelo próprio código em `src/audio.js`, com osciladores e controle de volume da Web Audio API. Não usam gravações, músicas, amostras de terceiros nem serviço externo. O botão de som salva somente preferências locais (`atlas195:som:v1` para o volume, `atlas195:som:estilo:v1` para o estilo e o escopo); elas não integram a conta, o progresso nem o backup. Nenhum dado adicional é enviado. Os WAV em `docs/audio-samples/` foram renderizados a partir do mesmo sintetizador para revisão e não são recursos carregados pelo app.
 
 ## Tipografia
 

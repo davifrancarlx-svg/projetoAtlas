@@ -46,11 +46,15 @@ O plano usa o progresso existente. Os marcadores do resumo vivem apenas na sess�
 
 ## Sons opcionais
 
-O botão **Som** alterna entre desligado, baixo e médio. Começa desligado; ativar ou mudar o volume reproduz uma amostra curta. A escolha fica salva somente neste navegador, separada da conta e do progresso.
+O botão **Som** no topo alterna entre desligado, baixo e médio. Começa desligado; ativar ou mudar o volume reproduz uma amostra curta. Na aba Progresso, a seção **Som** reúne os três controles — volume, **estilo** e **tocar em** — e trocar qualquer um deles toca uma amostra na hora. As escolhas ficam salvas somente neste navegador, separadas da conta e do progresso.
 
-Acertos usam duas notas suaves com três variações; erros e tempo esgotado usam uma nota baixa e curta. Não há música de fundo, tique-taque, sons de navegação nem aumento de volume por sequência. Ao ocultar a aba ou desligar o som, a reprodução é interrompida.
+São três efeitos. O **acerto** sobe duas notas; a nota inicial percorre uma pentatônica de cinco pares antes de repetir, para uma série longa não martelar sempre o mesmo som. O **erro** cai uma terça menor no grave — cair é o gesto que se lê como "não" sem precisar de aspereza — e vale também para o tempo esgotado. O **fim de série** resolve em tônica, quinta e oitava, e toca uma vez ao fechar uma prova, um treino de hoje ou uma prática de país, nunca numa resposta.
 
-Os sons são sintetizados localmente pela Web Audio API, sem downloads, arquivos de áudio no app ou dependências. Funcionam offline após a interação necessária para o navegador liberar áudio. Se o áudio não estiver disponível, o treino continua funcionando. `src/audio.js` contém síntese, preferência e controle; as amostras em `docs/audio-samples/` são apenas para revisão e não entram no build.
+Quatro estilos mudam só o timbre, nunca as notas nem os tempos, para "acertei" e "errei" não trocarem de significado: **Sino** (o padrão), **Marimba**, **Corda** e **Sopro**. Nenhum deles usa onda serra ou quadrada, e nada passa de meio segundo. Em **tocar em** dá para escolher "só os erros", que cala o acerto — o som que mais se repete — sem perder o aviso do erro nem o do fim de série.
+
+Não há música de fundo, tique-taque, sons de navegação nem aumento de volume por sequência. Ao ocultar a aba ou desligar o som, a reprodução é interrompida.
+
+Os sons são sintetizados localmente pela Web Audio API, sem downloads, arquivos de áudio no app ou dependências. Funcionam offline após a interação necessária para o navegador liberar áudio. Se o áudio não estiver disponível, o treino continua funcionando. `src/audio.js` contém síntese, preferência, controle e o painel da aba Progresso; as amostras em `docs/audio-samples/` são apenas para revisão e não entram no build.
 
 ## Desenvolvimento
 

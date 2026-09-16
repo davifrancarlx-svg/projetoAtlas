@@ -69,6 +69,12 @@ Esse resultado verde ainda coexistia com os seis defeitos: eles foram encontrado
 
 O pedido de sons foi aprovado depois da entrega das seis correções. O botão Som foi verificado em Chrome real nas larguras 360, 768 e 1280, em claro/escuro, inclusive com teclado. Durante a implementação, o botão inicialmente criava uma linha extra no cabeçalho desktop; a apresentação compacta do subtítulo da marca nessa faixa resolveu isso, sem reduzir as áreas de toque. Capturas em `docs/visual-audit/sound-*.png`.
 
-Ativação pelo teclado, amostra de volume, som associado à resposta, prioridade da conquista e preferência após recarregar passaram. A renderização offline nativa confirmou sinal presente, sem saturação e com final silencioso. O teste passou a aguardar a primeira pergunta: antes disso, podia tentar clicar no botão ainda sem controlador, durante a leitura inicial do HTML. A qualidade percebida do timbre fica para escuta do usuário, com amostras em `docs/audio-samples/`.
+Ativação pelo teclado, amostra de volume, som associado à resposta, prioridade entre sons simultâneos e preferência após recarregar passaram. A renderização offline nativa confirmou sinal presente, sem saturação e com final silencioso. O teste passou a aguardar a primeira pergunta: antes disso, podia tentar clicar no botão ainda sem controlador, durante a leitura inicial do HTML. A qualidade percebida do timbre fica para escuta do usuário, com amostras em `docs/audio-samples/`.
 
 `npm run check` após sons: **146 passaram, 0 falhas, 0 ignorados**. HTML final: 5014,6 KiB de 5376 KiB. As pendências externas continuam adiadas, conforme decisão do usuário.
+
+### Segunda rodada de som — estilos, escopo e fim de série (16 de setembro de 2026)
+
+A pedido do usuário, os sons ganharam quatro estilos de timbre (Sino, Marimba, Corda, Sopro), um terceiro efeito para o fim de série e a opção de tocar só nos erros. A seção **Som** da aba Progresso foi conferida em Chrome real a 390 e 1280 pixels, em claro e escuro: os três seletores ficam numa linha no desktop (725×91) e empilham no celular (362×301), sem estourar a largura em nenhum dos dois.
+
+A medição offline agora cobre os doze sons (quatro estilos × três efeitos): pico entre 0,02 e 0,5 — ficou entre 0,125 e 0,149 —, silêncio depois de um segundo e assinatura de energia diferente entre todos, que é o que impede dois estilos acabarem iguais. Nenhum estilo usa onda serra ou quadrada, e o teste recusa quem usar. Amostras atualizadas em `docs/audio-samples/`, uma por estilo.
