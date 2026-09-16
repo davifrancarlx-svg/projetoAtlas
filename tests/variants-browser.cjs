@@ -49,7 +49,12 @@ module.exports = async (client, evaluate, until) => {
       assert.equal(antes.silhuetas, 0);
     }
 
-    await ev("document.querySelector('[data-answer]').click()");
+    await ev(`(() => {
+      const title=document.getElementById('questionTitle').textContent;
+      const target=DATA.find(c=>title.endsWith(c.n+'?'));
+      const border=/faz fronteira/.test(title);
+      [...document.querySelectorAll('[data-answer]')].find(b=>border?!target.nb.includes(b.dataset.answer):b.dataset.answer!==target.id).click();
+    })()`);
     await until('veredito', () => ev("Boolean(document.querySelector('.verdict'))"));
     const depois = JSON.parse(await ev(`JSON.stringify({
       certas: document.querySelectorAll('.opt.right').length,
@@ -62,12 +67,19 @@ module.exports = async (client, evaluate, until) => {
     assert.ok(depois.erradas <= 1);
     assert.equal(depois.pin, true, 'Depois de responder, o país da pergunta ganha o pin.');
     assert.ok(depois.marcados >= 1, 'A resposta certa precisa aparecer no mapa.');
+    if (depois.erradas) {
+      assert.equal(await ev("document.querySelectorAll('.comparison-card').length"), 2);
+      if (silhueta) assert.equal(await ev("document.querySelectorAll('.comparison-card .shape-svg').length"), 2);
+    }
     if (fronteira) {
+      assert.ok(await ev("document.querySelectorAll('.cty.neighbor').length > 0"));
+      assert.ok(await ev("Boolean(document.querySelector('.border-legend'))"));
       assert.match(depois.veredito, /faz fronteira com|não faz fronteira com nenhum/,
         'O veredito da fronteira precisa listar os vizinhos.');
     }
     vistas[silhueta ? 'shape' : 'border'] = true;
     await ev("document.getElementById('nextQuestion').click()");
+    assert.equal(await ev("document.querySelectorAll('.cty.neighbor').length"), 0, 'O destaque dos vizinhos não pode revelar a pergunta seguinte.');
   }
 
   assert.ok(vistas.shape, 'A variante de silhueta nunca apareceu em 90 sorteios.');

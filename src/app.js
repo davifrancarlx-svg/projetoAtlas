@@ -154,6 +154,7 @@
   // Os três tipos de série fechada compartilham o mesmo mecanismo (N perguntas,
   // nota no fim) e diferem só no texto e em como se refaz.
   const SERIES_COPY = {
+    due: { label: 'Revisões pendentes', done: 'Lote de revisões concluído', again: 'Continuar revisões pendentes', start: 'Revisão de pendências iniciada' },
     exam: { label: 'Prova', done: 'Prova concluída', again: 'Nova prova', start: 'Prova iniciada' },
     daily: { label: 'Treino de hoje', done: 'Treino de hoje concluído', again: 'Treino de hoje', start: 'Treino de hoje iniciado' },
     country: { label: 'Prática do país', done: 'Prática concluída', again: 'Praticar de novo', start: 'Prática iniciada' },
@@ -321,7 +322,7 @@
       mode: state.mode, region: state.region, answerMode: state.answerMode,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
       filtersCollapsed: state.filtersCollapsed, focusMode: state.focusMode,
-      timeLimit: state.timeLimit, theme: state.theme,
+      timeLimit: state.timeLimit, theme: state.theme, dailySize: state.dailySize || 10,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
   }
@@ -338,6 +339,7 @@
       if (typeof parsed.filtersCollapsed === 'boolean') state.filtersCollapsed = parsed.filtersCollapsed;
       if (typeof parsed.focusMode === 'boolean') state.focusMode = parsed.focusMode;
       if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
+      if ([5, 10, 20].includes(parsed.dailySize)) state.dailySize = parsed.dailySize;
       if (THEMES.some((tema) => tema.id === parsed.theme)) state.theme = parsed.theme;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
       if (state.region !== 'Mundo inteiro' && state.mode === 'reg') state.mode = 'mix';
@@ -588,7 +590,7 @@
 
   function clearMapMarks() {
     mapState.nodesById.forEach((nodes) => nodes.forEach((node) => node.classList.remove(
-      'on', 'ok', 'bad', 'dimmed', 'is-current', 'is-correct', 'is-wrong', 'is-dimmed',
+      'on', 'ok', 'bad', 'neighbor', 'dimmed', 'is-current', 'is-correct', 'is-wrong', 'is-dimmed',
     )));
     clear(mapState.effects);
     mapState.reticle = null;
@@ -1044,7 +1046,7 @@
       // O baralho acabou: guarda o saldo para anunciar uma vez na próxima
       // pergunta. Fechar a revisão em silêncio desperdiça o melhor momento para
       // mostrar que o esforço virou resultado.
-      if (state.fromDeck && state.reviewStats && state.reviewStats.consolidated) {
+      if (state.fromDeck && state.reviewStats && (state.reviewStats.consolidated || state.reviewStats.retired)) {
         state.reviewDone = state.reviewStats;
       }
       state.fromDeck = false;
@@ -1306,6 +1308,7 @@
     if (question.direction === 'mapId' && question.variant !== 'shape') showReticle(question.id);
     if (state.answered) {
       const answerId = expectedId(question);
+      if (question.variant === 'border') (byId[question.id].nb || []).forEach(id => markCountry(id, 'neighbor'));
       markCountry(answerId, 'ok');
       // Na fronteira, o país da pergunta não é a resposta: ele fica marcado
       // como referência para a dupla ser lida junta no mapa.
@@ -1538,7 +1541,23 @@
     // uma escolha concreta de país: em "tempo esgotado" não houve confusão a
     // explicar, e em região a comparação seria entre continentes, não países.
     if (!isCorrect && !state.expired && question.direction !== 'reg') {
-      const chosen = byId[state.selectedAnswer];
+      const chosen = state.questionAnswerMode === 'pick' || question.direction === 'locate'
+        ? byId[state.selectedAnswer]
+        : DATA.find(c => Core.normalizeText(c[answerField(question.direction) === 'capital' ? 'cap' : 'n']) === Core.normalizeText(state.selectedAnswer || ''));
+      if (chosen && chosen.id !== expectedId(question)) {
+        const comparison = create('div', { className: 'answer-comparison', attrs: { 'aria-label': 'Comparação das respostas' } });
+        [[byId[expectedId(question)], 'Resposta correta'], [chosen, 'Sua resposta']].forEach(([item, label]) => {
+          const card = create('div', { className: 'comparison-card' });
+          card.append(create('strong', { text: label }));
+          if (question.variant === 'shape') card.append(countryShape(item, `Silhueta de ${item.n}`));
+          else if (['flag', 'flagOf'].includes(question.direction)) card.append(flagImage(item));
+          card.append(create('span', { text: item.n }));
+          if (['cap', 'capOf'].includes(question.direction)) card.append(create('span', { className: 'factmeta', text: `Capital: ${item.cap}` }));
+          else if (question.direction === 'locate' || question.direction === 'mapId') card.append(create('span', { className: 'factmeta', text: item.sr }));
+          comparison.append(card);
+        });
+        verdict.append(comparison);
+      }
       const owner = chosen ? chosenNote(chosen, question.direction) : null;
       if (owner) verdict.append(create('p', { className: 'note', text: owner }));
       const copy = chosen ? confusionCopy(country, chosen, question.direction) : null;
@@ -1547,6 +1566,12 @@
 
     if (question.direction === 'locate' && question.variant === 'border') {
       verdict.append(create('p', { className: 'note note-confusion', text: bordersNote(country) }));
+      const legend = create('div', { className: 'border-legend', attrs: { 'aria-label': 'Legenda do mapa' } });
+      [['current', 'País da pergunta'], ['neighbor', 'Vizinhos'], ['correct', 'Resposta correta']].forEach(([kind, text]) => {
+        legend.append(create('span', {}, [create('i', { className: `legend-swatch ${kind}`, attrs: { 'aria-hidden': 'true' } }), document.createTextNode(text)]));
+      });
+      if (!isCorrect) legend.append(create('span', {}, [create('i', { className: 'legend-swatch wrong', attrs: { 'aria-hidden': 'true' } }), document.createTextNode('Sua resposta incorreta')]));
+      verdict.append(legend);
     }
     explanatoryNotes(country).forEach((note) => verdict.append(create('p', { className: 'note', text: note })));
     const next = create('button', { id: 'nextQuestion', className: 'btn wide', text: 'Próxima pergunta', type: 'button' });
@@ -1567,7 +1592,7 @@
       create('span', { text: state.fromDeck
         ? `Revisão focada · ${reviewRemaining() > 1 ? `faltam ${reviewRemaining()}` : 'última habilidade'}`
         : (state.exam
-          ? `${seriesLabel()} · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
+          ? `${seriesLabel()} · ${Math.min(state.exam.done + (state.answered ? 0 : 1), state.exam.total)} de ${state.exam.total}`
           : `Pergunta ${state.questionNumber}`) }),
       create('span', { text: directionLabel(question) }),
     ]));
@@ -1740,7 +1765,19 @@
     return section;
   }
 
+  // Trocar de assunto encerra a fila anterior; uma carta forçada não pode
+  // sobrepor silenciosamente o modo ou os filtros que a pessoa acabou de escolher.
+  function abandonExercise() {
+    stopTimer();
+    state.exam = null; state.examDraft = null;
+    state.reviewQueue = []; state.forcedQuestion = null;
+    state.fromDeck = false; state.deckPending = false;
+    state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
+    clearExamDraft();
+  }
+
   function startReview(id, direction) {
+    abandonExercise();
     state.forcedQuestion = { id, direction };
     setView('quiz');
     createNextQuestion({ focus: true });
@@ -1782,6 +1819,7 @@
     if (correct) {
       card.remaining -= 1;
       if (card.remaining <= 0) { state.reviewStats.consolidated += 1; return; }
+      if (card.tries >= REVIEW_MAX_TRIES) { state.reviewStats.retired += 1; return; }
       insertReviewCard(card, REVIEW_GAP_AFTER_HIT);
       return;
     }
@@ -1805,6 +1843,7 @@
   function startDeck(items, message) {
     const cards = items.map(reviewCard);
     if (!cards.length) return false;
+    abandonExercise();
     state.reviewStats = { consolidated: 0, retired: 0, total: cards.length };
     state.reviewQueue = cards.slice(1);
     state.forcedQuestion = cards[0];
@@ -1893,7 +1932,7 @@
   function deckCards() {
     const queue = state.reviewQueue.slice();
     const card = state.reviewCard;
-    const playing = card && card.remaining > 0 && queue.indexOf(card) === -1 ? [card] : [];
+    const playing = !state.answered && card && card.remaining > 0 && queue.indexOf(card) === -1 ? [card] : [];
     return playing.concat(queue);
   }
 
@@ -2125,12 +2164,17 @@
     const { kind, countryId, total } = state.exam;
     refazer.addEventListener('click', () => {
       if (kind === 'daily') startDaily();
+      else if (kind === 'due') startDue();
       else if (kind === 'country') startCountryPractice(countryId);
       else startExam(total);
     });
     const voltar = create('button', { className: 'btn ghost', type: 'button', text: 'Voltar ao treino livre' });
     voltar.addEventListener('click', endExam);
     acoes.append(refazer, voltar);
+    if (kind === 'due' && !pendingCards().length) {
+      refazer.disabled = true;
+      refazer.textContent = 'Nenhuma revisão pendente nestes filtros';
+    }
     dom.panel.append(acoes);
 
     renderScorebar();
@@ -2232,8 +2276,18 @@
     return Study.nextReview(attemptedSkills());
   }
 
-  function startDaily() {
-    const cards = Study.plan(Core, DATA, progress, effectiveDirections(), state.region);
+  function pendingCards() {
+    return Study.duePlan(Core, DATA, progress, effectiveDirections(), state.region);
+  }
+
+  function startDue() {
+    const cards = pendingCards().slice(0, 30);
+    if (cards.length) startExam(cards.length, cards, 'due');
+    else { state.exam = null; setView('prog'); announce('Nenhuma revisão pendente nestes filtros.'); }
+  }
+
+  function startDaily(size = state.dailySize || 10) {
+    const cards = Study.plan(Core, DATA, progress, effectiveDirections(), state.region, Date.now(), size);
     if (cards.length) startExam(cards.length, cards);
   }
 
@@ -2320,6 +2374,7 @@
   }
 
   function startNewSession() {
+    abandonExercise();
     state.hits = 0; state.misses = 0; state.streak = 0; state.questionNumber = 0;
     state.sessionAnswers = []; state.reviewQueue = []; state.forcedQuestion = null;
     state.fromDeck = false; state.deckPending = false; state.sessionEnded = false;
@@ -2485,7 +2540,7 @@
     dom.panel.append(overallStats(attempted));
 
     renderSessionSummary(dom.panel);
-    Study.card(dom.panel, startDaily);
+    Study.card(dom.panel, startDaily, state.dailySize || 10, size => { state.dailySize = size; savePreferences(); });
     Study.note(dom.panel, nextReviewCopy());
 
     // O treino livre é infinito, o que serve para revisar mas não para medir.
@@ -2518,6 +2573,11 @@
 
     const review = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'reviewTitle' } });
     review.append(create('h3', { id: 'reviewTitle', text: 'Revisões recomendadas' }));
+    const pending = pendingCards();
+    const reviewAll = create('button', { id: 'dueTraining', className: 'btn', type: 'button', text: 'Revisar somente pendências', attrs: { disabled: pending.length ? null : '' } });
+    reviewAll.addEventListener('click', startDue);
+    review.append(reviewAll);
+    Study.note(review, `${pending.length} habilidades vencidas no modo e na área selecionados. Lotes de até 30 perguntas, das mais antigas às mais recentes; ao terminar, você pode continuar com as próximas.`);
     const reviewList = create('div', { className: 'weak' });
     due.slice(0, 12).forEach((item) => {
       const button = create('button', { className: 'chip hot', type: 'button', text: `${item.country.n} · ${DIRECTION_LABEL[item.direction]}` });
@@ -2647,6 +2707,9 @@
           state.hits = 0;
           state.misses = 0;
           state.streak = 0;
+          state.sessionAnswers = []; state.questionNumber = 0;
+          state.question = null; state.answered = false; state.sessionEnded = false;
+          abandonExercise();
           if (state.view === 'prog') renderProgress();
           announce('Todo o progresso foi apagado.');
           if (state.view === 'prog') document.getElementById('progressTitle')?.focus();
@@ -2689,6 +2752,7 @@
     stopTimer();
     if (view === 'quiz' && state.sessionEnded) renderSessionResult();
     else if (view === 'quiz' && !state.question && state.examDraft) renderExamResume();
+    else if (view === 'quiz' && !state.question && !state.exam && !state.fromDeck && !state.forcedQuestion) createNextQuestion();
     else if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); startTimer(); }
     else if (view === 'atlas') atlas.render();
     else { clearMapMarks(); renderProgress(); }
@@ -2749,6 +2813,7 @@
     dom.modeSeg.addEventListener('click', (event) => {
       const button = event.target.closest('[data-mode]');
       if (!button || button.disabled) return;
+      abandonExercise();
       state.mode = button.dataset.mode;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) {
         state.mode = 'cap';
@@ -2761,6 +2826,7 @@
     dom.ansSeg.addEventListener('click', (event) => {
       const button = event.target.closest('[data-ans]');
       if (!button) return;
+      abandonExercise();
       state.answerMode = button.dataset.ans;
       syncControls(); savePreferences();
       if (state.view !== 'quiz') setView('quiz');
@@ -2792,6 +2858,7 @@
       else { renderQuiz(); startTimer(); }
     });
     dom.region.addEventListener('change', () => {
+      abandonExercise();
       state.region = REGIONS.includes(dom.region.value) ? dom.region.value : 'Mundo inteiro';
       if (state.region !== 'Mundo inteiro' && state.mode === 'reg') {
         state.mode = 'mix';
@@ -2802,6 +2869,7 @@
       createNextQuestion();
     });
     dom.visualToggle.addEventListener('change', () => {
+      abandonExercise();
       state.includeVisual = dom.visualToggle.checked;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
       syncControls(); savePreferences();

@@ -2,6 +2,12 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 module.exports=async(client,evaluate,until)=>{
   const ev=code=>evaluate(client,code);
+  // Cada tamanho selecionado deve chegar ao contador da série e à preferência.
+  for(const size of [5,20,10]) {
+    await ev(`(() => {document.querySelector('[data-view=prog]').click();const select=document.getElementById('dailySize');select.value='${size}';select.dispatchEvent(new Event('change'));document.getElementById('dailyTraining').click()})()`);
+    assert.equal(await ev("JSON.parse(localStorage.getItem('atlas195:serie:v1')).total"),size);
+    assert.equal(await ev("JSON.parse(localStorage.getItem('atlas195:prefs:v2')).dailySize"),size);
+  }
   for(const theme of ['light','dark']){
     await client.send('Emulation.setDeviceMetricsOverride',{width:theme==='light'?360:1280,height:900,deviceScaleFactor:1,mobile:theme==='light'});
     await ev(`for(let n=0;n<3&&document.documentElement.dataset.theme!=='${theme}';n++)document.getElementById('themeToggle').click();document.querySelector('[data-mode=reg]').click();document.querySelector('[data-view=prog]').click();document.getElementById('dailyTraining').focus()`);

@@ -24,7 +24,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const ROOT = path.resolve(__dirname, '..');
 const ARTIFACT = path.join(ROOT, 'atlas-195.html');
 const REQUIRE_BROWSER = process.env.ATLAS_REQUIRE_BROWSER === '1';
-const HEADLESS_TIMEOUT = 60_000;
+const HEADLESS_TIMEOUT = 120_000;
 
 function chromeCandidates() {
   if (process.env.CHROME_PATH) return [process.env.CHROME_PATH];
@@ -73,14 +73,19 @@ async function until(label, probe, { timeout = 20_000, interval = 150 } = {}) {
 }
 
 function serveArtifact(html) {
-  const body = Buffer.from(html, 'utf8');
+  const files = new Map([['/atlas-195.html', {body:Buffer.from(html,'utf8'),type:'text/html; charset=utf-8'}]]);
+  for (const name of ['sw.js','manifest.webmanifest','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png']) {
+    files.set('/'+name,{body:fs.readFileSync(path.join(ROOT,name)),type:name.endsWith('.js')?'application/javascript':name.endsWith('.png')?'image/png':'application/manifest+json'});
+  }
   const server = http.createServer((request, response) => {
+    const file = files.get(new URL(request.url,'http://localhost').pathname);
+    if (!file) { response.writeHead(404); response.end(); return; }
     response.writeHead(200, {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Content-Length': String(body.length),
+      'Content-Type': file.type,
+      'Content-Length': String(file.body.length),
       'Cache-Control': 'no-store',
     });
-    response.end(request.method === 'HEAD' ? undefined : body);
+    response.end(request.method === 'HEAD' ? undefined : file.body);
   });
   return new Promise((resolve) => {
     server.listen(0, '127.0.0.1', () => resolve({ server, port: server.address().port }));
@@ -569,6 +574,19 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     await require('./variants-browser.cjs')(client, evaluate, until);
     await require('./resume-browser.cjs')(client, evaluate, until);
     await require('./audio-browser.cjs')(client, evaluate, until);
+    await require('./due-browser.cjs')(client, evaluate, until);
+    await require('./workflows-browser.cjs')(client, evaluate, until);
+    await until('service worker pronto para uso offline',()=>evaluate(client,"Boolean(navigator.serviceWorker.controller)"));
+    await client.send('Network.enable');
+    await client.send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});
+    try {
+      await evaluate(client,'window.offlineReloadSentinel=true');
+      await client.send('Page.reload');
+      await until('aplicativo reaberto sem rede',()=>evaluate(client,"!window.offlineReloadSentinel && Boolean(document.getElementById('questionTitle')) && !document.getElementById('appShell').classList.contains('is-initializing')"));
+      assert.equal(await evaluate(client,"document.getElementById('regSel').options.length>6"),true);
+    } finally {
+      await client.send('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+    }
 
     // 4. Nenhuma violação de CSP: é o sintoma exato do defeito que motivou o teste.
     const violacoes = client.events

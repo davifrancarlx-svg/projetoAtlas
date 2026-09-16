@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d222e" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-noAfMt2mx2mIUmT9tJFJDS0cEN5cnjR0OmpTQEmFvO8='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-x2nuvR50DUrjvEFi5rJUjvqvatDHYt+RDr4j1hfu+o0=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-s01Ryu4H0e0i+66SbFAR+85JMHrDVtISyhikjhqzXpQ='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-XlWh3+ff7SPY56tQK/eP6rW5m6Lvr4cCXNhGkJO4zYU='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-x2nuvR50DUrjvEFi5rJUjvqvatDHYt+RDr4j1hfu+o0=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-toc8Q1/jeASYz2lhI3Qcwl+E5aLuptIkrZ5yIsudcTM='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <title>Atlas 195 — bandeiras, capitais e localização</title>
   <meta name="description" content="Treino de geografia dos 195 países: bandeiras, capitais, localização no mapa e regiões, com revisão espaçada. Funciona sem internet e guarda o progresso só no seu aparelho.">
 
@@ -903,6 +903,13 @@ select {
   pointer-events: all;
 }
 
+.cty.neighbor,
+.dot.neighbor {
+  fill: var(--land-hi);
+  stroke: var(--ink);
+  stroke-dasharray: 3 2;
+}
+
 .cty.on,
 .dot.on,
 .cty.is-current,
@@ -1401,6 +1408,20 @@ body.view-prog .side-body {
 
 /* A explicação da confusão é o que transforma o erro em aula: recebe o mesmo
    dourado dos destaques para não se perder entre as notas de capital. */
+.answer-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-block: 16px; }
+.comparison-card { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; overflow-wrap: anywhere; }
+.comparison-card strong { font-size: 12px; color: var(--muted); }
+.comparison-card .flag-image { width: 100%; max-width: 120px; height: 90px; object-fit: contain; }
+.comparison-card .shape-svg { width: 100%; height: 100px; }
+.border-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-block: 12px; font-size: 12px; color: var(--muted); }
+.border-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-swatch { display: inline-block; width: 12px; height: 12px; background: var(--land-hi); }
+.legend-swatch.neighbor { border: 1px dashed var(--ink); }
+.legend-swatch.current { background: var(--gold); }
+.legend-swatch.correct { background: var(--mint); }
+.legend-swatch.wrong { background: var(--coral); }
+#dailySize { width: auto; min-width: 70px; }
+
 .note-confusion {
   border-inline-start-color: var(--gold);
   color: var(--ink);
@@ -5155,7 +5176,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 (function(root) {
   'use strict';
-  function plan(Core, countries, progress, directions, region, now = Date.now()) {
+  function plan(Core, countries, progress, directions, region, now = Date.now(), size = 10) {
+    size = [5, 10, 20].includes(size) ? size : 10;
     const date = new Date(now).toLocaleDateString('sv-SE');
     const hash = text => [...text].reduce((h,c) => ((h * 31) + c.charCodeAt(0)) >>> 0, 7);
     const cards = countries.filter(c => region === 'Mundo inteiro' || c.r === region || c.sr === region)
@@ -5174,8 +5196,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
         chosen.push(next);
       }
     }
-    take(due,6);take(weak,2);take(fresh,2);
-    take([...due,...weak,...fresh,...cards],10-chosen.length);
+    take(due,size * 0.6);take(weak,size * 0.2);take(fresh,size * 0.2);
+    take([...due,...weak,...fresh,...cards],size-chosen.length);
     return chosen.map(({id,direction})=>({id,direction}));
   }
   function nextReview(items, now = Date.now()) {
@@ -5208,14 +5230,26 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     if(!text)return;
     const p=document.createElement('p');p.className='section-copy study-summary';p.textContent=text;container.append(p);
   }
-  function card(container,start) {
+  function duePlan(Core, countries, progress, directions, region, now = Date.now()) {
+    return countries.filter(c => region === 'Mundo inteiro' || c.r === region || c.sr === region)
+      .flatMap(c => directions.map(direction => ({ id: c.id, direction, skill: Core.skillOf(progress, c.id, direction) })))
+      .filter(c => c.skill.attempts > 0 && Date.parse(c.skill.nextReviewAt) <= now)
+      .sort((a,b) => Date.parse(a.skill.nextReviewAt) - Date.parse(b.skill.nextReviewAt))
+      .map(({id,direction}) => ({id,direction}));
+  }
+  function card(container,start,size = 10,onSize = () => {}) {
     const section=document.createElement('section');section.className='pgroup';
+    const label=document.createElement('label');label.htmlFor='dailySize';label.textContent='Perguntas no treino de hoje';
+    const select=document.createElement('select');select.id='dailySize';
+    [5,10,20].forEach(n=>{const option=document.createElement('option');option.value=n;option.textContent=String(n);select.append(option);});
+    select.value=String(size);select.addEventListener('change',()=>onSize(Number(select.value)));
+    const row=document.createElement('div');row.className='button-row';row.append(label,select);section.append(row);
     const button=document.createElement('button');button.id='dailyTraining';button.className='btn';button.type='button';
-    button.textContent='Treino de hoje';button.addEventListener('click',start);section.append(button);
-    note(section,'Até 10 perguntas: revisões vencidas, pontos fracos e novidades, conforme o modo e a área selecionados.');
+    button.textContent='Treino de hoje';button.addEventListener('click',()=>start(Number(select.value)));section.append(button);
+    note(section,'Revisões vencidas, pontos fracos e novidades, conforme o modo e a área selecionados. Com poucas habilidades disponíveis, a série será menor.');
     container.append(section);
   }
-  const api={plan,nextReview,evolution,note,card};
+  const api={plan,duePlan,nextReview,evolution,note,card};
   if(typeof module==='object'&&module.exports)module.exports=api;else root.AtlasStudy=api;
 })(globalThis);
 (function (root) {
@@ -6118,6 +6152,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   // Os três tipos de série fechada compartilham o mesmo mecanismo (N perguntas,
   // nota no fim) e diferem só no texto e em como se refaz.
   const SERIES_COPY = {
+    due: { label: 'Revisões pendentes', done: 'Lote de revisões concluído', again: 'Continuar revisões pendentes', start: 'Revisão de pendências iniciada' },
     exam: { label: 'Prova', done: 'Prova concluída', again: 'Nova prova', start: 'Prova iniciada' },
     daily: { label: 'Treino de hoje', done: 'Treino de hoje concluído', again: 'Treino de hoje', start: 'Treino de hoje iniciado' },
     country: { label: 'Prática do país', done: 'Prática concluída', again: 'Praticar de novo', start: 'Prática iniciada' },
@@ -6285,7 +6320,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       mode: state.mode, region: state.region, answerMode: state.answerMode,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
       filtersCollapsed: state.filtersCollapsed, focusMode: state.focusMode,
-      timeLimit: state.timeLimit, theme: state.theme,
+      timeLimit: state.timeLimit, theme: state.theme, dailySize: state.dailySize || 10,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
   }
@@ -6302,6 +6337,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       if (typeof parsed.filtersCollapsed === 'boolean') state.filtersCollapsed = parsed.filtersCollapsed;
       if (typeof parsed.focusMode === 'boolean') state.focusMode = parsed.focusMode;
       if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
+      if ([5, 10, 20].includes(parsed.dailySize)) state.dailySize = parsed.dailySize;
       if (THEMES.some((tema) => tema.id === parsed.theme)) state.theme = parsed.theme;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
       if (state.region !== 'Mundo inteiro' && state.mode === 'reg') state.mode = 'mix';
@@ -6552,7 +6588,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 
   function clearMapMarks() {
     mapState.nodesById.forEach((nodes) => nodes.forEach((node) => node.classList.remove(
-      'on', 'ok', 'bad', 'dimmed', 'is-current', 'is-correct', 'is-wrong', 'is-dimmed',
+      'on', 'ok', 'bad', 'neighbor', 'dimmed', 'is-current', 'is-correct', 'is-wrong', 'is-dimmed',
     )));
     clear(mapState.effects);
     mapState.reticle = null;
@@ -7008,7 +7044,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       // O baralho acabou: guarda o saldo para anunciar uma vez na próxima
       // pergunta. Fechar a revisão em silêncio desperdiça o melhor momento para
       // mostrar que o esforço virou resultado.
-      if (state.fromDeck && state.reviewStats && state.reviewStats.consolidated) {
+      if (state.fromDeck && state.reviewStats && (state.reviewStats.consolidated || state.reviewStats.retired)) {
         state.reviewDone = state.reviewStats;
       }
       state.fromDeck = false;
@@ -7270,6 +7306,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     if (question.direction === 'mapId' && question.variant !== 'shape') showReticle(question.id);
     if (state.answered) {
       const answerId = expectedId(question);
+      if (question.variant === 'border') (byId[question.id].nb || []).forEach(id => markCountry(id, 'neighbor'));
       markCountry(answerId, 'ok');
       // Na fronteira, o país da pergunta não é a resposta: ele fica marcado
       // como referência para a dupla ser lida junta no mapa.
@@ -7502,7 +7539,23 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     // uma escolha concreta de país: em "tempo esgotado" não houve confusão a
     // explicar, e em região a comparação seria entre continentes, não países.
     if (!isCorrect && !state.expired && question.direction !== 'reg') {
-      const chosen = byId[state.selectedAnswer];
+      const chosen = state.questionAnswerMode === 'pick' || question.direction === 'locate'
+        ? byId[state.selectedAnswer]
+        : DATA.find(c => Core.normalizeText(c[answerField(question.direction) === 'capital' ? 'cap' : 'n']) === Core.normalizeText(state.selectedAnswer || ''));
+      if (chosen && chosen.id !== expectedId(question)) {
+        const comparison = create('div', { className: 'answer-comparison', attrs: { 'aria-label': 'Comparação das respostas' } });
+        [[byId[expectedId(question)], 'Resposta correta'], [chosen, 'Sua resposta']].forEach(([item, label]) => {
+          const card = create('div', { className: 'comparison-card' });
+          card.append(create('strong', { text: label }));
+          if (question.variant === 'shape') card.append(countryShape(item, `Silhueta de ${item.n}`));
+          else if (['flag', 'flagOf'].includes(question.direction)) card.append(flagImage(item));
+          card.append(create('span', { text: item.n }));
+          if (['cap', 'capOf'].includes(question.direction)) card.append(create('span', { className: 'factmeta', text: `Capital: ${item.cap}` }));
+          else if (question.direction === 'locate' || question.direction === 'mapId') card.append(create('span', { className: 'factmeta', text: item.sr }));
+          comparison.append(card);
+        });
+        verdict.append(comparison);
+      }
       const owner = chosen ? chosenNote(chosen, question.direction) : null;
       if (owner) verdict.append(create('p', { className: 'note', text: owner }));
       const copy = chosen ? confusionCopy(country, chosen, question.direction) : null;
@@ -7511,6 +7564,12 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 
     if (question.direction === 'locate' && question.variant === 'border') {
       verdict.append(create('p', { className: 'note note-confusion', text: bordersNote(country) }));
+      const legend = create('div', { className: 'border-legend', attrs: { 'aria-label': 'Legenda do mapa' } });
+      [['current', 'País da pergunta'], ['neighbor', 'Vizinhos'], ['correct', 'Resposta correta']].forEach(([kind, text]) => {
+        legend.append(create('span', {}, [create('i', { className: `legend-swatch ${kind}`, attrs: { 'aria-hidden': 'true' } }), document.createTextNode(text)]));
+      });
+      if (!isCorrect) legend.append(create('span', {}, [create('i', { className: 'legend-swatch wrong', attrs: { 'aria-hidden': 'true' } }), document.createTextNode('Sua resposta incorreta')]));
+      verdict.append(legend);
     }
     explanatoryNotes(country).forEach((note) => verdict.append(create('p', { className: 'note', text: note })));
     const next = create('button', { id: 'nextQuestion', className: 'btn wide', text: 'Próxima pergunta', type: 'button' });
@@ -7531,7 +7590,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       create('span', { text: state.fromDeck
         ? `Revisão focada · ${reviewRemaining() > 1 ? `faltam ${reviewRemaining()}` : 'última habilidade'}`
         : (state.exam
-          ? `${seriesLabel()} · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
+          ? `${seriesLabel()} · ${Math.min(state.exam.done + (state.answered ? 0 : 1), state.exam.total)} de ${state.exam.total}`
           : `Pergunta ${state.questionNumber}`) }),
       create('span', { text: directionLabel(question) }),
     ]));
@@ -7704,7 +7763,19 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     return section;
   }
 
+  // Trocar de assunto encerra a fila anterior; uma carta forçada não pode
+  // sobrepor silenciosamente o modo ou os filtros que a pessoa acabou de escolher.
+  function abandonExercise() {
+    stopTimer();
+    state.exam = null; state.examDraft = null;
+    state.reviewQueue = []; state.forcedQuestion = null;
+    state.fromDeck = false; state.deckPending = false;
+    state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
+    clearExamDraft();
+  }
+
   function startReview(id, direction) {
+    abandonExercise();
     state.forcedQuestion = { id, direction };
     setView('quiz');
     createNextQuestion({ focus: true });
@@ -7746,6 +7817,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     if (correct) {
       card.remaining -= 1;
       if (card.remaining <= 0) { state.reviewStats.consolidated += 1; return; }
+      if (card.tries >= REVIEW_MAX_TRIES) { state.reviewStats.retired += 1; return; }
       insertReviewCard(card, REVIEW_GAP_AFTER_HIT);
       return;
     }
@@ -7769,6 +7841,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   function startDeck(items, message) {
     const cards = items.map(reviewCard);
     if (!cards.length) return false;
+    abandonExercise();
     state.reviewStats = { consolidated: 0, retired: 0, total: cards.length };
     state.reviewQueue = cards.slice(1);
     state.forcedQuestion = cards[0];
@@ -7857,7 +7930,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   function deckCards() {
     const queue = state.reviewQueue.slice();
     const card = state.reviewCard;
-    const playing = card && card.remaining > 0 && queue.indexOf(card) === -1 ? [card] : [];
+    const playing = !state.answered && card && card.remaining > 0 && queue.indexOf(card) === -1 ? [card] : [];
     return playing.concat(queue);
   }
 
@@ -8089,12 +8162,17 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     const { kind, countryId, total } = state.exam;
     refazer.addEventListener('click', () => {
       if (kind === 'daily') startDaily();
+      else if (kind === 'due') startDue();
       else if (kind === 'country') startCountryPractice(countryId);
       else startExam(total);
     });
     const voltar = create('button', { className: 'btn ghost', type: 'button', text: 'Voltar ao treino livre' });
     voltar.addEventListener('click', endExam);
     acoes.append(refazer, voltar);
+    if (kind === 'due' && !pendingCards().length) {
+      refazer.disabled = true;
+      refazer.textContent = 'Nenhuma revisão pendente nestes filtros';
+    }
     dom.panel.append(acoes);
 
     renderScorebar();
@@ -8196,8 +8274,18 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     return Study.nextReview(attemptedSkills());
   }
 
-  function startDaily() {
-    const cards = Study.plan(Core, DATA, progress, effectiveDirections(), state.region);
+  function pendingCards() {
+    return Study.duePlan(Core, DATA, progress, effectiveDirections(), state.region);
+  }
+
+  function startDue() {
+    const cards = pendingCards().slice(0, 30);
+    if (cards.length) startExam(cards.length, cards, 'due');
+    else { state.exam = null; setView('prog'); announce('Nenhuma revisão pendente nestes filtros.'); }
+  }
+
+  function startDaily(size = state.dailySize || 10) {
+    const cards = Study.plan(Core, DATA, progress, effectiveDirections(), state.region, Date.now(), size);
     if (cards.length) startExam(cards.length, cards);
   }
 
@@ -8284,6 +8372,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   }
 
   function startNewSession() {
+    abandonExercise();
     state.hits = 0; state.misses = 0; state.streak = 0; state.questionNumber = 0;
     state.sessionAnswers = []; state.reviewQueue = []; state.forcedQuestion = null;
     state.fromDeck = false; state.deckPending = false; state.sessionEnded = false;
@@ -8449,7 +8538,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     dom.panel.append(overallStats(attempted));
 
     renderSessionSummary(dom.panel);
-    Study.card(dom.panel, startDaily);
+    Study.card(dom.panel, startDaily, state.dailySize || 10, size => { state.dailySize = size; savePreferences(); });
     Study.note(dom.panel, nextReviewCopy());
 
     // O treino livre é infinito, o que serve para revisar mas não para medir.
@@ -8482,6 +8571,11 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 
     const review = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'reviewTitle' } });
     review.append(create('h3', { id: 'reviewTitle', text: 'Revisões recomendadas' }));
+    const pending = pendingCards();
+    const reviewAll = create('button', { id: 'dueTraining', className: 'btn', type: 'button', text: 'Revisar somente pendências', attrs: { disabled: pending.length ? null : '' } });
+    reviewAll.addEventListener('click', startDue);
+    review.append(reviewAll);
+    Study.note(review, `${pending.length} habilidades vencidas no modo e na área selecionados. Lotes de até 30 perguntas, das mais antigas às mais recentes; ao terminar, você pode continuar com as próximas.`);
     const reviewList = create('div', { className: 'weak' });
     due.slice(0, 12).forEach((item) => {
       const button = create('button', { className: 'chip hot', type: 'button', text: `${item.country.n} · ${DIRECTION_LABEL[item.direction]}` });
@@ -8611,6 +8705,9 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
           state.hits = 0;
           state.misses = 0;
           state.streak = 0;
+          state.sessionAnswers = []; state.questionNumber = 0;
+          state.question = null; state.answered = false; state.sessionEnded = false;
+          abandonExercise();
           if (state.view === 'prog') renderProgress();
           announce('Todo o progresso foi apagado.');
           if (state.view === 'prog') document.getElementById('progressTitle')?.focus();
@@ -8653,6 +8750,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     stopTimer();
     if (view === 'quiz' && state.sessionEnded) renderSessionResult();
     else if (view === 'quiz' && !state.question && state.examDraft) renderExamResume();
+    else if (view === 'quiz' && !state.question && !state.exam && !state.fromDeck && !state.forcedQuestion) createNextQuestion();
     else if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); startTimer(); }
     else if (view === 'atlas') atlas.render();
     else { clearMapMarks(); renderProgress(); }
@@ -8713,6 +8811,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     dom.modeSeg.addEventListener('click', (event) => {
       const button = event.target.closest('[data-mode]');
       if (!button || button.disabled) return;
+      abandonExercise();
       state.mode = button.dataset.mode;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) {
         state.mode = 'cap';
@@ -8725,6 +8824,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     dom.ansSeg.addEventListener('click', (event) => {
       const button = event.target.closest('[data-ans]');
       if (!button) return;
+      abandonExercise();
       state.answerMode = button.dataset.ans;
       syncControls(); savePreferences();
       if (state.view !== 'quiz') setView('quiz');
@@ -8756,6 +8856,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       else { renderQuiz(); startTimer(); }
     });
     dom.region.addEventListener('change', () => {
+      abandonExercise();
       state.region = REGIONS.includes(dom.region.value) ? dom.region.value : 'Mundo inteiro';
       if (state.region !== 'Mundo inteiro' && state.mode === 'reg') {
         state.mode = 'mix';
@@ -8766,6 +8867,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       createNextQuestion();
     });
     dom.visualToggle.addEventListener('change', () => {
+      abandonExercise();
       state.includeVisual = dom.visualToggle.checked;
       if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
       syncControls(); savePreferences();

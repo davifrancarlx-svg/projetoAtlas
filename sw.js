@@ -10,7 +10,7 @@
 // VERSION é o hash do artefato, injetado no build: publicar uma versão nova
 // troca o nome do cache e o antigo é descartado no activate.
 
-const VERSION = 'c8cf8b750232';
+const VERSION = '55094ca74e12';
 const CACHE = `atlas-195-${VERSION}`;
 const ASSETS = [
   "./atlas-195.html",
@@ -22,15 +22,15 @@ const ASSETS = [
 ];
 const APP_URL = new URL('./atlas-195.html', self.location).href;
 
-// A instalação leva só os arquivos pequenos. Baixar os cinco megabytes do
-// artefato aqui deixaria a instalação inteira dependente de uma única requisição
-// grande — e addAll é tudo ou nada: um tropeço, numa aba em segundo plano ou
-// numa rede ruim, aborta a instalação e o app fica sem offline nenhum. O
-// artefato entra no cache pelo fetch, na primeira vez que for realmente usado.
+// O HTML é obrigatório: uma instalação incompleta não pode substituir a
+// versão offline que já funciona. Ícones são opcionais; se a rede falhar no
+// HTML, o navegador mantém o worker anterior e tenta a atualização depois.
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    await Promise.allSettled(ASSETS.map((asset) => cache.add(asset)));
+    await cache.add(new Request(APP_URL, { cache: 'reload' }));
+    await Promise.allSettled(ASSETS.filter(asset => new URL(asset, self.location).href !== APP_URL)
+      .map((asset) => cache.add(asset)));
     await self.skipWaiting();
   })());
 });
@@ -39,6 +39,8 @@ self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
     const anteriores = names.filter((name) => name.startsWith('atlas-195-') && name !== CACHE);
+    const current = await caches.open(CACHE);
+    if (!(await current.match(APP_URL))) { await self.clients.claim(); return; }
     await Promise.all(anteriores.map((name) => caches.delete(name)));
     await self.clients.claim();
 
@@ -61,7 +63,8 @@ self.addEventListener('fetch', (event) => {
   // Abrir o app instalado, recarregar ou cair na raiz leva sempre ao artefato.
   if (request.mode === 'navigate') {
     event.respondWith((async () => {
-      const cached = await caches.match(APP_URL);
+      const current = await caches.open(CACHE);
+      const cached = await current.match(APP_URL);
       if (cached) return cached;
       try {
         const response = await fetch(APP_URL);
@@ -69,10 +72,12 @@ self.addEventListener('fetch', (event) => {
         // próximas aberturas funcionam sem ela.
         if (response.ok) {
           const cache = await caches.open(CACHE);
-          await cache.put(APP_URL, response.clone());
+          try { await cache.put(APP_URL, response.clone()); } catch (_) { /* sem espaço: a resposta online continua válida */ }
         }
         return response;
       } catch (_) {
+        const previous = await caches.match(APP_URL);
+        if (previous) return previous;
         return new Response('O Atlas ainda não foi baixado para uso offline. Abra uma vez com internet.', {
           status: 503,
           headers: { 'Content-Type': 'text/plain; charset=utf-8' },
@@ -83,12 +88,13 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith((async () => {
-    const cached = await caches.match(request);
+    const current = await caches.open(CACHE);
+    const cached = await current.match(request);
     if (cached) return cached;
     const response = await fetch(request);
     if (response.ok && response.type === 'basic') {
       const cache = await caches.open(CACHE);
-      await cache.put(request, response.clone());
+      try { await cache.put(request, response.clone()); } catch (_) { /* falha de cache não é falha da rede */ }
     }
     return response;
   })());

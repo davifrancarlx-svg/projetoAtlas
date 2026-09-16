@@ -806,6 +806,13 @@ select {
   pointer-events: all;
 }
 
+.cty.neighbor,
+.dot.neighbor {
+  fill: var(--land-hi);
+  stroke: var(--ink);
+  stroke-dasharray: 3 2;
+}
+
 .cty.on,
 .dot.on,
 .cty.is-current,
@@ -1304,6 +1311,20 @@ body.view-prog .side-body {
 
 /* A explicação da confusão é o que transforma o erro em aula: recebe o mesmo
    dourado dos destaques para não se perder entre as notas de capital. */
+.answer-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-block: 16px; }
+.comparison-card { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; overflow-wrap: anywhere; }
+.comparison-card strong { font-size: 12px; color: var(--muted); }
+.comparison-card .flag-image { width: 100%; max-width: 120px; height: 90px; object-fit: contain; }
+.comparison-card .shape-svg { width: 100%; height: 100px; }
+.border-legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-block: 12px; font-size: 12px; color: var(--muted); }
+.border-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend-swatch { display: inline-block; width: 12px; height: 12px; background: var(--land-hi); }
+.legend-swatch.neighbor { border: 1px dashed var(--ink); }
+.legend-swatch.current { background: var(--gold); }
+.legend-swatch.correct { background: var(--mint); }
+.legend-swatch.wrong { background: var(--coral); }
+#dailySize { width: auto; min-width: 70px; }
+
 .note-confusion {
   border-inline-start-color: var(--gold);
   color: var(--ink);

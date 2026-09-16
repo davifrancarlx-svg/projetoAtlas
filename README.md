@@ -30,7 +30,15 @@ A aba Progresso mostra os países estudados, dominados e as revisões vencidas, 
 
 ## Treino de hoje e evolução
 
-Na aba Progresso, **Treino de hoje** inicia uma série de até 10 perguntas com os filtros atuais. Reserva até seis perguntas para revisões vencidas, duas para habilidades de nível baixo e duas para novidades; quando falta algum grupo, completa com os demais. Não repete a mesma habilidade na série. Pode ser repetido e não exige conta. Questões visuais podem ser puladas sem penalidade, reduzindo o tamanho da série.
+Na aba Progresso, **Treino de hoje** permite escolher 5, 10 ou 20 perguntas com os filtros atuais. O tamanho fica salvo neste navegador. Reserva 60% das vagas para revisões vencidas, 20% para habilidades de nível baixo e 20% para novidades; quando falta algum grupo, completa com os demais. Não repete a mesma habilidade na série. Pode ser repetido e não exige conta. Questões visuais podem ser puladas sem penalidade, reduzindo o tamanho da série.
+
+**Revisar somente pendências**, na mesma aba, seleciona exclusivamente habilidades vencidas no modo e na área atuais, das mais antigas às mais recentes. Cada lote contém até 30 perguntas, com contador, resultado e retomada em caso de interrupção. Ao terminar, é possível continuar com outro lote; sem pendências, o botão fica desabilitado. Cada habilidade aparece uma vez por lote, e os erros podem ser trabalhados na revisão focada do fechamento.
+
+Depois de uma resposta incorreta identificável, dois cartões comparam a resposta correta com a escolhida: bandeiras, capitais ou silhuetas, conforme a pergunta. Na digitação, a comparação aparece quando o texto corresponde exatamente a um nome canônico após normalização. Nas perguntas de fronteira, todos os vizinhos aparecem destacados com contorno tracejado no mapa, acompanhados de legenda e da lista textual. O enquadramento não muda e os destaques desaparecem na pergunta seguinte.
+
+Trocar modo, região, forma de resposta ou inclusão de perguntas visuais encerra a série/revisão em curso e inicia treino livre com os novos filtros, preservando as respostas já gravadas. Apagar o progresso também limpa a sessão e o rascunho de retomada. O limite de seis aparições da revisão focada vale tanto para erros quanto para um acerto isolado que ainda não conclua a carta.
+
+Uma atualização offline só substitui a versão anterior depois de armazenar o HTML novo com sucesso. Falhas de rede na instalação mantêm a versão anterior; falta de espaço no cache não impede uma resposta online válida de abrir.
 
 Progresso e os fechamentos mostram quando revisar novamente, incluindo horário local e quantidade de habilidades no primeiro dia previsto. Se já houver revisões vencidas, mostram quantas estão disponíveis agora. O resumo destaca habilidades novas praticadas e aquelas que voltaram a ser acertadas após dificuldade, sem tratar um único acerto como domínio definitivo.
 
