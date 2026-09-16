@@ -4,7 +4,7 @@
     "n": "Afeganistão",
     "cap": "Cabul",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 652230
   },
   {
@@ -12,7 +12,7 @@
     "n": "África do Sul",
     "cap": "Pretória",
     "r": "África",
-    "sr": "África",
+    "sr": "África Austral",
     "ar": 1221037,
     "calt": [
       "cidade do cabo",
@@ -25,7 +25,7 @@
     "n": "Albânia",
     "cap": "Tirana",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 28748
   },
   {
@@ -33,7 +33,7 @@
     "n": "Alemanha",
     "cap": "Berlim",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 357114
   },
   {
@@ -41,7 +41,7 @@
     "n": "Andorra",
     "cap": "Andorra la Vella",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 468
   },
   {
@@ -49,7 +49,7 @@
     "n": "Angola",
     "cap": "Luanda",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 1246700
   },
   {
@@ -65,7 +65,7 @@
     "n": "Arábia Saudita",
     "cap": "Riade",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 2149690
   },
   {
@@ -73,7 +73,7 @@
     "n": "Argélia",
     "cap": "Argel",
     "r": "África",
-    "sr": "África",
+    "sr": "África Setentrional",
     "ar": 2381741
   },
   {
@@ -89,7 +89,7 @@
     "n": "Armênia",
     "cap": "Yerevan",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 29743,
     "calt": [
       "erevan"
@@ -100,7 +100,7 @@
     "n": "Austrália",
     "cap": "Canberra",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Austrália e Nova Zelândia",
     "ar": 7692024
   },
   {
@@ -108,7 +108,7 @@
     "n": "Áustria",
     "cap": "Viena",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 83871
   },
   {
@@ -116,7 +116,7 @@
     "n": "Azerbaijão",
     "cap": "Baku",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 86600
   },
   {
@@ -132,7 +132,7 @@
     "n": "Bahrein",
     "cap": "Manama",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 765
   },
   {
@@ -140,7 +140,7 @@
     "n": "Bangladesh",
     "cap": "Daca",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 147570
   },
   {
@@ -156,7 +156,7 @@
     "n": "Bélgica",
     "cap": "Bruxelas",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 30528
   },
   {
@@ -172,7 +172,7 @@
     "n": "Benin",
     "cap": "Porto-Novo",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 112622,
     "calt": [
       "cotonou"
@@ -184,7 +184,7 @@
     "n": "Bielorússia",
     "cap": "Minsk",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 207600,
     "calt": [
       "minsque"
@@ -210,7 +210,7 @@
     "n": "Bósnia e Herzegovina",
     "cap": "Sarajevo",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 51209
   },
   {
@@ -218,7 +218,7 @@
     "n": "Botsuana",
     "cap": "Gaborone",
     "r": "África",
-    "sr": "África",
+    "sr": "África Austral",
     "ar": 582000,
     "alt": [
       "botswana"
@@ -237,7 +237,7 @@
     "n": "Brunei",
     "cap": "Bandar Seri Begawan",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 5765
   },
   {
@@ -245,7 +245,7 @@
     "n": "Bulgária",
     "cap": "Sófia",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 110879
   },
   {
@@ -253,7 +253,7 @@
     "n": "Burkina Faso",
     "cap": "Ouagadougou",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 272967,
     "alt": [
       "alto volta"
@@ -264,7 +264,7 @@
     "n": "Burundi",
     "cap": "Gitega",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 27834
   },
   {
@@ -272,7 +272,7 @@
     "n": "Butão",
     "cap": "Thimphu",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 38394
   },
   {
@@ -280,7 +280,7 @@
     "n": "Cabo Verde",
     "cap": "Praia",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 4033,
     "alt": [
       "cabo verde",
@@ -292,7 +292,7 @@
     "n": "Camarões",
     "cap": "Yaoundé",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 475442
   },
   {
@@ -300,7 +300,7 @@
     "n": "Camboja",
     "cap": "Phnom Penh",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 181035
   },
   {
@@ -316,7 +316,7 @@
     "n": "Catar",
     "cap": "Doha",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 11586
   },
   {
@@ -324,7 +324,7 @@
     "n": "Cazaquistão",
     "cap": "Astana",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Central",
     "ar": 2724900,
     "calt": [
       "nur sultan"
@@ -335,7 +335,7 @@
     "n": "Chade",
     "cap": "Ndjamena",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 1284000
   },
   {
@@ -351,15 +351,15 @@
     "n": "China",
     "cap": "Pequim",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Oriental",
     "ar": 9706961
   },
   {
     "id": "CY",
     "n": "Chipre",
     "cap": "Nicósia",
-    "r": "Europa",
-    "sr": "Europa",
+    "r": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 9251
   },
   {
@@ -375,7 +375,7 @@
     "n": "Comores",
     "cap": "Moroni",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 1862
   },
   {
@@ -383,7 +383,7 @@
     "n": "Coreia do Norte",
     "cap": "Pyongyang",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Oriental",
     "ar": 120538,
     "alt": [
       "coreia do norte"
@@ -394,7 +394,7 @@
     "n": "Coreia do Sul",
     "cap": "Seul",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Oriental",
     "ar": 100210,
     "alt": [
       "coreia do sul"
@@ -405,7 +405,7 @@
     "n": "Costa do Marfim",
     "cap": "Yamoussoukro",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 322463,
     "calt": [
       "abidja",
@@ -426,7 +426,7 @@
     "n": "Croácia",
     "cap": "Zagreb",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 56594
   },
   {
@@ -442,7 +442,7 @@
     "n": "Dinamarca",
     "cap": "Copenhague",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 43094
   },
   {
@@ -450,7 +450,7 @@
     "n": "Djibuti",
     "cap": "Djibuti",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 23200
   },
   {
@@ -466,7 +466,7 @@
     "n": "Egito",
     "cap": "Cairo",
     "r": "África",
-    "sr": "África",
+    "sr": "África Setentrional",
     "ar": 1002450
   },
   {
@@ -482,7 +482,7 @@
     "n": "Emirados Árabes Unidos",
     "cap": "Abu Dhabi",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 83600,
     "alt": [
       "emirados arabes"
@@ -504,7 +504,7 @@
     "n": "Eritreia",
     "cap": "Asmara",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 117600
   },
   {
@@ -512,7 +512,7 @@
     "n": "Eslováquia",
     "cap": "Bratislava",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 49037
   },
   {
@@ -520,7 +520,7 @@
     "n": "Eslovênia",
     "cap": "Ljubljana",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 20273
   },
   {
@@ -528,7 +528,7 @@
     "n": "Espanha",
     "cap": "Madri",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 505992,
     "calt": [
       "madrid"
@@ -539,7 +539,7 @@
     "n": "Essuatíni",
     "cap": "Lobamba",
     "r": "África",
-    "sr": "África",
+    "sr": "África Austral",
     "ar": 17364,
     "alt": [
       "suazilandia",
@@ -570,7 +570,7 @@
     "n": "Estônia",
     "cap": "Tallinn",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 45227
   },
   {
@@ -578,7 +578,7 @@
     "n": "Etiópia",
     "cap": "Adis Abeba",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 1104300
   },
   {
@@ -586,7 +586,7 @@
     "n": "Fiji",
     "cap": "Suva",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Melanésia",
     "ar": 18272
   },
   {
@@ -594,7 +594,7 @@
     "n": "Filipinas",
     "cap": "Manila",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 342353
   },
   {
@@ -602,7 +602,7 @@
     "n": "Finlândia",
     "cap": "Helsinque",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 338424
   },
   {
@@ -610,7 +610,7 @@
     "n": "França",
     "cap": "Paris",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 551695
   },
   {
@@ -618,7 +618,7 @@
     "n": "Gabão",
     "cap": "Libreville",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 267668
   },
   {
@@ -626,7 +626,7 @@
     "n": "Gâmbia",
     "cap": "Banjul",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 10689
   },
   {
@@ -634,7 +634,7 @@
     "n": "Gana",
     "cap": "Acra",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 238533
   },
   {
@@ -642,7 +642,7 @@
     "n": "Geórgia",
     "cap": "Tbilisi",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 69700
   },
   {
@@ -658,7 +658,7 @@
     "n": "Grécia",
     "cap": "Atenas",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 131990
   },
   {
@@ -682,7 +682,7 @@
     "n": "Guiné",
     "cap": "Conacri",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 245857
   },
   {
@@ -690,7 +690,7 @@
     "n": "Guiné Equatorial",
     "cap": "Ciudad de la Paz",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 28051
   },
   {
@@ -698,7 +698,7 @@
     "n": "Guiné-Bissau",
     "cap": "Bissau",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 36125
   },
   {
@@ -725,7 +725,7 @@
     "n": "Hungria",
     "cap": "Budapeste",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 93028
   },
   {
@@ -733,7 +733,7 @@
     "n": "Iêmen",
     "cap": "Sanaa",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 527968
   },
   {
@@ -741,7 +741,7 @@
     "n": "Ilhas Marshall",
     "cap": "Majuro",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Micronésia",
     "ar": 181
   },
   {
@@ -749,7 +749,7 @@
     "n": "Ilhas Salomão",
     "cap": "Honiara",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Melanésia",
     "ar": 28896
   },
   {
@@ -757,7 +757,7 @@
     "n": "Índia",
     "cap": "Nova Délhi",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 3287590
   },
   {
@@ -765,7 +765,7 @@
     "n": "Indonésia",
     "cap": "Jacarta",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 1904569
   },
   {
@@ -773,7 +773,7 @@
     "n": "Irã",
     "cap": "Teerã",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 1648195
   },
   {
@@ -781,7 +781,7 @@
     "n": "Iraque",
     "cap": "Bagdá",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 438317,
     "calt": [
       "bagda"
@@ -792,7 +792,7 @@
     "n": "Irlanda",
     "cap": "Dublin",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 70273
   },
   {
@@ -800,7 +800,7 @@
     "n": "Islândia",
     "cap": "Reykjavík",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 103000,
     "calt": [
       "reiquiavique"
@@ -811,7 +811,7 @@
     "n": "Israel",
     "cap": "Jerusalém",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 20770,
     "note": "Jerusalém é reivindicada como capital, mas o reconhecimento internacional é disputado."
   },
@@ -820,7 +820,7 @@
     "n": "Itália",
     "cap": "Roma",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 301336
   },
   {
@@ -836,7 +836,7 @@
     "n": "Japão",
     "cap": "Tóquio",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Oriental",
     "ar": 377930
   },
   {
@@ -844,7 +844,7 @@
     "n": "Jordânia",
     "cap": "Amã",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 89342
   },
   {
@@ -852,7 +852,7 @@
     "n": "Kiribati",
     "cap": "South Tarawa",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Micronésia",
     "ar": 811
   },
   {
@@ -860,7 +860,7 @@
     "n": "Kuwait",
     "cap": "Cidade do Kuwait",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 17818
   },
   {
@@ -868,7 +868,7 @@
     "n": "Laos",
     "cap": "Vientiane",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 236800
   },
   {
@@ -876,7 +876,7 @@
     "n": "Lesoto",
     "cap": "Maseru",
     "r": "África",
-    "sr": "África",
+    "sr": "África Austral",
     "ar": 30355
   },
   {
@@ -884,7 +884,7 @@
     "n": "Letônia",
     "cap": "Riga",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 64559
   },
   {
@@ -892,7 +892,7 @@
     "n": "Líbano",
     "cap": "Beirute",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 10452
   },
   {
@@ -900,7 +900,7 @@
     "n": "Libéria",
     "cap": "Monrovia",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 111369
   },
   {
@@ -908,7 +908,7 @@
     "n": "Líbia",
     "cap": "Trípoli",
     "r": "África",
-    "sr": "África",
+    "sr": "África Setentrional",
     "ar": 1759540
   },
   {
@@ -916,7 +916,7 @@
     "n": "Liechtenstein",
     "cap": "Vaduz",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 160
   },
   {
@@ -924,7 +924,7 @@
     "n": "Lituânia",
     "cap": "Vilnius",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 65300
   },
   {
@@ -932,7 +932,7 @@
     "n": "Luxemburgo",
     "cap": "Luxemburgo",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 2586
   },
   {
@@ -940,7 +940,7 @@
     "n": "Macedônia do Norte",
     "cap": "Skopje",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 25713,
     "alt": [
       "macedonia"
@@ -951,7 +951,7 @@
     "n": "Madagascar",
     "cap": "Antananarivo",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 587041
   },
   {
@@ -959,7 +959,7 @@
     "n": "Malásia",
     "cap": "Kuala Lumpur",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 330803
   },
   {
@@ -967,7 +967,7 @@
     "n": "Malawi",
     "cap": "Lilongwe",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 118484,
     "alt": [
       "malaui"
@@ -978,7 +978,7 @@
     "n": "Maldivas",
     "cap": "Malé",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 300,
     "calt": [
       "male"
@@ -989,7 +989,7 @@
     "n": "Mali",
     "cap": "Bamako",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 1240192
   },
   {
@@ -997,7 +997,7 @@
     "n": "Malta",
     "cap": "Valeta",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 316,
     "calt": [
       "valletta"
@@ -1008,7 +1008,7 @@
     "n": "Marrocos",
     "cap": "Rabat",
     "r": "África",
-    "sr": "África",
+    "sr": "África Setentrional",
     "ar": 446550
   },
   {
@@ -1016,7 +1016,7 @@
     "n": "Maurício",
     "cap": "Port Louis",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 2040,
     "alt": [
       "mauricio",
@@ -1028,7 +1028,7 @@
     "n": "Mauritânia",
     "cap": "Nouakchott",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 1030700
   },
   {
@@ -1044,7 +1044,7 @@
     "n": "Micronésia",
     "cap": "Palikir",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Micronésia",
     "ar": 702
   },
   {
@@ -1052,7 +1052,7 @@
     "n": "Moçambique",
     "cap": "Maputo",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 801590
   },
   {
@@ -1060,7 +1060,7 @@
     "n": "Moldávia",
     "cap": "Chisinau",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 33846,
     "alt": [
       "moldova"
@@ -1071,7 +1071,7 @@
     "n": "Mônaco",
     "cap": "Mônaco",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 2.02
   },
   {
@@ -1079,7 +1079,7 @@
     "n": "Mongólia",
     "cap": "Ulan Bator",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Oriental",
     "ar": 1564110
   },
   {
@@ -1087,7 +1087,7 @@
     "n": "Montenegro",
     "cap": "Podgorica",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 13812
   },
   {
@@ -1095,7 +1095,7 @@
     "n": "Myanmar",
     "cap": "Naypyidaw",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 676578,
     "alt": [
       "mianmar",
@@ -1112,7 +1112,7 @@
     "n": "Namíbia",
     "cap": "Windhoek",
     "r": "África",
-    "sr": "África",
+    "sr": "África Austral",
     "ar": 825615
   },
   {
@@ -1120,7 +1120,7 @@
     "n": "Nauru",
     "cap": "Yaren",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Micronésia",
     "ar": 21,
     "note": "Nauru não tem capital oficial. Yaren é o distrito onde fica o governo."
   },
@@ -1129,7 +1129,7 @@
     "n": "Nepal",
     "cap": "Katmandu",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 147181
   },
   {
@@ -1145,7 +1145,7 @@
     "n": "Níger",
     "cap": "Niamey",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 1267000
   },
   {
@@ -1153,7 +1153,7 @@
     "n": "Nigéria",
     "cap": "Abuja",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 923768
   },
   {
@@ -1161,7 +1161,7 @@
     "n": "Noruega",
     "cap": "Oslo",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 323802
   },
   {
@@ -1169,7 +1169,7 @@
     "n": "Nova Zelândia",
     "cap": "Wellington",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Austrália e Nova Zelândia",
     "ar": 270467
   },
   {
@@ -1177,7 +1177,7 @@
     "n": "Omã",
     "cap": "Mascate",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 309500
   },
   {
@@ -1185,7 +1185,7 @@
     "n": "Países Baixos",
     "cap": "Amsterdã",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 41850,
     "alt": [
       "holanda",
@@ -1202,7 +1202,7 @@
     "n": "Palau",
     "cap": "Ngerulmud",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Micronésia",
     "ar": 459
   },
   {
@@ -1210,7 +1210,7 @@
     "n": "Palestina",
     "cap": "Jerusalém Oriental",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 6220,
     "note": "Ramallah é a sede administrativa. Jerusalém Oriental é reivindicada como capital."
   },
@@ -1227,7 +1227,7 @@
     "n": "Papua Nova Guiné",
     "cap": "Port Moresby",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Melanésia",
     "ar": 462840
   },
   {
@@ -1235,7 +1235,7 @@
     "n": "Paquistão",
     "cap": "Islamabad",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 881912
   },
   {
@@ -1259,7 +1259,7 @@
     "n": "Polônia",
     "cap": "Varsóvia",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 312679
   },
   {
@@ -1267,7 +1267,7 @@
     "n": "Portugal",
     "cap": "Lisboa",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 92090
   },
   {
@@ -1275,7 +1275,7 @@
     "n": "Quênia",
     "cap": "Nairobi",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 580367
   },
   {
@@ -1283,7 +1283,7 @@
     "n": "Quirguistão",
     "cap": "Bishkek",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Central",
     "ar": 199951
   },
   {
@@ -1291,7 +1291,7 @@
     "n": "Reino Unido",
     "cap": "Londres",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 242900,
     "alt": [
       "inglaterra",
@@ -1304,7 +1304,7 @@
     "n": "República Centro-Africana",
     "cap": "Bangui",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 622984,
     "alt": [
       "republica centro africana",
@@ -1316,7 +1316,7 @@
     "n": "República Democrática do Congo",
     "cap": "Kinshasa",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 2344858,
     "alt": [
       "congo kinshasa",
@@ -1332,7 +1332,7 @@
     "n": "República do Congo",
     "cap": "Brazzaville",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 342000,
     "alt": [
       "congo",
@@ -1355,7 +1355,7 @@
     "n": "Romênia",
     "cap": "Bucareste",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 238391
   },
   {
@@ -1363,7 +1363,7 @@
     "n": "Ruanda",
     "cap": "Kigali",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 26338
   },
   {
@@ -1371,7 +1371,7 @@
     "n": "Rússia",
     "cap": "Moscou",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 17098242
   },
   {
@@ -1379,7 +1379,7 @@
     "n": "Samoa",
     "cap": "Apia",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Polinésia",
     "ar": 2842
   },
   {
@@ -1387,7 +1387,7 @@
     "n": "San Marino",
     "cap": "San Marino",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 61,
     "calt": [
       "cidade de san marino"
@@ -1417,7 +1417,7 @@
     "n": "São Tomé e Príncipe",
     "cap": "São Tomé",
     "r": "África",
-    "sr": "África",
+    "sr": "África Central",
     "ar": 964
   },
   {
@@ -1433,7 +1433,7 @@
     "n": "Seicheles",
     "cap": "Victoria",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 452,
     "alt": [
       "seychelles"
@@ -1444,7 +1444,7 @@
     "n": "Senegal",
     "cap": "Dakar",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 196722,
     "calt": [
       "dacar"
@@ -1455,7 +1455,7 @@
     "n": "Serra Leoa",
     "cap": "Freetown",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 71740
   },
   {
@@ -1463,7 +1463,7 @@
     "n": "Sérvia",
     "cap": "Belgrado",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 88361
   },
   {
@@ -1471,7 +1471,7 @@
     "n": "Singapura",
     "cap": "Singapura",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 710
   },
   {
@@ -1479,7 +1479,7 @@
     "n": "Síria",
     "cap": "Damasco",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 185180
   },
   {
@@ -1487,7 +1487,7 @@
     "n": "Somália",
     "cap": "Mogadíscio",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 637657
   },
   {
@@ -1495,7 +1495,7 @@
     "n": "Sri Lanka",
     "cap": "Sri Jayawardenapura Kotte",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Meridional",
     "ar": 65610,
     "calt": [
       "colombo",
@@ -1508,7 +1508,7 @@
     "n": "Sudão",
     "cap": "Cartum",
     "r": "África",
-    "sr": "África",
+    "sr": "África Setentrional",
     "ar": 1886068
   },
   {
@@ -1516,7 +1516,7 @@
     "n": "Sudão do Sul",
     "cap": "Juba",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 619745
   },
   {
@@ -1524,7 +1524,7 @@
     "n": "Suécia",
     "cap": "Estocolmo",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Setentrional",
     "ar": 450295
   },
   {
@@ -1532,7 +1532,7 @@
     "n": "Suíça",
     "cap": "Berna",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Ocidental",
     "ar": 41284,
     "alt": [
       "suica"
@@ -1551,7 +1551,7 @@
     "n": "Tailândia",
     "cap": "Bangkok",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 513120,
     "calt": [
       "bangcoc",
@@ -1563,7 +1563,7 @@
     "n": "Tajiquistão",
     "cap": "Dushanbe",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Central",
     "ar": 143100
   },
   {
@@ -1571,7 +1571,7 @@
     "n": "Tanzânia",
     "cap": "Dodoma",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 945087,
     "note": "Dodoma substituiu Dar es Salaam como capital."
   },
@@ -1580,7 +1580,7 @@
     "n": "Tchéquia",
     "cap": "Praga",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 78865,
     "alt": [
       "republica tcheca",
@@ -1593,7 +1593,7 @@
     "n": "Timor-Leste",
     "cap": "Dili",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 14874,
     "alt": [
       "timor leste",
@@ -1605,7 +1605,7 @@
     "n": "Togo",
     "cap": "Lomé",
     "r": "África",
-    "sr": "África",
+    "sr": "África Ocidental",
     "ar": 56785
   },
   {
@@ -1613,7 +1613,7 @@
     "n": "Tonga",
     "cap": "Nuku'alofa",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Polinésia",
     "ar": 747
   },
   {
@@ -1632,7 +1632,7 @@
     "n": "Tunísia",
     "cap": "Túnis",
     "r": "África",
-    "sr": "África",
+    "sr": "África Setentrional",
     "ar": 163610
   },
   {
@@ -1640,7 +1640,7 @@
     "n": "Turquemenistão",
     "cap": "Ashgabat",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Central",
     "ar": 488100
   },
   {
@@ -1648,7 +1648,7 @@
     "n": "Turquia",
     "cap": "Ancara",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Ocidental",
     "ar": 783562,
     "alt": [
       "turkiye"
@@ -1659,7 +1659,7 @@
     "n": "Tuvalu",
     "cap": "Funafuti",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Polinésia",
     "ar": 26
   },
   {
@@ -1667,7 +1667,7 @@
     "n": "Ucrânia",
     "cap": "Kiev",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Oriental",
     "ar": 603500,
     "calt": [
       "kyiv"
@@ -1678,7 +1678,7 @@
     "n": "Uganda",
     "cap": "Kampala",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 241550
   },
   {
@@ -1694,7 +1694,7 @@
     "n": "Uzbequistão",
     "cap": "Tashkent",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Ásia Central",
     "ar": 447400,
     "calt": [
       "tasquente"
@@ -1705,7 +1705,7 @@
     "n": "Vanuatu",
     "cap": "Port Vila",
     "r": "Oceania",
-    "sr": "Oceania",
+    "sr": "Melanésia",
     "ar": 12189
   },
   {
@@ -1713,7 +1713,7 @@
     "n": "Vaticano",
     "cap": "Cidade do Vaticano",
     "r": "Europa",
-    "sr": "Europa",
+    "sr": "Europa Meridional",
     "ar": 0.44,
     "alt": [
       "cidade do vaticano",
@@ -1737,7 +1737,7 @@
     "n": "Vietnã",
     "cap": "Hanói",
     "r": "Ásia",
-    "sr": "Ásia",
+    "sr": "Sudeste Asiático",
     "ar": 331212
   },
   {
@@ -1745,7 +1745,7 @@
     "n": "Zâmbia",
     "cap": "Lusaka",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 752612
   },
   {
@@ -1753,7 +1753,7 @@
     "n": "Zimbábue",
     "cap": "Harare",
     "r": "África",
-    "sr": "África",
+    "sr": "África Oriental",
     "ar": 390757
   }
 ]

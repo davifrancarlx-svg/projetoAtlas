@@ -1,35 +1,35 @@
 # Entrega local — Atlas 195
 
-Estado: **testado localmente, pronto para revisão**. Nenhuma publicação, push, aplicação de migration ou instalação de pacote foi realizada nesta revisão.
+Rodada de 16 de setembro de 2026. Estado: **testado localmente, commitado e enviado ao GitHub; não publicado no Lovable** (publicar exige pedido explícito).
 
 ## Resultado
 
-- Apelido opcional editável pelo cartão da conta, guardado no perfil do Supabase Auth. Login existente preservado; ausência de apelido é válida.
-- 25 conquistas com retroação parcial aprovada, persistência local, união de troféus por conta e avisos sem bloquear respostas. Migration preparada, ainda não aplicada ao servidor.
-- Seis bugs visuais aprovados e corrigidos. O relatório `VISUAL_AUDIT.md` preserva sintomas, reprodução, proposta, resultado e capturas de antes/depois. O erro de avisos encontrado na tarefa 2 também está registrado no HANDOFF como corrigido.
-- Sugestões priorizadas em `IMPROVEMENTS.md`, com status atualizado. A próxima revisão foi implementada na rodada posterior.
-- Sons opcionais acrescentados após aprovação: acerto, erro/tempo esgotado e conquista, com controle desligado/baixo/médio e síntese local.
-- Rotina de treino: botão Treino de hoje, data/horário e quantidade da próxima revisão e resumo de evolução. Verificação visual em claro/mobile e escuro/desktop.
-- `npm run check` final: **150 passaram, 0 falhas, 0 ignorados**. Chrome real, build, CSP/LF, orçamento e atualidade dos dados passaram. `git diff --check` sem erros.
+- **Conquistas removidas** a pedido do usuário: catálogo, regras, interface, avisos, sincronização, som de conquista, estilos, testes e a migration que nunca chegou a ser aplicada. O registro local antigo (`atlas195:conquistas:v1`) é apagado na abertura do app. O texto da conta e do apagar progresso não cita mais troféus.
+- **Conta separada em módulo próprio** (`src/account.js`, orçamento de 24 KiB), com as dependências injetadas e testes sem DOM sobre o próprio módulo. `src/app.js` voltou a ter folga no orçamento sem aumento de limite.
+- **Correções pequenas**: o recorde de sequência agora aparece; o erro de capital diz de quem é a capital escolhida (e o erro de bandeira, de quem é a bandeira; o de mapa, o que foi marcado); os atalhos 1 a 4 funcionam logo após clicar numa aba; o cronômetro pausa com a aba oculta; a aba Progresso e o fechamento da sessão listam os erros pela mesma regra.
+- **Subregiões em todos os continentes** (M49 da ONU): 22 áreas de estudo no filtro, distratores e explicação do erro mais precisos, ficha mais informativa. Chipre segue em Ásia Ocidental.
+- **Ficha do Atlas**: domínio por habilidade do país selecionado, botão "Praticar" que abre uma série com todas as direções desse país, fronteiras terrestres e busca por idioma.
+- **Estatísticas gerais** na aba Progresso: total de respostas, acerto geral e recorde.
+- **Retomar série interrompida**: prova, treino de hoje e prática de um país ficam guardados neste navegador; ao abrir, o app oferece retomar ou descartar. O tempo parado não conta e a pergunta em curso é sorteada de novo.
+- **Silhueta**: a pergunta "mapa → país" alterna entre o pin no mapa e o contorno isolado do país, na mesma habilidade, sem mudar o esquema do progresso. Países sem forma na escala do mapa nunca viram silhueta.
+- **Fronteiras terrestres** editoriais (`src/borders.json`, 313 pares), validadas por simetria, contagens conhecidas e plausibilidade geográfica; o veredito diz "faz fronteira com" quando é o caso.
 
 ## Arquivos por tarefa
 
-Um mesmo arquivo pode participar de mais de uma tarefa. A lista cobre a revisão inteira, não apenas a última rodada de correções.
-
 | Tarefa | Código, testes e documentação |
 | --- | --- |
-| 1 — Apelido | `src/app.js`, `src/styles.css`, `tests/account.test.cjs`, `tests/smoke.test.cjs`, `README.md`, `DATA_SOURCES.md`, `HANDOFF.md` |
-| 2 — Conquistas | `src/achievements.js`, `src/achievements-ui.js`, `src/core.js`, `src/app.js`, `src/styles.css`, `scripts/build.cjs`, `scripts/check-budgets.cjs`, `supabase/migrations/202609100001_conquistas_atlas.sql`, `tests/achievements.test.cjs`, `tests/achievements-ui.test.cjs`, `tests/account.test.cjs`, `tests/smoke.test.cjs`, `README.md`, `DATA_SOURCES.md`, `HANDOFF.md` |
-| 3 — Correções visuais | `src/app.js`, `src/styles.css`, `tests/account.test.cjs`, `tests/infrastructure.test.cjs`, `tests/smoke.test.cjs`, `tests/visual-regression.cjs`, `VISUAL_AUDIT.md`, `docs/visual-audit/*.png`, `README.md`, `DATA_SOURCES.md`, `HANDOFF.md` |
-| 4 — Sugestões e fechamento | `IMPROVEMENTS.md`, `DELIVERY.md`, atualização de estado no `HANDOFF.md` |
-| Pedido posterior — Sons | `src/audio.js`, `src/app.js`, `src/achievements-ui.js`, `src/index.template.html`, `src/styles.css`, `scripts/build.cjs`, `scripts/check-budgets.cjs`, `tests/audio.test.cjs`, `tests/audio-browser.cjs`, `tests/smoke.test.cjs`, `README.md`, `DATA_SOURCES.md`, `HANDOFF.md`, `DELIVERY.md`, `VISUAL_AUDIT.md`, `docs/audio-samples/`, `docs/visual-audit/sound-*.png`; artefatos recriados: `atlas-195.html`, `sw.js`, `release-manifest.json` |
-| Pedido posterior — Rotina de treino | `src/study.js`, `src/app.js`, `scripts/build.cjs`, `scripts/check-budgets.cjs`, `tests/study.test.cjs`, `tests/study-browser.cjs`, `tests/smoke.test.cjs`, `README.md`, `DATA_SOURCES.md`, `HANDOFF.md`, `IMPROVEMENTS.md`, `DELIVERY.md`; artefatos recriados: `atlas-195.html`, `sw.js`, `release-manifest.json` |
+| Remover conquistas | apagados `src/achievements.js`, `src/achievements-ui.js`, `tests/achievements*.cjs`, `supabase/migrations/202609100001_conquistas_atlas.sql`, `docs/audio-samples/conquista.wav`; alterados `src/core.js`, `src/app.js`, `src/audio.js`, `src/styles.css`, `scripts/build.cjs`, `scripts/check-budgets.cjs`, `tests/smoke.test.cjs`, `tests/audio*.cjs`, docs |
+| Módulo de conta | `src/account.js`, `src/app.js`, `scripts/build.cjs`, `scripts/check-budgets.cjs`, `tests/account.test.cjs`, `tests/infrastructure.test.cjs` |
+| Correções pequenas | `src/app.js` |
+| Subregiões | `src/countries.base.json`, `src/territories.json`, `scripts/build.cjs`, `tests/build.test.cjs`, `DATA_SOURCES.md` |
+| Ficha, busca por idioma, estatísticas, retomar série, silhueta | `src/app.js`, `src/core.js`, `src/styles.css`, `tests/core.test.cjs` |
+| Fronteiras | `src/borders.json`, `scripts/build.cjs`, `src/core.js`, `src/app.js`, `tests/borders.test.cjs`, `tests/build.test.cjs`, `DATA_SOURCES.md` |
 
-Artefatos compartilhados das tarefas 1–3, recriados pelo build: `atlas-195.html`, `sw.js`, `release-manifest.json`. O manifesto PWA não teve mudança de conteúdo. Nenhum desses artefatos foi editado diretamente. A alteração em `data/fonts/LICENSE-ibm-plex.txt` já existia antes do trabalho e foi preservada, sem intervenção.
+Artefatos recriados pelo build: `atlas-195.html`, `sw.js`, `release-manifest.json`. Nenhum foi editado diretamente.
 
 ## Limites da entrega
 
-- A migration de conquistas tem revisão e testes de estrutura, mas precisa ser aplicada e validada contra Supabase/PostgreSQL antes de uma publicação futura. Os testes de conta e de sincronização nesta sessão usaram respostas simuladas; não substituem essa validação.
-- Offline, manifesto e aviso de atualização da PWA foram verificados no Chrome. A instalação efetiva e abertura em janela independente não foram verificadas porque o comando de instalação não estava disponível no ambiente.
-- O backup por arquivo continua contendo somente o progresso educacional. Não inclui apelido nem troféus de eventos; ampliar esse backup é uma sugestão separada, não uma funcionalidade desta entrega.
-- Os dados educacionais, a geometria do mapa e a classificação de territórios não foram alterados.
+- Nada foi publicado no Lovable. O site no ar continua com a versão anterior, com conquistas, até o usuário pedir a publicação.
+- A tabela `conquistas_atlas` nunca foi criada no Supabase (a migration estava pendente), então não há nada a remover no banco.
+- A retomada cobre séries fechadas (prova, treino de hoje, prática de um país). O treino livre e a revisão focada continuam vivendo só na memória da página.
+- A lista de fronteiras é editorial e segue a convenção de facto do mapa; casos de fronteira ambígua estão documentados em `DATA_SOURCES.md`.

@@ -1,23 +1,27 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const vm = require('node:vm');
-const path = require('node:path');
+const Account = require('../src/account.js');
 
+// O módulo da conta recebe o "host" (fetch, localStorage, location) por
+// injeção, então os estados de rede são simulados sem DOM nem serviço real.
 function account() {
-  const app = fs.readFileSync(path.join(__dirname, '../src/app.js'), 'utf8');
-  const code = app.slice(app.indexOf("  const SESSION_KEY ="), app.indexOf('  function renderBackup('));
   const saved = new Map();
-  const context = vm.createContext({
-    Core: {}, DATA: [], AtlasAchievementsUI: { create: () => ({}) },
-    CLOUD: { url: 'https://example.invalid', anonKey: 'public' },
-    state: { view: 'quiz' }, renderProgress() {},
-    localStorage: { setItem: (k, v) => saved.set(k, v), removeItem: k => saved.delete(k) },
+  const host = {
+    localStorage: { getItem: k => saved.get(k) ?? null, setItem: (k, v) => saved.set(k, v), removeItem: k => saved.delete(k) },
+    location: { protocol: 'https:', origin: 'https://example.invalid', pathname: '/', search: '', hash: '' },
+    history: { replaceState() {} },
+    fetch: async () => { throw new Error('fetch não configurado'); },
+  };
+  const api = Account.create({
+    Core: { cloudReady: () => true },
+    SyncQueue: { create: () => ({ run: async () => true, schedule() {}, cancel() {} }) },
+    config: { url: 'https://example.invalid', anonKey: 'public', tabela: 't' },
+    ids: [], host, el: () => { throw new Error('sem DOM'); },
+    rerender() {},
   });
-  vm.runInContext(code + '\nglobalThis.api = { cloud, nicknameOf, writeSession, saveNickname, loadNickname, refreshSession, ensureCloudIdentity };', context);
-  context.api.writeSession({ user_id: 'one', email: 'test@example.invalid', access_token: 'a', refresh_token: 'r' });
-  return { api: context.api, context };
+  api.writeSession({ user_id: 'one', email: 'test@example.invalid', access_token: 'a', refresh_token: 'r' });
+  return { api, host, saved };
 }
 
 test('apelido ausente ou inválido é um estado válido', () => {
@@ -25,12 +29,19 @@ test('apelido ausente ou inválido é um estado válido', () => {
   for (const user of [null, {}, { user_metadata: { atlas_nickname: 12 } }]) assert.equal(api.nicknameOf(user), '');
 });
 
+test('a sessão é guardada e apagada na chave própria', () => {
+  const { api, saved } = account();
+  assert.equal(JSON.parse(saved.get(Account.SESSION_KEY)).user_id, 'one');
+  api.writeSession(null);
+  assert.equal(saved.has(Account.SESSION_KEY), false);
+});
+
 test('perfil pendente não permite salvar; falha permite recuperar a identidade', async () => {
-  const { api, context } = account();
+  const { api, host } = account();
   api.writeSession({ access_token: 'a', refresh_token: 'r' });
   let reject;
   let calls = 0;
-  context.fetch = () => { calls++; return new Promise((_, fail) => { reject = fail; }); };
+  host.fetch = () => { calls++; return new Promise((_, fail) => { reject = fail; }); };
   const pending = api.ensureCloudIdentity();
   assert.equal(api.cloud.identityPending, true);
   await api.saveNickname();
@@ -39,16 +50,16 @@ test('perfil pendente não permite salvar; falha permite recuperar a identidade'
   await assert.rejects(pending, /offline/);
   assert.equal(api.cloud.identityPending, false);
   assert.equal(api.cloud.session.user_id, undefined);
-  context.fetch = async () => ({ ok: true, json: async () => ({ id: 'one', email: 'test@example.invalid' }) });
+  host.fetch = async () => ({ ok: true, json: async () => ({ id: 'one', email: 'test@example.invalid' }) });
   assert.equal(await api.ensureCloudIdentity(), true);
   assert.equal(api.cloud.session.user_id, 'one');
 });
 
 test('resposta de identidade atrasada não restaura uma sessão encerrada', async () => {
-  const { api, context } = account();
+  const { api, host } = account();
   api.writeSession({ access_token: 'a', refresh_token: 'r' });
   let finish;
-  context.fetch = () => new Promise(resolve => { finish = resolve; });
+  host.fetch = () => new Promise(resolve => { finish = resolve; });
   const pending = api.ensureCloudIdentity();
   api.writeSession(null);
   finish({ ok: true, json: async () => ({ id: 'one', email: 'test@example.invalid' }) });
@@ -58,10 +69,10 @@ test('resposta de identidade atrasada não restaura uma sessão encerrada', asyn
 });
 
 test('perfil incompleto ou malformado não confirma a conexão', async () => {
-  const { api, context } = account();
+  const { api, host } = account();
   api.writeSession({ access_token: 'a', refresh_token: 'r' });
   for (const user of [null, {}, { id: 123, email: 'test@example.invalid' }, { id: 'one', email: '' }]) {
-    context.fetch = async () => ({ ok: true, json: async () => user });
+    host.fetch = async () => ({ ok: true, json: async () => user });
     assert.equal(await api.ensureCloudIdentity(), false);
     assert.equal(api.cloud.session.user_id, undefined);
     assert.equal(api.cloud.identityPending, false);
@@ -69,9 +80,9 @@ test('perfil incompleto ou malformado não confirma a conexão', async () => {
 });
 
 test('salvar e remover apelido envia somente metadata e preserva a sessão', async () => {
-  const { api, context } = account();
+  const { api, host } = account();
   const requests = [];
-  context.fetch = async (url, options) => {
+  host.fetch = async (url, options) => {
     requests.push({ url, options });
     return { ok: true, json: async () => ({ id: 'one', user_metadata: JSON.parse(options.body).data }) };
   };
@@ -88,9 +99,9 @@ test('salvar e remover apelido envia somente metadata e preserva a sessão', asy
 });
 
 test('falha mantém rascunho; limite impede envio e permite nova tentativa', async () => {
-  const { api, context } = account();
+  const { api, host } = account();
   let calls = 0;
-  context.fetch = async () => { calls++; throw new Error('offline'); };
+  host.fetch = async () => { calls++; throw new Error('offline'); };
   api.cloud.nicknameDraft = 'a'.repeat(41);
   await api.saveNickname();
   assert.equal(calls, 0);
@@ -102,9 +113,9 @@ test('falha mantém rascunho; limite impede envio e permite nova tentativa', asy
 });
 
 test('renovação de token repete o salvamento sem perder apelido', async () => {
-  const { api, context } = account();
+  const { api, host } = account();
   let puts = 0;
-  context.fetch = async (url, options) => {
+  host.fetch = async (url, options) => {
     if (url.includes('/token?')) return { ok: true, json: async () => ({ access_token: 'new', refresh_token: 'new-r', user: { id: 'one', email: 'test@example.invalid' } }) };
     puts++;
     if (puts === 1) return { status: 401 };
@@ -118,9 +129,9 @@ test('renovação de token repete o salvamento sem perder apelido', async () => 
 });
 
 test('leitura antiga não desfaz salvamento e resposta após sair não recria sessão', async () => {
-  const { api, context } = account();
+  const { api, host } = account();
   let finish;
-  context.fetch = async (_, options) => options.method === 'PUT'
+  host.fetch = async (_, options) => options.method === 'PUT'
     ? { ok: true, json: async () => ({ id: 'one', user_metadata: { atlas_nickname: 'Novo' } }) }
     : new Promise(resolve => { finish = resolve; });
   const loading = api.loadNickname();
@@ -134,4 +145,37 @@ test('leitura antiga não desfaz salvamento e resposta após sair não recria se
   finish({ ok: true, json: async () => ({ id: 'one' }) });
   await next;
   assert.equal(api.cloud.session, null);
+});
+
+test('a sincronização funde o progresso e devolve o resultado ao app', async () => {
+  const Core = require('../src/core.js');
+  const IDS = ['BR', 'JP'];
+  const options = { countryIds: IDS };
+  let local = Core.recordAnswer(Core.createProgress(), 'BR', 'cap', true, options);
+  const remoto = Core.recordAnswer(Core.createProgress(), 'JP', 'flag', true, options);
+  const saved = new Map();
+  const uploads = [];
+  const host = {
+    localStorage: { getItem: k => saved.get(k) ?? null, setItem: (k, v) => saved.set(k, v), removeItem: k => saved.delete(k) },
+    location: { protocol: 'https:', origin: 'https://example.invalid', pathname: '/', search: '', hash: '' },
+    history: { replaceState() {} },
+    fetch: async (url, opts = {}) => {
+      if (url.includes('/rest/v1/') && opts.method === 'POST') { uploads.push(JSON.parse(opts.body)); return { ok: true }; }
+      if (url.includes('/rest/v1/')) return { ok: true, json: async () => [{ envelope: JSON.parse(Core.serializeProgress(remoto, options)) }] };
+      return { ok: true, json: async () => ({ id: 'one', email: 'test@example.invalid', user_metadata: {} }) };
+    },
+  };
+  let delivered = 0;
+  const SyncQueue = require('../src/sync-queue.js');
+  const api = Account.create({
+    Core, SyncQueue, config: { url: 'https://example.invalid', anonKey: 'public', tabela: 't' }, ids: IDS, host,
+    el: () => { throw new Error('sem DOM'); },
+    getProgress: () => local, setProgress: (next) => { local = next; }, onRemoteProgress: () => { delivered++; }, rerender() {},
+  });
+  api.writeSession({ user_id: 'one', email: 'test@example.invalid', access_token: 'a', refresh_token: 'r' });
+  await api.sync();
+  assert.equal(delivered, 1, 'O app precisa ser avisado quando a conta traz algo novo.');
+  assert.ok(Core.levelOf(local, 'BR', 'cap') > 0 && Core.levelOf(local, 'JP', 'flag') > 0, 'Os dois lados precisam sobreviver à fusão.');
+  assert.equal(uploads.length, 1, 'O servidor recebe o que só existia no aparelho.');
+  assert.equal(api.cloud.status.kind, 'ok');
 });

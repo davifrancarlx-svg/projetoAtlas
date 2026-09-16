@@ -136,12 +136,25 @@
     // atual e não é persistida — o que fica gravado é o progresso por país, que
     // a prova alimenta como qualquer outra resposta.
     exam: null, sessionEnded: false, regionCelebration: null,
+    // Rascunho de série interrompida oferecido ao abrir; some com a decisão.
+    examDraft: null,
   };
 
   // Relógio da pergunta: um intervalo curto move a barra, e o estouro entra
   // como erro pela mesma porta de uma resposta comum, para o progresso e a
   // revisão espaçada não enxergarem nada de diferente.
-  const timer = { handle: 0, deadline: 0 };
+  const timer = { handle: 0, deadline: 0, paused: 0 };
+  // Uma série fechada interrompida (aba fechada, celular travou) fica guardada
+  // neste navegador até ser retomada, descartada ou concluída.
+  const EXAM_DRAFT_KEY = 'atlas195:serie:v1';
+  const EXAM_DRAFT_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+  // Os três tipos de série fechada compartilham o mesmo mecanismo (N perguntas,
+  // nota no fim) e diferem só no texto e em como se refaz.
+  const SERIES_COPY = {
+    exam: { label: 'Prova', done: 'Prova concluída', again: 'Nova prova', start: 'Prova iniciada' },
+    daily: { label: 'Treino de hoje', done: 'Treino de hoje concluído', again: 'Treino de hoje', start: 'Treino de hoje iniciado' },
+    country: { label: 'Prática do país', done: 'Prática concluída', again: 'Praticar de novo', start: 'Prática iniciada' },
+  };
 
   let progress = Core.createProgress();
   let saveTimer = 0;
@@ -1005,6 +1018,9 @@
 
   function createNextQuestion(options = {}) {
     if (!state.ready) return;
+    // Qualquer outra ação abandona a oferta de retomar a série interrompida;
+    // retomar de fato passa por resumeExam, que limpa a oferta antes daqui.
+    if (state.examDraft) { state.examDraft = null; clearExamDraft(); }
     state.sessionEnded = false;
     state.regionCelebration = null;
     stopTimer();
@@ -1036,7 +1052,7 @@
       state.reviewStats = null;
     }
     state.deckPending = false;
-    const forced = state.exam?.daily?.[state.exam.done] || state.forcedQuestion;
+    const forced = state.exam?.cards?.[state.exam.done] || state.forcedQuestion;
     state.forcedQuestion = null;
     // A carta precisa sobreviver à resposta: é ela que volta para o fim da fila
     // quando ainda falta um acerto de confirmação.
@@ -1077,18 +1093,41 @@
     if (timer.handle) clearInterval(timer.handle);
     timer.handle = 0;
     timer.deadline = 0;
+    timer.paused = 0;
   }
 
   function startTimer() {
     stopTimer();
     if (!state.timeLimit || state.view !== 'quiz' || state.answered) return;
     timer.deadline = Date.now() + state.timeLimit * 1000;
+    runTimer();
+  }
+
+  function runTimer() {
     updateTimerDisplay();
     timer.handle = setInterval(() => {
       if (state.answered || state.view !== 'quiz') { stopTimer(); return; }
       if (Date.now() >= timer.deadline) { stopTimer(); expireQuestion(); return; }
       updateTimerDisplay();
     }, 200);
+  }
+
+  // Trocar de aba por um instante não pode virar "tempo esgotado": com a página
+  // oculta o relógio congela e retoma de onde parou quando ela volta.
+  function pauseTimerWhileHidden() {
+    if (document.hidden) {
+      if (!timer.handle) return;
+      timer.paused = Math.max(1, timer.deadline - Date.now());
+      clearInterval(timer.handle);
+      timer.handle = 0;
+      return;
+    }
+    if (!timer.paused) return;
+    const remaining = timer.paused;
+    timer.paused = 0;
+    if (state.answered || state.view !== 'quiz' || !state.question) return;
+    timer.deadline = Date.now() + remaining;
+    runTimer();
   }
 
   function updateTimerDisplay() {
@@ -1113,6 +1152,9 @@
 
   function questionCopy(question) {
     const country = byId[question.id];
+    if (question.direction === 'mapId' && question.variant === 'shape') {
+      return ['Que país tem esta forma?', 'Silhueta → país'];
+    }
     if (country.capitalType === 'government-seat') {
       if (question.direction === 'cap') return [`Em qual distrito fica a sede do governo de ${country.n}?`, 'País → sede do governo'];
       if (question.direction === 'capOf') return [`${country.cap} é a sede do governo de qual país?`, 'Sede do governo → país'];
@@ -1139,7 +1181,6 @@
 
   function answerQuestion(value, territory) {
     if (!state.question || state.answered) return;
-    trophies.record({}, true);
     const target = byId[state.question.id];
     let correct;
     let match = null;
@@ -1186,6 +1227,7 @@
     if (state.exam && !state.fromDeck && state.exam.done < state.exam.total) {
       state.exam.done += 1;
       state.exam.answers.push(registro);
+      if (examFinished()) clearExamDraft(); else saveExamDraft();
     }
     const regionWasComplete = regionMastery(target.r).complete;
     // Acertar digitando de cabeça e acertar devagar entre quatro alternativas
@@ -1201,18 +1243,10 @@
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
       countryIds: IDS, bestStreak: state.streak, grade,
     });
-    trophies.record({ type: 'answer', id: target.id, direction: state.question.direction, correct,
-      typed: state.questionAnswerMode === 'type',
-      remaining: state.timeLimit && registro.ms !== null ? state.timeLimit * 1000 - registro.ms : null,
-      zoom: WORLD.w / mapState.view.w, tries: state.reviewCard?.tries || 0,
-      consolidated: Boolean(state.fromDeck && state.reviewCard?.remaining <= 0),
-    });
-    if (examFinished() && !state.exam.daily) trophies.record({ type: 'exam', total: state.exam.total,
-      correct: state.exam.answers.filter(answer => answer.correct).length });
     if (!regionWasComplete && regionMastery(target.r).complete) state.regionCelebration = target.r;
     refreshMapMastery();
     queueProgressSave();
-    scheduleCloudSync();
+    account.schedule();
     renderQuiz();
     syncMapForQuestion(correct);
     const expected = expectedAnswer(state.question.direction, target);
@@ -1227,7 +1261,11 @@
 
   function skipVisualQuestion() {
     if (!isVisualQuestion() || state.answered) return;
-    if (state.exam?.daily) { state.exam.daily.splice(state.exam.done,1); state.exam.total--; }
+    if (state.exam?.cards) {
+      state.exam.cards.splice(state.exam.done, 1);
+      state.exam.total -= 1;
+      saveExamDraft();
+    }
     createNextQuestion({ focus: true });
     announce('Pergunta visual pulada sem alterar o progresso.');
   }
@@ -1239,7 +1277,8 @@
     dom.skipVisual.hidden = !(state.view === 'quiz' && isVisualQuestion() && !state.answered);
     if (state.view !== 'quiz' || !state.question) return;
     const question = state.question;
-    if (question.direction === 'mapId') showReticle(question.id);
+    // Na variante de silhueta o pin entregaria a resposta: só aparece depois.
+    if (question.direction === 'mapId' && question.variant !== 'shape') showReticle(question.id);
     if (state.answered) {
       markCountry(question.id, 'ok');
       if (!correct && question.direction === 'locate' && byId[state.selectedAnswer]) markCountry(state.selectedAnswer, 'bad');
@@ -1360,13 +1399,42 @@
     if (reason === 'capital-initial') {
       return `${chosen.cap} começa com a mesma letra de ${country.cap}, o que facilita a troca.`;
     }
+    if (reason === 'border') {
+      return `${nome} faz fronteira com ${country.n} — os dois se tocam no mapa.`;
+    }
     if (reason === 'neighbour') {
-      return `${nome} é vizinho de ${country.n} no mapa — o erro foi de poucos graus.`;
+      return `${nome} fica perto de ${country.n} no mapa — o erro foi de poucos graus.`;
     }
     if (reason === 'same-subregion') {
       return `${nome} fica na mesma subregião, ${chosen.sr}: os dois disputam o mesmo lugar na memória.`;
     }
     return `${nome} fica na mesma região, ${chosen.r}.`;
+  }
+
+  // Errar também precisa dizer de quem era a resposta escolhida: "Banjul e
+  // Bangui se parecem" ensina menos do que saber que Banjul é a capital da
+  // Gâmbia — é isso que fixa as duas de uma vez.
+  function chosenNote(chosen, direction) {
+    if (direction === 'cap') return `${chosen.cap} é a capital de ${chosen.n}.`;
+    if (direction === 'capOf') return `A capital de ${chosen.n} é ${chosen.cap}.`;
+    if (direction === 'flagOf') return `A bandeira escolhida é a de ${chosen.n}.`;
+    // No território a nota explicativa já diz o que foi marcado.
+    if (direction === 'locate' && !state.answerTerritory) return `Você marcou ${chosen.n} no mapa.`;
+    return null;
+  }
+
+  // A silhueta é o próprio contorno do mapa, recortado pelo aglomerado
+  // principal: aparece a forma que se reconhece, sem as ilhas a um oceano de
+  // distância.
+  function shapeBox(country) {
+    const box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    const pad = Math.max(box[2] - box[0], box[3] - box[1]) * 0.08 + 0.2;
+    const svg = svgElement('svg', {
+      class: 'shape-svg', role: 'img', 'aria-label': 'Silhueta do país da pergunta',
+      viewBox: `${(box[0] - pad).toFixed(2)} ${(box[1] - pad).toFixed(2)} ${(box[2] - box[0] + pad * 2).toFixed(2)} ${(box[3] - box[1] + pad * 2).toFixed(2)}`,
+    });
+    svg.append(svgElement('path', { d: country.d, 'fill-rule': 'evenodd', 'clip-rule': 'evenodd' }));
+    return create('div', { className: 'shapebox' }, svg);
   }
 
   function renderVerdict(container) {
@@ -1417,6 +1485,8 @@
     // explicar, e em região a comparação seria entre continentes, não países.
     if (!isCorrect && !state.expired && question.direction !== 'reg') {
       const chosen = byId[state.selectedAnswer];
+      const owner = chosen ? chosenNote(chosen, question.direction) : null;
+      if (owner) verdict.append(create('p', { className: 'note', text: owner }));
       const copy = chosen ? confusionCopy(country, chosen, question.direction) : null;
       if (copy) verdict.append(create('p', { className: 'note note-confusion', text: copy }));
     }
@@ -1440,7 +1510,7 @@
       create('span', { text: state.fromDeck
         ? `Revisão focada · ${reviewRemaining() > 1 ? `faltam ${reviewRemaining()}` : 'última habilidade'}`
         : (state.exam
-          ? `${state.exam.daily ? 'Treino de hoje' : 'Prova'} · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
+          ? `${seriesLabel()} · ${Math.min(state.exam.done + 1, state.exam.total)} de ${state.exam.total}`
           : `Pergunta ${state.questionNumber}`) }),
       create('span', { text: DIRECTION_LABEL[question.direction] }),
     ]));
@@ -1472,6 +1542,7 @@
       dom.panel.append(create('h2', { id: 'questionTitle', className: 'subject sm', text: headline, attrs: { tabindex: '-1' } }));
       dom.panel.append(create('div', { className: 'flagbox' }, flagImage(country, { eager: true, alt: 'Bandeira apresentada na pergunta' })));
     } else dom.panel.append(create('h2', { id: 'questionTitle', className: 'subject', text: headline, attrs: { tabindex: '-1' } }));
+    if (question.direction === 'mapId' && question.variant === 'shape') dom.panel.append(shapeBox(country));
     renderQuestionOptions(dom.panel, question);
     if (state.answered) renderVerdict(dom.panel);
     renderScorebar();
@@ -1513,7 +1584,10 @@
     if (!query) return sorted;
     return sorted.filter((country) => {
       const aliases = (country.aliases || []).map((alias) => alias.value);
-      if ([country.n, country.cap, country.r, country.sr, ...aliases].map(Core.normalizeText).join(' ').includes(query)) return true;
+      // O idioma entra na busca ("francês" lista quem o tem como oficial), mas
+      // continua fora das respostas do quiz.
+      const idiomas = Array.isArray(country.idiomas) ? country.idiomas : [];
+      if ([country.n, country.cap, country.r, country.sr, ...aliases, ...idiomas].map(Core.normalizeText).join(' ').includes(query)) return true;
       // Quem procura por "Guiana Francesa" ou "Caiena" precisa achar o país que
       // responde por esse território, com a distinção explicada na ficha.
       return Boolean(matchedTerritory(country, query));
@@ -1530,7 +1604,7 @@
     ]));
     dom.panel.append(create('h2', { className: 'panel-title', text: 'Explorar o mundo' }));
     const search = create('input', { className: 'search', attrs: {
-      type: 'search', placeholder: 'Buscar país, capital ou região',
+      type: 'search', placeholder: 'Buscar país, capital, região ou idioma',
       'aria-label': 'Buscar no Atlas', value: state.atlasQuery,
     } });
     const detail = create('section', { className: 'atlas-detail', attrs: { 'aria-live': 'polite', 'aria-label': 'País selecionado' } });
@@ -1573,7 +1647,16 @@
       }));
       if (country.idiomasNota) copy.append(create('p', { className: 'note', text: country.idiomasNota }));
     }
+    // Fronteiras terrestres, editoriais (src/borders.json). Quem é ilha diz isso.
+    const vizinhos = (country.nb || []).map((id) => byId[id]).filter(Boolean);
+    copy.append(create('p', { className: 'fronteiras', text: vizinhos.length
+      ? `${vizinhos.length === 1 ? 'Fronteira terrestre' : `Fronteiras terrestres (${vizinhos.length})`}: ${formatList(vizinhos.map((outro) => {
+        const nota = country.nbNotas && country.nbNotas[outro.id];
+        return nota ? `${outro.n} (${nota})` : outro.n;
+      }))}`
+      : 'Sem fronteiras terrestres.' }));
     atlasElements.detail.append(flagImage(country, { eager: true }), copy);
+    atlasElements.detail.append(masteryCard(country));
 
     const indicadores = indicadoresDe(country);
     if (indicadores.length) {
@@ -1610,6 +1693,32 @@
     territoriesOf(country.id).forEach((territory) => {
       atlasElements.detail.append(territoryCard(country, territory));
     });
+  }
+
+  // A ficha diz onde o jogador está com aquele país e oferece o atalho para
+  // praticá-lo. Antes o caminho só existia no sentido contrário, do mapa de
+  // domínio para o Atlas.
+  function masteryCard(country) {
+    const card = create('section', { className: 'atlas-mastery', attrs: { 'aria-label': `Seu domínio de ${country.n}` } });
+    const list = create('dl');
+    const now = Date.now();
+    Object.entries(FAMILY_DIRECTIONS).forEach(([label, directions]) => {
+      const skills = directions.map((direction) => Core.skillOf(progress, country.id, direction));
+      const attempted = skills.some((skill) => skill.attempts > 0);
+      const due = skills.some((skill) => skill.attempts > 0 && Core.isDue(skill, now));
+      const level = Math.round(countryFamilyLevel(country, directions) * Core.MAX_LEVEL);
+      const dots = create('span', { className: 'mastery-skills', attrs: { 'aria-hidden': 'true' } });
+      dots.append(create('i', { attrs: { 'data-level': level } }));
+      const status = attempted
+        ? `nível ${level} de ${Core.MAX_LEVEL}${due ? ' · revisão vencida' : ''}`
+        : 'ainda não praticado';
+      list.append(create('dt', { text: label }), create('dd', {}, [dots, create('span', { text: status })]));
+    });
+    card.append(list);
+    const practice = create('button', { className: 'btn ghost', type: 'button', text: `Praticar ${country.n}` });
+    practice.addEventListener('click', () => startCountryPractice(country.id));
+    card.append(practice);
+    return card;
   }
 
   function territoryCard(country, territory) {
@@ -1656,7 +1765,7 @@
     });
     atlasElements.more.hidden = visible.length >= matches.length;
     atlasElements.more.textContent = `Mostrar mais (${matches.length - visible.length})`;
-    if (!matches.length) atlasElements.list.append(create('p', { className: 'empty', text: 'Nenhum país, capital ou região corresponde à busca.' }));
+    if (!matches.length) atlasElements.list.append(create('p', { className: 'empty', text: 'Nenhum país, capital, região ou idioma corresponde à busca.' }));
   }
 
   function selectAtlasCountry(id, fit = false, territory = null) {
@@ -1745,7 +1854,7 @@
   function masteryOverview() {
     const section = create('section', { className: 'pgroup mastery-overview', attrs: { 'aria-labelledby': 'countryMasteryTitle' } });
     section.append(create('h3', { id: 'countryMasteryTitle', text: 'Mapa de domínio' }));
-    const regions = create('div', { className: 'region-badges', attrs: { 'aria-label': 'Conquistas regionais' } });
+    const regions = create('div', { className: 'region-badges', attrs: { 'aria-label': 'Domínio por região' } });
     Core.regionsOf(DATA).forEach((region) => {
       const value = regionMastery(region);
       const badge = create('div', { className: `region-badge${value.complete ? ' is-complete' : ''}` });
@@ -1854,24 +1963,6 @@
     return true;
   }
 
-  // Cada habilidade errada entra uma vez só no baralho, na ordem em que foi
-  // errada, e sai se depois tiver sido acertada na mesma sessão.
-  function sessionMistakes() {
-    const outcome = new Map();
-    state.sessionAnswers.forEach((answer) => {
-      outcome.set(`${answer.id}:${answer.direction}`, answer.correct);
-    });
-    const seen = new Set();
-    const mistakes = [];
-    state.sessionAnswers.forEach((answer) => {
-      const key = `${answer.id}:${answer.direction}`;
-      if (answer.correct || outcome.get(key) || seen.has(key)) return;
-      seen.add(key);
-      mistakes.push({ id: answer.id, direction: answer.direction });
-    });
-    return mistakes;
-  }
-
   function sessionStats() {
     const answers = state.sessionAnswers;
     const hits = answers.filter((answer) => answer.correct).length;
@@ -1903,20 +1994,137 @@
   // O treino livre não termina nunca, o que é bom para revisar e ruim para
   // medir. A prova fecha uma série de N perguntas e entrega uma nota.
 
-  function startExam(total, daily) {
-    state.exam = { total, daily, done: 0, answers: [], startedAt: Date.now() };
+  // `cards` fixa a sequência (treino de hoje, prática de um país); sem elas a
+  // série sorteia como o treino livre. `kind` escolhe o texto e como refazer.
+  function startExam(total, cards = null, kind = cards ? 'daily' : 'exam', countryId = null) {
+    state.exam = { total, cards, kind, countryId, done: 0, answers: [], startedAt: Date.now() };
     state.reviewQueue = [];
     state.forcedQuestion = null;
     state.fromDeck = false;
     state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
     setView('quiz');
     createNextQuestion({ focus: true });
-    announce(`${daily ? 'Treino de hoje' : 'Prova'} iniciado com ${total} perguntas.`);
+    saveExamDraft();
+    announce(`${SERIES_COPY[kind].start} com ${total} perguntas.`);
+  }
+
+  function seriesLabel() {
+    if (!state.exam) return '';
+    if (state.exam.kind === 'country' && byId[state.exam.countryId]) return `Praticar ${byId[state.exam.countryId].n}`;
+    return SERIES_COPY[state.exam.kind].label;
+  }
+
+  function practiceDirections() {
+    return DIRECTIONS.filter((direction) => state.includeVisual || !VISUAL_DIRECTIONS.has(direction));
+  }
+
+  function startCountryPractice(id) {
+    if (!byId[id]) return;
+    const cards = practiceDirections().map((direction) => ({ id, direction }));
+    startExam(cards.length, cards, 'country', id);
   }
 
   function endExam() {
     state.exam = null;
+    clearExamDraft();
     createNextQuestion({ focus: true });
+  }
+
+  function saveExamDraft() {
+    if (!state.exam) return;
+    const draft = {
+      v: 1, kind: state.exam.kind, total: state.exam.total, done: state.exam.done,
+      answers: state.exam.answers.map(({ id, direction, correct, expired, ms, wasNew, wasDifficult }) => (
+        { id, direction, correct, expired, ms, wasNew, wasDifficult })),
+      cards: state.exam.cards, countryId: state.exam.countryId,
+      // Só o tempo já jogado conta: o intervalo parado fica de fora.
+      elapsed: Date.now() - state.exam.startedAt, savedAt: Date.now(),
+      filters: { mode: state.mode, region: state.region, answerMode: state.answerMode,
+        timeLimit: state.timeLimit, includeVisual: state.includeVisual },
+    };
+    try { localStorage.setItem(EXAM_DRAFT_KEY, JSON.stringify(draft)); } catch (_) { /* modo privado */ }
+  }
+
+  function clearExamDraft() {
+    try { localStorage.removeItem(EXAM_DRAFT_KEY); } catch (_) { /* nada a apagar */ }
+  }
+
+  // Um rascunho só é oferecido se fizer sentido inteiro: série incompleta,
+  // respostas conferindo com o contador, IDs conhecidos e menos de uma semana.
+  function readExamDraft() {
+    const draft = parsedJson(readLocal(EXAM_DRAFT_KEY));
+    if (!draft || draft.v !== 1 || !SERIES_COPY[draft.kind]) return null;
+    if (!Number.isInteger(draft.total) || !Number.isInteger(draft.done)) return null;
+    if (draft.done < 0 || draft.done >= draft.total || draft.total > 60) return null;
+    if (!Array.isArray(draft.answers) || draft.answers.length !== draft.done) return null;
+    const validCard = (card) => card && byId[card.id] && DIRECTIONS.includes(card.direction);
+    if (!draft.answers.every((answer) => validCard(answer) && typeof answer.correct === 'boolean')) return null;
+    if (draft.cards !== null && draft.cards !== undefined) {
+      if (!Array.isArray(draft.cards) || draft.cards.length !== draft.total || !draft.cards.every(validCard)) return null;
+    }
+    if (draft.kind === 'country' && !byId[draft.countryId]) return null;
+    if (!Number.isFinite(draft.savedAt) || Date.now() - draft.savedAt > EXAM_DRAFT_MAX_AGE) return null;
+    return draft;
+  }
+
+  function renderExamResume() {
+    const draft = state.examDraft;
+    if (!draft) return;
+    atlasElements = null;
+    clear(dom.panel); clearMapMarks(); stopTimer();
+    dom.shell.dataset.questionVisual = 'false';
+    dom.skipVisual.hidden = true;
+    const label = draft.kind === 'country' ? `Praticar ${byId[draft.countryId].n}` : SERIES_COPY[draft.kind].label;
+    const quando = new Date(draft.savedAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    dom.panel.append(create('div', { className: 'plate' }, [
+      create('span', { text: 'Série interrompida' }),
+      create('span', { text: `${draft.done} de ${draft.total}` }),
+    ]));
+    dom.panel.append(create('h2', { id: 'questionTitle', className: 'subject', text: 'Você deixou uma série pela metade', attrs: { tabindex: '-1' } }));
+    dom.panel.append(create('p', { className: 'section-copy', text:
+      `${label}: ${draft.done} de ${draft.total} perguntas respondidas em ${quando}. `
+      + 'O tempo parado não conta, e a próxima pergunta é sorteada de novo.' }));
+    const actions = create('div', { className: 'button-row' });
+    const resume = create('button', { id: 'resumeExam', className: 'btn', type: 'button', text: 'Retomar' });
+    resume.addEventListener('click', resumeExam);
+    const discard = create('button', { className: 'btn ghost', type: 'button', text: 'Descartar' });
+    discard.addEventListener('click', () => createNextQuestion({ focus: true }));
+    actions.append(resume, discard);
+    dom.panel.append(actions);
+    renderScorebar();
+  }
+
+  function resumeExam() {
+    const draft = state.examDraft;
+    if (!draft) return;
+    state.examDraft = null;
+    const filters = draft.filters || {};
+    if (MODE_DIRECTIONS[filters.mode]) state.mode = filters.mode;
+    if (REGIONS.includes(filters.region)) state.region = filters.region;
+    if (filters.answerMode === 'pick' || filters.answerMode === 'type') state.answerMode = filters.answerMode;
+    if (TIME_LIMITS.includes(filters.timeLimit)) state.timeLimit = filters.timeLimit;
+    if (typeof filters.includeVisual === 'boolean') state.includeVisual = filters.includeVisual;
+    if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
+    if (state.region !== 'Mundo inteiro' && state.mode === 'reg') state.mode = 'mix';
+    syncControls(); savePreferences();
+    // As respostas já dadas voltam a contar nesta sessão, para o placar, o
+    // resumo e a revisão focada enxergarem a série inteira.
+    draft.answers.forEach((answer) => {
+      state.sessionAnswers.push(answer);
+      if (answer.correct) state.hits += 1; else state.misses += 1;
+    });
+    state.streak = 0;
+    state.reviewQueue = []; state.forcedQuestion = null; state.fromDeck = false;
+    state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
+    state.exam = {
+      total: draft.total, cards: draft.cards || null, kind: draft.kind, countryId: draft.countryId || null,
+      done: draft.done, answers: draft.answers.slice(),
+      startedAt: Date.now() - (Number.isFinite(draft.elapsed) ? Math.max(0, draft.elapsed) : 0),
+    };
+    setView('quiz');
+    createNextQuestion({ focus: true });
+    saveExamDraft();
+    announce(`${seriesLabel()} retomada: ${draft.done} de ${draft.total} já respondidas.`);
   }
 
   function examFinished() {
@@ -1946,8 +2154,11 @@
     stopTimer();
     clearMapMarks();
 
+    clearExamDraft();
+    const copy = SERIES_COPY[state.exam.kind];
     dom.panel.append(create('div', { className: 'plate' }, [
-      create('span', { text: state.exam.daily ? 'Treino de hoje concluído' : 'Prova concluída' }),
+      create('span', { text: state.exam.kind === 'country' && byId[state.exam.countryId]
+        ? `Prática de ${byId[state.exam.countryId].n} concluída` : copy.done }),
       create('span', { text: `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}` }),
     ]));
     dom.panel.append(create('h2', {
@@ -1997,16 +2208,20 @@
     }
 
     const acoes = create('div', { className: 'button-row' });
-    const refazer = create('button', { className: 'btn', type: 'button', text: 'Nova prova' });
-    if (state.exam.daily) refazer.textContent = 'Treino de hoje';
-    refazer.addEventListener('click', () => state.exam?.daily ? startDaily() : startExam(state.exam ? state.exam.total : 20));
+    const refazer = create('button', { className: 'btn', type: 'button', text: copy.again });
+    const { kind, countryId, total } = state.exam;
+    refazer.addEventListener('click', () => {
+      if (kind === 'daily') startDaily();
+      else if (kind === 'country') startCountryPractice(countryId);
+      else startExam(total);
+    });
     const voltar = create('button', { className: 'btn ghost', type: 'button', text: 'Voltar ao treino livre' });
     voltar.addEventListener('click', endExam);
     acoes.append(refazer, voltar);
     dom.panel.append(acoes);
 
     renderScorebar();
-    announce(`${state.exam.daily ? 'Treino de hoje concluído' : 'Prova concluída'}. ${stats.hits} de ${stats.total} corretas.`);
+    announce(`${copy.done}. ${stats.hits} de ${stats.total} corretas.`);
     const titulo = document.getElementById('questionTitle');
     if (titulo) titulo.focus();
   }
@@ -2042,21 +2257,25 @@
     section.append(create('p', { className: 'section-copy', text: facts.join(' · ') }));
     Study.note(section, Study.evolution(state.sessionAnswers));
 
-    const mistakes = sessionMistakes();
+    // A mesma lista do fechamento da sessão, na mesma ordem de gravidade: dois
+    // lugares contando "os erros desta sessão" de jeitos diferentes confundiam.
+    const mistakes = focusedMistakes();
     if (mistakes.length) {
       const deck = create('button', {
         className: 'btn wide', type: 'button',
         text: mistakes.length === 1
           ? 'Revisar o erro desta sessão'
-          : `Revisar os ${mistakes.length} erros desta sessão`,
+          : `Revisar os ${mistakes.length} pontos fracos desta sessão`,
       });
       deck.addEventListener('click', startMistakeDeck);
       section.append(deck);
       const list = create('div', { className: 'weak' });
       mistakes.slice(0, 12).forEach((item) => {
         const chip = create('button', {
-          className: 'chip', type: 'button',
-          text: `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}`,
+          className: `chip${item.recovered ? '' : ' chip-urgent'}`, type: 'button',
+          text: item.misses > 1
+            ? `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]} · ${item.misses}×`
+            : `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}`,
         });
         chip.addEventListener('click', () => startReview(item.id, item.direction));
         list.append(chip);
@@ -2213,7 +2432,6 @@
     document.body.append(link);
     link.click();
     link.remove();
-    trophies.record({ type: 'backup' });
     // O objeto fica vivo até o download começar; um tempo curto basta e evita
     // vazar a URL na sessão.
     setTimeout(() => URL.revokeObjectURL(url), 30_000);
@@ -2270,409 +2488,22 @@
   }
 
   /* ------------------------------------------------------------------ *
-   * Conta (opcional)
-   *
-   * O aparelho continua sendo o dono do progresso: a conta é uma cópia que
-   * sincroniza. Tudo aqui falha em silêncio — sem rede, sem conta ou com o
-   * servidor fora do ar, o treino segue exatamente como antes.
+   * Conta (opcional): vive em src/account.js. Aqui ficam só as pontes com o
+   * estado do app — o módulo não conhece `state` nem `progress` diretamente,
+   * recebe o que precisa e devolve uma API pequena.
    * ------------------------------------------------------------------ */
 
-  const SESSION_KEY = 'atlas195:conta:v1';
   const CLOUD_CONFIG = typeof CLOUD === 'undefined' ? null : CLOUD;
-  const cloud = { session: null, status: null, lastSyncAt: null, queue: null, requestingLink: false,
-    emailDraft: '', identityPending: false,
-    nicknameDraft: null, nicknameStatus: null, savingNickname: false, nicknameRevision: 0 };
-  const trophies = globalThis.AtlasAchievementsUI.create({ Core, countries: DATA, getProgress: () => progress,
-    request: cloudRequest, connected: () => cloud.session?.user_id, schedule: scheduleCloudSync,
-    changed: () => { if (state.view === 'prog') renderProgress(); },
-    unlocked: () => sounds.play('achievement') });
-
-  function nicknameOf(user) {
-    const value = user && user.user_metadata && user.user_metadata.atlas_nickname;
-    return typeof value === 'string' && Array.from(value).length <= 40 ? value.trim() : '';
-  }
-
-  async function loadNickname() {
-    const session = cloud.session;
-    const revision = cloud.nicknameRevision;
-    if (!session || cloud.savingNickname) return;
-    try {
-      const response = await cloudRequest('/auth/v1/user');
-      if (!response.ok) throw new Error('perfil indisponível');
-      const user = await response.json();
-      if (!cloud.session || user.id !== cloud.session.user_id || session.user_id !== user.id
-        || revision !== cloud.nicknameRevision) return;
-      writeSession({ ...cloud.session, nickname: nicknameOf(user) });
-      cloud.nicknameStatus = null;
-    } catch (_) {
-      if (revision !== cloud.nicknameRevision || !cloud.session || session.user_id !== cloud.session.user_id) return;
-      cloud.nicknameStatus = { text: 'Não foi possível atualizar o apelido agora.', kind: 'error' };
-    }
-    if (state.view === 'prog') renderProgress();
-  }
-
-  async function saveNickname() {
-    if (!cloud.session?.user_id || cloud.savingNickname) return;
-    const value = (cloud.nicknameDraft ?? cloud.session.nickname ?? '').trim();
-    if (Array.from(value).length > 40 || /[\u0000-\u001f\u007f]/u.test(value)) {
-      cloud.nicknameStatus = { text: 'Use até 40 caracteres, sem quebras de linha ou caracteres de controle.', kind: 'error' };
-      renderProgress();
-      return;
-    }
-    const userId = cloud.session.user_id;
-    cloud.nicknameRevision += 1;
-    cloud.savingNickname = true;
-    cloud.nicknameStatus = { text: 'Salvando apelido…' };
-    renderProgress();
-    try {
-      const response = await cloudRequest('/auth/v1/user', {
-        method: 'PUT', body: JSON.stringify({ data: { atlas_nickname: value || null } }),
-      });
-      if (!response.ok) throw new Error('gravação indisponível');
-      const user = await response.json();
-      if (!cloud.session || cloud.session.user_id !== userId || user.id !== userId) return;
-      writeSession({ ...cloud.session, nickname: nicknameOf(user) });
-      cloud.nicknameDraft = null;
-      cloud.nicknameStatus = { text: value ? 'Apelido salvo.' : 'Apelido removido.', kind: 'ok' };
-    } catch (_) {
-      if (cloud.session && cloud.session.user_id === userId) {
-        cloud.nicknameStatus = { text: 'Não foi possível salvar o apelido. Seu texto foi mantido; tente novamente.', kind: 'error' };
-      }
-    } finally {
-      cloud.savingNickname = false;
-      if (state.view === 'prog') renderProgress();
-    }
-  }
-
-  function cloudEnabled() {
-    return Core.cloudReady(CLOUD_CONFIG, location.protocol);
-  }
-
-  function readSession() {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-      if (!parsed || typeof parsed.access_token !== 'string' || typeof parsed.refresh_token !== 'string') return null;
-      return parsed;
-    } catch (_) { return null; }
-  }
-
-  function writeSession(session) {
-    cloud.session = session;
-    try {
-      if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-      else localStorage.removeItem(SESSION_KEY);
-    } catch (_) { /* modo privado: a sessão vale só enquanto a aba viver */ }
-  }
-
-  function setCloudStatus(text, kind = '') {
-    cloud.status = text ? { text, kind } : null;
-    if (state.view === 'prog') renderProgress();
-  }
-
-  async function cloudFetch(path, options = {}) {
-    const resposta = await fetch(`${CLOUD_CONFIG.url}${path}`, {
-      ...options,
-      headers: {
-        apikey: CLOUD_CONFIG.anonKey,
-        'Content-Type': 'application/json',
-        ...(options.headers || {}),
-        ...(cloud.session ? { Authorization: `Bearer ${cloud.session.access_token}` } : {}),
-      },
-    });
-    return resposta;
-  }
-
-  // O token de acesso expira; o de renovação vale muito mais. Uma resposta 401
-  // dispara uma única tentativa de renovar antes de considerar a sessão perdida.
-  async function refreshSession() {
-    if (!cloud.session || !cloud.session.refresh_token) return false;
-    const resposta = await fetch(`${CLOUD_CONFIG.url}/auth/v1/token?grant_type=refresh_token`, {
-      method: 'POST',
-      headers: { apikey: CLOUD_CONFIG.anonKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: cloud.session.refresh_token }),
-    });
-    if (!resposta.ok) { writeSession(null); return false; }
-    const dados = await resposta.json();
-    writeSession({
-      access_token: dados.access_token,
-      refresh_token: dados.refresh_token,
-      email: (dados.user && dados.user.email) || cloud.session.email,
-      user_id: (dados.user && dados.user.id) || cloud.session.user_id,
-      nickname: dados.user ? nicknameOf(dados.user) : cloud.session.nickname,
-    });
-    return true;
-  }
-
-  async function cloudRequest(path, options = {}) {
-    let resposta = await cloudFetch(path, options);
-    if (resposta.status === 401 && await refreshSession()) resposta = await cloudFetch(path, options);
-    return resposta;
-  }
-
-  async function requestMagicLink(email) {
-    const destino = `${location.origin}${location.pathname}`;
-    const resposta = await fetch(
-      `${CLOUD_CONFIG.url}/auth/v1/otp?redirect_to=${encodeURIComponent(destino)}`,
-      {
-        method: 'POST',
-        headers: { apikey: CLOUD_CONFIG.anonKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, create_user: true }),
-      },
-    );
-    if (resposta.ok) return { ok: true };
-    let motivo = '';
-    try { const erro = await resposta.json(); motivo = erro.msg || erro.error_description || erro.message || ''; } catch (_) { /* corpo vazio */ }
-    // O plano em uso limita os e-mails de autenticação por hora; dizer isso é
-    // mais útil do que "erro 429".
-    if (resposta.status === 429) return { ok: false, motivo: 'Muitos pedidos de link em pouco tempo. Tente de novo daqui a alguns minutos.' };
-    return { ok: false, motivo: motivo || 'Não foi possível enviar o link agora.' };
-  }
-
-  async function ensureCloudIdentity() {
-    if (!cloud.session) return false;
-    if (cloud.session.user_id && cloud.session.email) return true;
-    const revision = cloud.nicknameRevision;
-    cloud.identityPending = true;
-    if (state.view === 'prog') renderProgress();
-    try {
-      const perfil = await cloudRequest('/auth/v1/user');
-      if (!perfil.ok) return false;
-      const usuario = await perfil.json();
-      if (!cloud.session || revision !== cloud.nicknameRevision
-        || typeof usuario?.id !== 'string' || !usuario.id
-        || typeof usuario.email !== 'string' || !usuario.email) return false;
-      writeSession({ ...cloud.session, email: usuario.email, user_id: usuario.id, nickname: nicknameOf(usuario) });
-      return true;
-    } finally {
-      cloud.identityPending = false;
-      if (state.view === 'prog') renderProgress();
-    }
-  }
-
-  // O link do e-mail volta para o app com os tokens no fragmento da URL. Ele é
-  // lido, guardado e apagado da barra de endereços, para o token não ficar no
-  // histórico nem ser compartilhado sem querer num "copiar link".
-  async function consumeAuthCallback() {
-    const bruto = location.hash.startsWith('#') ? location.hash.slice(1) : '';
-    if (!bruto) return false;
-    const parametros = new URLSearchParams(bruto);
-    const acesso = parametros.get('access_token');
-    const renovacao = parametros.get('refresh_token');
-    const erro = parametros.get('error_description') || parametros.get('error');
-    if (!acesso && !erro) return false;
-    history.replaceState(null, '', `${location.pathname}${location.search}`);
-    if (erro) {
-      setCloudStatus(`O link de acesso não valeu: ${erro}`, 'error');
-      return false;
-    }
-    writeSession({ access_token: acesso, refresh_token: renovacao, email: null, user_id: null });
-    await ensureCloudIdentity();
-    return true;
-  }
-
-  async function pullRemoteProgress() {
-    if (!cloud.session || !cloud.session.user_id) return null;
-    const caminho = `/rest/v1/${CLOUD_CONFIG.tabela}?usuario=eq.${encodeURIComponent(cloud.session.user_id)}&select=envelope`;
-    const resposta = await cloudRequest(caminho, { headers: { Accept: 'application/json' } });
-    if (!resposta.ok) throw new Error(`leitura falhou (${resposta.status})`);
-    const linhas = await resposta.json();
-    if (!Array.isArray(linhas) || !linhas.length) return null;
-    const decoded = Core.deserializeProgress(JSON.stringify(linhas[0].envelope), { countryIds: IDS });
-    return decoded.recovered ? null : decoded.progress;
-  }
-
-  async function pushRemoteProgress(envelope) {
-    const resposta = await cloudRequest(`/rest/v1/${CLOUD_CONFIG.tabela}`, {
-      method: 'POST',
-      headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify({
-        usuario: cloud.session.user_id,
-        envelope: JSON.parse(envelope),
-        atualizado_em: new Date().toISOString(),
-      }),
-    });
-    if (!resposta.ok) throw new Error(`gravação falhou (${resposta.status})`);
-  }
-
-  async function syncCloudOnce({ silencioso = false } = {}) {
-    if (!cloudEnabled() || !cloud.session) return;
-    if (!silencioso) setCloudStatus('Sincronizando…');
-    try {
-      if (!await ensureCloudIdentity()) throw new Error('identidade da conta indisponível');
-      const remoto = await pullRemoteProgress();
-      const plano = Core.planSync(progress, remoto, { countryIds: IDS });
-      if (plano.download) {
-        const addedLearning = DATA.some(c => DIRECTIONS.some(d =>
-          Core.skillOf(plano.merged, c.id, d).correct > Core.skillOf(progress, c.id, d).correct));
-        progress = plano.merged;
-        trophies.record({ type: 'cloud', added: addedLearning });
-        queueProgressSave(true);
-        if (state.view === 'quiz') renderScorebar();
-      }
-      if (plano.upload) await pushRemoteProgress(Core.serializeProgress(plano.merged, { countryIds: IDS }));
-      await trophies.sync();
-      cloud.lastSyncAt = new Date();
-      setCloudStatus(plano.unchanged ? 'Tudo sincronizado.' : 'Progresso sincronizado com a conta.', 'ok');
-    } catch (erro) {
-      // Falha de rede não pode virar obstáculo: o progresso local continua
-      // salvo e a próxima tentativa acontece na próxima mudança.
-      setCloudStatus('Sem sincronizar agora. O progresso continua salvo neste aparelho.', 'error');
-    }
-  }
-
-  function syncCloud({ silencioso = false } = {}) {
-    if (!cloudEnabled() || !cloud.session) return Promise.resolve(false);
-    if (!cloud.queue) {
-      cloud.queue = SyncQueue.create({ task: () => syncCloudOnce({ silencioso: true }), delay: 6000 });
-    }
-    if (!silencioso) setCloudStatus('Sincronizando…');
-    return cloud.queue.run();
-  }
-
-  function scheduleCloudSync() {
-    if (!cloudEnabled() || !cloud.session) return;
-    if (!cloud.queue) {
-      cloud.queue = SyncQueue.create({ task: () => syncCloudOnce({ silencioso: true }), delay: 6000 });
-    }
-    cloud.queue.schedule();
-  }
-
-  async function signOutCloud() {
-    if (cloud.queue) cloud.queue.cancel();
-    try { await cloudRequest('/auth/v1/logout', { method: 'POST' }); } catch (_) { /* melhor esforço */ }
-    writeSession(null);
-    cloud.nicknameDraft = null;
-    cloud.nicknameStatus = null;
-    cloud.nicknameRevision += 1;
-    cloud.lastSyncAt = null;
-    setCloudStatus('Você saiu da conta. O progresso continua neste aparelho.', 'ok');
-  }
-
-  async function initializeCloud() {
-    if (!cloudEnabled()) return;
-    try {
-      cloud.session = readSession();
-      const entrou = await consumeAuthCallback();
-      if (cloud.session) {
-        if (!await ensureCloudIdentity()) throw new Error('perfil da conta indisponível');
-        if (entrou) setCloudStatus('Conta conectada. Juntando o progresso…', 'ok');
-        if (!entrou) void loadNickname();
-        await syncCloud({ silencioso: !entrou });
-      }
-    } catch (_) {
-      setCloudStatus('Não foi possível concluir a conexão agora. O treino continua salvo neste aparelho.', 'error');
-    }
-  }
-
-  function renderAccount(container) {
-    if (!cloudEnabled()) return;
-    const card = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'contaTitle' } });
-    card.append(create('h3', { id: 'contaTitle', text: 'Conta (opcional)' }));
-
-    if (!cloud.session) {
-      card.append(create('p', {
-        text: 'Entrar é opcional e serve só para levar o progresso a outro aparelho. '
-          + 'Sem conta, nada sai daqui. Com conta, são enviados ao Supabase o seu e-mail, o apelido opcional e o seu progresso '
-          + '— países, níveis, datas de revisão e conquistas desbloqueadas. Nunca há anúncio, rastreio ou venda de dados.',
-      }));
-      const linha = create('div', { className: 'button-row' });
-      const email = create('input', {
-        id: 'contaEmail', className: 'search', attrs: {
-          type: 'email', autocomplete: 'email', placeholder: 'seu@email.com',
-          'aria-label': 'E-mail para receber o link de acesso',
-        },
-      });
-      const entrar = create('button', {
-        id: 'pedirLink', className: 'btn', type: 'button', text: 'Receber link de acesso',
-        attrs: { 'aria-disabled': cloud.requestingLink ? 'true' : null },
-      });
-      email.value = cloud.emailDraft;
-      email.addEventListener('input', () => { cloud.emailDraft = email.value; });
-      const pedir = async () => {
-        if (cloud.requestingLink) return;
-        const valor = email.value.trim();
-        cloud.emailDraft = email.value;
-        if (!valor || !valor.includes('@')) {
-          setCloudStatus('Digite um e-mail válido para receber o link.', 'error');
-          return;
-        }
-        cloud.requestingLink = true;
-        setCloudStatus('Enviando o link…');
-        let resultadoStatus;
-        try {
-          const resultado = await requestMagicLink(valor);
-          resultadoStatus = resultado.ok
-            ? { text: `Link enviado para ${valor}. Abra o e-mail neste aparelho e clique no link.`, kind: 'ok' }
-            : { text: resultado.motivo, kind: 'error' };
-        } catch (_) {
-          resultadoStatus = { text: 'Sem conexão para enviar o link agora. Tente novamente quando a rede voltar.', kind: 'error' };
-        } finally {
-          cloud.requestingLink = false;
-          setCloudStatus(resultadoStatus.text, resultadoStatus.kind);
-        }
-      };
-      entrar.addEventListener('click', pedir);
-      email.addEventListener('keydown', (evento) => { if (evento.key === 'Enter') { evento.preventDefault(); pedir(); } });
-      linha.append(email, entrar);
-      card.append(linha);
-      card.append(create('p', {
-        className: 'source-note',
-        text: 'Sem senha: você recebe um link por e-mail e entra clicando nele.',
-      }));
-    } else if (!cloud.session.user_id || !cloud.session.email) {
-      card.append(create('p', { text: cloud.identityPending
-        ? 'Confirmando sua conexão… O treino continua disponível.'
-        : 'A conexão ainda não foi confirmada. Tente novamente para acessar sua conta.' }));
-      const retry = create('button', { id: 'retomarConta', className: 'btn ghost', type: 'button',
-        text: 'Tentar novamente', attrs: { 'aria-disabled': cloud.identityPending ? 'true' : null } });
-      retry.addEventListener('click', () => { if (!cloud.identityPending) void syncCloud(); });
-      const leave = create('button', { className: 'btn ghost', type: 'button', text: 'Sair da conta' });
-      leave.addEventListener('click', signOutCloud);
-      card.append(retry, leave);
-    } else {
-      card.append(create('p', {
-        text: `Conectado como ${cloud.session.email || 'sua conta'}. O progresso deste aparelho e o da conta são fundidos, nunca substituídos.`,
-      }));
-      const nicknameRow = create('form', { className: 'account-nickname' });
-      const nickname = create('input', { id: 'contaApelido', className: 'search', attrs: {
-        type: 'text', autocomplete: 'nickname', 'aria-describedby': 'apelidoAjuda',
-        readonly: cloud.savingNickname ? '' : null,
-      } });
-      nickname.value = cloud.nicknameDraft ?? cloud.session.nickname ?? '';
-      nickname.addEventListener('input', () => { cloud.nicknameDraft = nickname.value; });
-      nicknameRow.append(create('label', { text: 'Apelido (opcional)', attrs: { for: 'contaApelido' } }), nickname,
-        create('button', { id: 'salvarApelido', className: 'btn ghost', type: 'submit', text: 'Salvar apelido',
-          attrs: { 'aria-disabled': cloud.savingNickname ? 'true' : null } }));
-      nicknameRow.addEventListener('submit', (event) => { event.preventDefault(); void saveNickname(); });
-      card.append(nicknameRow, create('p', { id: 'apelidoAjuda', className: 'source-note',
-        text: 'Até 40 caracteres. Ao salvar, o apelido é enviado ao Supabase para aparecer nos seus aparelhos. Para removê-lo, apague o texto e salve. É necessário estar online para salvar.' }));
-      if (cloud.nicknameStatus) card.append(create('p', {
-        className: `note${cloud.nicknameStatus.kind === 'error' ? ' note-error' : ''}`,
-        text: cloud.nicknameStatus.text, attrs: { role: 'status' },
-      }));
-      if (cloud.lastSyncAt) {
-        card.append(create('p', {
-          className: 'source-note',
-          text: `Última sincronização às ${cloud.lastSyncAt.toLocaleTimeString('pt-BR')}.`,
-        }));
-      }
-      const linha = create('div', { className: 'button-row' });
-      const sincronizar = create('button', { className: 'btn ghost', type: 'button', text: 'Sincronizar agora' });
-      sincronizar.addEventListener('click', () => { void loadNickname(); void syncCloud(); });
-      const sair = create('button', { className: 'btn ghost', type: 'button', text: 'Sair da conta' });
-      sair.addEventListener('click', signOutCloud);
-      linha.append(sincronizar, sair);
-      card.append(linha);
-    }
-
-    if (cloud.status) {
-      card.append(create('p', {
-        className: `note${cloud.status.kind === 'error' ? ' note-error' : ''}`,
-        text: cloud.status.text, attrs: { role: 'status' },
-      }));
-    }
-    container.append(card);
-  }
+  const account = globalThis.AtlasAccount.create({
+    Core, SyncQueue, config: CLOUD_CONFIG, ids: IDS, el: create,
+    getProgress: () => progress,
+    setProgress: (next) => { progress = next; },
+    onRemoteProgress: () => {
+      queueProgressSave(true);
+      if (state.view === 'quiz') renderScorebar();
+    },
+    rerender: () => { if (state.view === 'prog') renderProgress(); },
+  });
 
   function renderBackup(container) {
     const card = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'backupTitle' } });
@@ -2708,10 +2539,23 @@
     container.append(card);
   }
 
+  // Números de toda a história, não só desta sessão. O recorde de sequência já
+  // era salvo e sincronizado, mas nunca aparecia em lugar nenhum.
+  function overallStats(attempted) {
+    const attempts = attempted.reduce((sum, item) => sum + item.skill.attempts, 0);
+    const correct = attempted.reduce((sum, item) => sum + item.skill.correct, 0);
+    const strip = create('div', { className: 'session-result-stats overall-stats', attrs: { 'aria-label': 'Totais de todo o histórico' } });
+    strip.append(
+      create('span', {}, [create('b', { text: numero(attempts) }), document.createTextNode(attempts === 1 ? ' resposta' : ' respostas')]),
+      create('span', {}, [create('b', { text: attempts ? formatPercent(correct / attempts * 100) : '—' }), document.createTextNode(' de acerto')]),
+      create('span', {}, [create('b', { text: numero(progress.bestStreak) }), document.createTextNode(' recorde de sequência')]),
+    );
+    return strip;
+  }
+
   function renderProgress() {
-    const achievementOpen = document.getElementById('achievementDetails')?.open;
     const focused = document.activeElement;
-    const accountFocus = focused && ['contaEmail', 'pedirLink', 'retomarConta', 'contaApelido', 'salvarApelido', 'achievementsToggle'].includes(focused.id)
+    const accountFocus = focused && ['contaEmail', 'pedirLink', 'retomarConta', 'contaApelido', 'salvarApelido'].includes(focused.id)
       ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
     atlasElements = null;
     clear(dom.panel);
@@ -2725,6 +2569,7 @@
     ]));
     dom.panel.append(create('h2', { id: 'progressTitle', className: 'panel-title', text: 'Seu aprendizado', attrs: { tabindex: '-1' } }));
     dom.panel.append(create('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
+    dom.panel.append(overallStats(attempted));
 
     renderSessionSummary(dom.panel);
     Study.card(dom.panel, startDaily);
@@ -2788,9 +2633,7 @@
     weakSection.append(weakList);
     dom.panel.append(weakSection);
 
-    renderAccount(dom.panel);
-    trophies.render(dom.panel);
-    if (achievementOpen) document.getElementById('achievementDetails').open = true;
+    account.render(dom.panel);
     renderBackup(dom.panel);
 
     const source = MAP_META && MAP_META.source || {};
@@ -2818,7 +2661,7 @@
         className: 'note',
         text: state.resetPending
           ? 'Conferindo os dados mais recentes antes de apagar…'
-          : 'Esta ação apaga níveis, histórico de revisão, recorde e conquistas. As preferências e o apelido serão mantidos.',
+          : 'Esta ação apaga níveis, histórico de revisão e recorde. As preferências e o apelido serão mantidos.',
         attrs: state.resetPending ? { role: 'status', 'aria-live': 'polite', tabindex: '-1' } : {},
       }));
       const actions = create('div', { className: 'button-row' });
@@ -2882,8 +2725,7 @@
           if (navigator.locks && typeof navigator.locks.request === 'function') {
             await navigator.locks.request(RESET_LOCK_KEY, performReset);
           } else await performReset();
-          trophies.record({}, true);
-          scheduleCloudSync();
+          account.schedule();
           state.resetPending = false;
           state.resetArmed = false;
           dom.shell.classList.remove('is-resetting');
@@ -2933,6 +2775,7 @@
     dom.map.classList.remove('picking');
     stopTimer();
     if (view === 'quiz' && state.sessionEnded) renderSessionResult();
+    else if (view === 'quiz' && !state.question && state.examDraft) renderExamResume();
     else if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); startTimer(); }
     else if (view === 'atlas') renderAtlas();
     else { clearMapMarks(); renderProgress(); }
@@ -3011,7 +2854,6 @@
       createNextQuestion();
     });
     dom.themeToggle.addEventListener('click', () => {
-      trophies.record({ type: 'theme' });
       state.theme = THEMES[(themeStep(state.theme) + 1) % THEMES.length].id;
       const atual = applyTheme(true);
       showThemeHint(atual.curto);
@@ -3071,14 +2913,19 @@
     document.addEventListener('keydown', (event) => {
       const target = event.target;
       const interactive = target && target.closest('button, input, select, textarea, a, [contenteditable="true"]');
-      if (interactive || state.view !== 'quiz' || !state.question) return;
+      // Depois de clicar numa aba o foco fica no botão dela; os atalhos de
+      // resposta continuam valendo ali, senão parecem quebrados até o próximo
+      // clique. Enter e Espaço não: nesses o botão da aba tem o próprio efeito.
+      const onTab = Boolean(interactive && interactive.classList.contains('tab'));
+      if ((interactive && !onTab) || state.view !== 'quiz' || !state.question) return;
       if (!state.answered && /^[1-4]$/.test(event.key)) {
         const option = dom.panel.querySelectorAll('[data-answer]')[Number(event.key) - 1];
         if (option) { event.preventDefault(); option.click(); }
-      } else if (state.answered && (event.key === 'Enter' || event.key === ' ')) {
+      } else if (!onTab && state.answered && (event.key === 'Enter' || event.key === ' ')) {
         event.preventDefault(); createNextQuestion({ focus: true });
       }
     });
+    document.addEventListener('visibilitychange', pauseTimerWhileHidden);
     window.addEventListener('pagehide', flushLocalProgress);
   }
 
@@ -3141,17 +2988,20 @@
       populateRegions();
       loadPreferences();
       syncControls();
+      // As conquistas foram removidas em 2026-09-16; o registro antigo delas
+      // não tem mais leitor e é apagado para não ficar lixo no navegador.
+      try { localStorage.removeItem('atlas195:conquistas:v1'); } catch (_) { /* modo privado */ }
       await hydrateProgress();
-      trophies.record({}, true);
       refreshMapMastery();
       absorbPendingProgress();
       state.ready = true;
       bindMapEvents();
       bindControls();
-      createNextQuestion();
+      state.examDraft = readExamDraft();
+      if (state.examDraft) renderExamResume(); else createNextQuestion();
       // A conta entra depois que o treino já está de pé: nada aqui pode atrasar
       // ou impedir a primeira pergunta aparecer.
-      initializeCloud();
+      account.initialize();
     } catch (error) {
       setStorageStatus('O Atlas não pôde ser iniciado.', 'error', true);
       clear(dom.panel);

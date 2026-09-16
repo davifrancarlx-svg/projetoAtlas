@@ -2,12 +2,11 @@
   'use strict';
   const LEVELS = ['desligado', 'baixo', 'médio'];
   const VOLUME = [0, 0.12, 0.23];
-  const PRIORITY = { error: 1, correct: 2, achievement: 3 };
+  const PRIORITY = { error: 1, correct: 2 };
   const KEY = 'atlas195:som:v1';
 
   function sequence(kind, variant = 0) {
     if (kind === 'error') return [[196, 0, 0.12]];
-    if (kind === 'achievement') return [[523.25, 0, 0.20], [659.25, 0.09, 0.20], [783.99, 0.18, 0.25]];
     const base = [523.25, 587.33, 659.25][variant % 3];
     return [[base, 0, 0.15], [base * 1.259921, 0.07, 0.19]];
   }

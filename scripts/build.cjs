@@ -156,8 +156,9 @@ function loadCountries() {
       ? 'América do Norte, Central e Caribe'
       : country.r);
     // Uma correção editorial de região (ex.: Chipre na Ásia por M49) vale para a
-    // subregião também — não faria sentido a subregião discordar do continente.
-    const subregion = policy.region || country.sr;
+    // subregião também quando a base não tinha uma mais fina — se tinha, ela
+    // fica, e a checagem no fim do build garante que pertence ao continente.
+    const subregion = policy.region && country.sr === country.r ? policy.region : country.sr;
     const normalizedContent = {
       ...country,
       cap: policy.capital || country.cap,
@@ -196,7 +197,18 @@ function loadCountries() {
   if (merged.length !== 195 || new Set(merged.map((c) => c.id)).size !== 195) {
     throw new Error('O dataset final precisa conter exatamente 195 IDs únicos.');
   }
+  // Uma subregião pertence a um só continente. É o que impede a etiqueta fina
+  // e o balde amplo se contradizerem depois de uma correção editorial.
+  const regionOfSubregion = new Map();
+  merged.forEach((country) => {
+    const seen = regionOfSubregion.get(country.sr);
+    if (seen && seen !== country.r) {
+      throw new Error(`A subregião "${country.sr}" aparece em ${seen} e em ${country.r} (${country.id}).`);
+    }
+    regionOfSubregion.set(country.sr, country.r);
+  });
   attachSimilarFlags(merged);
+  attachBorders(merged);
   return {
     countries: merged,
     mapMeta: geometry.meta || {},
@@ -204,6 +216,45 @@ function loadCountries() {
     indicatorMeta: indicators.meta,
     contextAreas: loadContextAreas(geometry.meta, contextAreas, merged),
   };
+}
+
+// Fronteiras terrestres, editoriais (src/borders.json). Cada país recebe `nb`,
+// a lista dos vizinhos em ordem alfabética, e `nbNotas` quando a fronteira
+// acontece por um pedaço longe da metrópole (Guiana Francesa, Kaliningrado).
+// Complemento da ficha e do contraste didático do erro; nunca resposta.
+function attachBorders(countries) {
+  const file = readJson('src/borders.json');
+  const pares = file && file.pares;
+  if (!Array.isArray(pares) || !pares.length) throw new Error('src/borders.json precisa listar pares.');
+  const byId = new Map(countries.map((country) => [country.id, country]));
+  const seen = new Set();
+  const neighbours = new Map(countries.map((country) => [country.id, []]));
+  const notes = new Map();
+  pares.forEach((par) => {
+    if (!Array.isArray(par) || par.length < 2 || par.length > 3) throw new Error(`Par de fronteira malformado: ${JSON.stringify(par)}.`);
+    const [a, b, nota] = par;
+    if (!byId.has(a) || !byId.has(b)) throw new Error(`Fronteira com ID fora dos 195: ${a}-${b}.`);
+    if (a === b) throw new Error(`${a} não pode fazer fronteira consigo mesmo.`);
+    if (a > b) throw new Error(`Par fora de ordem: ${a}-${b}.`);
+    const key = `${a}-${b}`;
+    if (seen.has(key)) throw new Error(`Fronteira repetida: ${key}.`);
+    seen.add(key);
+    if (nota !== undefined && (typeof nota !== 'string' || !nota.trim())) throw new Error(`Nota inválida em ${key}.`);
+    neighbours.get(a).push(b);
+    neighbours.get(b).push(a);
+    if (nota) { notes.set(key, nota); }
+  });
+  countries.forEach((country) => {
+    country.nb = neighbours.get(country.id)
+      .sort((left, right) => byId.get(left).n.localeCompare(byId.get(right).n, 'pt-BR'));
+    const own = {};
+    country.nb.forEach((other) => {
+      const nota = notes.get([country.id, other].sort().join('-'));
+      if (nota) own[other] = nota;
+    });
+    if (Object.keys(own).length) country.nbNotas = own;
+  });
+  return countries;
 }
 
 // As feições fora dos 195: dependências com soberano claro, áreas disputadas e
@@ -314,9 +365,11 @@ function embedFonts() {
 
 const template = read('src/index.template.html');
 const css = embedFonts() + read('src/styles.css').trim();
-const core = read('src/achievements.js').trim() + '\n' + read('src/core.js').trim();
+const core = read('src/core.js').trim();
 const syncQueue = read('src/sync-queue.js').trim();
-const app = ['src/audio.js', 'src/study.js', 'src/achievements-ui.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
+// A conta vive em módulo próprio para o app principal não crescer sem fim; os
+// quatro entram no mesmo bloco de script, na ordem de dependência.
+const app = ['src/audio.js', 'src/study.js', 'src/account.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
 const themeBoot = read('src/theme-boot.js').trim();
 // A configuração de conta entra no artefato e também define a única origem que
 // a CSP vai autorizar. Se o arquivo sumir ou vier incompleto, o build segue: o
@@ -407,6 +460,10 @@ if (/\{\{[A-Z_]+\}\}/.test(output)) throw new Error('Há placeholders não resol
 
 const artifact = `${output.trim()}\n`;
 if (artifact.includes('\r')) throw new Error('O artefato saiu com CRLF: os hashes da CSP não sobreviveriam ao parser HTML.');
+// Mesma família de defeito: o parser HTML troca um NUL por U+FFFD antes de
+// calcular o hash, e um escape " " que vira caractere de verdade num
+// editor derruba a página inteira sem erro visível (aconteceu em 2026-09-16).
+if (artifact.includes(String.fromCharCode(0))) throw new Error('O artefato contém um caractere NUL: o hash da CSP não bateria no navegador.');
 // Escrita atômica: o runner de testes roda cada arquivo em um processo próprio e
 // mais de um deles reconstrói o artefato. Sem o rename, um teste poderia servir
 // o HTML pela metade enquanto outro ainda escreve.

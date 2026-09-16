@@ -363,6 +363,19 @@ test('question creation supports explicit directions and a forced target', () =>
   }), /forcedId/);
 });
 
+test('mapa → país alterna entre pin e silhueta, e a silhueta poupa quem não tem forma', () => {
+  const make = (rng, countries = COUNTRIES) => Core.createQuestion({
+    countries, progress: progress(), directions: ['mapId'], forcedId: 'VC', answerMode: 'pick', rng, now: NOW,
+  }).question;
+  assert.equal(make(() => 0).variant, 'shape');
+  assert.equal(make(() => 0.9).variant, 'pin');
+  const pequeno = COUNTRIES.map((country) => country.id === 'VC' ? { ...country, a: Core.SHAPE_MIN_AREA / 2 } : country);
+  assert.equal(make(() => 0, pequeno).variant, 'pin', 'Um país minúsculo nunca vira silhueta.');
+  assert.equal(Core.createQuestion({
+    countries: COUNTRIES, progress: progress(), directions: ['flag'], forcedId: 'VC', answerMode: 'pick', rng: () => 0, now: NOW,
+  }).question.variant, undefined, 'Só mapa → país tem variante.');
+});
+
 test('region questions are rejected outside Mundo inteiro', () => {
   assert.throws(() => Core.createQuestion({
     countries: COUNTRIES,

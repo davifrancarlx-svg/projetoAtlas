@@ -112,7 +112,7 @@ test('o artefato contém exatamente os 195 países e IDs únicos', () => {
   assert.match(html, /flag-icons 7\.5\.0 — MIT license/);
 });
 
-test('a subregião (sr) é sempre preenchida e nunca afeta o balde amplo do modo região', () => {
+test('a subregião (sr) segue o M49, pertence a um só continente e nunca afeta o balde amplo', () => {
   const AMERICAS_AMPLO = 'América do Norte, Central e Caribe';
   const NORTE = ['CA', 'US'];
   const CENTRAL = ['BZ', 'CR', 'SV', 'GT', 'HN', 'MX', 'NI', 'PA'];
@@ -121,10 +121,28 @@ test('a subregião (sr) é sempre preenchida e nunca afeta o balde amplo do modo
   built.DATA.forEach((country) => {
     assert.equal(typeof country.sr, 'string', `${country.id}: sr ausente.`);
     assert.ok(country.sr.length > 0, `${country.id}: sr vazio.`);
-    // O balde amplo usado pelo modo "país → região" e pelo filtro nunca muda:
-    // a subregião é só um rótulo mais preciso para exibição.
-    if (country.sr !== country.r) assert.equal(country.r, AMERICAS_AMPLO, `${country.id}: sr diverge de r fora do balde das Américas.`);
   });
+  // A subregião pertence a um só continente: é o que o filtro por subregião e
+  // o modo "país → região" precisam para nunca se contradizerem.
+  const regionOf = new Map();
+  built.DATA.forEach((country) => {
+    const seen = regionOf.get(country.sr);
+    assert.ok(!seen || seen === country.r, `${country.sr} aparece em ${seen} e em ${country.r}.`);
+    regionOf.set(country.sr, country.r);
+  });
+  // Fora das Américas, a divisão segue o geoscheme M49 da ONU.
+  const M49 = {
+    JP: 'Ásia Oriental', KZ: 'Ásia Central', VN: 'Sudeste Asiático', IN: 'Ásia Meridional', SA: 'Ásia Ocidental',
+    EG: 'África Setentrional', NG: 'África Ocidental', CD: 'África Central', KE: 'África Oriental', ZA: 'África Austral',
+    SE: 'Europa Setentrional', FR: 'Europa Ocidental', PL: 'Europa Oriental', PT: 'Europa Meridional',
+    AU: 'Austrália e Nova Zelândia', FJ: 'Melanésia', KI: 'Micronésia', WS: 'Polinésia', BR: 'América do Sul',
+  };
+  const porId = Object.fromEntries(built.DATA.map((country) => [country.id, country]));
+  Object.entries(M49).forEach(([id, sr]) => assert.equal(porId[id].sr, sr, `${id} deveria estar em ${sr}.`));
+  // Chipre: a correção editorial de região (M49) não pode apagar a subregião fina.
+  assert.equal(porId.CY.r, 'Ásia');
+  assert.equal(porId.CY.sr, 'Ásia Ocidental');
+  assert.equal(new Set(built.DATA.map((country) => country.sr)).size, 22, 'São 22 subregiões: 18 do M49 mais as três das Américas e a América do Sul.');
 
   const byId = Object.fromEntries(built.DATA.map((country) => [country.id, country]));
   NORTE.forEach((id) => assert.equal(byId[id].sr, 'América do Norte', `${id} deveria ser América do Norte.`));
@@ -142,6 +160,21 @@ test('a subregião (sr) é sempre preenchida e nunca afeta o balde amplo do modo
   const territoryById = Object.fromEntries(built.TERRITORIES.map((territory) => [territory.id, territory]));
   assert.equal(territoryById.AK.sr, 'América do Norte');
   ['GP', 'MQ', 'BQ', 'SAB', 'STE'].forEach((id) => assert.equal(territoryById[id].sr, 'Caribe', `${id} deveria ser Caribe.`));
+});
+
+test('o build anexa os vizinhos terrestres em ordem alfabética, sem tocar nas respostas', () => {
+  const porId = Object.fromEntries(built.DATA.map((country) => [country.id, country]));
+  built.DATA.forEach((country) => {
+    assert.ok(Array.isArray(country.nb), `${country.id}: nb ausente.`);
+    country.nb.forEach((other) => assert.ok(porId[other] && porId[other].nb.includes(country.id), `${country.id}-${other}: fronteira sem volta.`));
+    const nomes = country.nb.map((other) => porId[other].n);
+    assert.deepEqual(nomes, [...nomes].sort((a, b) => a.localeCompare(b, 'pt-BR')), `${country.id}: vizinhos fora de ordem.`);
+  });
+  assert.equal(porId.BR.nbNotas.FR, 'pela Guiana Francesa');
+  assert.equal(porId.FR.nbNotas.BR, 'pela Guiana Francesa');
+  assert.equal(porId.JP.nb.length, 0);
+  // O nome de um vizinho nunca vira resposta aceita do país.
+  assert.deepEqual(Core.acceptedAnswers(porId.PT, 'country').map(Core.normalizeText).filter((v) => v === 'espanha'), []);
 });
 
 test('o build incorporou path, centro e bounds válidos para todo país', () => {

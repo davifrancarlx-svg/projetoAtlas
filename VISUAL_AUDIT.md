@@ -1,5 +1,7 @@
 # Auditoria visual local — 10 de setembro de 2026
 
+> **Nota de 16 de setembro de 2026:** as conquistas (troféus, avisos, cartão na aba Progresso, sincronização e migration) foram removidas do produto a pedido do usuário. As menções a elas abaixo são registro histórico da auditoria daquela data e não descrevem o app atual. As seis correções visuais (V01–V06) continuam em vigor e cobertas por `tests/visual-regression.cjs`.
+
 Estado: as seis correções abaixo foram aprovadas, implementadas e verificadas localmente no Chrome nos temas claro e escuro. Apelido e conquistas já estavam implementados e aprovados antes da auditoria. Nada foi publicado. O diagnóstico original está preservado para registrar o que acontecia antes.
 
 ## Ambiente e método

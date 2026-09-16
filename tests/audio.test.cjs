@@ -31,20 +31,20 @@ test('preferência inválida mantém silêncio; preferência válida não toca a
   for(const raw of ['{}','3','-1','"1"','invalid']) { const f=fixture(raw);f.api.play('error');await f.flush();assert.equal(f.created,0); }
   const f=fixture('1');await f.flush();assert.equal(f.created,0);assert.match(f.button.textContent,/baixo/);
 });
-test('conquista substitui acerto simultâneo; silenciar cancela som pendente', async () => {
-  const f=fixture('1');f.events.pointerdown();f.api.play('correct');f.api.play('achievement');await f.flush();
-  assert.equal(f.starts.length,6);assert.ok(f.starts.includes(783.99));
+test('acerto vence erro simultâneo; silenciar cancela som pendente', async () => {
+  const f=fixture('1');f.events.pointerdown();f.api.play('error');f.api.play('correct');await f.flush();
+  assert.equal(f.starts.length,4);assert.ok(!f.starts.includes(196));
   f.click();f.click();f.api.play('error');await f.flush();
-  assert.equal(f.starts.length,6);assert.match(f.button.textContent,/desligado/);
+  assert.equal(f.starts.length,4);assert.match(f.button.textContent,/desligado/);
 });
 test('aba oculta cancela sons e não reproduz fila ao retornar', async () => {
   const f=fixture('1');f.api.play('correct');f.host.document.hidden=true;f.events.visibilitychange();await f.flush();
-  f.api.play('achievement');await f.flush();assert.equal(f.starts.length,0);
+  f.api.play('correct');await f.flush();assert.equal(f.starts.length,0);
   f.host.document.hidden=false;await f.flush();assert.equal(f.starts.length,0);
 });
-test('acertos variam discretamente e erro/conquista permanecem curtos', () => {
+test('acertos variam discretamente e todos os efeitos permanecem curtos', () => {
   assert.equal(new Set([0,1,2].map(v=>Audio.sequence('correct',v)[0][0])).size,3);
-  for(const kind of ['correct','error','achievement']) assert.ok(Math.max(...Audio.sequence(kind).map(n=>n[1]+n[2]))<0.5);
+  for(const kind of ['correct','error']) assert.ok(Math.max(...Audio.sequence(kind).map(n=>n[1]+n[2]))<0.5);
 });
 test('falha do dispositivo de áudio não interrompe o jogo', async () => {
   const f=fixture('1');f.host.AudioContext.prototype.resume=async()=>{throw Error('sem áudio');};

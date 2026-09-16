@@ -11,8 +11,9 @@ const ROOT = path.resolve(__dirname, '..');
 const LIMITS = {
   'src/audio.js': 8 * 1024,
   'src/study.js': 8 * 1024,
-  'src/achievements.js': 16 * 1024,
-  'src/achievements-ui.js': 14 * 1024,
+  // A conta saiu de app.js em 2026-09-16 para o app principal voltar a ter
+  // folga: o orçamento dela é próprio, não uma transferência de bytes.
+  'src/account.js': 24 * 1024,
   'atlas-195.html': 5.25 * 1024 * 1024,
   'src/app.js': 150 * 1024,
   'src/core.js': 80 * 1024,

@@ -2048,16 +2048,6 @@ a.chip {
 .account-nickname .search { flex: 1 1 180px; min-width: 0; width: 100%; }
 .btn[aria-disabled="true"] { opacity: .65; cursor: wait; }
 
-.achievement-list { list-style: none; padding: 0; display: grid; gap: 12px; }
-.achievement-list li { border: 1px solid var(--line-soft); padding: 12px; }
-.achievement-list strong, .achievement-list span { display: block; }
-.achievement-list .achievement-earned { border-color: var(--gold); }
-.achievement-earned strong { color: var(--gold); }
-.achievements summary { cursor: pointer; min-height: var(--tap); padding-block: 12px; }
-.app-status:has(.achievement-notice) { flex-wrap: wrap; }
-.achievement-notice { width: 100%; min-width: 0; color: var(--ink); background: var(--panel-2); border: 1px solid var(--gold); padding: 8px 12px; pointer-events: none; }
-.achievement-notice strong { color: var(--gold); }
-.achievement-notice span { display: block; font-size: 12px; }
 
 .btn.danger {
   border-color: var(--coral);
@@ -2556,4 +2546,76 @@ a.chip {
   border-inline-start: 2px solid var(--gold);
   color: var(--muted);
   font-size: 13px;
+}
+
+/* Silhueta da pergunta "mapa → país": o contorno do próprio mapa, isolado. */
+.shapebox {
+  display: grid;
+  aspect-ratio: 3 / 2;
+  place-items: center;
+  margin-block-end: 17px;
+  padding: 10px;
+}
+
+.shape-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 220px;
+}
+
+.shape-svg path {
+  fill: var(--land-hi);
+  stroke: var(--gold);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 7px 24px var(--shadow-strong));
+}
+
+/* Ficha do Atlas: domínio por habilidade e atalho para praticar o país. */
+.atlas-mastery {
+  grid-column: 1 / -1;
+  margin-block-start: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+}
+
+.atlas-mastery dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 0 0 12px;
+}
+
+.atlas-mastery dt {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  align-self: center;
+}
+
+.atlas-mastery dd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.atlas-mastery .mastery-skills i {
+  width: 34px;
+}
+
+.atlas-detail .fronteiras {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Totais de todo o histórico na aba Progresso. */
+.overall-stats {
+  margin-block: 4px 16px;
 }

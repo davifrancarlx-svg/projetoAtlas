@@ -23,7 +23,22 @@ Decisões editoriais sensíveis são explícitas em `src/content-policy.json`. E
 
 ### Região (`r`) e subregião (`sr`)
 
-Todo país carrega dois rótulos geográficos. `r` é o balde amplo usado pelo filtro de região e pelo modo "país → região" — inclui, por exemplo, "América do Norte, Central e Caribe" como uma única opção de resposta, para não cobrar ortografia de topônimo em vez de geografia. `sr` é a subregião real do país e é o que aparece na ficha do Atlas, no resultado da pergunta e na busca: dentro desse mesmo balde, Canadá e Estados Unidos são "América do Norte", os oito países istmicos são "América Central" e os 13 insulares e Guiana são "Caribe" — a classificação segue o geoscheme M49 da ONU, coerente com a decisão já tomada para o Chipre. Fora desse balde, `sr` é sempre igual a `r`: os demais continentes não têm hoje uma subdivisão exibida. Uma correção editorial de `r` em `content-policy.json` (como a do Chipre) vale também para `sr`, para as duas etiquetas nunca se contradizerem. O build recusa qualquer país ou território sem `sr` preenchido.
+Todo país carrega dois rótulos geográficos. `r` é o balde amplo usado pelo modo "país → região" — inclui, por exemplo, "América do Norte, Central e Caribe" como uma única opção de resposta, para não cobrar ortografia de topônimo em vez de geografia. `sr` é a subregião do país e é o que aparece na ficha do Atlas, no resultado da pergunta, na busca e como área de estudo própria no filtro de região.
+
+Desde 2026-09-16 **todo continente é subdividido**, seguindo o geoscheme M49 da ONU, o mesmo critério já usado para o Chipre e para as Américas:
+
+| Balde amplo (`r`) | Subregiões (`sr`) |
+| --- | --- |
+| Ásia | Ásia Central, Ásia Oriental, Sudeste Asiático, Ásia Meridional, Ásia Ocidental |
+| África | África Setentrional, África Ocidental, África Central, África Oriental, África Austral |
+| Europa | Europa Setentrional, Europa Ocidental, Europa Oriental, Europa Meridional |
+| América do Norte, Central e Caribe | América do Norte, América Central, Caribe |
+| América do Sul | América do Sul (o M49 não a subdivide) |
+| Oceania | Austrália e Nova Zelândia, Melanésia, Micronésia, Polinésia |
+
+Os nomes seguem o M49 traduzido, não o uso coloquial: "Ásia Ocidental" em vez de "Oriente Médio", "África Austral" para *Southern Africa*. O balde amplo continua sendo a única resposta cobrada pelo modo região; a subregião serve ao filtro, à ficha, aos distratores (quem confunde localização recebe alternativas da mesma subregião) e à explicação do erro ("fica na mesma subregião, Sudeste Asiático").
+
+Uma correção editorial de `r` em `content-policy.json` (como a do Chipre) só se estende a `sr` quando a base não tem uma subregião mais fina; se tem, ela fica. O build recusa qualquer país ou território sem `sr` preenchido e recusa uma subregião que apareça em dois continentes — é isso que impede as duas etiquetas se contradizerem.
 
 ## Territórios dentro de um soberano
 
@@ -46,6 +61,18 @@ Eles **não** entram no sorteio de perguntas, não recebem bandeira própria e n
 
 O box é área de captação do cursor, não contorno: ele é consultado apenas **depois** que a geometria sob o ponteiro já resolveu o soberano, então um vizinho dentro do retângulo é inofensivo — clicar na Grande Diomedes continua respondendo Rússia, mesmo estando dentro do box do Alasca. O que os testes proíbem é um box engolir o ponto de rótulo ou o aglomerado principal do próprio soberano.
 
+## Fronteiras terrestres
+
+`src/borders.json` registra, à mão, os pares de países dos 195 que compartilham fronteira terrestre: 313 pares, cada um uma vez, em ordem alfabética de ID. O build anexa a cada país a lista `nb` dos vizinhos (ordenada por nome) e, quando a fronteira acontece por um pedaço longe da metrópole, uma nota em `nbNotas` — "pela Guiana Francesa" (Brasil–França, Suriname–França), "por Ceuta e Melilha" (Espanha–Marrocos), "por Kaliningrado" (Lituânia–Rússia, Polônia–Rússia), "por Naquichevão" (Azerbaijão–Turquia).
+
+Critérios editoriais:
+
+- Só entram fronteiras entre territórios desenhados **dentro dos polígonos dos 195**. A Guiana Francesa é parte do polígono da França no Natural Earth, então a fronteira Brasil–França existe no mapa e na lista. Kosovo, Saara Ocidental, Gibraltar, Taiwan, Chipre do Norte e as bases britânicas em Chipre são terras fora dos 195 e não geram fronteira — a Sérvia aparece com sete vizinhos, não oito.
+- Fronteira é terrestre. Vizinhança só por mar (Espanha–Marrocos pelo estreito, Índia–Sri Lanka) não conta; a de Ceuta e Melilha conta porque é em terra.
+- Botsuana–Zâmbia entra: a fronteira em Kazungula é de poucas centenas de metros, mas existe.
+
+É **complemento da ficha e do contraste didático do erro; nunca resposta de pergunta**. Na ficha aparece como "Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres". Quando alguém marca no mapa um país que faz fronteira com o certo, o veredito diz "faz fronteira com", que é mais concreto do que "fica perto". Os testes conferem simetria, IDs, contagens conhecidas (China e Rússia com 14, Brasil com 10, ilhas com zero) e plausibilidade geográfica: os contornos dos dois países precisam se aproximar no mapa, o que pega erro de digitação de ID.
+
 ## Bandeiras
 
 - Fonte: [flag-icons](https://github.com/lipis/flag-icons), versão 7.5.0, SVG 4:3.
@@ -65,7 +92,7 @@ em [`data/flag-icons/README.md`](data/flag-icons/README.md). O gerador
 
 ## Sons
 
-Os efeitos de acerto, erro e conquista são composições sintetizadas pelo próprio código em `src/audio.js`, com osciladores e controle de volume da Web Audio API. Não usam gravações, músicas, amostras de terceiros nem serviço externo. O botão de som salva somente uma preferência local (`atlas195:som:v1`); ela não integra a conta, o progresso nem o backup. Nenhum dado adicional é enviado. Os WAV em `docs/audio-samples/` foram renderizados a partir do mesmo sintetizador para revisão e não são recursos carregados pelo app.
+Os efeitos de acerto e erro são composições sintetizadas pelo próprio código em `src/audio.js`, com osciladores e controle de volume da Web Audio API. Não usam gravações, músicas, amostras de terceiros nem serviço externo. O botão de som salva somente uma preferência local (`atlas195:som:v1`); ela não integra a conta, o progresso nem o backup. Nenhum dado adicional é enviado. Os WAV em `docs/audio-samples/` foram renderizados a partir do mesmo sintetizador para revisão e não são recursos carregados pelo app.
 
 ## Tipografia
 
@@ -253,15 +280,3 @@ O cartão de conta permite cadastrar, editar e remover um apelido de até 40 car
 Com conta, são enviados ao Supabase o e-mail usado para entrar, o progresso e, se cadastrado, o apelido. O apelido fica nos dados do perfil do Supabase Auth (`user_metadata.atlas_nickname`), atualizado por `PUT /auth/v1/user`, com HTTP direto e sem SDK. Não integra o backup de progresso nem é apagado ao zerar o aprendizado. O apelido não exige alteração de tabela ou política de acesso.
 
 O perfil é consultado ao reabrir uma sessão e ao usar “Sincronizar agora”. Entre edições em aparelhos diferentes, prevalece a última gravação aceita pelo servidor. Salvar requer conexão; uma falha mantém o texto em edição para nova tentativa enquanto a página continuar aberta, sem impedir o treino ou a sincronização do progresso.
-
-## Conquistas
-
-São 25 troféus nomeados, exibidos na aba Progresso com ◆/◇, descrição e raridade. Domínio significa nível máximo nas direções indicadas. O aviso de desbloqueio é temporário, não recebe foco e não exige fechamento. O humor fica apenas nos nomes, descrições e avisos de conquistas.
-
-Há retroação parcial: níveis, países estudados e recorde existentes permitem reconhecer feitos comprováveis, sem avisos em massa nem datas antigas inventadas. Provas perfeitas, sequência digitada, zoom, revisão focada, exportação e troca de tema só contam a partir desta versão. A sequência digitada e as três trocas de tema valem na mesma abertura do app. A lista diária de revisões vencidas é registrada no primeiro uso de cada dia, pelo horário local; precisa ser não vazia e cada habilidade da lista precisa receber um acerto no mesmo dia.
-
-As conquistas ficam num registro local separado (`atlas195:conquistas:v1`). Com conta, também são enviados ao Supabase os identificadores dos troféus desbloqueados e a geração/época de exclusão do progresso. Não são enviados identificadores de aparelhos. Contadores temporários, a lista diária e os cinco microestados acertados ficam locais; somente os troféus concluídos acompanham a conta. O backup por arquivo continua contendo o progresso educacional, sem apelido nem o registro separado de conquistas; ao importar, os troféus comprováveis por esse progresso são reavaliados.
-
-A migration `supabase/migrations/202609100001_conquistas_atlas.sql` cria uma tabela separada com acesso restrito à própria conta e uma operação de união atômica — o banco combina os troféus em uma única gravação para evitar perda entre aparelhos. Clientes antigos continuam usando a tabela de progresso existente. Apagar progresso também apaga conquistas; a geração/época impede que versões antigas do registro restaurem troféus apagados. Sem rede ou sem a migration, o treino e o progresso continuam funcionando, com aviso separado para conquistas.
-
-Implementação: `src/achievements.js` contém catálogo e regras puras expostas por `Core`; `src/achievements-ui.js` cuida da interface e persistência; `tests/achievements.test.cjs` verifica os desbloqueios sem DOM. Não há dependências novas, imagens ou mudança de geometria/dados educacionais.

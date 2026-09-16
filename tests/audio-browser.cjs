@@ -30,7 +30,7 @@ module.exports = async (client, evaluate, until) => {
   await ev("(()=>{const title=document.getElementById('questionTitle').textContent;const c=DATA.find(c=>title.includes(c.n+'?'));[...document.querySelectorAll('[data-answer]')].find(b=>b.dataset.answer===c.r).click()})()");
   await until('som da resposta',()=>ev(`audioProbe.starts>${previous}`));
   const added=await ev(`audioProbe.starts-${previous}`);
-  assert.ok(added===4||added===6,'Acerto ou conquista, sem tocar ambos.');
+  assert.equal(added,4,'O acerto toca duas notas com dois harmônicos cada.');
   const afterAnswer=await ev('audioProbe.starts');
   await ev("document.getElementById('soundToggle').click()");
   await until('amostra de volume médio',()=>ev(`audioProbe.starts===${afterAnswer+4}`));
@@ -47,7 +47,7 @@ module.exports = async (client, evaluate, until) => {
     fs.writeFileSync(path.join(os.tmpdir(),`atlas-sound-${width}-${theme}.png`),Buffer.from(shot.data,'base64'));
   }
   // Renderização nativa offline: as amostras usam exatamente o sintetizador do jogo.
-  for(const kind of ['correct','error','achievement']) {
+  for(const kind of ['correct','error']) {
     const samples=await ev(`(async()=>{const c=new OfflineAudioContext(1,24000,48000);AtlasAudio.render(c,c.destination,'${kind}',0.23);return Array.from((await c.startRendering()).getChannelData(0))})()`);
     const peak=Math.max(...samples.map(Math.abs));
     assert.ok(peak>0.02&&peak<0.5,`${kind}: áudio presente e sem saturação`);

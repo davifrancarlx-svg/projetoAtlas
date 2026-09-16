@@ -59,12 +59,16 @@ test('a camada visual oferece foco, domínio e encerramento de sessão responsiv
 });
 
 test('falhas de rede da conta são recuperáveis pela interface', () => {
+  const account = read('src/account.js');
+  assert.match(account, /async function ensureCloudIdentity/);
+  assert.match(account, /if \(!await ensureCloudIdentity\(\)\)/);
+  assert.match(account, /Sem conexão para enviar o link agora/);
+  assert.match(account, /'aria-disabled': cloud\.requestingLink/);
+  assert.match(account, /if \(cloud\.requestingLink\) return;/);
+  assert.match(account, /finally \{\s*cloud\.requestingLink = false;/);
+  assert.match(account, /SyncQueue\.create/);
+  // O app não guarda cópia da lógica de conta: só a ponte com o módulo.
   const app = read('src/app.js');
-  assert.match(app, /async function ensureCloudIdentity/);
-  assert.match(app, /if \(!await ensureCloudIdentity\(\)\)/);
-  assert.match(app, /Sem conexão para enviar o link agora/);
-  assert.match(app, /'aria-disabled': cloud\.requestingLink/);
-  assert.match(app, /if \(cloud\.requestingLink\) return;/);
-  assert.match(app, /finally \{\s*cloud\.requestingLink = false;/);
-  assert.match(app, /SyncQueue\.create/);
+  assert.match(app, /AtlasAccount\.create\(/);
+  assert.doesNotMatch(app, /async function ensureCloudIdentity/);
 });

@@ -1,10 +1,10 @@
 (function (root, factory) {
   'use strict';
 
-  var api = factory(typeof module === 'object' && module.exports ? require('./achievements.js') : root.AtlasAchievementRules);
+  var api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.AtlasCore = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (achievementRules) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
   var SCHEMA_VERSION = 2;
@@ -58,6 +58,9 @@
   // cronômetro de prova: é só o sinal de recuperação fluente contra reconstrução.
   var FLUENT_SECONDS = 3.5;
   var LABORED_SECONDS = 12;
+  // Área projetada mínima para a silhueta de um país ser reconhecível como
+  // forma: abaixo disso (Malta, Singapura, os microestados) ela vira um ponto.
+  var SHAPE_MIN_AREA = 1;
   var ROOT_KEYS = Object.freeze([
     'schemaVersion', 'generation', 'epoch', 'revision', 'updatedAt', 'bestStreak', 'countries'
   ]);
@@ -1084,6 +1087,9 @@
         if (normalizeText(target.cap).charAt(0) === normalizeText(chosen.cap).charAt(0)) return 'capital-initial';
       }
     }
+    // Fronteira de verdade vem antes de "perto no mapa": é a relação mais
+    // concreta que existe entre dois países, e a que mais se confunde.
+    if (Array.isArray(target.nb) && target.nb.indexOf(itemId(chosen)) !== -1) return 'border';
     if (projectedDistance(target, chosen) <= 0.08) return 'neighbour';
     if (target.sr && target.sr === chosen.sr) return 'same-subregion';
     if (target.r && target.r === chosen.r) return 'same-region';
@@ -1237,6 +1243,13 @@
       target = pickWeighted(pool, direction, options.progress, pickOptions);
     }
     var question = { kind: direction, direction: direction, id: target.id, opts: null };
+    // "Mapa → país" alterna entre o pin no mapa e a silhueta isolada: é a mesma
+    // habilidade (reconhecer o país pelo desenho dele), com duas evidências
+    // diferentes. A silhueta só vale para quem tem forma na escala do mapa.
+    if (direction === 'mapId') {
+      var shapeable = !Number.isFinite(target.a) || target.a >= SHAPE_MIN_AREA;
+      question.variant = shapeable && sampleUnit(options.rng) < 0.5 ? 'shape' : 'pin';
+    }
     if (direction === 'reg') {
       // As alternativas de região vêm do dataset inteiro, não do pool filtrado:
       // num treino restrito a um continente a resposta seria a única opção.
@@ -1678,11 +1691,6 @@
   }
 
   return Object.freeze({
-    achievementCatalog: achievementRules && achievementRules.catalog,
-    createAchievements: function (p) { return achievementRules.create(p); },
-    validateAchievements: function (a) { return achievementRules.valid(a); },
-    mergeAchievements: function (a, b) { return achievementRules.merge(a, b); },
-    evaluateAchievements: function (a, p, countries, event) { return achievementRules.evaluate(a, p, countries, event); },
     derivedFacts: derivedFacts,
     SCHEMA_VERSION: SCHEMA_VERSION,
     MAX_LEVEL: MAX_LEVEL,
@@ -1731,6 +1739,7 @@
     levelOf: levelOf,
     recordAnswer: recordAnswer,
     ANSWER_GRADES: ANSWER_GRADES,
+    SHAPE_MIN_AREA: SHAPE_MIN_AREA,
     gradeAnswer: gradeAnswer,
     scheduleFor: scheduleFor,
     overdueFactor: overdueFactor,

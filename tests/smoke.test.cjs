@@ -514,23 +514,10 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     });
 
     // Conta simulada: nenhum e-mail ou dado é enviado ao serviço real.
-    assert.ok(await evaluate(client, `JSON.parse(localStorage.getItem('atlas195:conquistas:v1')).unlocked.includes('theme')`), 'Três trocas de tema desbloqueiam a conquista.');
-    assert.equal(await evaluate(client, `getComputedStyle(document.getElementById('achievementNotice')).pointerEvents`), 'none');
-    const noticeShot = await client.send('Page.captureScreenshot', {format:'png'});
-    fs.writeFileSync(path.join(os.tmpdir(), 'atlas-achievement-notice.png'), Buffer.from(noticeShot.data, 'base64'));
     await client.send('Page.addScriptToEvaluateOnNewDocument', { source: `
       localStorage.setItem('atlas195:conta:v1', JSON.stringify({user_id:'test-user',email:'teste@example.invalid',access_token:'fake',refresh_token:'fake'}));
-      window.accountMock = { nickname: '', fail: false, failTrophies: false, trophies: null };
+      window.accountMock = { nickname: '', fail: false };
       window.fetch = async (url, options = {}) => {
-        if (String(url).includes('/rpc/atlas_merge_conquistas')) {
-          if (accountMock.failTrophies) return new Response('{}', {status:404});
-          const p = JSON.parse(options.body);
-          const old = accountMock.trophies;
-          const newer = !old || p.p_generation > old.generation || (p.p_generation === old.generation && p.p_epoch > old.epoch);
-          if (newer) accountMock.trophies = {generation:p.p_generation,epoch:p.p_epoch,unlocked:p.p_unlocked};
-          else if (p.p_generation === old.generation && p.p_epoch === old.epoch) old.unlocked = [...new Set([...old.unlocked,...p.p_unlocked])];
-          return new Response(JSON.stringify([accountMock.trophies]), {status:200});
-        }
         if (String(url).includes('/auth/v1/user')) {
           if (accountMock.fail) throw new Error('offline simulado');
           if (options.method === 'PUT') accountMock.nickname = JSON.parse(options.body).data.atlas_nickname || '';
@@ -566,28 +553,15 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     }
     await evaluate(client, `accountMock.fail = false; const input = document.getElementById('contaApelido'); input.value = ''; input.dispatchEvent(new Event('input')); document.getElementById('salvarApelido').click()`);
     await until('remover apelido', async () => evaluate(client, `document.getElementById('panel').textContent.includes('Apelido removido.')`));
-    await evaluate(client, `document.getElementById('achievementsToggle').focus()`);
-    await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', text: '\r', windowsVirtualKeyCode: 13 });
-    await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
-    assert.equal(await evaluate(client, `document.getElementById('achievementDetails').open`), true);
-    assert.equal(await evaluate(client, `document.querySelectorAll('.achievement-list li').length`), 25);
-    await evaluate(client, `accountMock.failTrophies = true; [...document.querySelectorAll('button')].find(b => b.textContent === 'Sincronizar agora').click()`);
-    await until('falha de conquistas sem interromper progresso', async () => evaluate(client, `document.getElementById('achievementStatus').textContent.includes('Sem sincronizar conquistas')`));
-    assert.equal(await evaluate(client, `document.getElementById('achievementDetails').open`), true, 'Sincronização preserva a lista aberta.');
-    assert.equal(await evaluate(client, `document.activeElement.id`), 'achievementsToggle', 'Sincronização preserva o foco na lista.');
-    for (const width of [1280, 390]) for (const theme of ['light', 'dark']) {
-      await client.send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: width < 821 });
-      await evaluate(client, `document.documentElement.dataset.theme = '${theme}'; document.getElementById('achievementsTitle').scrollIntoView({block:'start',behavior:'instant'})`);
-      assert.equal(await evaluate(client, `document.documentElement.scrollWidth <= innerWidth`), true);
-      const shot = await client.send('Page.captureScreenshot', {format:'png'});
-      fs.writeFileSync(path.join(os.tmpdir(), 'atlas-achievements-' + width + '-' + theme + '.png'), Buffer.from(shot.data, 'base64'));
-    }
-    await evaluate(client, `accountMock.failTrophies = false; document.getElementById('resetProgress').click()`);
-    assert.ok(await evaluate(client, `document.getElementById('panel').textContent.includes('recorde e conquistas')`));
+    // Apagar o progresso: o aviso diz o que some, e o envelope local recomeça
+    // numa geração nova — é a geração que impede um aparelho velho ressuscitar
+    // o que foi apagado.
+    await evaluate(client, `document.getElementById('resetProgress').click()`);
+    assert.ok(await evaluate(client, `document.getElementById('panel').textContent.includes('histórico de revisão e recorde')`));
     await evaluate(client, `document.getElementById('confirmReset').click()`);
-    await until('reset apagar conquistas locais e remotas', async () => evaluate(client, `(() => {
-      const a = JSON.parse(localStorage.getItem('atlas195:conquistas:v1'));
-      return a.unlocked.length === 0 && accountMock.trophies?.generation === a.generation && accountMock.trophies.unlocked.length === 0;
+    await until('reset apagar o progresso local', async () => evaluate(client, `(() => {
+      const p = JSON.parse(localStorage.getItem('atlas195:v2'));
+      return Boolean(p) && Object.keys(p.countries).length === 0 && p.generation >= 1;
     })()`));
 
     await require('./visual-regression.cjs')(client, evaluate, until);
