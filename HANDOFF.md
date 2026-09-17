@@ -236,11 +236,17 @@ Sobrou no artefato uma menção a "conquistas": é o comentário e a linha que
 apagam o registro local antigo (`atlas195:conquistas:v1`) de quem usou a
 versão anterior. Não aparece na interface e deve continuar lá por enquanto.
 
-### Três rodadas depois da publicação — nenhuma está no ar
+### Quatro rodadas, publicadas juntas no release `fb6d9cedae82`
 
-O site continua servindo o release `c8cf8b750232`. Tudo abaixo está commitado e
-enviado ao GitHub com CI verde, e **nada disso está publicado**. Publicar exige
-pedido explícito do usuário.
+Tudo abaixo está commitado, no GitHub com CI verde e **no ar** desde
+16 de setembro de 2026, 20h53 UTC, a pedido do usuário. `npm run verify:production`
+confere os sete arquivos: `atlas-195.html` com 5.195.199 bytes
+(`dddc2bb7b946a3ec…`) e `sw.js` com 4.183 bytes (`8a7607c0ea70dc54…`).
+
+Conferido num Chrome de perfil novo, que é o que um visitante novo encontra:
+195 países, CSP intacta (os módulos carregam), os quatro estilos de som, o
+painel de som na aba Progresso, o fato de fronteira na ficha do Japão e o cache
+do worker já com o nome `atlas-195-fb6d9cedae82` guardando o HTML novo.
 
 - `480fe92` — rodada do Codex, revisada e aceita: contador da prova, ciclo da
   revisão, cache offline mais seguro (o HTML é obrigatório na instalação e o
@@ -262,6 +268,15 @@ pedido explícito do usuário.
   verdade (Japão, China, Portugal e Alemanha).
 
 ### Armadilha de verificação no navegador
+
+**Isso vale também para o site publicado.** Ao conferir o release
+`fb6d9cedae82` no ar, um navegador que já tinha visitado o site continuou
+mostrando a versão anterior: o worker antigo respondia toda navegação com o
+HTML do cache dele (`atlas-195-c8cf8b750232`, 5.177.324 bytes), enquanto o
+servidor já entregava o arquivo novo em onze requisições seguidas. Quem
+verifica precisa de **perfil novo** ou de desregistrar o worker e limpar os
+caches antes; senão é fácil concluir que a publicação falhou quando ela
+funcionou. `scripts/` não tem isso automatizado — foi feito à mão com CDP.
 
 Uma aba que já abriu o app continua servindo o artefato **do cache do service
 worker** depois de um `npm run build`. Uma verificação manual pode testar

@@ -1,6 +1,8 @@
 # Entrega local — Atlas 195
 
-Rodada de 16 de setembro de 2026 (segunda do dia). Estado: **testado, commitado, enviado ao GitHub e publicado no Lovable** a pedido do usuário, junto com a rodada anterior. `npm run verify:production` confirma "Produção confere com o release c8cf8b750232".
+Rodada de 16 de setembro de 2026 (segunda do dia). Estado: **testado, commitado, enviado ao GitHub e publicado no Lovable** a pedido do usuário, junto com a rodada anterior. `npm run verify:production` confirmava, na época, "Produção confere com o release c8cf8b750232".
+
+> **Depois desta rodada.** Vieram mais quatro — correções do Codex (`480fe92`), alto contraste (`b20273e`), fatos de fronteira (`847b7f8`) e os sons com estilos (`90f4cbd`) —, e as quatro foram publicadas juntas no release **`fb6d9cedae82`**, ainda em 16 de setembro, a pedido do usuário. É esse o release no ar; o histórico por rodada está no `HANDOFF.md`.
 
 ## Resultado
 
