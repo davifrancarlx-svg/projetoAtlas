@@ -289,6 +289,35 @@ do worker já com o nome `atlas-195-fb6d9cedae82` guardando o HTML novo.
   grade na primeira tela e nenhuma instrução repetindo a placa. 167 testes com
   Chrome real. `src/app.js` ficou em 146,3 de 150 KiB (97,6%).
 
+**Banco da conta alinhado às migrations, já em produção (28/09/2026).** O
+Supabase do Lovable (`wckbqklezfxfoaaiybab`, o mesmo de `src/cloud.json`) não
+tinha o `FORCE ROW LEVEL SECURITY`, nem os dois limites do envelope, e usava
+quatro políticas antigas ("le o proprio progresso" etc.) valendo para o papel
+`public`, com `anon` e `authenticated` mantendo todos os privilégios padrão,
+`TRUNCATE` incluído. Foi aplicado o que faltava da `202608200001` e a nova
+`202609280001_alinha_permissoes_progresso.sql`. A conferência trocou de papel
+dentro de blocos que terminam em erro, para nada ficar gravado: a dona lê e
+grava a própria linha (inclusive o upsert que o app faz), outra conta não lê
+nem grava a linha alheia, o `anon` recebe permissão negada, nenhum papel tem
+`TRUNCATE`, e os limites recusam lista e excesso de 2 MB. O único progresso
+gravado (69,7 KB) ficou intacto. Consequência documentada: sem sessão, um
+pedido com a chave `anon` agora é recusado em vez de devolver lista vazia; o
+app só consulta a tabela com sessão, então nada muda para quem usa.
+
+**Página inicial do Lovable corrigida, mas ainda não publicada.** O
+`src/routes/__root.tsx` do projeto Lovable tinha o cabeçalho padrão ("Lovable
+App", "Lovable Generated Project", `lang="en"`), que é o que o WhatsApp e as
+redes sociais mostram ao compartilhar `atlas-195.lovable.app`. O agente do
+Lovable trocou título, descrição, `og:*`, `twitter:*` e ícone pelos mesmos
+textos do `atlas-195.html`, pôs `lang="pt-BR"`, traduziu as páginas de erro e
+404, e acrescentou em `src/routes/index.tsx` um `<meta http-equiv="refresh">`
+que leva a `/atlas-195.html` antes de o React carregar (commit Lovable
+`2f30adb`). O mesmo commit trouxe duas atualizações automáticas da
+plataforma: `@lovable.dev/vite-tanstack-config` fixado em 2.23.1 e um ajuste
+em `previewAuthStorage.ts`. `public/atlas-195.html` e `public/sw.js`
+continuam com os hashes do release `fb6d9cedae82`. **Falta publicar** pelo
+botão Publish do editor; depois, conferir a pré-visualização do link.
+
 ### Armadilha de verificação no navegador
 
 **Isso vale também para o site publicado.** Ao conferir o release
