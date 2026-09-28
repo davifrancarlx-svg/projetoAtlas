@@ -12,6 +12,9 @@ const entries = [
   ...Object.values(data.meta.bancoMundial.indicadores).map((item) => ({
     label: `${item.rotulo}/Banco Mundial`, year: item.anoPredominante, maxAge: 4,
   })),
+  ...Object.values(data.meta.fao.indicadores).map((item) => ({
+    label: `${item.rotulo}/FAO`, year: item.anoPredominante, maxAge: 4,
+  })),
 ];
 
 const stale = entries.filter((item) => !Number.isInteger(item.year) || currentYear - item.year > item.maxAge);

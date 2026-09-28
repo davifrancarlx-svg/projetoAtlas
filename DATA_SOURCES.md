@@ -210,10 +210,22 @@ O campo `nota` existe **só quando o estatuto legal e o uso cotidiano divergem**
 | Argentina, Austrália, Uruguai | O idioma é de facto: a lei não declara idioma oficial. |
 | Bolívia, México, Zimbábue, Índia | O número real de idiomas reconhecidos não cabe na lista sem virar parágrafo. |
 
-Três países mudaram de regime linguístico recentemente e merecem reconferência
-periódica: **Burkina Faso** (2024) e **Mali** (2023) promoveram as línguas
-nacionais a oficiais e rebaixaram o francês a língua de trabalho, e o **Níger**
-elevou o hauçá a língua nacional em 2025.
+Países que mudaram de regime linguístico recentemente e merecem reconferência
+periódica, conferidos em 28/09/2026 no texto de origem:
+
+- **Mali**: o artigo 31 da Constituição de 2023, lido no Journal Officiel,
+  torna oficiais as línguas nacionais (13, pela lei) e deixa o francês como
+  língua de trabalho. A ficha lista as mais faladas.
+- **Burkina Faso**: a revisão constitucional aprovada em dezembro de 2023 e em
+  vigor desde novembro de 2024 faz o mesmo e põe francês **e inglês** como
+  línguas de trabalho.
+- **Níger**: pela Carta da Refundação, promulgada em 26/03/2025, o hauçá é a
+  língua nacional, francês e inglês são línguas de trabalho e não há língua
+  oficial declarada.
+- **Estados Unidos**: a ordem executiva 14224, de 1º/03/2025 (90 FR 11363),
+  designou o inglês como língua oficial; nenhuma lei federal o declara.
+- **Cazaquistão**: a Constituição de 2026, em vigor desde 1º de julho, mantém
+  o cazaque como língua do Estado e o russo "ao lado dele" nos órgãos públicos.
 
 O build **recusa** um país sem idioma registrado, e os testes recusam nome
 capitalizado (em português, língua é substantivo comum), idioma repetido na mesma
@@ -235,7 +247,7 @@ A `nota` existe **só quando o curso legal não conta a história sozinho**:
 | Panamá | O balboa é paritário ao dólar e só existe em moedas metálicas; as cédulas são dólares. |
 | Andorra, Mônaco, San Marino, Vaticano | Usam o euro por acordo com a União Europeia, sem integrar a zona do euro. |
 | Montenegro | Usa o euro unilateralmente, o que é diferente dos acordos acima. |
-| Butão, Brunei, Essuatíni, Lesoto, Namíbia | Paridade fixa com a moeda do vizinho, que também circula. |
+| Butão, Brunei, Essuatíni, Lesoto, Namíbia | Paridade fixa com a moeda do vizinho, que também circula. Onde ela é curso legal registrado na ISO 4217 (rupia indiana no Butão, rand no Lesoto e na Namíbia), entra também na lista. |
 | Líbano, Camboja, Venezuela, Zimbábue, RD Congo | O curso legal existe, mas o dólar americano domina o cotidiano. |
 | Bulgária | Adotou o euro em 1º de janeiro de 2026, no lugar do lev. |
 | Mauritânia, Serra Leoa | Redenominações recentes que ainda confundem quem consulta valores antigos. |
@@ -260,19 +272,41 @@ Cada número aparece **com o próprio ano**, porque as séries não andam juntas
 | Expectativa de vida | Banco Mundial, `SP.DYN.LE00.IN` | 2024 | 194/195 |
 | Densidade demográfica | Banco Mundial, `EN.POP.DNST` | 2023 | 194/195 |
 | População urbana | Banco Mundial, `SP.URB.TOTL.IN.ZS` | 2025 | 194/195 |
-| Área florestal | Banco Mundial, `AG.LND.FRST.ZS` | 2023 | 194/195 |
+| Área florestal | FAO, FAOSTAT Uso da terra (item 6646, elemento 7209) | 2024 | 192/195 |
 
 O IDH vem do PNUD porque **é ele quem define e calcula o índice** — qualquer
-outro site apenas republica. Os demais vêm do Banco Mundial (CC BY 4.0), que
-republica as projeções da ONU e as séries ambientais numa API estável. PIB per
-capita e taxa de fecundidade foram medidos e ficaram de fora: o primeiro cobre
-só 181 dos 195, o segundo diz pouco sobre geografia.
+outro site apenas republica. A área florestal vem da **FAO**, que produz o dado a
+partir da Avaliação Global dos Recursos Florestais (FRA), pelo arquivo completo do
+domínio Uso da terra do FAOSTAT (CC BY 4.0). Os demais vêm do Banco Mundial (CC BY
+4.0), que republica as projeções da ONU numa API estável. PIB per capita e taxa de
+fecundidade foram medidos e ficaram de fora: o primeiro cobre só 181 dos 195, o
+segundo diz pouco sobre geografia.
 
 As ausências são poucas, conhecidas e explicadas na própria ficha: Coreia do
 Norte, Mônaco e Vaticano ficam sem IDH; o Vaticano fica fora de todas as séries
-do Banco Mundial, por ter cerca de 800 residentes. Nenhum aparece zerado ou some
-da ficha. O gerador **recusa** deixar um país sem número sem explicação
-registrada.
+do Banco Mundial, por ter cerca de 800 residentes; e o FAOSTAT não traz área
+florestal para Mônaco, Nauru e Vaticano — a ficha diz isso em vez de supor zero.
+Nenhum aparece zerado ou some da ficha. O gerador **recusa** deixar um país sem
+número sem explicação registrada.
+
+### Conferência de 28 de setembro de 2026
+
+Cada fonte foi comparada com a edição mais recente de quem produz o dado, não só
+com quem o republica:
+
+| Dado | O que foi conferido | Resultado |
+| --- | --- | --- |
+| IDH | Página de downloads do PNUD | O Relatório 2025 (dados de 2023) ainda é o último; o de 2026 não saiu. |
+| População, expectativa de vida | Portal de dados da Divisão de População da ONU | A WPP 2024 ainda é a revisão mais recente; o Banco Mundial já a usa. |
+| População urbana | Arquivo F15 da WUP 2025 (definições nacionais) | Os 216 países em comum batem com o Banco Mundial, país a país. |
+| Área florestal | Arquivo do FAOSTAT atualizado em 16/09/2026 | O Banco Mundial ainda servia a revisão anterior à FRA 2025: 78 países diferiam em mais de um ponto (a República Centro-Africana passou de 36% para 73%). A série passou a vir da FAO, com 2024. |
+| Densidade | Banco Mundial | 2023 é o último ano publicado; o Atlas não calcula densidade própria. |
+| Mapa | Tags do repositório do Natural Earth | A v5.1.2 é a última versão lançada; o `master` está em 5.2.0-pre, que não é versão. |
+| Bandeiras | Registro npm do flag-icons | A 7.5.0 é a última; ela já traz a bandeira da Síria adotada em 2025. |
+| Moedas | Lista ISO 4217 da SIX publicada em 17/09/2026 | Todas conferem. Butão, Lesoto e Namíbia passaram a listar também a moeda do vizinho, que a ISO registra e que a própria nota já dizia ser curso legal. Os códigos de fundo e unidade de conta (BOV, CLF, COU, MXV, USN, CHE, CHW, UYI, UYW) ficam de fora de propósito. |
+| Regiões | Tabela M49 da Divisão de Estatística da ONU | Os 195 batem com a subregião do M49. |
+| Capitais | Decreto-Lei 1/2026 da Guiné Equatorial; Corte Constitucional da Indonésia (maio de 2026) | A capital da Guiné Equatorial já estava certa. Jacarta continua capital até o decreto presidencial que transfere o posto para Nusantara, e a ficha agora diz isso. |
+| Idiomas | Federal Register (EUA), Journal Officiel do Mali, Senado francês (Níger), site da Presidência do Cazaquistão, agência oficial de Burkina Faso | Cinco notas corrigidas; ver [Idiomas](#idiomas). |
 
 `data/indicators.json` guarda os valores, a URL de origem, a data da coleta e o
 SHA-256 de cada resposta baixada:

@@ -33,7 +33,7 @@ npm run icons        # regera os ícones PWA (raro precisar)
 
 **Antes de qualquer coisa, leia `README.md` e `DATA_SOURCES.md`.** Os dois
 estão atualizados e documentam em detalhe: todo modo de jogo, a proveniência
-de cada fonte de dados (Natural Earth, flag-icons, PNUD, Banco Mundial), a
+de cada fonte de dados (Natural Earth, flag-icons, PNUD, Banco Mundial, FAO), a
 distinção região/subregião, as fronteiras terrestres, o esquema de
 conta/sincronização, a classificação das terras fora dos 195 e os fatos
 derivados. Este arquivo aqui é só o operacional — não repete o que já está
@@ -422,6 +422,32 @@ PR 1.
   feita. O teto do artefato desceu de 5,25 para 3,25 MiB.
 
 174 testes com Chrome real.
+
+**Conferência das fontes de dados** (mesmo dia, a pedido do usuário: "as mais
+recentes e as mais confiáveis"). Cada dado foi comparado com a edição mais nova
+de quem o produz; a tabela completa está em `DATA_SOURCES.md` § Conferência de
+28 de setembro de 2026. O que mudou:
+
+- **Área florestal passou do Banco Mundial para a FAO** (FAOSTAT, arquivo do
+  domínio Uso da terra, atualizado em 16/09/2026, ano 2024). O Banco Mundial
+  ainda servia a revisão anterior à FRA 2025, com 78 países diferindo em mais
+  de um ponto. `scripts/update-indicators.cjs` ganhou um leitor mínimo de ZIP e
+  CSV, só com o Node; Mônaco, Nauru e Vaticano ficam com nota (`faoNota`), não
+  com zero. A ficha credita a FAO.
+- **Idiomas**: notas de EUA (ordem executiva 14224), Burkina Faso (inglês
+  também é língua de trabalho), Mali (13 línguas nacionais), Níger (Carta da
+  Refundação) e Cazaquistão (Constituição de 2026), cada uma lida na fonte.
+- **Moedas**: Butão, Lesoto e Namíbia listam também rupia indiana e rand, como
+  a ISO 4217 de 17/09/2026.
+- **Capital da Indonésia**: nota sobre Nusantara, depois da decisão da Corte
+  Constitucional de maio de 2026.
+
+Sem mudança, por já estarem na última edição: IDH (Relatório 2025), população,
+expectativa de vida e urbanização (o Banco Mundial já usa a WPP 2024 e a WUP
+2025), densidade (2023 é o último ano publicado), Natural Earth v5.1.2,
+flag-icons 7.5.0 e as 195 subregiões do M49. A API do portal de dados da ONU
+passou a exigir login (401), por isso a conferência usou os arquivos de
+download da WUP.
 
 ### Armadilha de verificação no navegador
 

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "gerado": "2026-08-18",
+    "gerado": "2026-09-28",
     "idh": {
       "fonte": "PNUD — Relatório de Desenvolvimento Humano 2025",
       "url": "https://hdr.undp.org/sites/default/files/2025_HDR/HDR25_Composite_indices_complete_time_series.csv",
@@ -45,14 +45,23 @@
           "sha256": "d60e007fe93b8494e03a6acb95de821aec62b1676bcf93b937e5f02125d209c3",
           "cobertura": 194,
           "anoPredominante": 2025
-        },
+        }
+      }
+    },
+    "fao": {
+      "fonte": "FAO — FAOSTAT, Uso da terra",
+      "url": "https://bulks-faostat.fao.org/production/Inputs_LandUse_E_All_Data_(Normalized).zip",
+      "termos": "https://www.fao.org/contact-us/terms/db-terms-of-use/en",
+      "licenca": "CC BY 4.0",
+      "atualizado": "2026-09-16",
+      "sha256": "f6ccf002c3e83a32613d84f032e002b77ac80c8f871c454b12104815f36a9ad5",
+      "indicadores": {
         "flor": {
-          "codigo": "AG.LND.FRST.ZS",
+          "item": "6646",
+          "elemento": "7209",
           "rotulo": "área florestal",
-          "url": "https://api.worldbank.org/v2/country/all/indicator/AG.LND.FRST.ZS?format=json&per_page=400&mrv=1",
-          "sha256": "f34a5bd252beb77396b64dbc33ee7eac1948ae84347d17fe9b908b1712405b78",
-          "cobertura": 194,
-          "anoPredominante": 2023
+          "cobertura": 192,
+          "anoPredominante": 2024
         }
       }
     },
@@ -71,7 +80,7 @@
       "urb": 25.9,
       "urbAno": 2025,
       "flor": 1.9,
-      "florAno": 2023
+      "florAno": 2024
     },
     "ZA": {
       "hdi": 0.741,
@@ -84,8 +93,8 @@
       "densAno": 2023,
       "urb": 63.8,
       "urbAno": 2025,
-      "flor": 14,
-      "florAno": 2023
+      "flor": 18.8,
+      "florAno": 2024
     },
     "AL": {
       "hdi": 0.81,
@@ -98,8 +107,8 @@
       "densAno": 2023,
       "urb": 58.9,
       "urbAno": 2025,
-      "flor": 28.8,
-      "florAno": 2023
+      "flor": 34.3,
+      "florAno": 2024
     },
     "DE": {
       "hdi": 0.959,
@@ -112,8 +121,8 @@
       "densAno": 2023,
       "urb": 82.1,
       "urbAno": 2025,
-      "flor": 32.7,
-      "florAno": 2023
+      "flor": 32.8,
+      "florAno": 2024
     },
     "AD": {
       "hdi": 0.913,
@@ -126,8 +135,8 @@
       "densAno": 2023,
       "urb": 88.9,
       "urbAno": 2025,
-      "flor": 34,
-      "florAno": 2023
+      "flor": 38.9,
+      "florAno": 2024
     },
     "AO": {
       "hdi": 0.616,
@@ -140,8 +149,8 @@
       "densAno": 2023,
       "urb": 71.5,
       "urbAno": 2025,
-      "flor": 52.1,
-      "florAno": 2023
+      "flor": 51.1,
+      "florAno": 2024
     },
     "AG": {
       "hdi": 0.851,
@@ -154,8 +163,8 @@
       "densAno": 2023,
       "urb": 24.3,
       "urbAno": 2025,
-      "flor": 18,
-      "florAno": 2023
+      "flor": 17.8,
+      "florAno": 2024
     },
     "SA": {
       "hdi": 0.9,
@@ -168,8 +177,8 @@
       "densAno": 2023,
       "urb": 84.6,
       "urbAno": 2025,
-      "flor": 0.5,
-      "florAno": 2023
+      "flor": 1.3,
+      "florAno": 2024
     },
     "DZ": {
       "hdi": 0.763,
@@ -182,8 +191,8 @@
       "densAno": 2023,
       "urb": 75.8,
       "urbAno": 2025,
-      "flor": 0.8,
-      "florAno": 2023
+      "flor": 0.7,
+      "florAno": 2024
     },
     "AR": {
       "hdi": 0.865,
@@ -196,8 +205,8 @@
       "densAno": 2023,
       "urb": 92.4,
       "urbAno": 2025,
-      "flor": 10.3,
-      "florAno": 2023
+      "flor": 17.1,
+      "florAno": 2024
     },
     "AM": {
       "hdi": 0.811,
@@ -210,8 +219,8 @@
       "densAno": 2023,
       "urb": 65.9,
       "urbAno": 2025,
-      "flor": 11.6,
-      "florAno": 2023
+      "flor": 11.8,
+      "florAno": 2024
     },
     "AU": {
       "hdi": 0.958,
@@ -225,7 +234,7 @@
       "urb": 87.7,
       "urbAno": 2025,
       "flor": 17.4,
-      "florAno": 2023
+      "florAno": 2024
     },
     "AT": {
       "hdi": 0.93,
@@ -238,8 +247,8 @@
       "densAno": 2023,
       "urb": 69.7,
       "urbAno": 2025,
-      "flor": 47.2,
-      "florAno": 2023
+      "flor": 47.3,
+      "florAno": 2024
     },
     "AZ": {
       "hdi": 0.789,
@@ -252,8 +261,8 @@
       "densAno": 2023,
       "urb": 58.6,
       "urbAno": 2025,
-      "flor": 14.1,
-      "florAno": 2023
+      "flor": 14.6,
+      "florAno": 2024
     },
     "BS": {
       "hdi": 0.82,
@@ -267,7 +276,7 @@
       "urb": 81.3,
       "urbAno": 2025,
       "flor": 50.9,
-      "florAno": 2023
+      "florAno": 2024
     },
     "BH": {
       "hdi": 0.899,
@@ -280,8 +289,8 @@
       "densAno": 2023,
       "urb": 100,
       "urbAno": 2025,
-      "flor": 0.9,
-      "florAno": 2023
+      "flor": 4.9,
+      "florAno": 2024
     },
     "BD": {
       "hdi": 0.685,
@@ -294,8 +303,8 @@
       "densAno": 2023,
       "urb": 33.2,
       "urbAno": 2025,
-      "flor": 14.5,
-      "florAno": 2023
+      "flor": 14.4,
+      "florAno": 2024
     },
     "BB": {
       "hdi": 0.811,
@@ -308,8 +317,8 @@
       "densAno": 2023,
       "urb": 59.7,
       "urbAno": 2025,
-      "flor": 14.7,
-      "florAno": 2023
+      "flor": 14.6,
+      "florAno": 2024
     },
     "BE": {
       "hdi": 0.951,
@@ -322,8 +331,8 @@
       "densAno": 2023,
       "urb": 87.7,
       "urbAno": 2025,
-      "flor": 22.6,
-      "florAno": 2023
+      "flor": 22,
+      "florAno": 2024
     },
     "BZ": {
       "hdi": 0.721,
@@ -336,8 +345,8 @@
       "densAno": 2023,
       "urb": 41.6,
       "urbAno": 2025,
-      "flor": 54.5,
-      "florAno": 2023
+      "flor": 58,
+      "florAno": 2024
     },
     "BJ": {
       "hdi": 0.515,
@@ -350,8 +359,8 @@
       "densAno": 2023,
       "urb": 53.4,
       "urbAno": 2025,
-      "flor": 26.5,
-      "florAno": 2023
+      "flor": 28.1,
+      "florAno": 2024
     },
     "BY": {
       "hdi": 0.824,
@@ -364,8 +373,8 @@
       "densAno": 2023,
       "urb": 79.5,
       "urbAno": 2025,
-      "flor": 43.4,
-      "florAno": 2023
+      "flor": 44.1,
+      "florAno": 2024
     },
     "BO": {
       "hdi": 0.733,
@@ -378,8 +387,8 @@
       "densAno": 2023,
       "urb": 71.6,
       "urbAno": 2025,
-      "flor": 46.3,
-      "florAno": 2023
+      "flor": 50.2,
+      "florAno": 2024
     },
     "BA": {
       "hdi": 0.804,
@@ -392,8 +401,8 @@
       "densAno": 2023,
       "urb": 52.7,
       "urbAno": 2025,
-      "flor": 42.7,
-      "florAno": 2023
+      "flor": 42.2,
+      "florAno": 2024
     },
     "BW": {
       "hdi": 0.731,
@@ -406,8 +415,8 @@
       "densAno": 2023,
       "urb": 68,
       "urbAno": 2025,
-      "flor": 26.3,
-      "florAno": 2023
+      "flor": 27.8,
+      "florAno": 2024
     },
     "BR": {
       "hdi": 0.786,
@@ -420,8 +429,8 @@
       "densAno": 2023,
       "urb": 88.2,
       "urbAno": 2025,
-      "flor": 59,
-      "florAno": 2023
+      "flor": 58.5,
+      "florAno": 2024
     },
     "BN": {
       "hdi": 0.837,
@@ -435,7 +444,7 @@
       "urb": 75,
       "urbAno": 2025,
       "flor": 72.1,
-      "florAno": 2023
+      "florAno": 2024
     },
     "BG": {
       "hdi": 0.845,
@@ -448,8 +457,8 @@
       "densAno": 2023,
       "urb": 74.2,
       "urbAno": 2025,
-      "flor": 36.2,
-      "florAno": 2023
+      "flor": 36.4,
+      "florAno": 2024
     },
     "BF": {
       "hdi": 0.459,
@@ -462,8 +471,8 @@
       "densAno": 2023,
       "urb": 28.9,
       "urbAno": 2025,
-      "flor": 22.2,
-      "florAno": 2023
+      "flor": 12.3,
+      "florAno": 2024
     },
     "BI": {
       "hdi": 0.439,
@@ -477,7 +486,7 @@
       "urb": 25.7,
       "urbAno": 2025,
       "flor": 10.9,
-      "florAno": 2023
+      "florAno": 2024
     },
     "BT": {
       "hdi": 0.698,
@@ -490,8 +499,8 @@
       "densAno": 2023,
       "urb": 43.4,
       "urbAno": 2025,
-      "flor": 71.6,
-      "florAno": 2023
+      "flor": 70.3,
+      "florAno": 2024
     },
     "CV": {
       "hdi": 0.668,
@@ -504,8 +513,8 @@
       "densAno": 2023,
       "urb": 77.6,
       "urbAno": 2025,
-      "flor": 11.6,
-      "florAno": 2023
+      "flor": 12.5,
+      "florAno": 2024
     },
     "CM": {
       "hdi": 0.588,
@@ -518,8 +527,8 @@
       "densAno": 2023,
       "urb": 55.7,
       "urbAno": 2025,
-      "flor": 42.7,
-      "florAno": 2023
+      "flor": 40.7,
+      "florAno": 2024
     },
     "KH": {
       "hdi": 0.606,
@@ -532,8 +541,8 @@
       "densAno": 2023,
       "urb": 41.1,
       "urbAno": 2025,
-      "flor": 43.1,
-      "florAno": 2023
+      "flor": 37.6,
+      "florAno": 2024
     },
     "CA": {
       "hdi": 0.939,
@@ -546,8 +555,8 @@
       "densAno": 2023,
       "urb": 82.9,
       "urbAno": 2025,
-      "flor": 39.5,
-      "florAno": 2023
+      "flor": 42,
+      "florAno": 2024
     },
     "QA": {
       "hdi": 0.886,
@@ -560,8 +569,8 @@
       "densAno": 2023,
       "urb": 99.4,
       "urbAno": 2025,
-      "flor": 0,
-      "florAno": 2023
+      "flor": 0.1,
+      "florAno": 2024
     },
     "KZ": {
       "hdi": 0.837,
@@ -575,7 +584,7 @@
       "urb": 62.4,
       "urbAno": 2025,
       "flor": 1.3,
-      "florAno": 2023
+      "florAno": 2024
     },
     "TD": {
       "hdi": 0.416,
@@ -588,8 +597,8 @@
       "densAno": 2023,
       "urb": 27.6,
       "urbAno": 2025,
-      "flor": 3.2,
-      "florAno": 2023
+      "flor": 3,
+      "florAno": 2024
     },
     "CL": {
       "hdi": 0.878,
@@ -602,8 +611,8 @@
       "densAno": 2023,
       "urb": 89.2,
       "urbAno": 2025,
-      "flor": 25,
-      "florAno": 2023
+      "flor": 24.5,
+      "florAno": 2024
     },
     "CN": {
       "hdi": 0.797,
@@ -617,7 +626,7 @@
       "urb": 66.3,
       "urbAno": 2025,
       "flor": 24,
-      "florAno": 2023
+      "florAno": 2024
     },
     "CY": {
       "hdi": 0.913,
@@ -630,8 +639,8 @@
       "densAno": 2023,
       "urb": 66.7,
       "urbAno": 2025,
-      "flor": 18.7,
-      "florAno": 2023
+      "flor": 18.6,
+      "florAno": 2024
     },
     "CO": {
       "hdi": 0.788,
@@ -644,8 +653,8 @@
       "densAno": 2023,
       "urb": 78.8,
       "urbAno": 2025,
-      "flor": 52.8,
-      "florAno": 2023
+      "flor": 53.7,
+      "florAno": 2024
     },
     "KM": {
       "hdi": 0.603,
@@ -658,8 +667,8 @@
       "densAno": 2023,
       "urb": 33.9,
       "urbAno": 2025,
-      "flor": 17,
-      "florAno": 2023
+      "flor": 17.8,
+      "florAno": 2024
     },
     "KP": {
       "hdiNota": "A Coreia do Norte não fornece os dados que o PNUD usa para calcular o índice.",
@@ -671,8 +680,8 @@
       "densAno": 2023,
       "urb": 64.2,
       "urbAno": 2025,
-      "flor": 49.6,
-      "florAno": 2023
+      "flor": 64.1,
+      "florAno": 2024
     },
     "KR": {
       "hdi": 0.937,
@@ -685,8 +694,8 @@
       "densAno": 2023,
       "urb": 81.2,
       "urbAno": 2025,
-      "flor": 64.1,
-      "florAno": 2023
+      "flor": 64.4,
+      "florAno": 2024
     },
     "CI": {
       "hdi": 0.582,
@@ -699,8 +708,8 @@
       "densAno": 2023,
       "urb": 54.5,
       "urbAno": 2025,
-      "flor": 7.9,
-      "florAno": 2023
+      "flor": 12.1,
+      "florAno": 2024
     },
     "CR": {
       "hdi": 0.833,
@@ -713,8 +722,8 @@
       "densAno": 2023,
       "urb": 79.7,
       "urbAno": 2025,
-      "flor": 60.4,
-      "florAno": 2023
+      "flor": 59.1,
+      "florAno": 2024
     },
     "HR": {
       "hdi": 0.889,
@@ -728,7 +737,7 @@
       "urb": 57.8,
       "urbAno": 2025,
       "flor": 34.8,
-      "florAno": 2023
+      "florAno": 2024
     },
     "CU": {
       "hdi": 0.762,
@@ -741,8 +750,8 @@
       "densAno": 2023,
       "urb": 77.2,
       "urbAno": 2025,
-      "flor": 31.2,
-      "florAno": 2023
+      "flor": 34.9,
+      "florAno": 2024
     },
     "DK": {
       "hdi": 0.962,
@@ -755,8 +764,8 @@
       "densAno": 2023,
       "urb": 88.8,
       "urbAno": 2025,
-      "flor": 15.8,
-      "florAno": 2023
+      "flor": 16,
+      "florAno": 2024
     },
     "DJ": {
       "hdi": 0.513,
@@ -770,7 +779,7 @@
       "urb": 73,
       "urbAno": 2025,
       "flor": 0.3,
-      "florAno": 2023
+      "florAno": 2024
     },
     "DM": {
       "hdi": 0.761,
@@ -783,8 +792,8 @@
       "densAno": 2023,
       "urb": 74,
       "urbAno": 2025,
-      "flor": 63.8,
-      "florAno": 2023
+      "flor": 76.4,
+      "florAno": 2024
     },
     "EG": {
       "hdi": 0.754,
@@ -798,7 +807,7 @@
       "urb": 42.9,
       "urbAno": 2025,
       "flor": 0,
-      "florAno": 2023
+      "florAno": 2024
     },
     "SV": {
       "hdi": 0.678,
@@ -811,8 +820,8 @@
       "densAno": 2023,
       "urb": 75.5,
       "urbAno": 2025,
-      "flor": 27.5,
-      "florAno": 2023
+      "flor": 33,
+      "florAno": 2024
     },
     "AE": {
       "hdi": 0.94,
@@ -825,8 +834,8 @@
       "densAno": 2023,
       "urb": 86,
       "urbAno": 2025,
-      "flor": 4.5,
-      "florAno": 2023
+      "flor": 4.6,
+      "florAno": 2024
     },
     "EC": {
       "hdi": 0.777,
@@ -839,8 +848,8 @@
       "densAno": 2023,
       "urb": 63.4,
       "urbAno": 2025,
-      "flor": 49.5,
-      "florAno": 2023
+      "flor": 49.7,
+      "florAno": 2024
     },
     "ER": {
       "hdi": 0.503,
@@ -853,8 +862,8 @@
       "densAno": 2023,
       "urb": 34.5,
       "urbAno": 2025,
-      "flor": 8.6,
-      "florAno": 2023
+      "flor": 12,
+      "florAno": 2024
     },
     "SK": {
       "hdi": 0.88,
@@ -867,8 +876,8 @@
       "densAno": 2023,
       "urb": 53.2,
       "urbAno": 2025,
-      "flor": 40.1,
-      "florAno": 2023
+      "flor": 40.3,
+      "florAno": 2024
     },
     "SI": {
       "hdi": 0.931,
@@ -881,8 +890,8 @@
       "densAno": 2023,
       "urb": 56,
       "urbAno": 2025,
-      "flor": 61.2,
-      "florAno": 2023
+      "flor": 61.8,
+      "florAno": 2024
     },
     "ES": {
       "hdi": 0.918,
@@ -895,8 +904,8 @@
       "densAno": 2023,
       "urb": 80.5,
       "urbAno": 2025,
-      "flor": 37.2,
-      "florAno": 2023
+      "flor": 38.2,
+      "florAno": 2024
     },
     "SZ": {
       "hdi": 0.695,
@@ -909,8 +918,8 @@
       "densAno": 2023,
       "urb": 26.7,
       "urbAno": 2025,
-      "flor": 29.1,
-      "florAno": 2023
+      "flor": 25.3,
+      "florAno": 2024
     },
     "US": {
       "hdi": 0.938,
@@ -923,8 +932,8 @@
       "densAno": 2023,
       "urb": 80.2,
       "urbAno": 2025,
-      "flor": 33.9,
-      "florAno": 2023
+      "flor": 33.8,
+      "florAno": 2024
     },
     "EE": {
       "hdi": 0.905,
@@ -937,8 +946,8 @@
       "densAno": 2023,
       "urb": 70.7,
       "urbAno": 2025,
-      "flor": 57.1,
-      "florAno": 2023
+      "flor": 57.3,
+      "florAno": 2024
     },
     "ET": {
       "hdi": 0.497,
@@ -951,8 +960,8 @@
       "densAno": 2023,
       "urb": 24.1,
       "urbAno": 2025,
-      "flor": 14.9,
-      "florAno": 2023
+      "flor": 23.8,
+      "florAno": 2024
     },
     "FJ": {
       "hdi": 0.731,
@@ -965,8 +974,8 @@
       "densAno": 2023,
       "urb": 59.5,
       "urbAno": 2025,
-      "flor": 63.5,
-      "florAno": 2023
+      "flor": 61.7,
+      "florAno": 2024
     },
     "PH": {
       "hdi": 0.72,
@@ -979,8 +988,8 @@
       "densAno": 2023,
       "urb": 55.8,
       "urbAno": 2025,
-      "flor": 24.5,
-      "florAno": 2023
+      "flor": 24.8,
+      "florAno": 2024
     },
     "FI": {
       "hdi": 0.948,
@@ -993,8 +1002,8 @@
       "densAno": 2023,
       "urb": 74.5,
       "urbAno": 2025,
-      "flor": 73.7,
-      "florAno": 2023
+      "flor": 74.2,
+      "florAno": 2024
     },
     "FR": {
       "hdi": 0.92,
@@ -1007,8 +1016,8 @@
       "densAno": 2023,
       "urb": 78.8,
       "urbAno": 2025,
-      "flor": 32.5,
-      "florAno": 2023
+      "flor": 32.9,
+      "florAno": 2024
     },
     "GA": {
       "hdi": 0.733,
@@ -1021,8 +1030,8 @@
       "densAno": 2023,
       "urb": 92.1,
       "urbAno": 2025,
-      "flor": 91.2,
-      "florAno": 2023
+      "flor": 91.4,
+      "florAno": 2024
     },
     "GM": {
       "hdi": 0.524,
@@ -1035,8 +1044,8 @@
       "densAno": 2023,
       "urb": 65,
       "urbAno": 2025,
-      "flor": 22.3,
-      "florAno": 2023
+      "flor": 21.3,
+      "florAno": 2024
     },
     "GH": {
       "hdi": 0.628,
@@ -1049,8 +1058,8 @@
       "densAno": 2023,
       "urb": 58.9,
       "urbAno": 2025,
-      "flor": 35.2,
-      "florAno": 2023
+      "flor": 30.9,
+      "florAno": 2024
     },
     "GE": {
       "hdi": 0.844,
@@ -1063,8 +1072,8 @@
       "densAno": 2023,
       "urb": 61.2,
       "urbAno": 2025,
-      "flor": 40.6,
-      "florAno": 2023
+      "flor": 44.6,
+      "florAno": 2024
     },
     "GD": {
       "hdi": 0.791,
@@ -1077,8 +1086,8 @@
       "densAno": 2023,
       "urb": 36.7,
       "urbAno": 2025,
-      "flor": 52.1,
-      "florAno": 2023
+      "flor": 51.5,
+      "florAno": 2024
     },
     "GR": {
       "hdi": 0.908,
@@ -1091,8 +1100,8 @@
       "densAno": 2023,
       "urb": 79.2,
       "urbAno": 2025,
-      "flor": 30.3,
-      "florAno": 2023
+      "flor": 37,
+      "florAno": 2024
     },
     "GT": {
       "hdi": 0.662,
@@ -1105,8 +1114,8 @@
       "densAno": 2023,
       "urb": 56.3,
       "urbAno": 2025,
-      "flor": 32.6,
-      "florAno": 2023
+      "flor": 33.1,
+      "florAno": 2024
     },
     "GY": {
       "hdi": 0.776,
@@ -1120,7 +1129,7 @@
       "urb": 26.5,
       "urbAno": 2025,
       "flor": 87.1,
-      "florAno": 2023
+      "florAno": 2024
     },
     "GN": {
       "hdi": 0.5,
@@ -1133,8 +1142,8 @@
       "densAno": 2023,
       "urb": 38.5,
       "urbAno": 2025,
-      "flor": 24.7,
-      "florAno": 2023
+      "flor": 20,
+      "florAno": 2024
     },
     "GQ": {
       "hdi": 0.674,
@@ -1147,8 +1156,8 @@
       "densAno": 2023,
       "urb": 71.6,
       "urbAno": 2025,
-      "flor": 86.4,
-      "florAno": 2023
+      "flor": 86.1,
+      "florAno": 2024
     },
     "GW": {
       "hdi": 0.514,
@@ -1161,8 +1170,8 @@
       "densAno": 2023,
       "urb": 46.7,
       "urbAno": 2025,
-      "flor": 69.5,
-      "florAno": 2023
+      "flor": 74.8,
+      "florAno": 2024
     },
     "HT": {
       "hdi": 0.554,
@@ -1175,8 +1184,8 @@
       "densAno": 2023,
       "urb": 55.6,
       "urbAno": 2025,
-      "flor": 12.3,
-      "florAno": 2023
+      "flor": 13.4,
+      "florAno": 2024
     },
     "HN": {
       "hdi": 0.645,
@@ -1189,8 +1198,8 @@
       "densAno": 2023,
       "urb": 59.3,
       "urbAno": 2025,
-      "flor": 56.3,
-      "florAno": 2023
+      "flor": 52.8,
+      "florAno": 2024
     },
     "HU": {
       "hdi": 0.87,
@@ -1203,8 +1212,8 @@
       "densAno": 2023,
       "urb": 70.7,
       "urbAno": 2025,
-      "flor": 22.4,
-      "florAno": 2023
+      "flor": 22.8,
+      "florAno": 2024
     },
     "YE": {
       "hdi": 0.47,
@@ -1218,7 +1227,7 @@
       "urb": 37,
       "urbAno": 2025,
       "flor": 1,
-      "florAno": 2023
+      "florAno": 2024
     },
     "MH": {
       "hdi": 0.733,
@@ -1231,8 +1240,8 @@
       "densAno": 2023,
       "urb": 79.1,
       "urbAno": 2025,
-      "flor": 52.2,
-      "florAno": 2023
+      "flor": 53.6,
+      "florAno": 2024
     },
     "SB": {
       "hdi": 0.584,
@@ -1245,8 +1254,8 @@
       "densAno": 2023,
       "urb": 31.3,
       "urbAno": 2025,
-      "flor": 90.1,
-      "florAno": 2023
+      "flor": 89.8,
+      "florAno": 2024
     },
     "IN": {
       "hdi": 0.685,
@@ -1259,8 +1268,8 @@
       "densAno": 2023,
       "urb": 35.7,
       "urbAno": 2025,
-      "flor": 24.5,
-      "florAno": 2023
+      "flor": 24.4,
+      "florAno": 2024
     },
     "ID": {
       "hdi": 0.728,
@@ -1273,8 +1282,8 @@
       "densAno": 2023,
       "urb": 59.4,
       "urbAno": 2025,
-      "flor": 47.7,
-      "florAno": 2023
+      "flor": 50.7,
+      "florAno": 2024
     },
     "IR": {
       "hdi": 0.799,
@@ -1288,7 +1297,7 @@
       "urb": 77.4,
       "urbAno": 2025,
       "flor": 6.6,
-      "florAno": 2023
+      "florAno": 2024
     },
     "IQ": {
       "hdi": 0.695,
@@ -1301,8 +1310,8 @@
       "densAno": 2023,
       "urb": 69.9,
       "urbAno": 2025,
-      "flor": 1.9,
-      "florAno": 2023
+      "flor": 1.6,
+      "florAno": 2024
     },
     "IE": {
       "hdi": 0.949,
@@ -1315,8 +1324,8 @@
       "densAno": 2023,
       "urb": 64.6,
       "urbAno": 2025,
-      "flor": 11.5,
-      "florAno": 2023
+      "flor": 12,
+      "florAno": 2024
     },
     "IS": {
       "hdi": 0.972,
@@ -1329,8 +1338,8 @@
       "densAno": 2023,
       "urb": 94.2,
       "urbAno": 2025,
-      "flor": 0.5,
-      "florAno": 2023
+      "flor": 0.6,
+      "florAno": 2024
     },
     "IL": {
       "hdi": 0.919,
@@ -1343,8 +1352,8 @@
       "densAno": 2023,
       "urb": 91.6,
       "urbAno": 2025,
-      "flor": 6.5,
-      "florAno": 2023
+      "flor": 6.8,
+      "florAno": 2024
     },
     "IT": {
       "hdi": 0.915,
@@ -1357,8 +1366,8 @@
       "densAno": 2023,
       "urb": 69.7,
       "urbAno": 2025,
-      "flor": 32.9,
-      "florAno": 2023
+      "flor": 31.8,
+      "florAno": 2024
     },
     "JM": {
       "hdi": 0.72,
@@ -1371,8 +1380,8 @@
       "densAno": 2023,
       "urb": 59.4,
       "urbAno": 2025,
-      "flor": 56.2,
-      "florAno": 2023
+      "flor": 56.5,
+      "florAno": 2024
     },
     "JP": {
       "hdi": 0.925,
@@ -1385,8 +1394,8 @@
       "densAno": 2023,
       "urb": 92.3,
       "urbAno": 2025,
-      "flor": 68.4,
-      "florAno": 2023
+      "flor": 68.3,
+      "florAno": 2024
     },
     "JO": {
       "hdi": 0.754,
@@ -1399,8 +1408,8 @@
       "densAno": 2023,
       "urb": 93.2,
       "urbAno": 2025,
-      "flor": 1.1,
-      "florAno": 2023
+      "flor": 0.8,
+      "florAno": 2024
     },
     "KI": {
       "hdi": 0.644,
@@ -1413,8 +1422,8 @@
       "densAno": 2023,
       "urb": 63.4,
       "urbAno": 2025,
-      "flor": 1.5,
-      "florAno": 2023
+      "flor": 1.3,
+      "florAno": 2024
     },
     "KW": {
       "hdi": 0.852,
@@ -1427,8 +1436,8 @@
       "densAno": 2023,
       "urb": 100,
       "urbAno": 2025,
-      "flor": 0.4,
-      "florAno": 2023
+      "flor": 0.3,
+      "florAno": 2024
     },
     "LA": {
       "hdi": 0.617,
@@ -1441,8 +1450,8 @@
       "densAno": 2023,
       "urb": 40.3,
       "urbAno": 2025,
-      "flor": 71.5,
-      "florAno": 2023
+      "flor": 56.6,
+      "florAno": 2024
     },
     "LS": {
       "hdi": 0.55,
@@ -1456,7 +1465,7 @@
       "urb": 44.7,
       "urbAno": 2025,
       "flor": 1.1,
-      "florAno": 2023
+      "florAno": 2024
     },
     "LV": {
       "hdi": 0.889,
@@ -1469,8 +1478,8 @@
       "densAno": 2023,
       "urb": 68.6,
       "urbAno": 2025,
-      "flor": 55,
-      "florAno": 2023
+      "flor": 55.6,
+      "florAno": 2024
     },
     "LB": {
       "hdi": 0.752,
@@ -1483,8 +1492,8 @@
       "densAno": 2023,
       "urb": 91,
       "urbAno": 2025,
-      "flor": 14.2,
-      "florAno": 2023
+      "flor": 13.8,
+      "florAno": 2024
     },
     "LR": {
       "hdi": 0.51,
@@ -1497,8 +1506,8 @@
       "densAno": 2023,
       "urb": 56.1,
       "urbAno": 2025,
-      "flor": 78.1,
-      "florAno": 2023
+      "flor": 66.1,
+      "florAno": 2024
     },
     "LY": {
       "hdi": 0.721,
@@ -1512,7 +1521,7 @@
       "urb": 87.9,
       "urbAno": 2025,
       "flor": 0.1,
-      "florAno": 2023
+      "florAno": 2024
     },
     "LI": {
       "hdi": 0.938,
@@ -1525,8 +1534,8 @@
       "densAno": 2023,
       "urb": 14.6,
       "urbAno": 2025,
-      "flor": 41.9,
-      "florAno": 2023
+      "flor": 36.8,
+      "florAno": 2024
     },
     "LT": {
       "hdi": 0.895,
@@ -1539,8 +1548,8 @@
       "densAno": 2023,
       "urb": 69.1,
       "urbAno": 2025,
-      "flor": 35.2,
-      "florAno": 2023
+      "flor": 35.4,
+      "florAno": 2024
     },
     "LU": {
       "hdi": 0.922,
@@ -1554,7 +1563,7 @@
       "urb": 94.9,
       "urbAno": 2025,
       "flor": 34.5,
-      "florAno": 2023
+      "florAno": 2024
     },
     "MK": {
       "hdi": 0.815,
@@ -1567,8 +1576,8 @@
       "densAno": 2023,
       "urb": 62.9,
       "urbAno": 2025,
-      "flor": 39.7,
-      "florAno": 2023
+      "flor": 40.8,
+      "florAno": 2024
     },
     "MG": {
       "hdi": 0.487,
@@ -1581,8 +1590,8 @@
       "densAno": 2023,
       "urb": 32.9,
       "urbAno": 2025,
-      "flor": 21.3,
-      "florAno": 2023
+      "flor": 17.3,
+      "florAno": 2024
     },
     "MY": {
       "hdi": 0.819,
@@ -1596,7 +1605,7 @@
       "urb": 77.4,
       "urbAno": 2025,
       "flor": 57.7,
-      "florAno": 2023
+      "florAno": 2024
     },
     "MW": {
       "hdi": 0.517,
@@ -1609,8 +1618,8 @@
       "densAno": 2023,
       "urb": 17.6,
       "urbAno": 2025,
-      "flor": 22.4,
-      "florAno": 2023
+      "flor": 22,
+      "florAno": 2024
     },
     "MV": {
       "hdi": 0.766,
@@ -1623,8 +1632,8 @@
       "densAno": 2023,
       "urb": 42.5,
       "urbAno": 2025,
-      "flor": 2.8,
-      "florAno": 2023
+      "flor": 12.5,
+      "florAno": 2024
     },
     "ML": {
       "hdi": 0.419,
@@ -1637,8 +1646,8 @@
       "densAno": 2023,
       "urb": 32.2,
       "urbAno": 2025,
-      "flor": 10.9,
-      "florAno": 2023
+      "flor": 8.7,
+      "florAno": 2024
     },
     "MT": {
       "hdi": 0.924,
@@ -1651,8 +1660,8 @@
       "densAno": 2023,
       "urb": 95.7,
       "urbAno": 2025,
-      "flor": 1.4,
-      "florAno": 2023
+      "flor": 1.5,
+      "florAno": 2024
     },
     "MA": {
       "hdi": 0.71,
@@ -1665,8 +1674,8 @@
       "densAno": 2023,
       "urb": 63.1,
       "urbAno": 2025,
-      "flor": 12.9,
-      "florAno": 2023
+      "flor": 12.8,
+      "florAno": 2024
     },
     "MU": {
       "hdi": 0.806,
@@ -1679,8 +1688,8 @@
       "densAno": 2023,
       "urb": 39,
       "urbAno": 2025,
-      "flor": 19.5,
-      "florAno": 2023
+      "flor": 19.1,
+      "florAno": 2024
     },
     "MR": {
       "hdi": 0.563,
@@ -1693,8 +1702,8 @@
       "densAno": 2023,
       "urb": 61.5,
       "urbAno": 2025,
-      "flor": 0.3,
-      "florAno": 2023
+      "flor": 1,
+      "florAno": 2024
     },
     "MX": {
       "hdi": 0.789,
@@ -1707,8 +1716,8 @@
       "densAno": 2023,
       "urb": 80,
       "urbAno": 2025,
-      "flor": 33.6,
-      "florAno": 2023
+      "flor": 34.1,
+      "florAno": 2024
     },
     "FM": {
       "hdi": 0.615,
@@ -1721,8 +1730,8 @@
       "densAno": 2023,
       "urb": 22.5,
       "urbAno": 2025,
-      "flor": 92.2,
-      "florAno": 2023
+      "flor": 92.1,
+      "florAno": 2024
     },
     "MZ": {
       "hdi": 0.493,
@@ -1735,8 +1744,8 @@
       "densAno": 2023,
       "urb": 37.2,
       "urbAno": 2025,
-      "flor": 45.8,
-      "florAno": 2023
+      "flor": 41.3,
+      "florAno": 2024
     },
     "MD": {
       "hdi": 0.785,
@@ -1749,8 +1758,8 @@
       "densAno": 2023,
       "urb": 43.7,
       "urbAno": 2025,
-      "flor": 11.7,
-      "florAno": 2023
+      "flor": 11.3,
+      "florAno": 2024
     },
     "MC": {
       "hdiNota": "Mônaco não integra o levantamento do PNUD.",
@@ -1762,8 +1771,7 @@
       "densAno": 2023,
       "urb": 100,
       "urbAno": 2025,
-      "flor": 0,
-      "florAno": 2023
+      "faoNota": "A FAO não publica área florestal para Mônaco."
     },
     "MN": {
       "hdi": 0.747,
@@ -1777,7 +1785,7 @@
       "urb": 71.1,
       "urbAno": 2025,
       "flor": 9.1,
-      "florAno": 2023
+      "florAno": 2024
     },
     "ME": {
       "hdi": 0.862,
@@ -1791,7 +1799,7 @@
       "urb": 65.6,
       "urbAno": 2025,
       "flor": 61.5,
-      "florAno": 2023
+      "florAno": 2024
     },
     "MM": {
       "hdi": 0.609,
@@ -1804,8 +1812,8 @@
       "densAno": 2023,
       "urb": 30.6,
       "urbAno": 2025,
-      "flor": 42.4,
-      "florAno": 2023
+      "flor": 42,
+      "florAno": 2024
     },
     "NA": {
       "hdi": 0.665,
@@ -1818,8 +1826,8 @@
       "densAno": 2023,
       "urb": 50.9,
       "urbAno": 2025,
-      "flor": 7.8,
-      "florAno": 2023
+      "flor": 9.8,
+      "florAno": 2024
     },
     "NR": {
       "hdi": 0.703,
@@ -1832,8 +1840,7 @@
       "densAno": 2023,
       "urb": 100,
       "urbAno": 2025,
-      "flor": 0,
-      "florAno": 2023
+      "faoNota": "A FAO não publica área florestal para Nauru."
     },
     "NP": {
       "hdi": 0.622,
@@ -1846,8 +1853,8 @@
       "densAno": 2023,
       "urb": 67,
       "urbAno": 2025,
-      "flor": 41.6,
-      "florAno": 2023
+      "flor": 43.6,
+      "florAno": 2024
     },
     "NI": {
       "hdi": 0.706,
@@ -1860,8 +1867,8 @@
       "densAno": 2023,
       "urb": 59.4,
       "urbAno": 2025,
-      "flor": 25.8,
-      "florAno": 2023
+      "flor": 40.3,
+      "florAno": 2022
     },
     "NE": {
       "hdi": 0.419,
@@ -1875,7 +1882,7 @@
       "urb": 18.4,
       "urbAno": 2025,
       "flor": 0.8,
-      "florAno": 2023
+      "florAno": 2024
     },
     "NG": {
       "hdi": 0.56,
@@ -1888,8 +1895,8 @@
       "densAno": 2023,
       "urb": 63.8,
       "urbAno": 2025,
-      "flor": 23.2,
-      "florAno": 2023
+      "flor": 18.9,
+      "florAno": 2024
     },
     "NO": {
       "hdi": 0.97,
@@ -1902,8 +1909,8 @@
       "densAno": 2023,
       "urb": 83.6,
       "urbAno": 2025,
-      "flor": 33.5,
-      "florAno": 2023
+      "flor": 33.3,
+      "florAno": 2024
     },
     "NZ": {
       "hdi": 0.938,
@@ -1916,8 +1923,8 @@
       "densAno": 2023,
       "urb": 84,
       "urbAno": 2025,
-      "flor": 37.8,
-      "florAno": 2023
+      "flor": 38.9,
+      "florAno": 2024
     },
     "OM": {
       "hdi": 0.858,
@@ -1931,7 +1938,7 @@
       "urb": 79.5,
       "urbAno": 2025,
       "flor": 0,
-      "florAno": 2023
+      "florAno": 2024
     },
     "NL": {
       "hdi": 0.955,
@@ -1944,8 +1951,8 @@
       "densAno": 2023,
       "urb": 95.9,
       "urbAno": 2025,
-      "flor": 11.1,
-      "florAno": 2023
+      "flor": 11,
+      "florAno": 2024
     },
     "PW": {
       "hdi": 0.786,
@@ -1958,8 +1965,8 @@
       "densAno": 2023,
       "urb": 79.3,
       "urbAno": 2025,
-      "flor": 90.5,
-      "florAno": 2023
+      "flor": 90.8,
+      "florAno": 2024
     },
     "PS": {
       "hdi": 0.733,
@@ -1972,8 +1979,8 @@
       "densAno": 2023,
       "urb": 87.4,
       "urbAno": 2025,
-      "flor": 1.7,
-      "florAno": 2023
+      "flor": 1.8,
+      "florAno": 2024
     },
     "PA": {
       "hdi": 0.839,
@@ -1986,8 +1993,8 @@
       "densAno": 2023,
       "urb": 66.2,
       "urbAno": 2025,
-      "flor": 56.3,
-      "florAno": 2023
+      "flor": 62.3,
+      "florAno": 2024
     },
     "PG": {
       "hdi": 0.576,
@@ -2000,8 +2007,8 @@
       "densAno": 2023,
       "urb": 15.8,
       "urbAno": 2025,
-      "flor": 79,
-      "florAno": 2023
+      "flor": 75.2,
+      "florAno": 2024
     },
     "PK": {
       "hdi": 0.544,
@@ -2014,8 +2021,8 @@
       "densAno": 2023,
       "urb": 39.5,
       "urbAno": 2025,
-      "flor": 4.7,
-      "florAno": 2023
+      "flor": 4.1,
+      "florAno": 2024
     },
     "PY": {
       "hdi": 0.756,
@@ -2028,8 +2035,8 @@
       "densAno": 2023,
       "urb": 70.4,
       "urbAno": 2025,
-      "flor": 38.5,
-      "florAno": 2023
+      "flor": 36.5,
+      "florAno": 2024
     },
     "PE": {
       "hdi": 0.794,
@@ -2042,8 +2049,8 @@
       "densAno": 2023,
       "urb": 85.6,
       "urbAno": 2025,
-      "flor": 56.1,
-      "florAno": 2023
+      "flor": 52.7,
+      "florAno": 2024
     },
     "PL": {
       "hdi": 0.906,
@@ -2056,8 +2063,8 @@
       "densAno": 2023,
       "urb": 60.1,
       "urbAno": 2025,
-      "flor": 31.1,
-      "florAno": 2023
+      "flor": 31,
+      "florAno": 2024
     },
     "PT": {
       "hdi": 0.89,
@@ -2070,8 +2077,8 @@
       "densAno": 2023,
       "urb": 61.5,
       "urbAno": 2025,
-      "flor": 36.2,
-      "florAno": 2023
+      "flor": 36.6,
+      "florAno": 2024
     },
     "KE": {
       "hdi": 0.628,
@@ -2084,8 +2091,8 @@
       "densAno": 2023,
       "urb": 32.2,
       "urbAno": 2025,
-      "flor": 6.2,
-      "florAno": 2023
+      "flor": 6.6,
+      "florAno": 2024
     },
     "KG": {
       "hdi": 0.72,
@@ -2098,8 +2105,8 @@
       "densAno": 2023,
       "urb": 34.7,
       "urbAno": 2025,
-      "flor": 7.1,
-      "florAno": 2023
+      "flor": 6.5,
+      "florAno": 2024
     },
     "GB": {
       "hdi": 0.946,
@@ -2112,8 +2119,8 @@
       "densAno": 2023,
       "urb": 83.3,
       "urbAno": 2025,
-      "flor": 13.3,
-      "florAno": 2023
+      "flor": 13.5,
+      "florAno": 2024
     },
     "CF": {
       "hdi": 0.414,
@@ -2126,8 +2133,8 @@
       "densAno": 2023,
       "urb": 44.6,
       "urbAno": 2025,
-      "flor": 35.7,
-      "florAno": 2023
+      "flor": 72.5,
+      "florAno": 2024
     },
     "CD": {
       "hdi": 0.522,
@@ -2140,8 +2147,8 @@
       "densAno": 2023,
       "urb": 45.1,
       "urbAno": 2025,
-      "flor": 54.2,
-      "florAno": 2023
+      "flor": 61.5,
+      "florAno": 2024
     },
     "CG": {
       "hdi": 0.649,
@@ -2154,8 +2161,8 @@
       "densAno": 2023,
       "urb": 64.1,
       "urbAno": 2025,
-      "flor": 64.1,
-      "florAno": 2023
+      "flor": 64,
+      "florAno": 2024
     },
     "DO": {
       "hdi": 0.776,
@@ -2168,8 +2175,8 @@
       "densAno": 2023,
       "urb": 72.5,
       "urbAno": 2025,
-      "flor": 45,
-      "florAno": 2023
+      "flor": 46.7,
+      "florAno": 2024
     },
     "RO": {
       "hdi": 0.845,
@@ -2182,8 +2189,8 @@
       "densAno": 2023,
       "urb": 52.2,
       "urbAno": 2025,
-      "flor": 30.1,
-      "florAno": 2023
+      "flor": 30.2,
+      "florAno": 2024
     },
     "RW": {
       "hdi": 0.578,
@@ -2196,8 +2203,8 @@
       "densAno": 2023,
       "urb": 30.9,
       "urbAno": 2025,
-      "flor": 11.3,
-      "florAno": 2023
+      "flor": 26.1,
+      "florAno": 2024
     },
     "RU": {
       "hdi": 0.832,
@@ -2210,8 +2217,8 @@
       "densAno": 2023,
       "urb": 75.3,
       "urbAno": 2025,
-      "flor": 49.8,
-      "florAno": 2023
+      "flor": 50.8,
+      "florAno": 2024
     },
     "WS": {
       "hdi": 0.708,
@@ -2225,7 +2232,7 @@
       "urb": 17.5,
       "urbAno": 2025,
       "flor": 57.6,
-      "florAno": 2023
+      "florAno": 2024
     },
     "SM": {
       "hdi": 0.915,
@@ -2238,8 +2245,8 @@
       "densAno": 2023,
       "urb": 97.2,
       "urbAno": 2025,
-      "flor": 16.7,
-      "florAno": 2023
+      "flor": 16.3,
+      "florAno": 2024
     },
     "LC": {
       "hdi": 0.748,
@@ -2252,8 +2259,8 @@
       "densAno": 2023,
       "urb": 29.1,
       "urbAno": 2025,
-      "flor": 34,
-      "florAno": 2023
+      "flor": 53.8,
+      "florAno": 2024
     },
     "KN": {
       "hdi": 0.84,
@@ -2266,8 +2273,8 @@
       "densAno": 2023,
       "urb": 31.9,
       "urbAno": 2025,
-      "flor": 42.3,
-      "florAno": 2023
+      "flor": 42.1,
+      "florAno": 2024
     },
     "ST": {
       "hdi": 0.637,
@@ -2280,8 +2287,8 @@
       "densAno": 2023,
       "urb": 69.2,
       "urbAno": 2025,
-      "flor": 52.1,
-      "florAno": 2023
+      "flor": 57.6,
+      "florAno": 2024
     },
     "VC": {
       "hdi": 0.798,
@@ -2294,8 +2301,8 @@
       "densAno": 2023,
       "urb": 48,
       "urbAno": 2025,
-      "flor": 73.2,
-      "florAno": 2023
+      "flor": 73.4,
+      "florAno": 2024
     },
     "SC": {
       "hdi": 0.848,
@@ -2308,8 +2315,8 @@
       "densAno": 2023,
       "urb": 45.5,
       "urbAno": 2025,
-      "flor": 73.3,
-      "florAno": 2023
+      "flor": 58.5,
+      "florAno": 2024
     },
     "SN": {
       "hdi": 0.53,
@@ -2322,8 +2329,8 @@
       "densAno": 2023,
       "urb": 55.8,
       "urbAno": 2025,
-      "flor": 41.3,
-      "florAno": 2023
+      "flor": 45,
+      "florAno": 2024
     },
     "SL": {
       "hdi": 0.467,
@@ -2336,8 +2343,8 @@
       "densAno": 2023,
       "urb": 45.9,
       "urbAno": 2025,
-      "flor": 34.3,
-      "florAno": 2023
+      "flor": 34,
+      "florAno": 2024
     },
     "RS": {
       "hdi": 0.833,
@@ -2350,8 +2357,8 @@
       "densAno": 2023,
       "urb": 62.6,
       "urbAno": 2025,
-      "flor": 32.4,
-      "florAno": 2023
+      "flor": 39.2,
+      "florAno": 2024
     },
     "SG": {
       "hdi": 0.946,
@@ -2364,8 +2371,8 @@
       "densAno": 2023,
       "urb": 100,
       "urbAno": 2025,
-      "flor": 20.9,
-      "florAno": 2023
+      "flor": 21.8,
+      "florAno": 2024
     },
     "SY": {
       "hdi": 0.564,
@@ -2378,8 +2385,8 @@
       "densAno": 2023,
       "urb": 72.1,
       "urbAno": 2025,
-      "flor": 2.8,
-      "florAno": 2023
+      "flor": 2.9,
+      "florAno": 2024
     },
     "SO": {
       "hdi": 0.404,
@@ -2392,8 +2399,8 @@
       "densAno": 2023,
       "urb": 55.1,
       "urbAno": 2025,
-      "flor": 9.2,
-      "florAno": 2023
+      "flor": 7.8,
+      "florAno": 2024
     },
     "LK": {
       "hdi": 0.776,
@@ -2406,8 +2413,8 @@
       "densAno": 2023,
       "urb": 20.5,
       "urbAno": 2025,
-      "flor": 34,
-      "florAno": 2023
+      "flor": 34.4,
+      "florAno": 2024
     },
     "SD": {
       "hdi": 0.511,
@@ -2420,8 +2427,8 @@
       "densAno": 2023,
       "urb": 34.9,
       "urbAno": 2025,
-      "flor": 9.6,
-      "florAno": 2023
+      "flor": 11.9,
+      "florAno": 2024
     },
     "SS": {
       "hdi": 0.388,
@@ -2435,7 +2442,7 @@
       "urb": 21.7,
       "urbAno": 2025,
       "flor": 11.3,
-      "florAno": 2023
+      "florAno": 2024
     },
     "SE": {
       "hdi": 0.959,
@@ -2448,8 +2455,8 @@
       "densAno": 2023,
       "urb": 89.1,
       "urbAno": 2025,
-      "flor": 68.7,
-      "florAno": 2023
+      "flor": 68.6,
+      "florAno": 2024
     },
     "CH": {
       "hdi": 0.97,
@@ -2462,8 +2469,8 @@
       "densAno": 2023,
       "urb": 85.7,
       "urbAno": 2025,
-      "flor": 32.4,
-      "florAno": 2023
+      "flor": 32,
+      "florAno": 2024
     },
     "SR": {
       "hdi": 0.722,
@@ -2476,8 +2483,8 @@
       "densAno": 2023,
       "urb": 65.8,
       "urbAno": 2025,
-      "flor": 94.4,
-      "florAno": 2023
+      "flor": 91.5,
+      "florAno": 2024
     },
     "TH": {
       "hdi": 0.798,
@@ -2491,7 +2498,7 @@
       "urb": 62.8,
       "urbAno": 2025,
       "flor": 38.7,
-      "florAno": 2023
+      "florAno": 2024
     },
     "TJ": {
       "hdi": 0.691,
@@ -2505,7 +2512,7 @@
       "urb": 26.2,
       "urbAno": 2025,
       "flor": 3.1,
-      "florAno": 2023
+      "florAno": 2024
     },
     "TZ": {
       "hdi": 0.555,
@@ -2518,8 +2525,8 @@
       "densAno": 2023,
       "urb": 36.9,
       "urbAno": 2025,
-      "flor": 50.1,
-      "florAno": 2023
+      "flor": 49.6,
+      "florAno": 2024
     },
     "CZ": {
       "hdi": 0.915,
@@ -2532,8 +2539,8 @@
       "densAno": 2023,
       "urb": 72.9,
       "urbAno": 2025,
-      "flor": 34.8,
-      "florAno": 2023
+      "flor": 38.4,
+      "florAno": 2024
     },
     "TL": {
       "hdi": 0.634,
@@ -2546,8 +2553,8 @@
       "densAno": 2023,
       "urb": 28.8,
       "urbAno": 2025,
-      "flor": 61.7,
-      "florAno": 2023
+      "flor": 71,
+      "florAno": 2024
     },
     "TG": {
       "hdi": 0.571,
@@ -2560,8 +2567,8 @@
       "densAno": 2023,
       "urb": 44.4,
       "urbAno": 2025,
-      "flor": 22.1,
-      "florAno": 2023
+      "flor": 22.5,
+      "florAno": 2024
     },
     "TO": {
       "hdi": 0.769,
@@ -2574,8 +2581,8 @@
       "densAno": 2023,
       "urb": 21.2,
       "urbAno": 2025,
-      "flor": 12.4,
-      "florAno": 2023
+      "flor": 12.1,
+      "florAno": 2024
     },
     "TT": {
       "hdi": 0.807,
@@ -2589,7 +2596,7 @@
       "urb": 54,
       "urbAno": 2025,
       "flor": 44.2,
-      "florAno": 2023
+      "florAno": 2024
     },
     "TN": {
       "hdi": 0.746,
@@ -2602,8 +2609,8 @@
       "densAno": 2023,
       "urb": 70.7,
       "urbAno": 2025,
-      "flor": 4.6,
-      "florAno": 2023
+      "flor": 4.4,
+      "florAno": 2024
     },
     "TM": {
       "hdi": 0.764,
@@ -2616,8 +2623,8 @@
       "densAno": 2023,
       "urb": 47.1,
       "urbAno": 2025,
-      "flor": 8.8,
-      "florAno": 2023
+      "flor": 5,
+      "florAno": 2024
     },
     "TR": {
       "hdi": 0.853,
@@ -2631,7 +2638,7 @@
       "urb": 89.5,
       "urbAno": 2025,
       "flor": 29.5,
-      "florAno": 2023
+      "florAno": 2024
     },
     "TV": {
       "hdi": 0.689,
@@ -2644,8 +2651,8 @@
       "densAno": 2023,
       "urb": 65.4,
       "urbAno": 2025,
-      "flor": 33.3,
-      "florAno": 2023
+      "flor": 39.6,
+      "florAno": 2024
     },
     "UA": {
       "hdi": 0.779,
@@ -2658,8 +2665,8 @@
       "densAno": 2023,
       "urb": 69.6,
       "urbAno": 2025,
-      "flor": 16.8,
-      "florAno": 2023
+      "flor": 17.4,
+      "florAno": 2024
     },
     "UG": {
       "hdi": 0.582,
@@ -2672,8 +2679,8 @@
       "densAno": 2023,
       "urb": 31.9,
       "urbAno": 2025,
-      "flor": 11,
-      "florAno": 2023
+      "flor": 11.9,
+      "florAno": 2024
     },
     "UY": {
       "hdi": 0.862,
@@ -2686,8 +2693,8 @@
       "densAno": 2023,
       "urb": 95.7,
       "urbAno": 2025,
-      "flor": 12,
-      "florAno": 2023
+      "flor": 11.5,
+      "florAno": 2024
     },
     "UZ": {
       "hdi": 0.74,
@@ -2700,8 +2707,8 @@
       "densAno": 2023,
       "urb": 51,
       "urbAno": 2025,
-      "flor": 8.5,
-      "florAno": 2023
+      "flor": 8.8,
+      "florAno": 2024
     },
     "VU": {
       "hdi": 0.621,
@@ -2714,12 +2721,13 @@
       "densAno": 2023,
       "urb": 22.3,
       "urbAno": 2025,
-      "flor": 36.3,
-      "florAno": 2023
+      "flor": 74.6,
+      "florAno": 2024
     },
     "VA": {
       "hdiNota": "O Vaticano não integra o levantamento do PNUD.",
-      "bmNota": "O Vaticano tem cerca de 800 residentes e fica abaixo do limite de cobertura do Banco Mundial."
+      "bmNota": "O Vaticano tem cerca de 800 residentes e fica abaixo do limite de cobertura do Banco Mundial.",
+      "faoNota": "A FAO não publica área florestal para o Vaticano."
     },
     "VE": {
       "hdi": 0.709,
@@ -2732,8 +2740,8 @@
       "densAno": 2023,
       "urb": 89.3,
       "urbAno": 2025,
-      "flor": 52.2,
-      "florAno": 2023
+      "flor": 53.4,
+      "florAno": 2024
     },
     "VN": {
       "hdi": 0.766,
@@ -2746,8 +2754,8 @@
       "densAno": 2023,
       "urb": 38.8,
       "urbAno": 2025,
-      "flor": 47.4,
-      "florAno": 2023
+      "flor": 47.1,
+      "florAno": 2024
     },
     "ZM": {
       "hdi": 0.595,
@@ -2760,8 +2768,8 @@
       "densAno": 2023,
       "urb": 45.9,
       "urbAno": 2025,
-      "flor": 59.5,
-      "florAno": 2023
+      "flor": 60.5,
+      "florAno": 2024
     },
     "ZW": {
       "hdi": 0.598,
@@ -2774,8 +2782,8 @@
       "densAno": 2023,
       "urb": 40.5,
       "urbAno": 2025,
-      "flor": 44.7,
-      "florAno": 2023
+      "flor": 35.7,
+      "florAno": 2024
     }
   }
 }

@@ -259,12 +259,13 @@
       }
 
       // A explicação da ausência só aparece para quem realmente não tem o dado.
-      [country.bmNota, country.hdiNota].filter(Boolean).forEach((nota) => {
+      [country.bmNota, country.faoNota, country.hdiNota].filter(Boolean).forEach((nota) => {
         elements.detail.append(el('p', { className: 'note', text: nota }));
       });
+      const { bancoMundial, fao, idh } = indicatorMeta;
       elements.detail.append(el('p', {
         className: 'source-note',
-        text: `Indicadores: ${indicatorMeta.bancoMundial.fonte} (${indicatorMeta.bancoMundial.licenca}). IDH: ${indicatorMeta.idh.fonte}.`,
+        text: `Indicadores: ${bancoMundial.fonte} (${bancoMundial.licenca}). Área florestal: ${fao.fonte} (${fao.licenca}). IDH: ${idh.fonte}.`,
       }));
       territoriesOf(country.id).forEach((territory) => {
         elements.detail.append(territoryCard(country, territory));
