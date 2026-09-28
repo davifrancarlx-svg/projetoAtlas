@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d222e" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-7W4ahTwoes6bQWFUukzb1L5Z3+RTkcR1mf52WKhamH8='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-v8TnReDfiktawJF4Mj17YYW8LUfeo91KiCoxgWO19sI=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-PWTOWVU3qTpIIqsCr1ntudcMtyX1vtgprFsMofEDucw='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-DnBvH9kXTZDlXQkiDWghLsivKkwUHpScBjQzEDvs2+U='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-iy4B6n7BYbtH69gg5W4OpC1vTwcSjRmKbBYXv73l/cM=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-LM5Z2KF4+5N6cFPUF4AHctjEDx0HUJ3LWxpaZIcSyEs='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <title>Atlas 195 — bandeiras, capitais e localização</title>
   <meta name="description" content="Treino de geografia dos 195 países: bandeiras, capitais, localização no mapa e regiões, com revisão espaçada. Funciona sem internet e guarda o progresso só no seu aparelho.">
 
@@ -655,8 +655,7 @@ input {
 }
 
 select,
-.search,
-.typerow input {
+.search {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel-2);
@@ -1281,21 +1280,6 @@ body.view-prog .side-body {
   font-size: 13px;
 }
 
-.typerow {
-  display: flex;
-  gap: 8px;
-}
-
-.typerow input {
-  width: 100%;
-  min-width: 0;
-  min-height: var(--tap);
-  flex: 1;
-  padding: 10px 12px;
-  font-size: 16px;
-}
-
-.typerow input::placeholder,
 .search::placeholder {
   color: var(--muted-2);
   opacity: 1;
@@ -2029,13 +2013,6 @@ a.chip {
   font-size: 13px;
 }
 
-.answer-error {
-  min-height: 1.5em;
-  margin: 6px 0 0;
-  color: var(--coral);
-  font-size: 13px;
-}
-
 .atlas-detail {
   display: grid;
   grid-template-columns: 86px minmax(0, 1fr);
@@ -2215,6 +2192,12 @@ a.chip {
   .ctrl-check {
     grid-column: 1 / -1;
   }
+
+  /* O modo tem cinco botões: numa coluna estreita eles se cortavam. */
+  .controls-title,
+  #modeControl {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 820px) {
@@ -2309,18 +2292,14 @@ a.chip {
     min-width: 0;
   }
 
+  /* Cinco modos, cinco colunas: em quatro, "Regiões" sobrava sozinho. */
   #modeSeg {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   #modeSeg button {
     border-block-end: 0;
-  }
-
-  #ansSeg {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   select {
@@ -2434,14 +2413,6 @@ a.chip {
 
   .map-action {
     padding-inline: 8px;
-  }
-
-  .typerow {
-    flex-direction: column;
-  }
-
-  .typerow .btn {
-    width: 100%;
   }
 
   .subject {
@@ -2902,7 +2873,7 @@ a.chip {
         aria-controls="controls"
         aria-expanded="true"
       >
-        <span id="filterSummary">Misto · Mundo inteiro · Escolher · Livre</span>
+        <span id="filterSummary">Misto · Mundo inteiro · Livre</span>
         <span class="filter-toggle-icon" aria-hidden="true">−</span>
       </button>
 
@@ -2950,14 +2921,6 @@ a.chip {
           <option value="">Carregando regiões…</option>
         </select>
       </div>
-
-      <fieldset class="ctrl" id="answerControl">
-        <legend class="ctrl-label" id="answerLabel">Resposta</legend>
-        <div class="seg" id="ansSeg" role="group" aria-labelledby="answerLabel">
-          <button type="button" data-ans="pick" aria-pressed="true">Escolher</button>
-          <button type="button" data-ans="type" aria-pressed="false">Digitar</button>
-        </div>
-      </fieldset>
 
       <fieldset class="ctrl" id="timerControl">
         <legend class="ctrl-label" id="timerLabel">Tempo</legend>
@@ -3288,9 +3251,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     locate: 'location', mapId: 'location',
     reg: 'region'
   });
-  // A região é sempre escolha: digitar "América do Sul" com acento e artigo
-  // punia grafia, não conhecimento geográfico.
-  var PICK_ONLY_DIRECTIONS = Object.freeze(['flagOf', 'locate', 'reg']);
   var LEGACY_FAMILY_DIRECTIONS = Object.freeze({
     f: Object.freeze(['flag', 'flagOf']),
     c: Object.freeze(['cap', 'capOf']),
@@ -3303,25 +3263,10 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     reg: Object.freeze(['reg']),
     mix: QUESTION_DIRECTIONS
   });
-  var ALIAS_TYPES = Object.freeze({
-    CANONICAL: 'canonical',
-    EQUIVALENT: 'equivalent',
-    TRANSLITERATION: 'transliteration',
-    OFFICIAL: 'official',
-    ADMINISTRATIVE_SEAT: 'administrative-seat',
-    HISTORIC: 'historic',
-    COMMON_MISTAKE: 'common-mistake',
-    LEGACY_UNTYPED: 'legacy-untyped'
-  });
-  var SAFE_ALIAS_TYPES = Object.freeze([
-    ALIAS_TYPES.EQUIVALENT,
-    ALIAS_TYPES.TRANSLITERATION,
-    ALIAS_TYPES.OFFICIAL
-  ]);
   var REVIEW_INTERVAL_DAYS = Object.freeze([0, 1, 3, 7, 14, 30]);
   var DAY_MS = 24 * 60 * 60 * 1000;
-  // Uma resposta certa não prova a mesma coisa em toda situação: digitar de
-  // cabeça é evidência forte, acertar devagar entre quatro alternativas pode ser
+  // Uma resposta certa não prova a mesma coisa em toda situação: acertar na
+  // hora é evidência forte, acertar devagar entre quatro alternativas pode ser
   // eliminação ou sorte. A nota traduz isso no tamanho do passo e do intervalo.
   var ANSWER_GRADES = Object.freeze(['again', 'hard', 'good', 'easy']);
   // Segundos de referência para separar "veio na hora" de "custou a vir". Não é
@@ -3406,101 +3351,10 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     return previous[m];
   }
 
-  function fuzzyTolerance(normalizedTarget) {
-    var length = normalizeText(normalizedTarget).replace(/ /g, '').length;
-    if (length <= 6) return 0;
-    if (length <= 11) return 1;
-    return 2;
-  }
-
-  function aliasIsSafe(type, options) {
-    var safeTypes = options && Array.isArray(options.safeAliasTypes)
-      ? options.safeAliasTypes
-      : SAFE_ALIAS_TYPES;
-    if (type === ALIAS_TYPES.LEGACY_UNTYPED) {
-      return !!(options && options.allowLegacyUntyped);
-    }
-    return safeTypes.indexOf(type) !== -1;
-  }
-
   function canonicalValue(country, field) {
     if (!country) return '';
     if (field === 'capital' || field === 'cap') return country.cap || country.capital || '';
     return country.n || country.name || '';
-  }
-
-  function normalizeAliasEntry(alias, field, legacy) {
-    if (typeof alias === 'string') {
-      return {
-        value: alias,
-        field: field,
-        type: legacy ? ALIAS_TYPES.LEGACY_UNTYPED : ALIAS_TYPES.EQUIVALENT
-      };
-    }
-    if (!isPlainObject(alias) || typeof alias.value !== 'string') return null;
-    return {
-      value: alias.value,
-      field: alias.field || field,
-      type: alias.type || ALIAS_TYPES.LEGACY_UNTYPED,
-      note: typeof alias.note === 'string' ? alias.note : undefined
-    };
-  }
-
-  function aliasEntries(country, field) {
-    var result = [];
-    var aliases = country && country.aliases;
-    var raw;
-    if (Array.isArray(aliases)) {
-      aliases.forEach(function (alias) {
-        var entry = normalizeAliasEntry(alias, field, false);
-        if (entry && (entry.field === field || (field === 'country' && entry.field === 'name'))) {
-          result.push(entry);
-        }
-      });
-    } else if (isPlainObject(aliases)) {
-      raw = aliases[field] || (field === 'country' ? aliases.name : null);
-      if (Array.isArray(raw)) {
-        raw.forEach(function (alias) {
-          var entry = normalizeAliasEntry(alias, field, false);
-          if (entry) result.push(entry);
-        });
-      }
-    }
-    raw = field === 'capital' ? country && country.calt : country && country.alt;
-    if (Array.isArray(raw)) {
-      raw.forEach(function (alias) {
-        var entry = normalizeAliasEntry(alias, field, true);
-        if (entry) result.push(entry);
-      });
-    }
-    return result;
-  }
-
-  function acceptedAnswerEntries(country, field, options) {
-    field = field === 'cap' ? 'capital' : (field === 'name' ? 'country' : field);
-    if (field !== 'country' && field !== 'capital') {
-      throw new RangeError('Unknown answer field: ' + field);
-    }
-    var canonical = canonicalValue(country, field);
-    var entries = [];
-    var normalizedSeen = Object.create(null);
-    if (typeof canonical === 'string' && normalizeText(canonical)) {
-      normalizedSeen[normalizeText(canonical)] = true;
-      entries.push({ value: canonical, field: field, type: ALIAS_TYPES.CANONICAL });
-    }
-    aliasEntries(country, field).forEach(function (entry) {
-      var normalized = normalizeText(entry.value);
-      if (!normalized || normalizedSeen[normalized] || !aliasIsSafe(entry.type, options)) return;
-      normalizedSeen[normalized] = true;
-      entries.push(entry);
-    });
-    return entries;
-  }
-
-  function acceptedAnswers(country, field, options) {
-    return acceptedAnswerEntries(country, field, options).map(function (entry) {
-      return entry.value;
-    });
   }
 
   function createCanonicalIndex(countries, field) {
@@ -3518,119 +3372,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       byNormalized[normalized].push(entry);
     });
     return { field: field, entries: entries, byNormalized: byNormalized };
-  }
-
-  function canonicalEntriesFrom(options) {
-    if (!options || !options.canonicalAnswers) return [];
-    var source = options.canonicalAnswers;
-    if (source && Array.isArray(source.entries)) source = source.entries;
-    if (!Array.isArray(source)) return [];
-    return source.map(function (entry) {
-      if (typeof entry === 'string') {
-        return { id: undefined, value: entry, normalized: normalizeText(entry) };
-      }
-      if (!entry) return null;
-      var value = entry.value || canonicalValue(entry, options.field || 'country');
-      return {
-        id: entry.id,
-        value: value,
-        normalized: entry.normalized || normalizeText(value)
-      };
-    }).filter(function (entry) { return entry && entry.normalized; });
-  }
-
-  function trustedAcceptedEntries(accepted, options) {
-    if (!Array.isArray(accepted)) return [];
-    return accepted.map(function (entry) {
-      if (typeof entry === 'string') {
-        return { value: entry, type: ALIAS_TYPES.CANONICAL };
-      }
-      if (!entry || typeof entry.value !== 'string') return null;
-      if (entry.type && entry.type !== ALIAS_TYPES.CANONICAL && !aliasIsSafe(entry.type, options)) {
-        return null;
-      }
-      return entry;
-    }).filter(Boolean);
-  }
-
-  function matchAnswer(input, accepted, options) {
-    options = options || {};
-    var guess = normalizeText(input);
-    if (!guess) return { ok: false, reason: 'empty', normalized: guess };
-    var targets = trustedAcceptedEntries(accepted, options).map(function (entry) {
-      return {
-        value: entry.value,
-        type: entry.type || ALIAS_TYPES.CANONICAL,
-        normalized: normalizeText(entry.value)
-      };
-    }).filter(function (entry) { return entry.normalized; });
-    if (!targets.length) return { ok: false, reason: 'no-accepted-answers', normalized: guess };
-
-    var canonicals = canonicalEntriesFrom(options);
-    var conflictingExact = canonicals.filter(function (entry) {
-      return entry.normalized === guess && entry.id !== options.targetId;
-    });
-    var exactTarget = targets.find(function (entry) { return entry.normalized === guess; });
-    if (conflictingExact.length) {
-      return {
-        ok: false,
-        reason: 'canonical-collision',
-        normalized: guess,
-        conflicts: conflictingExact.map(function (entry) { return entry.id; })
-      };
-    }
-    if (exactTarget) {
-      return { ok: true, reason: 'exact', normalized: guess, matched: exactTarget.value, distance: 0 };
-    }
-
-    var bestTarget = null;
-    targets.forEach(function (target) {
-      var distance = levenshtein(guess, target.normalized);
-      var tolerance = typeof options.tolerance === 'number'
-        ? options.tolerance
-        : fuzzyTolerance(target.normalized);
-      if (distance <= tolerance && (!bestTarget || distance < bestTarget.distance)) {
-        bestTarget = { value: target.value, distance: distance, tolerance: tolerance };
-      }
-    });
-    if (!bestTarget) return { ok: false, reason: 'no-match', normalized: guess };
-
-    var competing = canonicals.filter(function (entry) {
-      if (entry.id === options.targetId) return false;
-      var distance = levenshtein(guess, entry.normalized);
-      var tolerance = typeof options.tolerance === 'number'
-        ? options.tolerance
-        : fuzzyTolerance(entry.normalized);
-      return distance <= tolerance && distance <= bestTarget.distance;
-    }).map(function (entry) { return entry.id; });
-    if (competing.length) {
-      return {
-        ok: false,
-        reason: 'canonical-collision',
-        normalized: guess,
-        conflicts: uniqueStrings(competing)
-      };
-    }
-    return {
-      ok: true,
-      reason: 'fuzzy',
-      normalized: guess,
-      matched: bestTarget.value,
-      distance: bestTarget.distance
-    };
-  }
-
-  function fuzzy(input, accepted, options) {
-    return matchAnswer(input, accepted, options).ok;
-  }
-
-  function matchCountryAnswer(input, country, field, countries, options) {
-    options = Object.assign({}, options || {}, {
-      targetId: country && country.id,
-      field: field,
-      canonicalAnswers: createCanonicalIndex(countries || [country], field)
-    });
-    return matchAnswer(input, acceptedAnswerEntries(country, field, options), options);
   }
 
   function isoTimestamp(value) {
@@ -4037,21 +3778,21 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 
   // Traduz o modo como a resposta veio numa das quatro notas. `optionCount`
   // importa porque acertar entre quatro alternativas carrega 25% de chance
-  // cega; digitar não carrega nenhuma. Sem tempo medido a nota fica em 'good',
-  // que é exatamente o comportamento antigo — nada regride por falta de dado.
+  // cega; apontar no mapa, sem alternativas, não carrega nenhuma. Sem tempo
+  // medido a nota fica em 'good' — nada regride por falta de dado.
   function gradeAnswer(options) {
     options = options || {};
     if (!options.correct) return 'again';
     var seconds = Number.isFinite(options.ms) && options.ms > 0 ? options.ms / 1000 : null;
     var guessable = safeInteger(options.optionCount, 2, 64) ? options.optionCount : 0;
-    var typed = options.answerMode === 'type' || guessable === 0;
+    var recall = guessable === 0;
     if (seconds === null) return 'good';
     // Os limiares são fixos de propósito. O tempo de recuperação é propriedade
     // da memória, não do cronômetro: sob teto de 15 s, quem responde em 3 s
     // lembrou na hora do mesmo jeito. E o teto de 12 s já captura sozinho quem
     // chegou perto de estourar o tempo.
-    if (seconds <= FLUENT_SECONDS) return typed ? 'easy' : 'good';
-    if (seconds >= LABORED_SECONDS && !typed) return 'hard';
+    if (seconds <= FLUENT_SECONDS) return recall ? 'easy' : 'good';
+    if (seconds >= LABORED_SECONDS && !recall) return 'hard';
     return 'good';
   }
 
@@ -4519,11 +4260,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       directions = directions.filter(function (direction) { return direction !== 'reg'; });
       if (!directions.length) throw new RangeError('Region questions are only available for Mundo inteiro');
     }
-    if (options.answerMode === 'type') {
-      directions = directions.filter(function (direction) {
-        return PICK_ONLY_DIRECTIONS.indexOf(direction) === -1;
-      });
-    }
     if (!directions.length) directions = ['flag'];
     // A área de estudo aceita tanto um balde amplo (`r`) quanto uma subregião
     // (`sr`). Fora das Américas as duas coincidem, então o comportamento antigo
@@ -4582,7 +4318,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
         question.answerId = itemId(answer);
         question.opts = pickFrom(answer, pool.filter(eligible), countries.filter(eligible));
       }
-    } else if (options.answerMode === 'pick' || direction === 'flagOf') {
+    } else {
+      // Toda resposta é por escolha: as quatro alternativas sempre existem.
       question.opts = pickFrom(target, pool, countries);
     }
     var recent = (options.recentIds || []).concat(target.id);
@@ -4609,29 +4346,15 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       if (hasOwn(country, 'c') && (!Array.isArray(country.c) || country.c.length !== 2 || !country.c.every(Number.isFinite))) {
         errors.push(path + '.c: invalid projected center');
       }
-      ['country', 'capital'].forEach(function (field) {
-        aliasEntries(country, field).forEach(function (entry) {
-          if (entry.type === ALIAS_TYPES.LEGACY_UNTYPED) {
-            warnings.push(path + ': untyped legacy ' + field + ' alias ignored: ' + entry.value);
-          }
-        });
-      });
     });
+    // Dois países com o mesmo nome, ou a mesma capital, virariam duas
+    // alternativas iguais na mesma pergunta.
     ['country', 'capital'].forEach(function (field) {
       var index = createCanonicalIndex(countries.filter(isPlainObject), field);
       Object.keys(index.byNormalized).forEach(function (normalized) {
         var entries = index.byNormalized[normalized];
         var distinctIds = uniqueStrings(entries.map(function (entry) { return entry.id; }));
         if (distinctIds.length > 1) errors.push(field + ' canonical collision "' + normalized + '": ' + distinctIds.join(', '));
-      });
-      countries.filter(isPlainObject).forEach(function (country) {
-        acceptedAnswerEntries(country, field, options).slice(1).forEach(function (alias) {
-          var normalized = normalizeText(alias.value);
-          var collisions = (index.byNormalized[normalized] || []).filter(function (entry) { return entry.id !== country.id; });
-          if (collisions.length) {
-            errors.push(field + ' safe alias "' + alias.value + '" for ' + country.id + ' collides with ' + collisions.map(function (entry) { return entry.id; }).join(', '));
-          }
-        });
       });
     });
     return { valid: errors.length === 0, errors: errors, warnings: warnings };
@@ -5145,7 +4868,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     QUESTION_DIRECTIONS: QUESTION_DIRECTIONS,
     DIRECTION_FAMILY: DIRECTION_FAMILY,
     MODE_DIRECTIONS: MODE_DIRECTIONS,
-    PICK_ONLY_DIRECTIONS: PICK_ONLY_DIRECTIONS,
     regionsOf: regionsOf,
     studyAreasOf: studyAreasOf,
     project: project,
@@ -5160,19 +4882,11 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     territoryForPoint: territoryForPoint,
     cloudReady: cloudReady,
     planSync: planSync,
-    ALIAS_TYPES: ALIAS_TYPES,
-    SAFE_ALIAS_TYPES: SAFE_ALIAS_TYPES,
     REVIEW_INTERVAL_DAYS: REVIEW_INTERVAL_DAYS,
     normalizeText: normalizeText,
     norm: normalizeText,
     levenshtein: levenshtein,
     lev: levenshtein,
-    fuzzyTolerance: fuzzyTolerance,
-    fuzzy: fuzzy,
-    matchAnswer: matchAnswer,
-    matchCountryAnswer: matchCountryAnswer,
-    acceptedAnswers: acceptedAnswers,
-    acceptedAnswerEntries: acceptedAnswerEntries,
     createCanonicalIndex: createCanonicalIndex,
     createProgress: createProgress,
     createEnvelope: createEnvelope,
@@ -6366,7 +6080,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     reg: ['reg'],
   };
   const VISUAL_DIRECTIONS = new Set(['flag', 'flagOf', 'locate', 'mapId']);
-  const PICK_ONLY = new Set(Core.PICK_ONLY_DIRECTIONS);
   const FAMILY_DIRECTIONS = {
     Bandeiras: ['flag', 'flagOf'],
     Capitais: ['cap', 'capOf'],
@@ -6414,7 +6127,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     themeToggleHint: document.getElementById('themeToggleHint'),
     modeSeg: document.getElementById('modeSeg'),
     region: document.getElementById('regSel'),
-    ansSeg: document.getElementById('ansSeg'),
     timeSeg: document.getElementById('timeSeg'),
     visualToggle: document.getElementById('visualToggle'),
     mapRegion: document.getElementById('mapRegion'),
@@ -6446,10 +6158,10 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   // estouro de tempo não pode ser confundido com uma resposta do jogador.
   const EXPIRED_ANSWER = Symbol('tempo esgotado');
   const state = {
-    ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro', answerMode: 'pick',
+    ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro',
     includeVisual: true, mapCollapsed: false, filtersCollapsed: null, focusMode: false,
-    question: null, questionAnswerMode: 'pick', answered: false,
-    selectedAnswer: null, answerMatch: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
+    question: null, answered: false,
+    selectedAnswer: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
     atlasSelected: 'BR', atlasQuery: '', atlasArea: '', atlasLimit: 60, resetArmed: false, resetPending: false,
     mapCursorId: 'BR',
@@ -6647,7 +6359,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
 
   function savePreferences() {
     const safe = {
-      mode: state.mode, region: state.region, answerMode: state.answerMode,
+      mode: state.mode, region: state.region,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
       filtersHidden: state.filtersCollapsed, focusMode: state.focusMode,
       timeLimit: state.timeLimit, theme: state.theme, dailySize: state.dailySize || 10,
@@ -6661,7 +6373,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       if (!parsed || typeof parsed !== 'object') return;
       if (MODE_DIRECTIONS[parsed.mode]) state.mode = parsed.mode;
       if (REGIONS.includes(parsed.region)) state.region = parsed.region;
-      if (parsed.answerMode === 'pick' || parsed.answerMode === 'type') state.answerMode = parsed.answerMode;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
       // Sem escolha, a barra segue o tamanho da tela (filtersHidden, mais abaixo).
@@ -7339,13 +7050,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   function effectiveDirections() {
     let directions = (MODE_DIRECTIONS[state.mode] || MODE_DIRECTIONS.mix).slice();
     if (state.region !== 'Mundo inteiro') directions = directions.filter((direction) => direction !== 'reg');
-    // No modo digitar as direções que só existem como escolha saem da mistura,
-    // mas se o modo inteiro for feito delas — como Regiões — o treino mantém o
-    // assunto e responde por escolha, em vez de virar outro treino sem avisar.
-    if (state.answerMode === 'type') {
-      const typed = directions.filter((direction) => !PICK_ONLY.has(direction));
-      if (typed.length) directions = typed;
-    }
     if (!state.includeVisual) directions = directions.filter((direction) => !VISUAL_DIRECTIONS.has(direction));
     return directions.length ? directions : ['cap', 'capOf'];
   }
@@ -7392,24 +7096,19 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     // quando ainda falta um acerto de confirmação.
     state.reviewCard = state.fromDeck && forced && Number.isFinite(forced.remaining) ? forced : null;
     const directions = forced ? [forced.direction] : effectiveDirections();
-    const questionAnswerMode = directions.every((direction) => PICK_ONLY.has(direction))
-      ? 'pick' : state.answerMode;
     const result = Core.createQuestion({
       countries: DATA,
       mode: state.mode,
       directions,
       region: forced ? 'Mundo inteiro' : state.region,
-      answerMode: questionAnswerMode,
       progress,
       recentIds: state.recentIds,
       forcedId: forced ? forced.id : undefined,
     });
     state.question = result.question;
-    state.questionAnswerMode = questionAnswerMode;
     state.recentIds = result.recentIds;
     state.answered = false;
     state.selectedAnswer = null;
-    state.answerMatch = null;
     state.answerTerritory = null;
     state.expired = false;
     state.questionNumber += 1;
@@ -7477,8 +7176,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   }
 
   // O estouro do tempo é registrado como erro pelo mesmo caminho de uma
-  // resposta errada, inclusive no modo digitar, onde uma string vazia seria
-  // rejeitada antes de virar resposta.
+  // resposta errada.
   function expireQuestion() {
     if (!state.question || state.answered) return;
     state.expired = true;
@@ -7537,39 +7235,21 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     return DIRECTION_LABEL[question.direction];
   }
   function optionLabel(direction, country) { return direction === 'cap' ? country.cap : country.n; }
-  function answerField(direction) { return direction === 'cap' ? 'capital' : 'country'; }
   function expectedAnswer(direction, country) {
     if (direction === 'reg') return country.r;
-    return answerField(direction) === 'capital' ? country.cap : country.n;
+    return direction === 'cap' ? country.cap : country.n;
   }
 
   function answerQuestion(value, territory) {
     if (!state.question || state.answered) return;
     const target = byId[state.question.id];
     let correct;
-    let match = null;
-    if (value === EXPIRED_ANSWER) {
-      correct = false;
-    } else if (state.question.direction === 'reg') {
-      correct = value === target.r;
-    } else if (state.question.direction === 'locate' || state.questionAnswerMode === 'pick') {
-      correct = value === expectedId();
-    } else {
-      match = Core.matchCountryAnswer(value, target, answerField(state.question.direction), DATA);
-      if (match.reason === 'empty') {
-        const input = document.getElementById('typedAnswer');
-        if (input) { input.setAttribute('aria-invalid', 'true'); input.focus(); }
-        const error = document.getElementById('answerError');
-        if (error) error.textContent = 'Digite uma resposta antes de verificar.';
-        announce('Digite uma resposta antes de verificar.');
-        return;
-      }
-      correct = match.ok;
-    }
+    if (value === EXPIRED_ANSWER) correct = false;
+    else if (state.question.direction === 'reg') correct = value === target.r;
+    else correct = value === expectedId();
     stopTimer();
     state.answered = true;
     state.selectedAnswer = value === EXPIRED_ANSWER ? null : value;
-    state.answerMatch = match;
     state.answerTerritory = territory || null;
     if (correct) { state.hits += 1; state.streak += 1; }
     else { state.misses += 1; state.streak = 0; }
@@ -7595,13 +7275,12 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     // Um só ponto de gravação: a série fechada, o baralho de revisão ou nada.
     saveDraft();
     const regionWasComplete = regionMastery(target.r).complete;
-    // Acertar digitando de cabeça e acertar devagar entre quatro alternativas
-    // deixaram de valer a mesma promoção: a nota traduz a força da evidência no
-    // tamanho do intervalo até a próxima revisão.
+    // Acertar na hora e acertar devagar entre quatro alternativas deixaram de
+    // valer a mesma promoção: a nota traduz a força da evidência no tamanho do
+    // intervalo até a próxima revisão.
     const grade = Core.gradeAnswer({
       correct,
       ms: registro.ms,
-      answerMode: state.questionAnswerMode,
       optionCount: Array.isArray(state.question.opts) ? state.question.opts.length : 0,
       timeLimit: state.timeLimit || null,
     });
@@ -7668,32 +7347,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       container.append(create('p', { className: 'hintline', text: 'Ajuste o zoom pelos botões, roda ou pinça antes de confirmar com toque, clique ou teclado; aproxime para microestados. Você também pode pular sem penalidade.' }));
       return;
     }
-    if (state.questionAnswerMode === 'type' && question.direction !== 'flagOf') {
-      const row = create('div', { className: 'typerow' });
-      const input = create('input', { id: 'typedAnswer', attrs: {
-        type: 'text', autocomplete: 'off', autocapitalize: 'words', spellcheck: 'false',
-        placeholder: answerField(question.direction) === 'capital' ? 'Digite a capital' : 'Digite o país',
-        'aria-label': answerField(question.direction) === 'capital' ? 'Sua resposta: capital' : 'Sua resposta: país',
-        'aria-describedby': 'answerError',
-        value: state.answered ? state.selectedAnswer : null,
-        disabled: state.answered ? '' : null,
-      } });
-      const submit = create('button', { className: 'btn', text: 'Verificar', type: 'button', attrs: {
-        disabled: state.answered ? '' : null,
-      } });
-      submit.addEventListener('click', () => answerQuestion(input.value));
-      input.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') { event.preventDefault(); answerQuestion(input.value); }
-      });
-      input.addEventListener('input', () => {
-        input.removeAttribute('aria-invalid');
-        const error = document.getElementById('answerError');
-        if (error) error.textContent = '';
-      });
-      row.append(input, submit);
-      container.append(row, create('p', { className: 'answer-error', id: 'answerError', attrs: { 'aria-live': 'polite' } }));
-      return;
-    }
     if (question.direction === 'reg') {
       const regions = create('div', { className: 'opts' });
       question.opts.forEach((region, index) => {
@@ -7747,16 +7400,10 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
         + `${territory.cap} — por isso o ponto ${territory.of === country.id ? 'vale' : 'foi lido'} como `
         + `${sovereign.n}, cuja capital é ${sovereign.cap}.`);
     }
-    if (country.alternateCapitals && country.alternateCapitals.length) notes.push(`Também aceita como capital oficial: ${country.alternateCapitals.join(', ')}.`);
-    if (country.otherSeats && country.otherSeats.length) notes.push(`Sede de governo, não tratada como resposta canônica: ${country.otherSeats.join(', ')}.`);
-    if (country.formerCapitalNames && country.formerCapitalNames.length) notes.push(`Nome histórico não aceito como atual: ${country.formerCapitalNames.join(', ')}.`);
+    if (country.alternateCapitals && country.alternateCapitals.length) notes.push(`Também é capital oficial: ${country.alternateCapitals.join(', ')}.`);
+    if (country.otherSeats && country.otherSeats.length) notes.push(`Outra sede de governo: ${country.otherSeats.join(', ')}.`);
+    if (country.formerCapitalNames && country.formerCapitalNames.length) notes.push(`Nome antigo da capital: ${country.formerCapitalNames.join(', ')}.`);
     if (country.capitalNote) notes.push(country.capitalNote);
-    if (state.answerMatch && state.answerMatch.ok && state.answerMatch.matched) {
-      const canonical = answerField(state.question.direction) === 'capital' ? country.cap : country.n;
-      if (Core.normalizeText(state.answerMatch.matched) !== Core.normalizeText(canonical)) {
-        notes.unshift(`A forma “${state.answerMatch.matched}” foi reconhecida como equivalente.`);
-      }
-    }
     return notes;
   }
 
@@ -7839,8 +7486,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     const country = byId[question.id];
     const isCorrect = question.direction === 'reg'
       ? state.selectedAnswer === country.r
-      : (question.direction === 'locate' || state.questionAnswerMode === 'pick'
-        ? state.selectedAnswer === expectedId(question) : Boolean(state.answerMatch && state.answerMatch.ok));
+      : state.selectedAnswer === expectedId(question);
     const verdict = create('section', { className: 'verdict', attrs: { 'aria-labelledby': 'verdictTitle' } });
     verdict.append(create('p', {
       id: 'verdictTitle', className: `verdict-tag ${isCorrect ? 'ok' : 'bad'}`,
@@ -7881,9 +7527,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     // uma escolha concreta de país: em "tempo esgotado" não houve confusão a
     // explicar, e em região a comparação seria entre continentes, não países.
     if (!isCorrect && !state.expired && question.direction !== 'reg') {
-      const chosen = state.questionAnswerMode === 'pick' || question.direction === 'locate'
-        ? byId[state.selectedAnswer]
-        : DATA.find(c => Core.normalizeText(c[answerField(question.direction) === 'capital' ? 'cap' : 'n']) === Core.normalizeText(state.selectedAnswer || ''));
+      const chosen = byId[state.selectedAnswer];
       if (chosen && chosen.id !== expectedId(question)) {
         const comparison = create('div', { className: 'answer-comparison', attrs: { 'aria-label': 'Comparação das respostas' } });
         [[byId[expectedId(question)], 'Resposta correta'], [chosen, 'Sua resposta']].forEach(([item, label]) => {
@@ -8299,7 +7943,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     }
     if (!draft) { clearExamDraft(); return; }
     draft.savedAt = Date.now();
-    draft.filters = { mode: state.mode, region: state.region, answerMode: state.answerMode,
+    draft.filters = { mode: state.mode, region: state.region,
       timeLimit: state.timeLimit, includeVisual: state.includeVisual };
     try { localStorage.setItem(EXAM_DRAFT_KEY, JSON.stringify(draft)); } catch (_) { /* modo privado */ }
   }
@@ -8380,7 +8024,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     const filters = draft.filters || {};
     if (MODE_DIRECTIONS[filters.mode]) state.mode = filters.mode;
     if (REGIONS.includes(filters.region)) state.region = filters.region;
-    if (filters.answerMode === 'pick' || filters.answerMode === 'type') state.answerMode = filters.answerMode;
     if (TIME_LIMITS.includes(filters.timeLimit)) state.timeLimit = filters.timeLimit;
     if (typeof filters.includeVisual === 'boolean') state.includeVisual = filters.includeVisual;
     if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
@@ -9127,13 +8770,11 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       button.title = button.disabled ? 'As perguntas de região estão disponíveis apenas em Mundo inteiro.' : '';
       button.setAttribute('aria-pressed', String(button.dataset.mode === state.mode));
     });
-    dom.ansSeg.querySelectorAll('[data-ans]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.ans === state.answerMode)));
     dom.timeSeg.querySelectorAll('[data-time]').forEach((button) => button.setAttribute('aria-pressed', String(Number(button.dataset.time) === state.timeLimit)));
     dom.visualToggle.checked = state.includeVisual;
     const modeLabel = { mix: 'Misto', flag: 'Bandeiras', cap: 'Capitais', loc: 'Localização', reg: 'Regiões' }[state.mode];
-    const answerLabel = state.answerMode === 'type' ? 'Digitar' : 'Escolher';
     const timeLabel = state.timeLimit ? `${state.timeLimit}s` : 'Livre';
-    dom.filterSummary.textContent = `${modeLabel} · ${state.region} · ${answerLabel} · ${timeLabel}`;
+    dom.filterSummary.textContent = `${modeLabel} · ${state.region} · ${timeLabel}`;
     dom.focusToggle.setAttribute('aria-pressed', String(state.focusMode));
     dom.focusToggle.title = state.focusMode ? 'Sair do modo foco' : 'Ocultar distrações';
     dom.shell.classList.toggle('is-focus-mode', state.focusMode && state.view === 'quiz');
@@ -9177,15 +8818,6 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
         state.mode = 'cap';
         announce('Com perguntas visuais desativadas, o modo foi ajustado para Capitais.');
       }
-      syncControls(); savePreferences();
-      if (state.view !== 'quiz') setView('quiz');
-      createNextQuestion();
-    });
-    dom.ansSeg.addEventListener('click', (event) => {
-      const button = event.target.closest('[data-ans]');
-      if (!button) return;
-      abandonExercise();
-      state.answerMode = button.dataset.ans;
       syncControls(); savePreferences();
       if (state.view !== 'quiz') setView('quiz');
       createNextQuestion();

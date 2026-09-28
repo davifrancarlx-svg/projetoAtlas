@@ -10,7 +10,7 @@ module.exports = async (client, evaluate, until) => {
     localStorage.setItem('atlas195:v2',AtlasCore.serializeProgress(p));
     window.dispatchEvent(new StorageEvent('storage',{key:'atlas195:v2',newValue:AtlasCore.serializeProgress(p)}));
     localStorage.removeItem('atlas195:serie:v1');
-    localStorage.setItem('atlas195:prefs:v2',JSON.stringify({mode:'reg',region:'Mundo inteiro',answerMode:'pick',includeVisual:true}));
+    localStorage.setItem('atlas195:prefs:v2',JSON.stringify({mode:'reg',region:'Mundo inteiro',includeVisual:true}));
   })()`);
   await client.send('Page.reload');
   await until('início da revisão de pendências',()=>ev("Boolean(document.getElementById('questionTitle'))"));

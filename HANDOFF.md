@@ -122,6 +122,11 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
    conquistas; o usuário não gostou do resultado e pediu a remoção completa
    em 2026-09-16. Não reintroduzir nem propor de novo.
 
+8. **Resposta só por escolha.** A digitação foi removida a pedido do usuário
+   em 2026-09-28: toda pergunta tem alternativas, ou se responde apontando no
+   mapa. Não reintroduzir campo de texto, modo "Digitar" nem reconhecimento de
+   grafia.
+
 ## O que já existe (não é para reconstruir, é para conhecer)
 
 - **Modos de treino**: misto, bandeiras, capitais, localização, regiões —
@@ -320,6 +325,20 @@ corrigir onde a forma é o assunto:
   separar um bloco antes; a geometria de exibição do núcleo (projeção, zoom,
   enquadramento e forma real) é a candidata natural.
 
+**Resposta só por escolha** (mesmo dia, commitada, não publicada). A pedido do
+usuário, a digitação saiu do app inteiro: o controle "Resposta" da barra, o
+campo de texto, o reconhecimento de texto do núcleo (`matchAnswer`,
+`matchCountryAnswer`, `fuzzy`, `acceptedAnswers`, tipos de alias seguros) e
+`PICK_ONLY_DIRECTIONS`. `Core.createQuestion` sempre gera as alternativas e
+`Core.gradeAnswer` não recebe mais modo de resposta: só apontar no mapa, que
+não tem alternativas, conta como recuperação sem chance cega. Os nomes
+alternativos continuam no artefato porque a busca do Atlas os usa. Preferência
+e rascunho antigos com `answerMode: 'type'` são ignorados (o fixture de
+`tests/workflows-browser.cjs` grava um de propósito). Na mesma rodada, a barra
+de opções deixou de cortar os botões de Modo entre 821 e 980 px e passou a ter
+os cinco numa linha até 820 px. 170 testes com Chrome real; `src/app.js` caiu
+para 142,3 KiB (94,8%) e `src/core.js` para 76,5 KiB (86,9%).
+
 **Banco da conta alinhado às migrations, já em produção (28/09/2026).** O
 Supabase do Lovable (`wckbqklezfxfoaaiybab`, o mesmo de `src/cloud.json`) não
 tinha o `FORCE ROW LEVEL SECURITY`, nem os dois limites do envelope, e usava
@@ -369,11 +388,11 @@ porque usa um perfil temporário a cada execução.
 
 ### Ideias registradas, não pedidas ainda
 
-`IMPROVEMENTS.md` foi refeito e tem dezoito, da mais barata à mais cara, cada
-uma com o trecho de código que a justifica. As mais baratas: a ficha do Atlas
-mostrar as notas da capital (hoje elas só existem no veredito do erro),
-explicar o erro que o artefato já tem catalogado quando a pessoa digita
-"Inglaterra" para Reino Unido, e tornar a ficha navegável pelos vizinhos.
+`IMPROVEMENTS.md` tem dezesseis, da mais barata à mais cara, cada uma com o
+trecho de código que a justifica. As mais baratas: a ficha do Atlas mostrar as
+notas da capital (hoje elas só existem no veredito do erro), tornar a ficha
+navegável pelos vizinhos e mostrar "também conhecido como". Duas saíram junto
+com a digitação, em 28/09/2026.
 
 Duas foram **descartadas pelo usuário** e não devem voltar: a busca aceitar o
 código ISO e o domínio por subregião na aba Progresso. Continuam fora:

@@ -17,7 +17,7 @@ O script de atualização registra a versão e a URL exatas no próprio arquivo 
 
 ## Países e capitais
 
-O conteúdo anterior foi preservado como base e passa por validações automáticas de IDs, aliases e colisões de resposta. Sedes administrativas e nomes coloquiais não devem ser tratados como sinônimos da capital ou do país; devem aparecer apenas em notas explicativas.
+O conteúdo anterior foi preservado como base e passa por validações automáticas de IDs e de nomes repetidos: dois países com o mesmo nome ou a mesma capital virariam duas alternativas iguais. Sedes administrativas e nomes coloquiais nunca são a alternativa certa; aparecem apenas em notas explicativas. Os nomes alternativos (Holanda, Suazilândia, "Inglaterra") continuam no artefato porque a busca do Atlas os entende; desde 28/09/2026 as respostas são só por escolha, então nenhum deles é mais comparado com texto digitado.
 
 Decisões editoriais sensíveis são explícitas em `src/content-policy.json`. Entre elas estão a capital da Guiné Equatorial conforme o Decreto-Lei 1/2026, a classificação M49 do Chipre na Ásia Ocidental e a distinção entre capitais, sedes de governo e nomes históricos.
 
@@ -175,11 +175,9 @@ desenhar a mesma coisa.
 ## Idiomas
 
 Ficam em `src/languages.json`, um registro por país, e são **complemento da ficha:
-nunca viram pergunta**. O motivo é o mesmo dos indicadores, e um a mais: os nomes
-de idioma colidiriam com nomes de país no universo de respostas — "português"
-disputaria com "Portugal" na validação por semelhança, exatamente o tipo de
-ambiguidade que a política de Kingston/Kingstown existe para impedir. Um teste
-barra a entrada de qualquer nome de idioma nas respostas aceitas.
+nunca viram pergunta**, pelo mesmo motivo dos indicadores. As alternativas do
+quiz são nomes de país e de capital, e um teste confere que nenhuma delas é nome
+de idioma.
 
 O dado é **editorial**, como as capitais e os nomes de país, e não gerado de uma
 API: nenhuma fonte global entrega os nomes em português nem resolve as ressalvas
@@ -216,7 +214,7 @@ lista, campo fora do esquema e nota que não seja frase completa.
 
 ## Moedas
 
-Ficam em `src/currencies.json`, um registro por país, e seguem **a mesma política dos idiomas: complementam a ficha e nunca viram pergunta**. Adivinhar moeda não é conhecimento geográfico, e o dado muda com redenominações, adesões ao euro e trocas de regime cambial. Um teste barra a entrada de qualquer nome de moeda no universo de respostas aceitas.
+Ficam em `src/currencies.json`, um registro por país, e seguem **a mesma política dos idiomas: complementam a ficha e nunca viram pergunta**. Adivinhar moeda não é conhecimento geográfico, e o dado muda com redenominações, adesões ao euro e trocas de regime cambial. Um teste confere que nenhum nome de moeda coincide com as alternativas do quiz, que são nomes de país e de capital.
 
 Cada entrada traz `moedas` — uma ou duas, cada uma com `nome` em português e `codigo` ISO 4217 — e uma `nota` opcional. O código acompanha o nome porque é ele que não muda de grafia entre línguas, e porque distingue os muitos "dólar", "franco" e "peso" entre si. O nome vai em minúscula: em português, moeda é substantivo comum. A única exceção registrada é o **ZiG** do Zimbábue, grafado assim pelo próprio banco central.
 
@@ -243,8 +241,8 @@ São 142 moedas distintas para 195 países: o euro cobre 26 (os 21 da zona, mais
 
 São **complementos da ficha do país e nunca viram pergunta**. Adivinhar IDH não é
 conhecimento geográfico, e o índice reduz um país a um número que muda a cada
-edição do relatório. Um teste barra a entrada de qualquer um deles no conjunto de
-respostas aceitas.
+edição do relatório. Um teste confere que nenhum deles aparece nas alternativas
+do quiz.
 
 Cada número aparece **com o próprio ano**, porque as séries não andam juntas:
 

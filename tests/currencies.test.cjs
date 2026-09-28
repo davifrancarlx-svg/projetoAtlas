@@ -59,13 +59,12 @@ test('a nota só existe quando o estatuto legal não conta a história sozinho',
 });
 
 test('nenhum nome de moeda entra no universo de respostas do quiz', () => {
-  // O mesmo risco que manteve os idiomas fora das respostas: um nome de moeda
-  // que colida com país ou capital faria a validação por semelhança aceitar
-  // uma resposta errada.
+  // As alternativas do quiz são nomes de país e de capital. Uma moeda com o
+  // mesmo nome de um deles apareceria na busca como se fosse a mesma coisa.
   const respostas = new Set();
   base.forEach((country) => {
-    Core.acceptedAnswers(country, 'country').forEach((value) => respostas.add(Core.normalizeText(value)));
-    Core.acceptedAnswers(country, 'capital').forEach((value) => respostas.add(Core.normalizeText(value)));
+    respostas.add(Core.normalizeText(country.n));
+    respostas.add(Core.normalizeText(country.cap));
   });
   Object.entries(currencies).forEach(([id, entry]) => entry.moedas.forEach((moeda) => {
     assert.equal(respostas.has(Core.normalizeText(moeda.nome)), false,

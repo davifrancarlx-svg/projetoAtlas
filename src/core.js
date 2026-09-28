@@ -18,9 +18,6 @@
     locate: 'location', mapId: 'location',
     reg: 'region'
   });
-  // A região é sempre escolha: digitar "América do Sul" com acento e artigo
-  // punia grafia, não conhecimento geográfico.
-  var PICK_ONLY_DIRECTIONS = Object.freeze(['flagOf', 'locate', 'reg']);
   var LEGACY_FAMILY_DIRECTIONS = Object.freeze({
     f: Object.freeze(['flag', 'flagOf']),
     c: Object.freeze(['cap', 'capOf']),
@@ -33,25 +30,10 @@
     reg: Object.freeze(['reg']),
     mix: QUESTION_DIRECTIONS
   });
-  var ALIAS_TYPES = Object.freeze({
-    CANONICAL: 'canonical',
-    EQUIVALENT: 'equivalent',
-    TRANSLITERATION: 'transliteration',
-    OFFICIAL: 'official',
-    ADMINISTRATIVE_SEAT: 'administrative-seat',
-    HISTORIC: 'historic',
-    COMMON_MISTAKE: 'common-mistake',
-    LEGACY_UNTYPED: 'legacy-untyped'
-  });
-  var SAFE_ALIAS_TYPES = Object.freeze([
-    ALIAS_TYPES.EQUIVALENT,
-    ALIAS_TYPES.TRANSLITERATION,
-    ALIAS_TYPES.OFFICIAL
-  ]);
   var REVIEW_INTERVAL_DAYS = Object.freeze([0, 1, 3, 7, 14, 30]);
   var DAY_MS = 24 * 60 * 60 * 1000;
-  // Uma resposta certa não prova a mesma coisa em toda situação: digitar de
-  // cabeça é evidência forte, acertar devagar entre quatro alternativas pode ser
+  // Uma resposta certa não prova a mesma coisa em toda situação: acertar na
+  // hora é evidência forte, acertar devagar entre quatro alternativas pode ser
   // eliminação ou sorte. A nota traduz isso no tamanho do passo e do intervalo.
   var ANSWER_GRADES = Object.freeze(['again', 'hard', 'good', 'easy']);
   // Segundos de referência para separar "veio na hora" de "custou a vir". Não é
@@ -136,101 +118,10 @@
     return previous[m];
   }
 
-  function fuzzyTolerance(normalizedTarget) {
-    var length = normalizeText(normalizedTarget).replace(/ /g, '').length;
-    if (length <= 6) return 0;
-    if (length <= 11) return 1;
-    return 2;
-  }
-
-  function aliasIsSafe(type, options) {
-    var safeTypes = options && Array.isArray(options.safeAliasTypes)
-      ? options.safeAliasTypes
-      : SAFE_ALIAS_TYPES;
-    if (type === ALIAS_TYPES.LEGACY_UNTYPED) {
-      return !!(options && options.allowLegacyUntyped);
-    }
-    return safeTypes.indexOf(type) !== -1;
-  }
-
   function canonicalValue(country, field) {
     if (!country) return '';
     if (field === 'capital' || field === 'cap') return country.cap || country.capital || '';
     return country.n || country.name || '';
-  }
-
-  function normalizeAliasEntry(alias, field, legacy) {
-    if (typeof alias === 'string') {
-      return {
-        value: alias,
-        field: field,
-        type: legacy ? ALIAS_TYPES.LEGACY_UNTYPED : ALIAS_TYPES.EQUIVALENT
-      };
-    }
-    if (!isPlainObject(alias) || typeof alias.value !== 'string') return null;
-    return {
-      value: alias.value,
-      field: alias.field || field,
-      type: alias.type || ALIAS_TYPES.LEGACY_UNTYPED,
-      note: typeof alias.note === 'string' ? alias.note : undefined
-    };
-  }
-
-  function aliasEntries(country, field) {
-    var result = [];
-    var aliases = country && country.aliases;
-    var raw;
-    if (Array.isArray(aliases)) {
-      aliases.forEach(function (alias) {
-        var entry = normalizeAliasEntry(alias, field, false);
-        if (entry && (entry.field === field || (field === 'country' && entry.field === 'name'))) {
-          result.push(entry);
-        }
-      });
-    } else if (isPlainObject(aliases)) {
-      raw = aliases[field] || (field === 'country' ? aliases.name : null);
-      if (Array.isArray(raw)) {
-        raw.forEach(function (alias) {
-          var entry = normalizeAliasEntry(alias, field, false);
-          if (entry) result.push(entry);
-        });
-      }
-    }
-    raw = field === 'capital' ? country && country.calt : country && country.alt;
-    if (Array.isArray(raw)) {
-      raw.forEach(function (alias) {
-        var entry = normalizeAliasEntry(alias, field, true);
-        if (entry) result.push(entry);
-      });
-    }
-    return result;
-  }
-
-  function acceptedAnswerEntries(country, field, options) {
-    field = field === 'cap' ? 'capital' : (field === 'name' ? 'country' : field);
-    if (field !== 'country' && field !== 'capital') {
-      throw new RangeError('Unknown answer field: ' + field);
-    }
-    var canonical = canonicalValue(country, field);
-    var entries = [];
-    var normalizedSeen = Object.create(null);
-    if (typeof canonical === 'string' && normalizeText(canonical)) {
-      normalizedSeen[normalizeText(canonical)] = true;
-      entries.push({ value: canonical, field: field, type: ALIAS_TYPES.CANONICAL });
-    }
-    aliasEntries(country, field).forEach(function (entry) {
-      var normalized = normalizeText(entry.value);
-      if (!normalized || normalizedSeen[normalized] || !aliasIsSafe(entry.type, options)) return;
-      normalizedSeen[normalized] = true;
-      entries.push(entry);
-    });
-    return entries;
-  }
-
-  function acceptedAnswers(country, field, options) {
-    return acceptedAnswerEntries(country, field, options).map(function (entry) {
-      return entry.value;
-    });
   }
 
   function createCanonicalIndex(countries, field) {
@@ -248,119 +139,6 @@
       byNormalized[normalized].push(entry);
     });
     return { field: field, entries: entries, byNormalized: byNormalized };
-  }
-
-  function canonicalEntriesFrom(options) {
-    if (!options || !options.canonicalAnswers) return [];
-    var source = options.canonicalAnswers;
-    if (source && Array.isArray(source.entries)) source = source.entries;
-    if (!Array.isArray(source)) return [];
-    return source.map(function (entry) {
-      if (typeof entry === 'string') {
-        return { id: undefined, value: entry, normalized: normalizeText(entry) };
-      }
-      if (!entry) return null;
-      var value = entry.value || canonicalValue(entry, options.field || 'country');
-      return {
-        id: entry.id,
-        value: value,
-        normalized: entry.normalized || normalizeText(value)
-      };
-    }).filter(function (entry) { return entry && entry.normalized; });
-  }
-
-  function trustedAcceptedEntries(accepted, options) {
-    if (!Array.isArray(accepted)) return [];
-    return accepted.map(function (entry) {
-      if (typeof entry === 'string') {
-        return { value: entry, type: ALIAS_TYPES.CANONICAL };
-      }
-      if (!entry || typeof entry.value !== 'string') return null;
-      if (entry.type && entry.type !== ALIAS_TYPES.CANONICAL && !aliasIsSafe(entry.type, options)) {
-        return null;
-      }
-      return entry;
-    }).filter(Boolean);
-  }
-
-  function matchAnswer(input, accepted, options) {
-    options = options || {};
-    var guess = normalizeText(input);
-    if (!guess) return { ok: false, reason: 'empty', normalized: guess };
-    var targets = trustedAcceptedEntries(accepted, options).map(function (entry) {
-      return {
-        value: entry.value,
-        type: entry.type || ALIAS_TYPES.CANONICAL,
-        normalized: normalizeText(entry.value)
-      };
-    }).filter(function (entry) { return entry.normalized; });
-    if (!targets.length) return { ok: false, reason: 'no-accepted-answers', normalized: guess };
-
-    var canonicals = canonicalEntriesFrom(options);
-    var conflictingExact = canonicals.filter(function (entry) {
-      return entry.normalized === guess && entry.id !== options.targetId;
-    });
-    var exactTarget = targets.find(function (entry) { return entry.normalized === guess; });
-    if (conflictingExact.length) {
-      return {
-        ok: false,
-        reason: 'canonical-collision',
-        normalized: guess,
-        conflicts: conflictingExact.map(function (entry) { return entry.id; })
-      };
-    }
-    if (exactTarget) {
-      return { ok: true, reason: 'exact', normalized: guess, matched: exactTarget.value, distance: 0 };
-    }
-
-    var bestTarget = null;
-    targets.forEach(function (target) {
-      var distance = levenshtein(guess, target.normalized);
-      var tolerance = typeof options.tolerance === 'number'
-        ? options.tolerance
-        : fuzzyTolerance(target.normalized);
-      if (distance <= tolerance && (!bestTarget || distance < bestTarget.distance)) {
-        bestTarget = { value: target.value, distance: distance, tolerance: tolerance };
-      }
-    });
-    if (!bestTarget) return { ok: false, reason: 'no-match', normalized: guess };
-
-    var competing = canonicals.filter(function (entry) {
-      if (entry.id === options.targetId) return false;
-      var distance = levenshtein(guess, entry.normalized);
-      var tolerance = typeof options.tolerance === 'number'
-        ? options.tolerance
-        : fuzzyTolerance(entry.normalized);
-      return distance <= tolerance && distance <= bestTarget.distance;
-    }).map(function (entry) { return entry.id; });
-    if (competing.length) {
-      return {
-        ok: false,
-        reason: 'canonical-collision',
-        normalized: guess,
-        conflicts: uniqueStrings(competing)
-      };
-    }
-    return {
-      ok: true,
-      reason: 'fuzzy',
-      normalized: guess,
-      matched: bestTarget.value,
-      distance: bestTarget.distance
-    };
-  }
-
-  function fuzzy(input, accepted, options) {
-    return matchAnswer(input, accepted, options).ok;
-  }
-
-  function matchCountryAnswer(input, country, field, countries, options) {
-    options = Object.assign({}, options || {}, {
-      targetId: country && country.id,
-      field: field,
-      canonicalAnswers: createCanonicalIndex(countries || [country], field)
-    });
-    return matchAnswer(input, acceptedAnswerEntries(country, field, options), options);
   }
 
   function isoTimestamp(value) {
@@ -767,21 +545,21 @@
 
   // Traduz o modo como a resposta veio numa das quatro notas. `optionCount`
   // importa porque acertar entre quatro alternativas carrega 25% de chance
-  // cega; digitar não carrega nenhuma. Sem tempo medido a nota fica em 'good',
-  // que é exatamente o comportamento antigo — nada regride por falta de dado.
+  // cega; apontar no mapa, sem alternativas, não carrega nenhuma. Sem tempo
+  // medido a nota fica em 'good' — nada regride por falta de dado.
   function gradeAnswer(options) {
     options = options || {};
     if (!options.correct) return 'again';
     var seconds = Number.isFinite(options.ms) && options.ms > 0 ? options.ms / 1000 : null;
     var guessable = safeInteger(options.optionCount, 2, 64) ? options.optionCount : 0;
-    var typed = options.answerMode === 'type' || guessable === 0;
+    var recall = guessable === 0;
     if (seconds === null) return 'good';
     // Os limiares são fixos de propósito. O tempo de recuperação é propriedade
     // da memória, não do cronômetro: sob teto de 15 s, quem responde em 3 s
     // lembrou na hora do mesmo jeito. E o teto de 12 s já captura sozinho quem
     // chegou perto de estourar o tempo.
-    if (seconds <= FLUENT_SECONDS) return typed ? 'easy' : 'good';
-    if (seconds >= LABORED_SECONDS && !typed) return 'hard';
+    if (seconds <= FLUENT_SECONDS) return recall ? 'easy' : 'good';
+    if (seconds >= LABORED_SECONDS && !recall) return 'hard';
     return 'good';
   }
 
@@ -1249,11 +1027,6 @@
       directions = directions.filter(function (direction) { return direction !== 'reg'; });
       if (!directions.length) throw new RangeError('Region questions are only available for Mundo inteiro');
     }
-    if (options.answerMode === 'type') {
-      directions = directions.filter(function (direction) {
-        return PICK_ONLY_DIRECTIONS.indexOf(direction) === -1;
-      });
-    }
     if (!directions.length) directions = ['flag'];
     // A área de estudo aceita tanto um balde amplo (`r`) quanto uma subregião
     // (`sr`). Fora das Américas as duas coincidem, então o comportamento antigo
@@ -1312,7 +1085,8 @@
         question.answerId = itemId(answer);
         question.opts = pickFrom(answer, pool.filter(eligible), countries.filter(eligible));
       }
-    } else if (options.answerMode === 'pick' || direction === 'flagOf') {
+    } else {
+      // Toda resposta é por escolha: as quatro alternativas sempre existem.
       question.opts = pickFrom(target, pool, countries);
     }
     var recent = (options.recentIds || []).concat(target.id);
@@ -1339,29 +1113,15 @@
       if (hasOwn(country, 'c') && (!Array.isArray(country.c) || country.c.length !== 2 || !country.c.every(Number.isFinite))) {
         errors.push(path + '.c: invalid projected center');
       }
-      ['country', 'capital'].forEach(function (field) {
-        aliasEntries(country, field).forEach(function (entry) {
-          if (entry.type === ALIAS_TYPES.LEGACY_UNTYPED) {
-            warnings.push(path + ': untyped legacy ' + field + ' alias ignored: ' + entry.value);
-          }
-        });
-      });
     });
+    // Dois países com o mesmo nome, ou a mesma capital, virariam duas
+    // alternativas iguais na mesma pergunta.
     ['country', 'capital'].forEach(function (field) {
       var index = createCanonicalIndex(countries.filter(isPlainObject), field);
       Object.keys(index.byNormalized).forEach(function (normalized) {
         var entries = index.byNormalized[normalized];
         var distinctIds = uniqueStrings(entries.map(function (entry) { return entry.id; }));
         if (distinctIds.length > 1) errors.push(field + ' canonical collision "' + normalized + '": ' + distinctIds.join(', '));
-      });
-      countries.filter(isPlainObject).forEach(function (country) {
-        acceptedAnswerEntries(country, field, options).slice(1).forEach(function (alias) {
-          var normalized = normalizeText(alias.value);
-          var collisions = (index.byNormalized[normalized] || []).filter(function (entry) { return entry.id !== country.id; });
-          if (collisions.length) {
-            errors.push(field + ' safe alias "' + alias.value + '" for ' + country.id + ' collides with ' + collisions.map(function (entry) { return entry.id; }).join(', '));
-          }
-        });
       });
     });
     return { valid: errors.length === 0, errors: errors, warnings: warnings };
@@ -1875,7 +1635,6 @@
     QUESTION_DIRECTIONS: QUESTION_DIRECTIONS,
     DIRECTION_FAMILY: DIRECTION_FAMILY,
     MODE_DIRECTIONS: MODE_DIRECTIONS,
-    PICK_ONLY_DIRECTIONS: PICK_ONLY_DIRECTIONS,
     regionsOf: regionsOf,
     studyAreasOf: studyAreasOf,
     project: project,
@@ -1890,19 +1649,11 @@
     territoryForPoint: territoryForPoint,
     cloudReady: cloudReady,
     planSync: planSync,
-    ALIAS_TYPES: ALIAS_TYPES,
-    SAFE_ALIAS_TYPES: SAFE_ALIAS_TYPES,
     REVIEW_INTERVAL_DAYS: REVIEW_INTERVAL_DAYS,
     normalizeText: normalizeText,
     norm: normalizeText,
     levenshtein: levenshtein,
     lev: levenshtein,
-    fuzzyTolerance: fuzzyTolerance,
-    fuzzy: fuzzy,
-    matchAnswer: matchAnswer,
-    matchCountryAnswer: matchCountryAnswer,
-    acceptedAnswers: acceptedAnswers,
-    acceptedAnswerEntries: acceptedAnswerEntries,
     createCanonicalIndex: createCanonicalIndex,
     createProgress: createProgress,
     createEnvelope: createEnvelope,

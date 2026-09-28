@@ -42,79 +42,17 @@ test('computes Levenshtein distance including empty strings', () => {
   assert.equal(Core.levenshtein('', 'atlas'), 5);
 });
 
-test('fuzzy matching accepts a small typo but rejects empty and short guesses', () => {
-  assert.equal(Core.fuzzy('Portugl', ['Portugal']), true);
-  assert.equal(Core.fuzzy('Brasli', ['Brasil']), false);
-  assert.deepEqual(Core.matchAnswer('  ', ['Brasil']), {
-    ok: false,
-    reason: 'empty',
-    normalized: ''
-  });
-});
-
-test('canonical universe prevents Kingston from being accepted as Kingstown', () => {
-  const result = Core.matchCountryAnswer(
-    'Kingston',
-    COUNTRIES.find(country => country.id === 'VC'),
-    'capital',
-    COUNTRIES
-  );
-  assert.equal(result.ok, false);
-  assert.equal(result.reason, 'canonical-collision');
-  assert.deepEqual(result.conflicts, ['JM']);
-  assert.equal(Core.matchCountryAnswer(
-    'Kingstown',
-    COUNTRIES.find(country => country.id === 'VC'),
-    'capital',
-    COUNTRIES
-  ).ok, true);
-});
-
-test('a closer canonical competitor also blocks an ambiguous fuzzy guess', () => {
-  const result = Core.matchAnswer('abcdefgj', ['abcdefgh'], {
-    targetId: 'AA',
-    canonicalAnswers: [
-      { id: 'AA', value: 'abcdefgh' },
-      { id: 'BB', value: 'abcdefgi' }
-    ]
-  });
-  assert.equal(result.ok, false);
-  assert.equal(result.reason, 'canonical-collision');
-});
-
-test('only explicitly safe alias types are automatically accepted', () => {
-  const country = {
-    id: 'ZZ',
-    n: 'Teste',
-    cap: 'Nova Capital',
-    calt: ['Alias legado'],
-    aliases: {
-      capital: [
-        { value: 'Capital Nova', type: Core.ALIAS_TYPES.EQUIVALENT },
-        { value: 'Novaya Stolitsa', type: Core.ALIAS_TYPES.TRANSLITERATION },
-        { value: 'Sede Administrativa', type: Core.ALIAS_TYPES.ADMINISTRATIVE_SEAT },
-        { value: 'Capital Antiga', type: Core.ALIAS_TYPES.HISTORIC },
-        { value: 'Erro Popular', type: Core.ALIAS_TYPES.COMMON_MISTAKE }
-      ]
-    }
-  };
-  assert.deepEqual(Core.acceptedAnswers(country, 'capital'), [
-    'Nova Capital', 'Capital Nova', 'Novaya Stolitsa'
-  ]);
-  assert.equal(Core.fuzzy('Sede Administrativa', Core.acceptedAnswerEntries(country, 'capital')), false);
-  assert.equal(Core.acceptedAnswers(country, 'capital', { allowLegacyUntyped: true }).includes('Alias legado'), true);
-});
-
-test('dataset invariants detect duplicate IDs and unsafe canonical collisions', () => {
+// Dois países com a mesma capital virariam duas alternativas iguais.
+test('dataset invariants detect duplicate IDs and repeated capitals', () => {
   const bad = [
-    { id: 'AA', n: 'A', cap: 'Alpha', aliases: { capital: [{ value: 'Beta', type: 'equivalent' }] } },
+    { id: 'AA', n: 'A', cap: 'Alpha' },
     { id: 'AA', n: 'B', cap: 'Gamma' },
-    { id: 'BB', n: 'C', cap: 'Beta' }
+    { id: 'BB', n: 'C', cap: 'Alpha' }
   ];
   const report = Core.inspectDataset(bad);
   assert.equal(report.valid, false);
   assert.match(report.errors.join('\n'), /duplicate id AA/);
-  assert.match(report.errors.join('\n'), /safe alias "Beta"/);
+  assert.match(report.errors.join('\n'), /capital canonical collision "alpha"/);
   assert.throws(() => Core.assertDatasetInvariants(bad), Core.DatasetInvariantError);
 });
 
@@ -325,7 +263,6 @@ test('question creation is deterministic, unique and does not mutate recency', (
     progress: progress(),
     mode: 'flag',
     region: 'Mundo inteiro',
-    answerMode: 'pick',
     recentIds: recent,
     rng: () => 0,
     now: NOW
@@ -339,13 +276,23 @@ test('question creation is deterministic, unique and does not mutate recency', (
   assert.deepEqual(Core.inspectQuestion(result.question, COUNTRIES), { valid: true, errors: [] });
 });
 
+// O Atlas só responde por escolha: toda pergunta nasce com as alternativas,
+// sem nenhum modo de resposta a informar.
+test('every direction is multiple choice without an answer mode', () => {
+  for (const direction of ['flag', 'flagOf', 'cap', 'capOf', 'mapId', 'reg']) {
+    const { question } = Core.createQuestion({
+      countries: COUNTRIES, progress: progress(), directions: [direction], rng: () => 0, now: NOW,
+    });
+    assert.ok(Array.isArray(question.opts) && question.opts.length >= 2, `${direction} sem alternativas`);
+  }
+});
+
 test('question creation supports explicit directions and a forced target', () => {
   const result = Core.createQuestion({
     countries: COUNTRIES,
     progress: progress(),
     directions: ['mapId'],
     forcedId: 'VC',
-    answerMode: 'pick',
     rng: () => 0,
     now: NOW
   });
@@ -365,14 +312,14 @@ test('question creation supports explicit directions and a forced target', () =>
 
 test('mapa → país alterna entre pin e silhueta, e a silhueta poupa quem não tem forma', () => {
   const make = (rng, countries = COUNTRIES) => Core.createQuestion({
-    countries, progress: progress(), directions: ['mapId'], forcedId: 'VC', answerMode: 'pick', rng, now: NOW,
+    countries, progress: progress(), directions: ['mapId'], forcedId: 'VC', rng, now: NOW,
   }).question;
   assert.equal(make(() => 0).variant, 'shape');
   assert.equal(make(() => 0.9).variant, 'pin');
   const pequeno = COUNTRIES.map((country) => country.id === 'VC' ? { ...country, a: Core.SHAPE_MIN_AREA / 2 } : country);
   assert.equal(make(() => 0, pequeno).variant, 'pin', 'Um país minúsculo nunca vira silhueta.');
   assert.equal(Core.createQuestion({
-    countries: COUNTRIES, progress: progress(), directions: ['flag'], forcedId: 'VC', answerMode: 'pick', rng: () => 0, now: NOW,
+    countries: COUNTRIES, progress: progress(), directions: ['flag'], forcedId: 'VC', rng: () => 0, now: NOW,
   }).question.variant, undefined, 'Só mapa → país tem variante.');
 });
 
@@ -392,7 +339,7 @@ const LOCATE_COUNTRIES = [
 function locateQuestion(rng, forcedId = 'BR', countries = LOCATE_COUNTRIES) {
   return Core.createQuestion({
     countries, progress: Core.createProgress({ now: NOW }), directions: ['locate'],
-    forcedId, answerMode: 'pick', rng, now: NOW,
+    forcedId, rng, now: NOW,
   }).question;
 }
 
@@ -456,7 +403,6 @@ test('region questions are rejected outside Mundo inteiro', () => {
     progress: progress(),
     directions: ['reg'],
     region: 'Europa',
-    answerMode: 'pick',
     rng: () => 0
   }), /only available for Mundo inteiro/);
 });
@@ -509,7 +455,6 @@ test('escolher uma subregião restringe o sorteio sem alterar o balde amplo', ()
       countries: AREA_COUNTRIES,
       directions: ['cap'],
       region: 'Caribe',
-      answerMode: 'pick',
       progress: base,
       rng: () => (seed * 0.025) % 1
     });
@@ -523,7 +468,6 @@ test('escolher uma subregião restringe o sorteio sem alterar o balde amplo', ()
       countries: AREA_COUNTRIES,
       directions: ['cap'],
       region: 'América do Norte, Central e Caribe',
-      answerMode: 'pick',
       progress: base,
       rng: () => (seed * 0.025) % 1
     });
