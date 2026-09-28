@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d222e" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-MYL2dbzu2nRNjoNW/pq7fut7OaGwh0YqQ9ortzvCyKY='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-rkRfrKJPnTFUoDBnYHmIM5HM0mY6eq1jzHKaOvS8Mzg=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-ViMCeuwn6ouLx45j+GrtXXUsPVFTiSVNYpsXl8fLRiI='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-7W4ahTwoes6bQWFUukzb1L5Z3+RTkcR1mf52WKhamH8='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-8IQkmPyTM/5HRNBMfrNj4cV0xWS8MC9TfiOh2QZnvXk=' 'sha256-v8TnReDfiktawJF4Mj17YYW8LUfeo91KiCoxgWO19sI=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-PWTOWVU3qTpIIqsCr1ntudcMtyX1vtgprFsMofEDucw='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <title>Atlas 195 — bandeiras, capitais e localização</title>
   <meta name="description" content="Treino de geografia dos 195 países: bandeiras, capitais, localização no mapa e regiões, com revisão espaçada. Funciona sem internet e guarda o progresso só no seu aparelho.">
 
@@ -2658,6 +2658,26 @@ a.chip {
   filter: drop-shadow(0 7px 24px var(--shadow-strong));
 }
 
+/* Silhueta real na ficha: a forma que o mapa-múndi estica ou inclina. */
+.atlas-shape {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.atlas-shape .shape-svg {
+  height: 150px;
+}
+
+.atlas-shape figcaption {
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 /* Ficha do Atlas: domínio por habilidade e atalho para praticar o país. */
 .atlas-mastery {
   grid-column: 1 / -1;
@@ -4705,6 +4725,99 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     return Math.max(minimum, Math.min(maximum, value));
   }
 
+  /* Forma real. A Robinson serve bem ao mundo inteiro, mas estica o que fica
+   * perto dos polos e inclina o que fica longe do meridiano central: a Islândia
+   * sai quase duas vezes mais larga do que é, a Nova Zelândia sai deitada. O
+   * mapa continua Robinson; a silhueta, que é onde a forma é o assunto, volta
+   * cada ponto a longitude e latitude e o reprojeta num globo visto de frente,
+   * centrado no aglomerado principal do país. */
+  var TRUE_SHAPE_SCALE = 170;
+  var DISTORTION_NOTE_RATIO = 1.25;
+
+  function countryCenter(country, projection) {
+    var box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    return unproject((box[0] + box[2]) / 2, (box[1] + box[3]) / 2, projection);
+  }
+
+  function trueShape(country, projection) {
+    var box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    var margin = Math.max(box[2] - box[0], box[3] - box[1]) * 0.02;
+    var center = countryCenter(country, projection);
+    var lon0 = center[0] * Math.PI / 180;
+    var sin0 = Math.sin(center[1] * Math.PI / 180);
+    var cos0 = Math.cos(center[1] * Math.PI / 180);
+    var bounds = [Infinity, Infinity, -Infinity, -Infinity];
+    var path = '';
+    // O contorno do mapa só usa M, L e Z absolutos: cada M abre um anel.
+    String(country.d || '').split('M').forEach(function (ring) {
+      var numbers = ring.match(/-?\d+(?:\.\d+)?/g) || [];
+      var points = [];
+      var inside = false;
+      for (var index = 0; index + 1 < numbers.length; index += 2) {
+        var x = Number(numbers[index]);
+        var y = Number(numbers[index + 1]);
+        if (x >= box[0] - margin && x <= box[2] + margin && y >= box[1] - margin && y <= box[3] + margin) inside = true;
+        points.push([x, y]);
+      }
+      // Os anéis fora do aglomerado principal ficam de fora, como no recorte
+      // da silhueta do mapa: o Alasca não entra na forma dos Estados Unidos.
+      if (!inside) return;
+      path += points.map(function (point, order) {
+        var place = unproject(point[0], point[1], projection);
+        var lambda = place[0] * Math.PI / 180 - lon0;
+        var phi = place[1] * Math.PI / 180;
+        var px = TRUE_SHAPE_SCALE * Math.cos(phi) * Math.sin(lambda);
+        var py = -TRUE_SHAPE_SCALE * (cos0 * Math.sin(phi) - sin0 * Math.cos(phi) * Math.cos(lambda));
+        bounds = [Math.min(bounds[0], px), Math.min(bounds[1], py), Math.max(bounds[2], px), Math.max(bounds[3], py)];
+        return (order ? 'L' : 'M') + px.toFixed(2) + ' ' + py.toFixed(2);
+      }).join('') + 'Z';
+    });
+    return { d: path, box: path ? bounds : box.slice() };
+  }
+
+  // Quanto a projeção deforma a forma no centro do país: `ratio` é a razão
+  // entre a maior e a menor escala local (1 = forma preservada), `stretch` diz
+  // quanto o leste-oeste sai maior que o norte-sul e `tilt`, em graus, quanto
+  // o meridiano local se inclina.
+  function shapeDistortion(country, projection) {
+    var center = countryCenter(country, projection);
+    var lon = center[0];
+    var lat = clampNumber(center[1], -85, 85);
+    var step = 0.05;
+    var cos = Math.cos(lat * Math.PI / 180);
+    var origin = project(lon, lat, projection);
+    var east = project(lon + step, lat, projection);
+    var north = project(lon, lat + step, projection);
+    var a = (east[0] - origin[0]) / (step * cos);
+    var c = (east[1] - origin[1]) / (step * cos);
+    var b = (north[0] - origin[0]) / step;
+    var d = (north[1] - origin[1]) / step;
+    var sum = a * a + b * b + c * c + d * d;
+    var det = Math.abs(a * d - b * c);
+    var major = Math.sqrt((sum + Math.sqrt(Math.max(0, sum * sum - 4 * det * det))) / 2);
+    return {
+      ratio: major / (det / major),
+      stretch: Math.hypot(a, c) / Math.hypot(b, d),
+      tilt: Math.atan2(Math.abs(b), Math.abs(d)) * 180 / Math.PI
+    };
+  }
+
+  // A frase da ficha. Só existe quando a deformação passa do que se nota a
+  // olho, e diz qual dos dois efeitos aconteceu com aquele país.
+  function distortionNote(country, projection) {
+    var measure = shapeDistortion(country, projection);
+    if (measure.ratio <= DISTORTION_NOTE_RATIO) return null;
+    var stretched = measure.stretch >= 1.15;
+    var tilted = measure.tilt >= 12;
+    var how = stretched && tilted ? 'esticada na horizontal e inclinada'
+      : (stretched ? 'esticada na horizontal' : (tilted ? 'inclinada' : 'deformada'));
+    var why = stretched && !tilted ? 'alarga o que fica perto dos polos'
+      : (tilted && !stretched ? 'entorta o que fica longe do centro do mapa'
+        : 'deforma o que fica longe do equador e do centro do mapa');
+    return 'No mapa-múndi, a forma deste país sai ' + how + ': toda projeção plana do mundo ' + why
+      + '. A silhueta mostra a forma real.';
+  }
+
   function viewLimits(world, options) {
     options = options || {};
     var maxZoom = Number.isFinite(options.maxZoom) && options.maxZoom > 1 ? options.maxZoom : 1;
@@ -5037,6 +5150,9 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     studyAreasOf: studyAreasOf,
     project: project,
     unproject: unproject,
+    trueShape: trueShape,
+    shapeDistortion: shapeDistortion,
+    distortionNote: distortionNote,
     clampNumber: clampNumber,
     clampView: clampView,
     zoomView: zoomView,
@@ -6051,6 +6167,17 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
         }))}`
         : 'Sem fronteiras terrestres.' }));
       elements.detail.append(flagImage(country, { eager: true }), copy);
+      // A ficha é onde se estuda a forma, então a silhueta é a real, e não a do
+      // mapa-múndi. Quando o mapa a deforma a ponto de se notar, a nota diz como.
+      if (Core.isShapeable(country)) {
+        const forma = el('figure', { className: 'atlas-shape' }, [
+          ui.shape(country, `Silhueta de ${country.n} na forma real`),
+          el('figcaption', { text: 'Forma real' }),
+        ]);
+        const nota = Core.distortionNote(country, ui.projection);
+        if (nota) forma.append(el('p', { className: 'note', text: nota }));
+        elements.detail.append(forma);
+      }
       elements.detail.append(masteryCard(country));
 
       const indicadores = ui.indicadores(country);
@@ -6320,7 +6447,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
   const EXPIRED_ANSWER = Symbol('tempo esgotado');
   const state = {
     ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro', answerMode: 'pick',
-    includeVisual: true, mapCollapsed: false, filtersCollapsed: true, focusMode: false,
+    includeVisual: true, mapCollapsed: false, filtersCollapsed: null, focusMode: false,
     question: null, questionAnswerMode: 'pick', answered: false,
     selectedAnswer: null, answerMatch: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
@@ -6522,7 +6649,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     const safe = {
       mode: state.mode, region: state.region, answerMode: state.answerMode,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
-      filtersCollapsed: state.filtersCollapsed, focusMode: state.focusMode,
+      filtersHidden: state.filtersCollapsed, focusMode: state.focusMode,
       timeLimit: state.timeLimit, theme: state.theme, dailySize: state.dailySize || 10,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
@@ -6537,7 +6664,11 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       if (parsed.answerMode === 'pick' || parsed.answerMode === 'type') state.answerMode = parsed.answerMode;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
-      if (typeof parsed.filtersCollapsed === 'boolean') state.filtersCollapsed = parsed.filtersCollapsed;
+      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, mais abaixo).
+      // O campo antigo, `filtersCollapsed`, era gravado junto com qualquer outra
+      // preferência enquanto o padrão era fechado, então não diz se a pessoa
+      // escolheu recolher: só o novo vale.
+      if (typeof parsed.filtersHidden === 'boolean') state.filtersCollapsed = parsed.filtersHidden;
       if (typeof parsed.focusMode === 'boolean') state.focusMode = parsed.focusMode;
       if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
       if ([5, 10, 20].includes(parsed.dailySize)) state.dailySize = parsed.dailySize;
@@ -7683,17 +7814,19 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       + `${formatList(vizinhos.map((outro) => outro.n))}.`;
   }
 
-  // A silhueta é o próprio contorno do mapa, recortado pelo aglomerado
-  // principal: aparece a forma que se reconhece, sem as ilhas a um oceano de
-  // distância.
+  // A silhueta é a forma real (Core.trueShape), não a do mapa-múndi, que
+  // estica o que fica perto dos polos. O recorte continua sendo o aglomerado
+  // principal: a forma que se reconhece, sem as ilhas a um oceano de distância.
+  const trueShapes = new Map();
   function countryShape(country, label) {
-    const box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    if (!trueShapes.has(country.id)) trueShapes.set(country.id, Core.trueShape(country, PROJECTION));
+    const { d, box } = trueShapes.get(country.id);
     const pad = Math.max(box[2] - box[0], box[3] - box[1]) * 0.08 + 0.2;
     const svg = svgElement('svg', Object.assign({
       class: 'shape-svg',
       viewBox: `${(box[0] - pad).toFixed(2)} ${(box[1] - pad).toFixed(2)} ${(box[2] - box[0] + pad * 2).toFixed(2)} ${(box[3] - box[1] + pad * 2).toFixed(2)}`,
     }, label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }));
-    svg.append(svgElement('path', { d: country.d, 'fill-rule': 'evenodd', 'clip-rule': 'evenodd' }));
+    svg.append(svgElement('path', { d, 'fill-rule': 'evenodd', 'clip-rule': 'evenodd' }));
     return svg;
   }
 
@@ -7873,6 +8006,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       create, clear, flagImage, formatArea, formatList, announce, renderScorebar,
       panel: () => dom.panel, indicadores: indicadoresDe, fatos: fatosDe,
       familyLevel: (country, directions) => countryFamilyLevel(country, directions),
+      shape: countryShape, projection: PROJECTION,
     },
     map: {
       setCursor: setMapCursor, clearMarks: clearMapMarks, mark: markCountry, reticle: showReticle,
@@ -9009,17 +9143,27 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     syncFilterLayout();
   }
 
-  function setFiltersCollapsed(collapsed, persist = true) {
+  // Sem escolha guardada, a barra fica aberta no computador e no tablet e
+  // recolhida no celular, onde ocuparia a primeira tela inteira e empurraria as
+  // alternativas para baixo da dobra. Abrir ou recolher pelo botão vira escolha
+  // da pessoa e passa a valer em qualquer tamanho.
+  const PHONE_LAYOUT = matchMedia('(max-width: 560px), (max-height: 500px)');
+  function filtersHidden() {
+    return typeof state.filtersCollapsed === 'boolean' ? state.filtersCollapsed : PHONE_LAYOUT.matches;
+  }
+
+  function setFiltersCollapsed(collapsed) {
     state.filtersCollapsed = Boolean(collapsed);
-    dom.controls.hidden = state.filtersCollapsed;
-    dom.filterToggle.setAttribute('aria-expanded', String(!state.filtersCollapsed));
-    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
-    if (icon) icon.textContent = state.filtersCollapsed ? '+' : '−';
-    if (persist) savePreferences();
+    syncFilterLayout();
+    savePreferences();
   }
 
   function syncFilterLayout() {
-    setFiltersCollapsed(state.filtersCollapsed, false);
+    const hidden = filtersHidden();
+    dom.controls.hidden = hidden;
+    dom.filterToggle.setAttribute('aria-expanded', String(!hidden));
+    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
+    if (icon) icon.textContent = hidden ? '+' : '−';
   }
 
   function bindControls() {
@@ -9053,8 +9197,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       savePreferences();
     });
     dom.focusToggle.addEventListener('click', () => {
+      // O foco esconde a barra pelo CSS; ao sair, ela volta ao que a pessoa escolheu.
       state.focusMode = !state.focusMode;
-      if (state.focusMode) setFiltersCollapsed(true, false);
       syncControls(); savePreferences();
       announce(state.focusMode ? 'Modo foco ativado.' : 'Modo foco desativado.');
     });
@@ -9095,11 +9239,9 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       const expanded = dom.filterToggle.getAttribute('aria-expanded') === 'true';
       setFiltersCollapsed(expanded);
     });
-    const desktopFilters = matchMedia('(min-width: 821px)');
-    const restoreFilterLayout = () => syncFilterLayout();
-    if (desktopFilters.addEventListener) desktopFilters.addEventListener('change', restoreFilterLayout);
-    else desktopFilters.addListener(restoreFilterLayout);
-    restoreFilterLayout();
+    if (PHONE_LAYOUT.addEventListener) PHONE_LAYOUT.addEventListener('change', syncFilterLayout);
+    else PHONE_LAYOUT.addListener(syncFilterLayout);
+    syncFilterLayout();
     dom.mapToggle.addEventListener('click', () => setMapCollapsed(!state.mapCollapsed));
     dom.skipVisual.addEventListener('click', skipVisualQuestion);
     dom.zoomIn.addEventListener('click', () => zoomAt(1.4));

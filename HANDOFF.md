@@ -289,6 +289,37 @@ do worker já com o nome `atlas-195-fb6d9cedae82` guardando o HTML novo.
   grade na primeira tela e nenhuma instrução repetindo a placa. 167 testes com
   Chrome real. `src/app.js` ficou em 146,3 de 150 KiB (97,6%).
 
+**Silhuetas na forma real e barra de opções aberta por padrão** (mesmo dia,
+commitadas, não publicadas). O usuário estranhou a Islândia no mapa. Não é
+defeito de dado: é a Robinson, que estica na horizontal o que fica perto dos
+polos e inclina o que fica longe do meridiano central. Medido nos 195: 35
+passam de 25% de deformação (Islândia 78%, Suécia, Noruega, Finlândia, Nova
+Zelândia, Canadá, Rússia, Japão, Coreias...). Trocar de projeção foi medido e
+descartado: a Winkel Tripel melhora os nórdicos e piora Japão, Nova Zelândia e
+Brasil, com 78 países acima de 25%. A escolha do usuário foi manter o mapa e
+corrigir onde a forma é o assunto:
+
+- `Core.trueShape` volta o contorno a longitude e latitude e o reprojeta
+  numa ortográfica centrada no aglomerado principal do país. Usado pelas
+  perguntas de silhueta, pelos cartões de comparação e pela ficha do Atlas,
+  que ganhou a silhueta real. A Islândia volta de 2,55 para 1,41 de largura
+  por altura (a real é cerca de 1,45).
+- `Core.distortionNote` escreve na ficha, só acima de 25%, se o país sai
+  esticado, inclinado ou os dois no mapa-múndi.
+- A barra de opções de treino abre por padrão no computador e no tablet e
+  começa recolhida no celular (até 560 px de largura ou 500 de altura), onde
+  aberta ocuparia 497 dos 844 px e esconderia as alternativas. Foi escolha do
+  usuário. Recolher ou abrir vira preferência salva em `filtersHidden`; o
+  antigo `filtersCollapsed` é ignorado porque era gravado com qualquer outra
+  preferência enquanto o padrão era fechado. O modo foco não grava mais a
+  barra como recolhida.
+- Testes novos: `tests/shape.test.cjs`, `tests/filters-browser.cjs` e a ficha
+  em `tests/variants-browser.cjs`. 174 testes com Chrome real.
+- Orçamentos: `src/core.js` 85,6 de 88 KiB (97,3%) e `src/app.js` 147,1 de
+  150 KiB (98,1%). A próxima novidade em qualquer um dos dois precisa
+  separar um bloco antes; a geometria de exibição do núcleo (projeção, zoom,
+  enquadramento e forma real) é a candidata natural.
+
 **Banco da conta alinhado às migrations, já em produção (28/09/2026).** O
 Supabase do Lovable (`wckbqklezfxfoaaiybab`, o mesmo de `src/cloud.json`) não
 tinha o `FORCE ROW LEVEL SECURITY`, nem os dois limites do envelope, e usava

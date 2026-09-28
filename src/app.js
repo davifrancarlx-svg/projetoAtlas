@@ -119,7 +119,7 @@
   const EXPIRED_ANSWER = Symbol('tempo esgotado');
   const state = {
     ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro', answerMode: 'pick',
-    includeVisual: true, mapCollapsed: false, filtersCollapsed: true, focusMode: false,
+    includeVisual: true, mapCollapsed: false, filtersCollapsed: null, focusMode: false,
     question: null, questionAnswerMode: 'pick', answered: false,
     selectedAnswer: null, answerMatch: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
@@ -321,7 +321,7 @@
     const safe = {
       mode: state.mode, region: state.region, answerMode: state.answerMode,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
-      filtersCollapsed: state.filtersCollapsed, focusMode: state.focusMode,
+      filtersHidden: state.filtersCollapsed, focusMode: state.focusMode,
       timeLimit: state.timeLimit, theme: state.theme, dailySize: state.dailySize || 10,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
@@ -336,7 +336,11 @@
       if (parsed.answerMode === 'pick' || parsed.answerMode === 'type') state.answerMode = parsed.answerMode;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
-      if (typeof parsed.filtersCollapsed === 'boolean') state.filtersCollapsed = parsed.filtersCollapsed;
+      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, mais abaixo).
+      // O campo antigo, `filtersCollapsed`, era gravado junto com qualquer outra
+      // preferência enquanto o padrão era fechado, então não diz se a pessoa
+      // escolheu recolher: só o novo vale.
+      if (typeof parsed.filtersHidden === 'boolean') state.filtersCollapsed = parsed.filtersHidden;
       if (typeof parsed.focusMode === 'boolean') state.focusMode = parsed.focusMode;
       if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
       if ([5, 10, 20].includes(parsed.dailySize)) state.dailySize = parsed.dailySize;
@@ -1482,17 +1486,19 @@
       + `${formatList(vizinhos.map((outro) => outro.n))}.`;
   }
 
-  // A silhueta é o próprio contorno do mapa, recortado pelo aglomerado
-  // principal: aparece a forma que se reconhece, sem as ilhas a um oceano de
-  // distância.
+  // A silhueta é a forma real (Core.trueShape), não a do mapa-múndi, que
+  // estica o que fica perto dos polos. O recorte continua sendo o aglomerado
+  // principal: a forma que se reconhece, sem as ilhas a um oceano de distância.
+  const trueShapes = new Map();
   function countryShape(country, label) {
-    const box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    if (!trueShapes.has(country.id)) trueShapes.set(country.id, Core.trueShape(country, PROJECTION));
+    const { d, box } = trueShapes.get(country.id);
     const pad = Math.max(box[2] - box[0], box[3] - box[1]) * 0.08 + 0.2;
     const svg = svgElement('svg', Object.assign({
       class: 'shape-svg',
       viewBox: `${(box[0] - pad).toFixed(2)} ${(box[1] - pad).toFixed(2)} ${(box[2] - box[0] + pad * 2).toFixed(2)} ${(box[3] - box[1] + pad * 2).toFixed(2)}`,
     }, label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }));
-    svg.append(svgElement('path', { d: country.d, 'fill-rule': 'evenodd', 'clip-rule': 'evenodd' }));
+    svg.append(svgElement('path', { d, 'fill-rule': 'evenodd', 'clip-rule': 'evenodd' }));
     return svg;
   }
 
@@ -1672,6 +1678,7 @@
       create, clear, flagImage, formatArea, formatList, announce, renderScorebar,
       panel: () => dom.panel, indicadores: indicadoresDe, fatos: fatosDe,
       familyLevel: (country, directions) => countryFamilyLevel(country, directions),
+      shape: countryShape, projection: PROJECTION,
     },
     map: {
       setCursor: setMapCursor, clearMarks: clearMapMarks, mark: markCountry, reticle: showReticle,
@@ -2808,17 +2815,27 @@
     syncFilterLayout();
   }
 
-  function setFiltersCollapsed(collapsed, persist = true) {
+  // Sem escolha guardada, a barra fica aberta no computador e no tablet e
+  // recolhida no celular, onde ocuparia a primeira tela inteira e empurraria as
+  // alternativas para baixo da dobra. Abrir ou recolher pelo botão vira escolha
+  // da pessoa e passa a valer em qualquer tamanho.
+  const PHONE_LAYOUT = matchMedia('(max-width: 560px), (max-height: 500px)');
+  function filtersHidden() {
+    return typeof state.filtersCollapsed === 'boolean' ? state.filtersCollapsed : PHONE_LAYOUT.matches;
+  }
+
+  function setFiltersCollapsed(collapsed) {
     state.filtersCollapsed = Boolean(collapsed);
-    dom.controls.hidden = state.filtersCollapsed;
-    dom.filterToggle.setAttribute('aria-expanded', String(!state.filtersCollapsed));
-    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
-    if (icon) icon.textContent = state.filtersCollapsed ? '+' : '−';
-    if (persist) savePreferences();
+    syncFilterLayout();
+    savePreferences();
   }
 
   function syncFilterLayout() {
-    setFiltersCollapsed(state.filtersCollapsed, false);
+    const hidden = filtersHidden();
+    dom.controls.hidden = hidden;
+    dom.filterToggle.setAttribute('aria-expanded', String(!hidden));
+    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
+    if (icon) icon.textContent = hidden ? '+' : '−';
   }
 
   function bindControls() {
@@ -2852,8 +2869,8 @@
       savePreferences();
     });
     dom.focusToggle.addEventListener('click', () => {
+      // O foco esconde a barra pelo CSS; ao sair, ela volta ao que a pessoa escolheu.
       state.focusMode = !state.focusMode;
-      if (state.focusMode) setFiltersCollapsed(true, false);
       syncControls(); savePreferences();
       announce(state.focusMode ? 'Modo foco ativado.' : 'Modo foco desativado.');
     });
@@ -2894,11 +2911,9 @@
       const expanded = dom.filterToggle.getAttribute('aria-expanded') === 'true';
       setFiltersCollapsed(expanded);
     });
-    const desktopFilters = matchMedia('(min-width: 821px)');
-    const restoreFilterLayout = () => syncFilterLayout();
-    if (desktopFilters.addEventListener) desktopFilters.addEventListener('change', restoreFilterLayout);
-    else desktopFilters.addListener(restoreFilterLayout);
-    restoreFilterLayout();
+    if (PHONE_LAYOUT.addEventListener) PHONE_LAYOUT.addEventListener('change', syncFilterLayout);
+    else PHONE_LAYOUT.addListener(syncFilterLayout);
+    syncFilterLayout();
     dom.mapToggle.addEventListener('click', () => setMapCollapsed(!state.mapCollapsed));
     dom.skipVisual.addEventListener('click', skipVisualQuestion);
     dom.zoomIn.addEventListener('click', () => zoomAt(1.4));

@@ -132,5 +132,38 @@ module.exports = async (client, evaluate, until) => {
     return document.querySelector('.count').textContent;
   })()`);
   assert.equal(limpo, '195 resultados');
+
+  // A ficha mostra a forma real. A Islândia sai do mapa-múndi com 2,5 vezes a
+  // largura pela altura; a de verdade tem cerca de 1,45, e a nota explica.
+  const fichaDe = async (id) => {
+    await ev(`(() => {
+      const search = document.querySelector('input[type=search]');
+      search.value = DATA.find(c => c.id === '${id}').n; search.dispatchEvent(new Event('input'));
+    })()`);
+    await until(`${id} na lista`, () => ev(`Boolean(document.querySelector('[data-country=${id}]'))`));
+    return JSON.parse(await ev(`(() => {
+      document.querySelector('[data-country=${id}]').click();
+      const path = document.querySelector('.atlas-shape .shape-svg path');
+      const box = path && path.getBBox();
+      return JSON.stringify({
+        forma: Boolean(path),
+        proporcao: box ? box.width / box.height : null,
+        legenda: document.querySelector('.atlas-shape figcaption')?.textContent || '',
+        nota: document.querySelector('.atlas-shape .note')?.textContent || '',
+      });
+    })()`));
+  };
+  const islandia = await fichaDe('IS');
+  assert.equal(islandia.legenda, 'Forma real');
+  assert.ok(islandia.proporcao > 1.3 && islandia.proporcao < 1.55, `Islândia na ficha: ${islandia.proporcao}`);
+  assert.match(islandia.nota, /esticada na horizontal/);
+  const brasil = await fichaDe('BR');
+  assert.equal(brasil.forma, true);
+  assert.equal(brasil.nota, '', 'Perto do equador o mapa quase não deforma: sem nota.');
+  assert.equal((await fichaDe('VA')).forma, false, 'Microestado não vira silhueta.');
+  await ev(`(() => {
+    const search = document.querySelector('input[type=search]');
+    search.value = ''; search.dispatchEvent(new Event('input'));
+  })()`);
   await ev("document.querySelector('[data-view=quiz]').click()");
 };

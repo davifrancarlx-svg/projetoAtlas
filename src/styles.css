@@ -2561,6 +2561,26 @@ a.chip {
   filter: drop-shadow(0 7px 24px var(--shadow-strong));
 }
 
+/* Silhueta real na ficha: a forma que o mapa-múndi estica ou inclina. */
+.atlas-shape {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.atlas-shape .shape-svg {
+  height: 150px;
+}
+
+.atlas-shape figcaption {
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 /* Ficha do Atlas: domínio por habilidade e atalho para praticar o país. */
 .atlas-mastery {
   grid-column: 1 / -1;

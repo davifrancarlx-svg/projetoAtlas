@@ -1455,6 +1455,99 @@
     return Math.max(minimum, Math.min(maximum, value));
   }
 
+  /* Forma real. A Robinson serve bem ao mundo inteiro, mas estica o que fica
+   * perto dos polos e inclina o que fica longe do meridiano central: a Islândia
+   * sai quase duas vezes mais larga do que é, a Nova Zelândia sai deitada. O
+   * mapa continua Robinson; a silhueta, que é onde a forma é o assunto, volta
+   * cada ponto a longitude e latitude e o reprojeta num globo visto de frente,
+   * centrado no aglomerado principal do país. */
+  var TRUE_SHAPE_SCALE = 170;
+  var DISTORTION_NOTE_RATIO = 1.25;
+
+  function countryCenter(country, projection) {
+    var box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    return unproject((box[0] + box[2]) / 2, (box[1] + box[3]) / 2, projection);
+  }
+
+  function trueShape(country, projection) {
+    var box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    var margin = Math.max(box[2] - box[0], box[3] - box[1]) * 0.02;
+    var center = countryCenter(country, projection);
+    var lon0 = center[0] * Math.PI / 180;
+    var sin0 = Math.sin(center[1] * Math.PI / 180);
+    var cos0 = Math.cos(center[1] * Math.PI / 180);
+    var bounds = [Infinity, Infinity, -Infinity, -Infinity];
+    var path = '';
+    // O contorno do mapa só usa M, L e Z absolutos: cada M abre um anel.
+    String(country.d || '').split('M').forEach(function (ring) {
+      var numbers = ring.match(/-?\d+(?:\.\d+)?/g) || [];
+      var points = [];
+      var inside = false;
+      for (var index = 0; index + 1 < numbers.length; index += 2) {
+        var x = Number(numbers[index]);
+        var y = Number(numbers[index + 1]);
+        if (x >= box[0] - margin && x <= box[2] + margin && y >= box[1] - margin && y <= box[3] + margin) inside = true;
+        points.push([x, y]);
+      }
+      // Os anéis fora do aglomerado principal ficam de fora, como no recorte
+      // da silhueta do mapa: o Alasca não entra na forma dos Estados Unidos.
+      if (!inside) return;
+      path += points.map(function (point, order) {
+        var place = unproject(point[0], point[1], projection);
+        var lambda = place[0] * Math.PI / 180 - lon0;
+        var phi = place[1] * Math.PI / 180;
+        var px = TRUE_SHAPE_SCALE * Math.cos(phi) * Math.sin(lambda);
+        var py = -TRUE_SHAPE_SCALE * (cos0 * Math.sin(phi) - sin0 * Math.cos(phi) * Math.cos(lambda));
+        bounds = [Math.min(bounds[0], px), Math.min(bounds[1], py), Math.max(bounds[2], px), Math.max(bounds[3], py)];
+        return (order ? 'L' : 'M') + px.toFixed(2) + ' ' + py.toFixed(2);
+      }).join('') + 'Z';
+    });
+    return { d: path, box: path ? bounds : box.slice() };
+  }
+
+  // Quanto a projeção deforma a forma no centro do país: `ratio` é a razão
+  // entre a maior e a menor escala local (1 = forma preservada), `stretch` diz
+  // quanto o leste-oeste sai maior que o norte-sul e `tilt`, em graus, quanto
+  // o meridiano local se inclina.
+  function shapeDistortion(country, projection) {
+    var center = countryCenter(country, projection);
+    var lon = center[0];
+    var lat = clampNumber(center[1], -85, 85);
+    var step = 0.05;
+    var cos = Math.cos(lat * Math.PI / 180);
+    var origin = project(lon, lat, projection);
+    var east = project(lon + step, lat, projection);
+    var north = project(lon, lat + step, projection);
+    var a = (east[0] - origin[0]) / (step * cos);
+    var c = (east[1] - origin[1]) / (step * cos);
+    var b = (north[0] - origin[0]) / step;
+    var d = (north[1] - origin[1]) / step;
+    var sum = a * a + b * b + c * c + d * d;
+    var det = Math.abs(a * d - b * c);
+    var major = Math.sqrt((sum + Math.sqrt(Math.max(0, sum * sum - 4 * det * det))) / 2);
+    return {
+      ratio: major / (det / major),
+      stretch: Math.hypot(a, c) / Math.hypot(b, d),
+      tilt: Math.atan2(Math.abs(b), Math.abs(d)) * 180 / Math.PI
+    };
+  }
+
+  // A frase da ficha. Só existe quando a deformação passa do que se nota a
+  // olho, e diz qual dos dois efeitos aconteceu com aquele país.
+  function distortionNote(country, projection) {
+    var measure = shapeDistortion(country, projection);
+    if (measure.ratio <= DISTORTION_NOTE_RATIO) return null;
+    var stretched = measure.stretch >= 1.15;
+    var tilted = measure.tilt >= 12;
+    var how = stretched && tilted ? 'esticada na horizontal e inclinada'
+      : (stretched ? 'esticada na horizontal' : (tilted ? 'inclinada' : 'deformada'));
+    var why = stretched && !tilted ? 'alarga o que fica perto dos polos'
+      : (tilted && !stretched ? 'entorta o que fica longe do centro do mapa'
+        : 'deforma o que fica longe do equador e do centro do mapa');
+    return 'No mapa-múndi, a forma deste país sai ' + how + ': toda projeção plana do mundo ' + why
+      + '. A silhueta mostra a forma real.';
+  }
+
   function viewLimits(world, options) {
     options = options || {};
     var maxZoom = Number.isFinite(options.maxZoom) && options.maxZoom > 1 ? options.maxZoom : 1;
@@ -1787,6 +1880,9 @@
     studyAreasOf: studyAreasOf,
     project: project,
     unproject: unproject,
+    trueShape: trueShape,
+    shapeDistortion: shapeDistortion,
+    distortionNote: distortionNote,
     clampNumber: clampNumber,
     clampView: clampView,
     zoomView: zoomView,
