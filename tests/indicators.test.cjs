@@ -82,8 +82,8 @@ test('indicadores e fatos nunca viram resposta de pergunta', () => {
   assert.doesNotMatch(direcoes, /hdi|idh|pop|dens|urb|flor|vida|fato/i, 'Surgiu direção de pergunta baseada em indicador.');
 
   const alvo = built.DATA.find((country) => country.id === 'BR');
-  const aceitas = Core.acceptedAnswers(alvo, 'capital').concat(Core.acceptedAnswers(alvo, 'country'));
-  const texto = aceitas.join(' ');
+  // As alternativas de qualquer pergunta sobre o país são o nome e a capital.
+  const texto = [alvo.cap, alvo.n].join(' ');
   assert.doesNotMatch(texto, new RegExp(String(alvo.pop)), 'A população virou resposta aceita.');
   assert.doesNotMatch(texto, /0[.,]\d{3}/, 'Um índice virou resposta aceita.');
 });

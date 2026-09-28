@@ -38,7 +38,6 @@
     reg: ['reg'],
   };
   const VISUAL_DIRECTIONS = new Set(['flag', 'flagOf', 'locate', 'mapId']);
-  const PICK_ONLY = new Set(Core.PICK_ONLY_DIRECTIONS);
   const FAMILY_DIRECTIONS = {
     Bandeiras: ['flag', 'flagOf'],
     Capitais: ['cap', 'capOf'],
@@ -86,7 +85,6 @@
     themeToggleHint: document.getElementById('themeToggleHint'),
     modeSeg: document.getElementById('modeSeg'),
     region: document.getElementById('regSel'),
-    ansSeg: document.getElementById('ansSeg'),
     timeSeg: document.getElementById('timeSeg'),
     visualToggle: document.getElementById('visualToggle'),
     mapRegion: document.getElementById('mapRegion'),
@@ -118,10 +116,10 @@
   // estouro de tempo não pode ser confundido com uma resposta do jogador.
   const EXPIRED_ANSWER = Symbol('tempo esgotado');
   const state = {
-    ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro', answerMode: 'pick',
-    includeVisual: true, mapCollapsed: false, filtersCollapsed: true, focusMode: false,
-    question: null, questionAnswerMode: 'pick', answered: false,
-    selectedAnswer: null, answerMatch: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
+    ready: false, view: 'quiz', mode: 'mix', region: 'Mundo inteiro',
+    includeVisual: true, mapCollapsed: false, filtersCollapsed: null, focusMode: false,
+    question: null, answered: false,
+    selectedAnswer: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
     atlasSelected: 'BR', atlasQuery: '', atlasArea: '', atlasLimit: 60, resetArmed: false, resetPending: false,
     mapCursorId: 'BR',
@@ -319,9 +317,9 @@
 
   function savePreferences() {
     const safe = {
-      mode: state.mode, region: state.region, answerMode: state.answerMode,
+      mode: state.mode, region: state.region,
       includeVisual: state.includeVisual, mapCollapsed: state.mapCollapsed,
-      filtersCollapsed: state.filtersCollapsed, focusMode: state.focusMode,
+      filtersHidden: state.filtersCollapsed, focusMode: state.focusMode,
       timeLimit: state.timeLimit, theme: state.theme, dailySize: state.dailySize || 10,
     };
     try { localStorage.setItem(PREFS_KEY, JSON.stringify(safe)); } catch (_) { /* modo privado */ }
@@ -333,10 +331,13 @@
       if (!parsed || typeof parsed !== 'object') return;
       if (MODE_DIRECTIONS[parsed.mode]) state.mode = parsed.mode;
       if (REGIONS.includes(parsed.region)) state.region = parsed.region;
-      if (parsed.answerMode === 'pick' || parsed.answerMode === 'type') state.answerMode = parsed.answerMode;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
-      if (typeof parsed.filtersCollapsed === 'boolean') state.filtersCollapsed = parsed.filtersCollapsed;
+      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, mais abaixo).
+      // O campo antigo, `filtersCollapsed`, era gravado junto com qualquer outra
+      // preferência enquanto o padrão era fechado, então não diz se a pessoa
+      // escolheu recolher: só o novo vale.
+      if (typeof parsed.filtersHidden === 'boolean') state.filtersCollapsed = parsed.filtersHidden;
       if (typeof parsed.focusMode === 'boolean') state.focusMode = parsed.focusMode;
       if (TIME_LIMITS.includes(parsed.timeLimit)) state.timeLimit = parsed.timeLimit;
       if ([5, 10, 20].includes(parsed.dailySize)) state.dailySize = parsed.dailySize;
@@ -1007,13 +1008,6 @@
   function effectiveDirections() {
     let directions = (MODE_DIRECTIONS[state.mode] || MODE_DIRECTIONS.mix).slice();
     if (state.region !== 'Mundo inteiro') directions = directions.filter((direction) => direction !== 'reg');
-    // No modo digitar as direções que só existem como escolha saem da mistura,
-    // mas se o modo inteiro for feito delas — como Regiões — o treino mantém o
-    // assunto e responde por escolha, em vez de virar outro treino sem avisar.
-    if (state.answerMode === 'type') {
-      const typed = directions.filter((direction) => !PICK_ONLY.has(direction));
-      if (typed.length) directions = typed;
-    }
     if (!state.includeVisual) directions = directions.filter((direction) => !VISUAL_DIRECTIONS.has(direction));
     return directions.length ? directions : ['cap', 'capOf'];
   }
@@ -1060,24 +1054,19 @@
     // quando ainda falta um acerto de confirmação.
     state.reviewCard = state.fromDeck && forced && Number.isFinite(forced.remaining) ? forced : null;
     const directions = forced ? [forced.direction] : effectiveDirections();
-    const questionAnswerMode = directions.every((direction) => PICK_ONLY.has(direction))
-      ? 'pick' : state.answerMode;
     const result = Core.createQuestion({
       countries: DATA,
       mode: state.mode,
       directions,
       region: forced ? 'Mundo inteiro' : state.region,
-      answerMode: questionAnswerMode,
       progress,
       recentIds: state.recentIds,
       forcedId: forced ? forced.id : undefined,
     });
     state.question = result.question;
-    state.questionAnswerMode = questionAnswerMode;
     state.recentIds = result.recentIds;
     state.answered = false;
     state.selectedAnswer = null;
-    state.answerMatch = null;
     state.answerTerritory = null;
     state.expired = false;
     state.questionNumber += 1;
@@ -1145,37 +1134,32 @@
   }
 
   // O estouro do tempo é registrado como erro pelo mesmo caminho de uma
-  // resposta errada, inclusive no modo digitar, onde uma string vazia seria
-  // rejeitada antes de virar resposta.
+  // resposta errada.
   function expireQuestion() {
     if (!state.question || state.answered) return;
     state.expired = true;
     answerQuestion(EXPIRED_ANSWER);
   }
 
+  // O segundo item é uma instrução e só existe quando acrescenta algo: a placa
+  // já diz a direção, e repetir "capital → país" logo abaixo dela era ruído.
   function questionCopy(question) {
     const country = byId[question.id];
-    if (question.direction === 'mapId' && question.variant === 'shape') {
-      return ['Que país tem esta forma?', 'Silhueta → país'];
-    }
-    if (question.direction === 'locate' && question.variant === 'shape') {
-      return [`Qual destas formas é ${country.n}?`, 'País → silhueta'];
-    }
-    if (question.direction === 'locate' && question.variant === 'border') {
-      return [`Qual destes faz fronteira com ${country.n}?`, 'País → fronteira'];
-    }
+    if (question.direction === 'mapId' && question.variant === 'shape') return ['Que país tem esta forma?'];
+    if (question.direction === 'locate' && question.variant === 'shape') return [`Qual destas formas é ${country.n}?`];
+    if (question.direction === 'locate' && question.variant === 'border') return [`Qual destes faz fronteira com ${country.n}?`];
     if (country.capitalType === 'government-seat') {
-      if (question.direction === 'cap') return [`Em qual distrito fica a sede do governo de ${country.n}?`, 'País → sede do governo'];
-      if (question.direction === 'capOf') return [`${country.cap} é a sede do governo de qual país?`, 'Sede do governo → país'];
+      if (question.direction === 'cap') return [`Em qual distrito fica a sede do governo de ${country.n}?`];
+      if (question.direction === 'capOf') return [`${country.cap} é a sede do governo de qual país?`];
     }
     return {
       flag: ['Que país tem esta bandeira?', 'Observe as formas e cores'],
       flagOf: [`Qual é a bandeira de ${country.n}?`, 'Escolha uma bandeira'],
-      cap: [`Qual é a capital de ${country.n}?`, 'País → capital'],
-      capOf: [`${country.cap} é a capital de qual país?`, 'Capital → país'],
+      cap: [`Qual é a capital de ${country.n}?`],
+      capOf: [`${country.cap} é a capital de qual país?`],
       locate: [`Onde fica ${country.n}?`, 'Selecione o país no mapa'],
-      mapId: ['Que país está marcado no mapa?', 'Mapa → país'],
-      reg: [`Em que região fica ${country.n}?`, 'País → região'],
+      mapId: ['Que país está marcado no mapa?'],
+      reg: [`Em que região fica ${country.n}?`],
     }[question.direction];
   }
   function isVisualQuestion(question = state.question) {
@@ -1187,6 +1171,12 @@
     return Boolean(question && question.direction === 'locate'
       && (!question.variant || question.variant === 'map'));
   }
+  // O mapa é a própria pergunta quando se responde nele ou quando o pin é o
+  // enunciado. No celular é isso que o põe antes do painel; nas demais, até nas
+  // visuais como bandeira, ele só empurrava as alternativas para baixo da dobra.
+  function isMapQuestion(question = state.question) {
+    return isMapPick(question) || Boolean(question && question.direction === 'mapId' && question.variant !== 'shape');
+  }
   // A resposta certa nem sempre é o país da pergunta: na variante de fronteira
   // é o vizinho sorteado.
   function expectedId(question = state.question) {
@@ -1196,42 +1186,28 @@
     if (question.direction === 'locate' && question.variant === 'shape') return 'país → silhueta';
     if (question.direction === 'locate' && question.variant === 'border') return 'país → fronteira';
     if (question.direction === 'mapId' && question.variant === 'shape') return 'silhueta → país';
+    if (byId[question.id].capitalType === 'government-seat') {
+      if (question.direction === 'cap') return 'país → sede do governo';
+      if (question.direction === 'capOf') return 'sede do governo → país';
+    }
     return DIRECTION_LABEL[question.direction];
   }
   function optionLabel(direction, country) { return direction === 'cap' ? country.cap : country.n; }
-  function answerField(direction) { return direction === 'cap' ? 'capital' : 'country'; }
   function expectedAnswer(direction, country) {
     if (direction === 'reg') return country.r;
-    return answerField(direction) === 'capital' ? country.cap : country.n;
+    return direction === 'cap' ? country.cap : country.n;
   }
 
   function answerQuestion(value, territory) {
     if (!state.question || state.answered) return;
     const target = byId[state.question.id];
     let correct;
-    let match = null;
-    if (value === EXPIRED_ANSWER) {
-      correct = false;
-    } else if (state.question.direction === 'reg') {
-      correct = value === target.r;
-    } else if (state.question.direction === 'locate' || state.questionAnswerMode === 'pick') {
-      correct = value === expectedId();
-    } else {
-      match = Core.matchCountryAnswer(value, target, answerField(state.question.direction), DATA);
-      if (match.reason === 'empty') {
-        const input = document.getElementById('typedAnswer');
-        if (input) { input.setAttribute('aria-invalid', 'true'); input.focus(); }
-        const error = document.getElementById('answerError');
-        if (error) error.textContent = 'Digite uma resposta antes de verificar.';
-        announce('Digite uma resposta antes de verificar.');
-        return;
-      }
-      correct = match.ok;
-    }
+    if (value === EXPIRED_ANSWER) correct = false;
+    else if (state.question.direction === 'reg') correct = value === target.r;
+    else correct = value === expectedId();
     stopTimer();
     state.answered = true;
     state.selectedAnswer = value === EXPIRED_ANSWER ? null : value;
-    state.answerMatch = match;
     state.answerTerritory = territory || null;
     if (correct) { state.hits += 1; state.streak += 1; }
     else { state.misses += 1; state.streak = 0; }
@@ -1257,13 +1233,12 @@
     // Um só ponto de gravação: a série fechada, o baralho de revisão ou nada.
     saveDraft();
     const regionWasComplete = regionMastery(target.r).complete;
-    // Acertar digitando de cabeça e acertar devagar entre quatro alternativas
-    // deixaram de valer a mesma promoção: a nota traduz a força da evidência no
-    // tamanho do intervalo até a próxima revisão.
+    // Acertar na hora e acertar devagar entre quatro alternativas deixaram de
+    // valer a mesma promoção: a nota traduz a força da evidência no tamanho do
+    // intervalo até a próxima revisão.
     const grade = Core.gradeAnswer({
       correct,
       ms: registro.ms,
-      answerMode: state.questionAnswerMode,
       optionCount: Array.isArray(state.question.opts) ? state.question.opts.length : 0,
       timeLimit: state.timeLimit || null,
     });
@@ -1330,32 +1305,6 @@
       container.append(create('p', { className: 'hintline', text: 'Ajuste o zoom pelos botões, roda ou pinça antes de confirmar com toque, clique ou teclado; aproxime para microestados. Você também pode pular sem penalidade.' }));
       return;
     }
-    if (state.questionAnswerMode === 'type' && question.direction !== 'flagOf') {
-      const row = create('div', { className: 'typerow' });
-      const input = create('input', { id: 'typedAnswer', attrs: {
-        type: 'text', autocomplete: 'off', autocapitalize: 'words', spellcheck: 'false',
-        placeholder: answerField(question.direction) === 'capital' ? 'Digite a capital' : 'Digite o país',
-        'aria-label': answerField(question.direction) === 'capital' ? 'Sua resposta: capital' : 'Sua resposta: país',
-        'aria-describedby': 'answerError',
-        value: state.answered ? state.selectedAnswer : null,
-        disabled: state.answered ? '' : null,
-      } });
-      const submit = create('button', { className: 'btn', text: 'Verificar', type: 'button', attrs: {
-        disabled: state.answered ? '' : null,
-      } });
-      submit.addEventListener('click', () => answerQuestion(input.value));
-      input.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') { event.preventDefault(); answerQuestion(input.value); }
-      });
-      input.addEventListener('input', () => {
-        input.removeAttribute('aria-invalid');
-        const error = document.getElementById('answerError');
-        if (error) error.textContent = '';
-      });
-      row.append(input, submit);
-      container.append(row, create('p', { className: 'answer-error', id: 'answerError', attrs: { 'aria-live': 'polite' } }));
-      return;
-    }
     if (question.direction === 'reg') {
       const regions = create('div', { className: 'opts' });
       question.opts.forEach((region, index) => {
@@ -1409,16 +1358,10 @@
         + `${territory.cap} — por isso o ponto ${territory.of === country.id ? 'vale' : 'foi lido'} como `
         + `${sovereign.n}, cuja capital é ${sovereign.cap}.`);
     }
-    if (country.alternateCapitals && country.alternateCapitals.length) notes.push(`Também aceita como capital oficial: ${country.alternateCapitals.join(', ')}.`);
-    if (country.otherSeats && country.otherSeats.length) notes.push(`Sede de governo, não tratada como resposta canônica: ${country.otherSeats.join(', ')}.`);
-    if (country.formerCapitalNames && country.formerCapitalNames.length) notes.push(`Nome histórico não aceito como atual: ${country.formerCapitalNames.join(', ')}.`);
+    if (country.alternateCapitals && country.alternateCapitals.length) notes.push(`Também é capital oficial: ${country.alternateCapitals.join(', ')}.`);
+    if (country.otherSeats && country.otherSeats.length) notes.push(`Outra sede de governo: ${country.otherSeats.join(', ')}.`);
+    if (country.formerCapitalNames && country.formerCapitalNames.length) notes.push(`Nome antigo da capital: ${country.formerCapitalNames.join(', ')}.`);
     if (country.capitalNote) notes.push(country.capitalNote);
-    if (state.answerMatch && state.answerMatch.ok && state.answerMatch.matched) {
-      const canonical = answerField(state.question.direction) === 'capital' ? country.cap : country.n;
-      if (Core.normalizeText(state.answerMatch.matched) !== Core.normalizeText(canonical)) {
-        notes.unshift(`A forma “${state.answerMatch.matched}” foi reconhecida como equivalente.`);
-      }
-    }
     return notes;
   }
 
@@ -1476,17 +1419,19 @@
       + `${formatList(vizinhos.map((outro) => outro.n))}.`;
   }
 
-  // A silhueta é o próprio contorno do mapa, recortado pelo aglomerado
-  // principal: aparece a forma que se reconhece, sem as ilhas a um oceano de
-  // distância.
+  // A silhueta é a forma real (Core.trueShape), não a do mapa-múndi, que
+  // estica o que fica perto dos polos. O recorte continua sendo o aglomerado
+  // principal: a forma que se reconhece, sem as ilhas a um oceano de distância.
+  const trueShapes = new Map();
   function countryShape(country, label) {
-    const box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
+    if (!trueShapes.has(country.id)) trueShapes.set(country.id, Core.trueShape(country, PROJECTION));
+    const { d, box } = trueShapes.get(country.id);
     const pad = Math.max(box[2] - box[0], box[3] - box[1]) * 0.08 + 0.2;
     const svg = svgElement('svg', Object.assign({
       class: 'shape-svg',
       viewBox: `${(box[0] - pad).toFixed(2)} ${(box[1] - pad).toFixed(2)} ${(box[2] - box[0] + pad * 2).toFixed(2)} ${(box[3] - box[1] + pad * 2).toFixed(2)}`,
     }, label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': 'true' }));
-    svg.append(svgElement('path', { d: country.d, 'fill-rule': 'evenodd', 'clip-rule': 'evenodd' }));
+    svg.append(svgElement('path', { d, 'fill-rule': 'evenodd', 'clip-rule': 'evenodd' }));
     return svg;
   }
 
@@ -1499,8 +1444,7 @@
     const country = byId[question.id];
     const isCorrect = question.direction === 'reg'
       ? state.selectedAnswer === country.r
-      : (question.direction === 'locate' || state.questionAnswerMode === 'pick'
-        ? state.selectedAnswer === expectedId(question) : Boolean(state.answerMatch && state.answerMatch.ok));
+      : state.selectedAnswer === expectedId(question);
     const verdict = create('section', { className: 'verdict', attrs: { 'aria-labelledby': 'verdictTitle' } });
     verdict.append(create('p', {
       id: 'verdictTitle', className: `verdict-tag ${isCorrect ? 'ok' : 'bad'}`,
@@ -1541,9 +1485,7 @@
     // uma escolha concreta de país: em "tempo esgotado" não houve confusão a
     // explicar, e em região a comparação seria entre continentes, não países.
     if (!isCorrect && !state.expired && question.direction !== 'reg') {
-      const chosen = state.questionAnswerMode === 'pick' || question.direction === 'locate'
-        ? byId[state.selectedAnswer]
-        : DATA.find(c => Core.normalizeText(c[answerField(question.direction) === 'capital' ? 'cap' : 'n']) === Core.normalizeText(state.selectedAnswer || ''));
+      const chosen = byId[state.selectedAnswer];
       if (chosen && chosen.id !== expectedId(question)) {
         const comparison = create('div', { className: 'answer-comparison', attrs: { 'aria-label': 'Comparação das respostas' } });
         [[byId[expectedId(question)], 'Resposta correta'], [chosen, 'Sua resposta']].forEach(([item, label]) => {
@@ -1585,7 +1527,7 @@
     atlas.detach();
     clear(dom.panel);
     const question = state.question;
-    dom.shell.dataset.questionVisual = String(isVisualQuestion(question));
+    dom.shell.dataset.questionMap = String(isMapQuestion(question));
     const country = byId[question.id];
     const [headline, eyebrow] = questionCopy(question);
     dom.panel.append(create('div', { className: 'plate' }, [
@@ -1619,7 +1561,7 @@
       }));
       dom.panel.append(row);
     }
-    dom.panel.append(create('p', { className: 'prompt', text: eyebrow }));
+    if (eyebrow) dom.panel.append(create('p', { className: 'prompt', text: eyebrow }));
     if (question.direction === 'flag') {
       dom.panel.append(create('h2', { id: 'questionTitle', className: 'subject sm', text: headline, attrs: { tabindex: '-1' } }));
       dom.panel.append(create('div', { className: 'flagbox' }, flagImage(country, { eager: true, alt: 'Bandeira apresentada na pergunta' })));
@@ -1666,6 +1608,7 @@
       create, clear, flagImage, formatArea, formatList, announce, renderScorebar,
       panel: () => dom.panel, indicadores: indicadoresDe, fatos: fatosDe,
       familyLevel: (country, directions) => countryFamilyLevel(country, directions),
+      shape: countryShape, projection: PROJECTION,
     },
     map: {
       setCursor: setMapCursor, clearMarks: clearMapMarks, mark: markCountry, reticle: showReticle,
@@ -1958,7 +1901,7 @@
     }
     if (!draft) { clearExamDraft(); return; }
     draft.savedAt = Date.now();
-    draft.filters = { mode: state.mode, region: state.region, answerMode: state.answerMode,
+    draft.filters = { mode: state.mode, region: state.region,
       timeLimit: state.timeLimit, includeVisual: state.includeVisual };
     try { localStorage.setItem(EXAM_DRAFT_KEY, JSON.stringify(draft)); } catch (_) { /* modo privado */ }
   }
@@ -2000,7 +1943,7 @@
     if (!draft) return;
     atlas.detach();
     clear(dom.panel); clearMapMarks(); stopTimer();
-    dom.shell.dataset.questionVisual = 'false';
+    dom.shell.dataset.questionMap = 'false';
     dom.skipVisual.hidden = true;
     const review = draft.kind === 'review';
     const pendentes = review ? new Set(draft.deck.map((card) => `${card.id}:${card.direction}`)).size : 0;
@@ -2039,7 +1982,6 @@
     const filters = draft.filters || {};
     if (MODE_DIRECTIONS[filters.mode]) state.mode = filters.mode;
     if (REGIONS.includes(filters.region)) state.region = filters.region;
-    if (filters.answerMode === 'pick' || filters.answerMode === 'type') state.answerMode = filters.answerMode;
     if (TIME_LIMITS.includes(filters.timeLimit)) state.timeLimit = filters.timeLimit;
     if (typeof filters.includeVisual === 'boolean') state.includeVisual = filters.includeVisual;
     if (!state.includeVisual && (state.mode === 'flag' || state.mode === 'loc')) state.mode = 'cap';
@@ -2307,7 +2249,7 @@
     const mistakes = focusedMistakes();
     atlas.detach();
     clear(dom.panel); clearMapMarks(); stopTimer();
-    dom.shell.dataset.questionVisual = 'false';
+    dom.shell.dataset.questionMap = 'false';
     dom.panel.append(create('div', { className: 'plate' }, [
       create('span', { text: 'Sessão concluída' }),
       create('span', { text: `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}` }),
@@ -2786,13 +2728,11 @@
       button.title = button.disabled ? 'As perguntas de região estão disponíveis apenas em Mundo inteiro.' : '';
       button.setAttribute('aria-pressed', String(button.dataset.mode === state.mode));
     });
-    dom.ansSeg.querySelectorAll('[data-ans]').forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.ans === state.answerMode)));
     dom.timeSeg.querySelectorAll('[data-time]').forEach((button) => button.setAttribute('aria-pressed', String(Number(button.dataset.time) === state.timeLimit)));
     dom.visualToggle.checked = state.includeVisual;
     const modeLabel = { mix: 'Misto', flag: 'Bandeiras', cap: 'Capitais', loc: 'Localização', reg: 'Regiões' }[state.mode];
-    const answerLabel = state.answerMode === 'type' ? 'Digitar' : 'Escolher';
     const timeLabel = state.timeLimit ? `${state.timeLimit}s` : 'Livre';
-    dom.filterSummary.textContent = `${modeLabel} · ${state.region} · ${answerLabel} · ${timeLabel}`;
+    dom.filterSummary.textContent = `${modeLabel} · ${state.region} · ${timeLabel}`;
     dom.focusToggle.setAttribute('aria-pressed', String(state.focusMode));
     dom.focusToggle.title = state.focusMode ? 'Sair do modo foco' : 'Ocultar distrações';
     dom.shell.classList.toggle('is-focus-mode', state.focusMode && state.view === 'quiz');
@@ -2802,17 +2742,27 @@
     syncFilterLayout();
   }
 
-  function setFiltersCollapsed(collapsed, persist = true) {
+  // Sem escolha guardada, a barra fica aberta no computador e no tablet e
+  // recolhida no celular, onde ocuparia a primeira tela inteira e empurraria as
+  // alternativas para baixo da dobra. Abrir ou recolher pelo botão vira escolha
+  // da pessoa e passa a valer em qualquer tamanho.
+  const PHONE_LAYOUT = matchMedia('(max-width: 560px), (max-height: 500px)');
+  function filtersHidden() {
+    return typeof state.filtersCollapsed === 'boolean' ? state.filtersCollapsed : PHONE_LAYOUT.matches;
+  }
+
+  function setFiltersCollapsed(collapsed) {
     state.filtersCollapsed = Boolean(collapsed);
-    dom.controls.hidden = state.filtersCollapsed;
-    dom.filterToggle.setAttribute('aria-expanded', String(!state.filtersCollapsed));
-    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
-    if (icon) icon.textContent = state.filtersCollapsed ? '+' : '−';
-    if (persist) savePreferences();
+    syncFilterLayout();
+    savePreferences();
   }
 
   function syncFilterLayout() {
-    setFiltersCollapsed(state.filtersCollapsed, false);
+    const hidden = filtersHidden();
+    dom.controls.hidden = hidden;
+    dom.filterToggle.setAttribute('aria-expanded', String(!hidden));
+    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
+    if (icon) icon.textContent = hidden ? '+' : '−';
   }
 
   function bindControls() {
@@ -2830,15 +2780,6 @@
       if (state.view !== 'quiz') setView('quiz');
       createNextQuestion();
     });
-    dom.ansSeg.addEventListener('click', (event) => {
-      const button = event.target.closest('[data-ans]');
-      if (!button) return;
-      abandonExercise();
-      state.answerMode = button.dataset.ans;
-      syncControls(); savePreferences();
-      if (state.view !== 'quiz') setView('quiz');
-      createNextQuestion();
-    });
     dom.themeToggle.addEventListener('click', () => {
       state.theme = THEMES[(themeStep(state.theme) + 1) % THEMES.length].id;
       const atual = applyTheme(true);
@@ -2846,8 +2787,8 @@
       savePreferences();
     });
     dom.focusToggle.addEventListener('click', () => {
+      // O foco esconde a barra pelo CSS; ao sair, ela volta ao que a pessoa escolheu.
       state.focusMode = !state.focusMode;
-      if (state.focusMode) setFiltersCollapsed(true, false);
       syncControls(); savePreferences();
       announce(state.focusMode ? 'Modo foco ativado.' : 'Modo foco desativado.');
     });
@@ -2888,11 +2829,9 @@
       const expanded = dom.filterToggle.getAttribute('aria-expanded') === 'true';
       setFiltersCollapsed(expanded);
     });
-    const desktopFilters = matchMedia('(min-width: 821px)');
-    const restoreFilterLayout = () => syncFilterLayout();
-    if (desktopFilters.addEventListener) desktopFilters.addEventListener('change', restoreFilterLayout);
-    else desktopFilters.addListener(restoreFilterLayout);
-    restoreFilterLayout();
+    if (PHONE_LAYOUT.addEventListener) PHONE_LAYOUT.addEventListener('change', syncFilterLayout);
+    else PHONE_LAYOUT.addListener(syncFilterLayout);
+    syncFilterLayout();
     dom.mapToggle.addEventListener('click', () => setMapCollapsed(!state.mapCollapsed));
     dom.skipVisual.addEventListener('click', skipVisualQuestion);
     dom.zoomIn.addEventListener('click', () => zoomAt(1.4));

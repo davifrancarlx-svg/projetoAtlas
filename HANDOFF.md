@@ -122,6 +122,11 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
    conquistas; o usuário não gostou do resultado e pediu a remoção completa
    em 2026-09-16. Não reintroduzir nem propor de novo.
 
+8. **Resposta só por escolha.** A digitação foi removida a pedido do usuário
+   em 2026-09-28: toda pergunta tem alternativas, ou se responde apontando no
+   mapa. Não reintroduzir campo de texto, modo "Digitar" nem reconhecimento de
+   grafia.
+
 ## O que já existe (não é para reconstruir, é para conhecer)
 
 - **Modos de treino**: misto, bandeiras, capitais, localização, regiões —
@@ -267,6 +272,114 @@ do worker já com o nome `atlas-195-fb6d9cedae82` guardando o HTML novo.
   160 testes passando com Chrome real, mais conferência da ficha num Chrome de
   verdade (Japão, China, Portugal e Alemanha).
 
+### Rodada de 28 de setembro de 2026 — publicada no release `51cc13762c0f`
+
+**No ar desde 28/09/2026, 15h UTC**, a pedido do usuário, junto com a página
+inicial do Lovable descrita mais abaixo. PR
+https://github.com/davifrancarlx-svg/projetoAtlas/pull/1 com CI verde.
+Publicação feita assim, e é o caminho a repetir: os dois arquivos que mudaram
+(`atlas-195.html`, 5.187.315 bytes, `2770118bda6a6366…`, e `sw.js`, 4.183
+bytes, `71b8066edf1d1876…`) foram enviados por `get_file_upload_url` + PUT e
+anexados numa mensagem ao agente do Lovable, que os copiou com `cp` para
+`public/` e devolveu os sha256 idênticos (commit Lovable `4bafa2a`, só esses
+dois arquivos no diff). Depois de `deploy_project`, o próprio agente do Lovable
+baixou do domínio publicado com `curl` e conferiu os dois hashes e o
+cabeçalho de `/`. Este contêiner não alcança `*.lovable.app` (a rede do
+ambiente bloqueia), por isso `npm run verify:production` não roda daqui.
+
+
+- **No celular, o mapa só vem antes do painel quando é a própria pergunta**
+  (apontar no mapa ou ler o pin). Antes, toda pergunta visual subia o mapa, e
+  nas de bandeira nenhuma alternativa aparecia sem rolar: numa tela de
+  390×844, a primeira começava em 929 px. Quem decide é `isMapQuestion` em
+  `src/app.js`, pelo atributo `data-question-map` (antes
+  `data-question-visual`); `isVisualQuestion` continua decidindo só o botão
+  de pular. Esse botão mora no cabeçalho do mapa, então nas perguntas de
+  bandeira ele passou a ficar abaixo das alternativas no celular.
+- **A grade de quatro bandeiras e de quatro silhuetas tem duas colunas também
+  abaixo de 560 px.** As quatro cabem juntas na tela, que é como se compara;
+  em coluna única a grade ia até 1344 px.
+- **A linha de instrução abaixo da placa não repete mais a direção**
+  ("capital → país" aparecia duas vezes). Ela só fica quando acrescenta algo:
+  "Observe as formas e cores", "Escolha uma bandeira", "Selecione o país no
+  mapa". Nauru, sem capital oficial, diz "sede do governo" na própria placa.
+- Teste novo `tests/mobile-browser.cjs`, a 390×844 dentro do smoke test:
+  ordem do painel e do mapa nas sete formas de pergunta, as quatro opções da
+  grade na primeira tela e nenhuma instrução repetindo a placa. 167 testes com
+  Chrome real. `src/app.js` ficou em 146,3 de 150 KiB (97,6%).
+
+**Silhuetas na forma real e barra de opções aberta por padrão** (mesmo dia). O usuário estranhou a Islândia no mapa. Não é
+defeito de dado: é a Robinson, que estica na horizontal o que fica perto dos
+polos e inclina o que fica longe do meridiano central. Medido nos 195: 35
+passam de 25% de deformação (Islândia 78%, Suécia, Noruega, Finlândia, Nova
+Zelândia, Canadá, Rússia, Japão, Coreias...). Trocar de projeção foi medido e
+descartado: a Winkel Tripel melhora os nórdicos e piora Japão, Nova Zelândia e
+Brasil, com 78 países acima de 25%. A escolha do usuário foi manter o mapa e
+corrigir onde a forma é o assunto:
+
+- `Core.trueShape` volta o contorno a longitude e latitude e o reprojeta
+  numa ortográfica centrada no aglomerado principal do país. Usado pelas
+  perguntas de silhueta, pelos cartões de comparação e pela ficha do Atlas,
+  que ganhou a silhueta real. A Islândia volta de 2,55 para 1,41 de largura
+  por altura (a real é cerca de 1,45).
+- `Core.distortionNote` escreve na ficha, só acima de 25%, se o país sai
+  esticado, inclinado ou os dois no mapa-múndi.
+- A barra de opções de treino abre por padrão no computador e no tablet e
+  começa recolhida no celular (até 560 px de largura ou 500 de altura), onde
+  aberta ocuparia 497 dos 844 px e esconderia as alternativas. Foi escolha do
+  usuário. Recolher ou abrir vira preferência salva em `filtersHidden`; o
+  antigo `filtersCollapsed` é ignorado porque era gravado com qualquer outra
+  preferência enquanto o padrão era fechado. O modo foco não grava mais a
+  barra como recolhida.
+- Testes novos: `tests/shape.test.cjs`, `tests/filters-browser.cjs` e a ficha
+  em `tests/variants-browser.cjs`. 174 testes com Chrome real.
+- Orçamentos: `src/core.js` 85,6 de 88 KiB (97,3%) e `src/app.js` 147,1 de
+  150 KiB (98,1%). A próxima novidade em qualquer um dos dois precisa
+  separar um bloco antes; a geometria de exibição do núcleo (projeção, zoom,
+  enquadramento e forma real) é a candidata natural.
+
+**Resposta só por escolha** (mesmo dia). A pedido do
+usuário, a digitação saiu do app inteiro: o controle "Resposta" da barra, o
+campo de texto, o reconhecimento de texto do núcleo (`matchAnswer`,
+`matchCountryAnswer`, `fuzzy`, `acceptedAnswers`, tipos de alias seguros) e
+`PICK_ONLY_DIRECTIONS`. `Core.createQuestion` sempre gera as alternativas e
+`Core.gradeAnswer` não recebe mais modo de resposta: só apontar no mapa, que
+não tem alternativas, conta como recuperação sem chance cega. Os nomes
+alternativos continuam no artefato porque a busca do Atlas os usa. Preferência
+e rascunho antigos com `answerMode: 'type'` são ignorados (o fixture de
+`tests/workflows-browser.cjs` grava um de propósito). Na mesma rodada, a barra
+de opções deixou de cortar os botões de Modo entre 821 e 980 px e passou a ter
+os cinco numa linha até 820 px. 170 testes com Chrome real; `src/app.js` caiu
+para 142,3 KiB (94,8%) e `src/core.js` para 76,5 KiB (86,9%).
+
+**Banco da conta alinhado às migrations, já em produção (28/09/2026).** O
+Supabase do Lovable (`wckbqklezfxfoaaiybab`, o mesmo de `src/cloud.json`) não
+tinha o `FORCE ROW LEVEL SECURITY`, nem os dois limites do envelope, e usava
+quatro políticas antigas ("le o proprio progresso" etc.) valendo para o papel
+`public`, com `anon` e `authenticated` mantendo todos os privilégios padrão,
+`TRUNCATE` incluído. Foi aplicado o que faltava da `202608200001` e a nova
+`202609280001_alinha_permissoes_progresso.sql`. A conferência trocou de papel
+dentro de blocos que terminam em erro, para nada ficar gravado: a dona lê e
+grava a própria linha (inclusive o upsert que o app faz), outra conta não lê
+nem grava a linha alheia, o `anon` recebe permissão negada, nenhum papel tem
+`TRUNCATE`, e os limites recusam lista e excesso de 2 MB. O único progresso
+gravado (69,7 KB) ficou intacto. Consequência documentada: sem sessão, um
+pedido com a chave `anon` agora é recusado em vez de devolver lista vazia; o
+app só consulta a tabela com sessão, então nada muda para quem usa.
+
+**Página inicial do Lovable corrigida e publicada.** O
+`src/routes/__root.tsx` do projeto Lovable tinha o cabeçalho padrão ("Lovable
+App", "Lovable Generated Project", `lang="en"`), que é o que o WhatsApp e as
+redes sociais mostram ao compartilhar `atlas-195.lovable.app`. O agente do
+Lovable trocou título, descrição, `og:*`, `twitter:*` e ícone pelos mesmos
+textos do `atlas-195.html`, pôs `lang="pt-BR"`, traduziu as páginas de erro e
+404, e acrescentou em `src/routes/index.tsx` um `<meta http-equiv="refresh">`
+que leva a `/atlas-195.html` antes de o React carregar (commit Lovable
+`2f30adb`). O mesmo commit trouxe duas atualizações automáticas da
+plataforma: `@lovable.dev/vite-tanstack-config` fixado em 2.23.1 e um ajuste
+em `previewAuthStorage.ts`. Foi ao ar junto com o release `51cc13762c0f`;
+o WhatsApp pode guardar a prévia antiga do link por algum tempo.
+
 ### Armadilha de verificação no navegador
 
 **Isso vale também para o site publicado.** Ao conferir o release
@@ -287,11 +400,11 @@ porque usa um perfil temporário a cada execução.
 
 ### Ideias registradas, não pedidas ainda
 
-`IMPROVEMENTS.md` foi refeito e tem dezoito, da mais barata à mais cara, cada
-uma com o trecho de código que a justifica. As mais baratas: a ficha do Atlas
-mostrar as notas da capital (hoje elas só existem no veredito do erro),
-explicar o erro que o artefato já tem catalogado quando a pessoa digita
-"Inglaterra" para Reino Unido, e tornar a ficha navegável pelos vizinhos.
+`IMPROVEMENTS.md` tem dezesseis, da mais barata à mais cara, cada uma com o
+trecho de código que a justifica. As mais baratas: a ficha do Atlas mostrar as
+notas da capital (hoje elas só existem no veredito do erro), tornar a ficha
+navegável pelos vizinhos e mostrar "também conhecido como". Duas saíram junto
+com a digitação, em 28/09/2026.
 
 Duas foram **descartadas pelo usuário** e não devem voltar: a busca aceitar o
 código ISO e o domínio por subregião na aba Progresso. Continuam fora:

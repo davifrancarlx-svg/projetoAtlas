@@ -558,8 +558,7 @@ input {
 }
 
 select,
-.search,
-.typerow input {
+.search {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel-2);
@@ -1184,21 +1183,6 @@ body.view-prog .side-body {
   font-size: 13px;
 }
 
-.typerow {
-  display: flex;
-  gap: 8px;
-}
-
-.typerow input {
-  width: 100%;
-  min-width: 0;
-  min-height: var(--tap);
-  flex: 1;
-  padding: 10px 12px;
-  font-size: 16px;
-}
-
-.typerow input::placeholder,
 .search::placeholder {
   color: var(--muted-2);
   opacity: 1;
@@ -1932,13 +1916,6 @@ a.chip {
   font-size: 13px;
 }
 
-.answer-error {
-  min-height: 1.5em;
-  margin: 6px 0 0;
-  color: var(--coral);
-  font-size: 13px;
-}
-
 .atlas-detail {
   display: grid;
   grid-template-columns: 86px minmax(0, 1fr);
@@ -2118,6 +2095,12 @@ a.chip {
   .ctrl-check {
     grid-column: 1 / -1;
   }
+
+  /* O modo tem cinco botões: numa coluna estreita eles se cortavam. */
+  .controls-title,
+  #modeControl {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 820px) {
@@ -2212,18 +2195,14 @@ a.chip {
     min-width: 0;
   }
 
+  /* Cinco modos, cinco colunas: em quatro, "Regiões" sobrava sozinho. */
   #modeSeg {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   #modeSeg button {
     border-block-end: 0;
-  }
-
-  #ansSeg {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   select {
@@ -2262,11 +2241,11 @@ a.chip {
     border-inline-start: 0;
   }
 
-  .shell[data-question-visual="false"] .side {
+  .shell[data-question-map="false"] .side {
     order: -1;
   }
 
-  .shell[data-question-visual="false"] .map-region {
+  .shell[data-question-map="false"] .map-region {
     border-block-start: 1px solid var(--line-soft);
   }
 
@@ -2337,18 +2316,6 @@ a.chip {
 
   .map-action {
     padding-inline: 8px;
-  }
-
-  .opts.grid2 {
-    grid-template-columns: 1fr;
-  }
-
-  .typerow {
-    flex-direction: column;
-  }
-
-  .typerow .btn {
-    width: 100%;
   }
 
   .subject {
@@ -2563,6 +2530,26 @@ a.chip {
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
   filter: drop-shadow(0 7px 24px var(--shadow-strong));
+}
+
+/* Silhueta real na ficha: a forma que o mapa-múndi estica ou inclina. */
+.atlas-shape {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.atlas-shape .shape-svg {
+  height: 150px;
+}
+
+.atlas-shape figcaption {
+  color: var(--muted-2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 /* Ficha do Atlas: domínio por habilidade e atalho para praticar o país. */

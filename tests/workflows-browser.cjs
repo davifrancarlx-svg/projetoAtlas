@@ -4,9 +4,11 @@ const fs = require('node:fs'), os = require('node:os'), path = require('node:pat
 
 module.exports = async (client, evaluate, until) => {
   const ev = code => evaluate(client, code);
+  // `answerMode: 'type'` é a preferência de quem usou a versão com digitação.
+  // O app a ignora: todos os cenários abaixo respondem por escolha.
   const hook = await client.send('Page.addScriptToEvaluateOnNewDocument', {source: `
     localStorage.removeItem('atlas195:serie:v1');
-    localStorage.setItem('atlas195:prefs:v2',JSON.stringify({mode:'reg',region:'Mundo inteiro',answerMode:'pick',includeVisual:true,dailySize:5}));
+    localStorage.setItem('atlas195:prefs:v2',JSON.stringify({mode:'reg',region:'Mundo inteiro',answerMode:'type',includeVisual:true,dailySize:5}));
   `});
   const boot = async () => {
     await client.send('Page.reload');
@@ -86,17 +88,22 @@ module.exports = async (client, evaluate, until) => {
     assert.equal(new Set(seen).size,7);
     assert.match(await ev("document.getElementById('panel').textContent"),/Prática de Brasil concluída/);
   });
-  await scenario('digitação aceita nome normalizado e recusa resposta vazia',async()=>{
-    await ev("document.querySelector('[data-mode=cap]').click();document.querySelector('[data-ans=type]').click()");
-    await ev("document.getElementById('typedAnswer').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}))");
-    assert.equal(await ev("document.getElementById('typedAnswer').getAttribute('aria-invalid')"),'true');
-    assert.equal(await ev("Boolean(document.querySelector('.verdict'))"),false);
+  await scenario('só existe resposta por escolha, mesmo com a preferência antiga de digitar',async()=>{
+    await ev("document.querySelector('[data-mode=cap]').click()");
+    const estado = JSON.parse(await ev(`JSON.stringify({
+      controle: Boolean(document.querySelector('[data-ans], #ansSeg, #answerControl')),
+      campo: Boolean(document.querySelector('#panel input')),
+      opcoes: document.querySelectorAll('[data-answer]').length,
+      resumo: document.getElementById('filterSummary').textContent,
+    })`));
+    assert.equal(estado.controle, false, 'A barra não oferece mais escolher a forma de resposta.');
+    assert.equal(estado.campo, false, 'Nenhuma pergunta tem campo de texto.');
+    assert.equal(estado.opcoes, 4);
+    assert.equal(estado.resumo, 'Capitais · Mundo inteiro · Livre');
     await ev(`(() => {
       const title=document.getElementById('questionTitle').textContent;
-      const capital=title.startsWith('Qual é a capital');
-      const c=DATA.find(c=>capital?title.includes(c.n+'?'):title.startsWith(c.cap+' é'));
-      document.getElementById('typedAnswer').value=AtlasCore.normalizeText(capital?c.cap:c.n);
-      document.getElementById('typedAnswer').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));
+      const c=DATA.find(c=>title.endsWith(' '+c.n+'?')||title.startsWith(c.cap+' é'));
+      document.querySelector('[data-answer="'+c.id+'"]').click();
     })()`);
     assert.equal(await ev("document.getElementById('verdictTitle').textContent"),'Correto');
   });

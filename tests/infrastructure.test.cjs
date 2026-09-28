@@ -21,6 +21,20 @@ test('a infraestrutura Supabase versiona tabela, limites e quatro políticas RLS
   assert.match(migration, /revoke all[^;]+from anon/i);
 });
 
+// TRUNCATE não passa por política de linha: o papel autenticado fica só com as
+// quatro operações que o app usa, e as políticas antigas do projeto Lovable,
+// que valiam para o papel public, saem de vez.
+test('as permissões da tabela ficam só nas quatro operações do app', () => {
+  const alinhamento = read('supabase/migrations/202609280001_alinha_permissoes_progresso.sql');
+  ['le', 'cria', 'atualiza', 'apaga'].forEach((verbo) => {
+    assert.match(alinhamento, new RegExp(`drop policy if exists "${verbo} o proprio progresso"`));
+  });
+  assert.match(alinhamento, /revoke all[^;]+from anon/i);
+  const revoga = alinhamento.search(/revoke all[^;]+from authenticated/i);
+  const concede = alinhamento.search(/grant select, insert, update, delete on table public\.progresso_atlas to authenticated/i);
+  assert.ok(revoga >= 0 && concede > revoga, 'O authenticated perde tudo antes de receber as quatro operações.');
+});
+
 test('o CI confere todos os arquivos publicáveis gerados', () => {
   const workflow = read('.github/workflows/ci.yml');
   ['atlas-195.html', 'manifest.webmanifest', 'sw.js', 'icon-192.png', 'icon-512.png',
@@ -53,7 +67,7 @@ test('a camada visual oferece foco, domínio e encerramento de sessão responsiv
   assert.match(app, /function renderSessionResult/);
   assert.match(app, /function sessionMiniMap/);
   assert.match(app, /regionCelebration/);
-  assert.match(css, /\.shell\[data-question-visual="false"\] \.side/);
+  assert.match(css, /\.shell\[data-question-map="false"\] \.side/);
   assert.match(css, /#nextQuestion\s*\{[\s\S]*?position:\s*sticky/);
   assert.match(css, /\.flagbox\s*\{[\s\S]*?aspect-ratio:\s*3\s*\/\s*2/);
 });

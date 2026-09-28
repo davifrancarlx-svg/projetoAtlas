@@ -173,8 +173,6 @@ test('o build anexa os vizinhos terrestres em ordem alfabética, sem tocar nas r
   assert.equal(porId.BR.nbNotas.FR, 'pela Guiana Francesa');
   assert.equal(porId.FR.nbNotas.BR, 'pela Guiana Francesa');
   assert.equal(porId.JP.nb.length, 0);
-  // O nome de um vizinho nunca vira resposta aceita do país.
-  assert.deepEqual(Core.acceptedAnswers(porId.PT, 'country').map(Core.normalizeText).filter((v) => v === 'espanha'), []);
 });
 
 test('o build incorporou path, centro e bounds válidos para todo país', () => {
@@ -299,33 +297,16 @@ test('não restam placeholders nem atributos inline bloqueados pela CSP', () => 
   );
 });
 
-test('as políticas críticas rejeitam Inglaterra, Roma e a colisão Kingston/Kingstown', () => {
-  const countries = built.DATA;
-  const byId = Object.fromEntries(countries.map(country => [country.id, country]));
-
-  const england = Core.matchCountryAnswer('Inglaterra', byId.GB, 'country', countries);
-  assert.equal(england.ok, false, 'Inglaterra não é sinônimo seguro de Reino Unido.');
-
-  const rome = Core.matchCountryAnswer('Roma', byId.VA, 'capital', countries);
-  assert.equal(rome.ok, false, 'Roma não deve ser aceita como capital da Cidade do Vaticano.');
-
-  const ambiguous = Core.matchCountryAnswer('Kingston', byId.VC, 'capital', countries);
-  assert.equal(ambiguous.ok, false, 'Kingston não pode ser aceito como Kingstown.');
-  assert.equal(ambiguous.reason, 'canonical-collision');
-  assert.deepEqual(ambiguous.conflicts, ['JM']);
-  assert.equal(Core.matchCountryAnswer('Kingstown', byId.VC, 'capital', countries).ok, true);
-});
-
 test('capitais oficiais, sedes administrativas e nomes históricos não são confundidos', () => {
   const countries = built.DATA;
   const byId = Object.fromEntries(countries.map(country => [country.id, country]));
 
+  // A alternativa certa é sempre a capital canônica; as outras sedes só
+  // aparecem na explicação do veredito.
   assert.equal(byId.GQ.cap, 'Ciudad de la Paz');
-  assert.equal(Core.matchCountryAnswer('Cidade da Paz', byId.GQ, 'capital', countries).ok, true);
-  assert.equal(Core.matchCountryAnswer('Malabo', byId.GQ, 'capital', countries).ok, false);
-  assert.equal(Core.matchCountryAnswer('La Paz', byId.BO, 'capital', countries).ok, false);
-  assert.equal(Core.matchCountryAnswer('Colombo', byId.LK, 'capital', countries).ok, false);
-  assert.equal(Core.matchCountryAnswer('Ramallah', byId.PS, 'capital', countries).ok, false);
+  assert.notEqual(byId.BO.cap, 'La Paz');
+  assert.notEqual(byId.LK.cap, 'Colombo');
+  assert.notEqual(byId.PS.cap, 'Ramallah');
   assert.equal(byId.NR.capitalType, 'government-seat');
   assert.equal(byId.CH.capitalType, 'de-facto');
   assert.equal(byId.CY.r, 'Ásia');

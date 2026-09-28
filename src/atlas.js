@@ -168,6 +168,17 @@
         }))}`
         : 'Sem fronteiras terrestres.' }));
       elements.detail.append(flagImage(country, { eager: true }), copy);
+      // A ficha é onde se estuda a forma, então a silhueta é a real, e não a do
+      // mapa-múndi. Quando o mapa a deforma a ponto de se notar, a nota diz como.
+      if (Core.isShapeable(country)) {
+        const forma = el('figure', { className: 'atlas-shape' }, [
+          ui.shape(country, `Silhueta de ${country.n} na forma real`),
+          el('figcaption', { text: 'Forma real' }),
+        ]);
+        const nota = Core.distortionNote(country, ui.projection);
+        if (nota) forma.append(el('p', { className: 'note', text: nota }));
+        elements.detail.append(forma);
+      }
       elements.detail.append(masteryCard(country));
 
       const indicadores = ui.indicadores(country);

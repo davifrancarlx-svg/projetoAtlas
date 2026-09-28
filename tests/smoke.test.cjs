@@ -572,10 +572,12 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     await require('./visual-regression.cjs')(client, evaluate, until);
     await require('./study-browser.cjs')(client, evaluate, until);
     await require('./variants-browser.cjs')(client, evaluate, until);
+    await require('./mobile-browser.cjs')(client, evaluate, until);
     await require('./resume-browser.cjs')(client, evaluate, until);
     await require('./audio-browser.cjs')(client, evaluate, until);
     await require('./due-browser.cjs')(client, evaluate, until);
     await require('./workflows-browser.cjs')(client, evaluate, until);
+    await require('./filters-browser.cjs')(client, evaluate, until);
     await until('service worker pronto para uso offline',()=>evaluate(client,"Boolean(navigator.serviceWorker.controller)"));
     await client.send('Network.enable');
     await client.send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});

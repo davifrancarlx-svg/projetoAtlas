@@ -71,13 +71,10 @@ test('cada fronteira é geograficamente plausível: os contornos se aproximam', 
   });
 });
 
-test('o núcleo prefere a fronteira real a "perto no mapa" e nunca vira resposta', () => {
+test('o núcleo prefere a fronteira real a "perto no mapa"', () => {
   const brasil = { id: 'BR', n: 'Brasil', cap: 'Brasília', r: 'América do Sul', sr: 'América do Sul', c: [0, 0], nb: ['AR'] };
   const argentina = { id: 'AR', n: 'Argentina', cap: 'Buenos Aires', r: 'América do Sul', sr: 'América do Sul', c: [10, 10] };
   const uruguai = { id: 'UY', n: 'Uruguai', cap: 'Montevidéu', r: 'América do Sul', sr: 'América do Sul', c: [12, 12] };
   assert.equal(Core.confusionReason(brasil, argentina, 'locate'), 'border');
   assert.equal(Core.confusionReason(brasil, uruguai, 'locate'), 'neighbour', 'Sem fronteira registrada, vale a distância.');
-  // Um nome de vizinho não pode entrar no universo de respostas aceitas.
-  const aceitas = Core.acceptedAnswers(brasil, 'country');
-  assert.deepEqual(aceitas, ['Brasil']);
 });

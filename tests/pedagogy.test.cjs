@@ -27,14 +27,15 @@ const at = (days) => new Date(Date.parse(NOW) + days * 86400000).toISOString();
 // --- nota da resposta -------------------------------------------------------
 
 test('a nota separa recuperação fluente de acerto trabalhoso', () => {
-  const typed = (ms) => Core.gradeAnswer({ correct: true, ms, answerMode: 'type' });
-  const picked = (ms) => Core.gradeAnswer({ correct: true, ms, answerMode: 'pick', optionCount: 4 });
+  // Apontar no mapa não tem alternativas: é recuperação sem chance cega.
+  const pointed = (ms) => Core.gradeAnswer({ correct: true, ms, optionCount: 0 });
+  const picked = (ms) => Core.gradeAnswer({ correct: true, ms, optionCount: 4 });
 
   assert.equal(Core.gradeAnswer({ correct: false, ms: 900 }), 'again', 'Errar sempre vale "again".');
-  assert.equal(typed(1200), 'easy', 'Digitar de cabeça e rápido é a evidência mais forte que existe.');
+  assert.equal(pointed(1200), 'easy', 'Apontar no mapa de cabeça e rápido é a evidência mais forte que existe.');
   assert.equal(picked(1200), 'good', 'Escolher rápido entre quatro ainda carrega chance cega.');
   assert.equal(picked(20000), 'hard', 'Escolher devagar entre quatro é reconstrução, não memória.');
-  assert.equal(typed(20000), 'good', 'Digitar devagar continua sendo produção da resposta.');
+  assert.equal(pointed(20000), 'good', 'Apontar devagar continua sendo produção da resposta.');
 
   // Sem tempo medido nada regride: a nota cai em 'good', que reproduz o
   // agendamento que o app tinha antes de existir nota.
@@ -45,8 +46,8 @@ test('a nota separa recuperação fluente de acerto trabalhoso', () => {
 test('o limiar de fluência não depende do cronômetro escolhido', () => {
   // Lembrar em 3 s é lembrar na hora, com ou sem teto de tempo: o tempo de
   // recuperação é propriedade da memória, não da configuração da sessão.
-  const semLimite = Core.gradeAnswer({ correct: true, ms: 3000, answerMode: 'type' });
-  const comLimite = Core.gradeAnswer({ correct: true, ms: 3000, answerMode: 'type', timeLimit: 15 });
+  const semLimite = Core.gradeAnswer({ correct: true, ms: 3000, optionCount: 0 });
+  const comLimite = Core.gradeAnswer({ correct: true, ms: 3000, optionCount: 0, timeLimit: 15 });
   assert.equal(semLimite, 'easy');
   assert.equal(comLimite, 'easy');
 });
@@ -161,7 +162,7 @@ test('a direção segue a fraqueza sem apagar as demais', () => {
 test('a pergunta continua determinística e respeita a direção forçada', () => {
   const feita = Core.createQuestion({
     countries: COUNTRIES, progress: base(), directions: ['cap'],
-    region: 'Mundo inteiro', answerMode: 'pick', rng: () => 0.42, now: NOW,
+    region: 'Mundo inteiro', rng: () => 0.42, now: NOW,
   });
   assert.equal(feita.question.direction, 'cap');
   assert.equal(feita.question.opts.length, 4);

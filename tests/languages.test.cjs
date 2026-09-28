@@ -87,11 +87,11 @@ test('idioma nunca vira resposta de pergunta', () => {
   const direcoes = Core.QUESTION_DIRECTIONS.join(' ');
   assert.doesNotMatch(direcoes, /idioma|lang|lingua|língua/i, 'Surgiu direção de pergunta baseada em idioma.');
 
-  // O risco concreto: "português" entrar no universo de respostas e passar a
-  // competir com "Portugal" na validação por semelhança.
+  // As alternativas do quiz são nomes de país e de capital: nenhuma pode ser
+  // nome de idioma.
   const todosIdiomas = new Set(Object.values(languages).flatMap((entry) => entry.oficiais));
   built.DATA.forEach((country) => {
-    const aceitas = Core.acceptedAnswers(country, 'capital').concat(Core.acceptedAnswers(country, 'country'));
+    const aceitas = [country.cap, country.n];
     aceitas.forEach((resposta) => {
       assert.ok(
         !todosIdiomas.has(String(resposta).toLowerCase()),
