@@ -572,6 +572,7 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     await require('./visual-regression.cjs')(client, evaluate, until);
     await require('./study-browser.cjs')(client, evaluate, until);
     await require('./variants-browser.cjs')(client, evaluate, until);
+    await require('./mobile-browser.cjs')(client, evaluate, until);
     await require('./resume-browser.cjs')(client, evaluate, until);
     await require('./audio-browser.cjs')(client, evaluate, until);
     await require('./due-browser.cjs')(client, evaluate, until);

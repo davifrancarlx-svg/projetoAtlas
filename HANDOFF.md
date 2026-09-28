@@ -267,6 +267,28 @@ do worker já com o nome `atlas-195-fb6d9cedae82` guardando o HTML novo.
   160 testes passando com Chrome real, mais conferência da ficha num Chrome de
   verdade (Japão, China, Portugal e Alemanha).
 
+### Rodada de 28 de setembro de 2026 — commitada, **não publicada**
+
+- **No celular, o mapa só vem antes do painel quando é a própria pergunta**
+  (apontar no mapa ou ler o pin). Antes, toda pergunta visual subia o mapa, e
+  nas de bandeira nenhuma alternativa aparecia sem rolar: numa tela de
+  390×844, a primeira começava em 929 px. Quem decide é `isMapQuestion` em
+  `src/app.js`, pelo atributo `data-question-map` (antes
+  `data-question-visual`); `isVisualQuestion` continua decidindo só o botão
+  de pular. Esse botão mora no cabeçalho do mapa, então nas perguntas de
+  bandeira ele passou a ficar abaixo das alternativas no celular.
+- **A grade de quatro bandeiras e de quatro silhuetas tem duas colunas também
+  abaixo de 560 px.** As quatro cabem juntas na tela, que é como se compara;
+  em coluna única a grade ia até 1344 px.
+- **A linha de instrução abaixo da placa não repete mais a direção**
+  ("capital → país" aparecia duas vezes). Ela só fica quando acrescenta algo:
+  "Observe as formas e cores", "Escolha uma bandeira", "Selecione o país no
+  mapa". Nauru, sem capital oficial, diz "sede do governo" na própria placa.
+- Teste novo `tests/mobile-browser.cjs`, a 390×844 dentro do smoke test:
+  ordem do painel e do mapa nas sete formas de pergunta, as quatro opções da
+  grade na primeira tela e nenhuma instrução repetindo a placa. 167 testes com
+  Chrome real. `src/app.js` ficou em 146,3 de 150 KiB (97,6%).
+
 ### Armadilha de verificação no navegador
 
 **Isso vale também para o site publicado.** Ao conferir o release

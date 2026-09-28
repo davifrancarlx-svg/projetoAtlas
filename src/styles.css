@@ -2262,11 +2262,11 @@ a.chip {
     border-inline-start: 0;
   }
 
-  .shell[data-question-visual="false"] .side {
+  .shell[data-question-map="false"] .side {
     order: -1;
   }
 
-  .shell[data-question-visual="false"] .map-region {
+  .shell[data-question-map="false"] .map-region {
     border-block-start: 1px solid var(--line-soft);
   }
 
@@ -2337,10 +2337,6 @@ a.chip {
 
   .map-action {
     padding-inline: 8px;
-  }
-
-  .opts.grid2 {
-    grid-template-columns: 1fr;
   }
 
   .typerow {

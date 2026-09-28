@@ -53,7 +53,7 @@ test('a camada visual oferece foco, domínio e encerramento de sessão responsiv
   assert.match(app, /function renderSessionResult/);
   assert.match(app, /function sessionMiniMap/);
   assert.match(app, /regionCelebration/);
-  assert.match(css, /\.shell\[data-question-visual="false"\] \.side/);
+  assert.match(css, /\.shell\[data-question-map="false"\] \.side/);
   assert.match(css, /#nextQuestion\s*\{[\s\S]*?position:\s*sticky/);
   assert.match(css, /\.flagbox\s*\{[\s\S]*?aspect-ratio:\s*3\s*\/\s*2/);
 });

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "version": "fb6d9cedae82",
+  "version": "f00be86a8e50",
   "files": {
     "atlas-195.html": {
-      "bytes": 5195199,
-      "sha256": "dddc2bb7b946a3ec1e8967b57faf20ab99548afc2fa0332ef435ba3e475ef0da"
+      "bytes": 5195709,
+      "sha256": "79b3c089358c963a853901af7463066adb2db82dc7e87ac5026074b64e2a8a3f"
     },
     "manifest.webmanifest": {
       "bytes": 864,
@@ -28,7 +28,7 @@
     },
     "sw.js": {
       "bytes": 4183,
-      "sha256": "8a7607c0ea70dc54c26d4f6e67cd302edfb153bf811ac55bab87630be4dd09f8"
+      "sha256": "f41f4ace52e9d7185bf64e3677d6c5cd1ae41c34830927aebb8f1894f88c6485"
     }
   }
 }

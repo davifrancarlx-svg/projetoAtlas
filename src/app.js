@@ -1153,29 +1153,25 @@
     answerQuestion(EXPIRED_ANSWER);
   }
 
+  // O segundo item é uma instrução e só existe quando acrescenta algo: a placa
+  // já diz a direção, e repetir "capital → país" logo abaixo dela era ruído.
   function questionCopy(question) {
     const country = byId[question.id];
-    if (question.direction === 'mapId' && question.variant === 'shape') {
-      return ['Que país tem esta forma?', 'Silhueta → país'];
-    }
-    if (question.direction === 'locate' && question.variant === 'shape') {
-      return [`Qual destas formas é ${country.n}?`, 'País → silhueta'];
-    }
-    if (question.direction === 'locate' && question.variant === 'border') {
-      return [`Qual destes faz fronteira com ${country.n}?`, 'País → fronteira'];
-    }
+    if (question.direction === 'mapId' && question.variant === 'shape') return ['Que país tem esta forma?'];
+    if (question.direction === 'locate' && question.variant === 'shape') return [`Qual destas formas é ${country.n}?`];
+    if (question.direction === 'locate' && question.variant === 'border') return [`Qual destes faz fronteira com ${country.n}?`];
     if (country.capitalType === 'government-seat') {
-      if (question.direction === 'cap') return [`Em qual distrito fica a sede do governo de ${country.n}?`, 'País → sede do governo'];
-      if (question.direction === 'capOf') return [`${country.cap} é a sede do governo de qual país?`, 'Sede do governo → país'];
+      if (question.direction === 'cap') return [`Em qual distrito fica a sede do governo de ${country.n}?`];
+      if (question.direction === 'capOf') return [`${country.cap} é a sede do governo de qual país?`];
     }
     return {
       flag: ['Que país tem esta bandeira?', 'Observe as formas e cores'],
       flagOf: [`Qual é a bandeira de ${country.n}?`, 'Escolha uma bandeira'],
-      cap: [`Qual é a capital de ${country.n}?`, 'País → capital'],
-      capOf: [`${country.cap} é a capital de qual país?`, 'Capital → país'],
+      cap: [`Qual é a capital de ${country.n}?`],
+      capOf: [`${country.cap} é a capital de qual país?`],
       locate: [`Onde fica ${country.n}?`, 'Selecione o país no mapa'],
-      mapId: ['Que país está marcado no mapa?', 'Mapa → país'],
-      reg: [`Em que região fica ${country.n}?`, 'País → região'],
+      mapId: ['Que país está marcado no mapa?'],
+      reg: [`Em que região fica ${country.n}?`],
     }[question.direction];
   }
   function isVisualQuestion(question = state.question) {
@@ -1187,6 +1183,12 @@
     return Boolean(question && question.direction === 'locate'
       && (!question.variant || question.variant === 'map'));
   }
+  // O mapa é a própria pergunta quando se responde nele ou quando o pin é o
+  // enunciado. No celular é isso que o põe antes do painel; nas demais, até nas
+  // visuais como bandeira, ele só empurrava as alternativas para baixo da dobra.
+  function isMapQuestion(question = state.question) {
+    return isMapPick(question) || Boolean(question && question.direction === 'mapId' && question.variant !== 'shape');
+  }
   // A resposta certa nem sempre é o país da pergunta: na variante de fronteira
   // é o vizinho sorteado.
   function expectedId(question = state.question) {
@@ -1196,6 +1198,10 @@
     if (question.direction === 'locate' && question.variant === 'shape') return 'país → silhueta';
     if (question.direction === 'locate' && question.variant === 'border') return 'país → fronteira';
     if (question.direction === 'mapId' && question.variant === 'shape') return 'silhueta → país';
+    if (byId[question.id].capitalType === 'government-seat') {
+      if (question.direction === 'cap') return 'país → sede do governo';
+      if (question.direction === 'capOf') return 'sede do governo → país';
+    }
     return DIRECTION_LABEL[question.direction];
   }
   function optionLabel(direction, country) { return direction === 'cap' ? country.cap : country.n; }
@@ -1585,7 +1591,7 @@
     atlas.detach();
     clear(dom.panel);
     const question = state.question;
-    dom.shell.dataset.questionVisual = String(isVisualQuestion(question));
+    dom.shell.dataset.questionMap = String(isMapQuestion(question));
     const country = byId[question.id];
     const [headline, eyebrow] = questionCopy(question);
     dom.panel.append(create('div', { className: 'plate' }, [
@@ -1619,7 +1625,7 @@
       }));
       dom.panel.append(row);
     }
-    dom.panel.append(create('p', { className: 'prompt', text: eyebrow }));
+    if (eyebrow) dom.panel.append(create('p', { className: 'prompt', text: eyebrow }));
     if (question.direction === 'flag') {
       dom.panel.append(create('h2', { id: 'questionTitle', className: 'subject sm', text: headline, attrs: { tabindex: '-1' } }));
       dom.panel.append(create('div', { className: 'flagbox' }, flagImage(country, { eager: true, alt: 'Bandeira apresentada na pergunta' })));
@@ -2000,7 +2006,7 @@
     if (!draft) return;
     atlas.detach();
     clear(dom.panel); clearMapMarks(); stopTimer();
-    dom.shell.dataset.questionVisual = 'false';
+    dom.shell.dataset.questionMap = 'false';
     dom.skipVisual.hidden = true;
     const review = draft.kind === 'review';
     const pendentes = review ? new Set(draft.deck.map((card) => `${card.id}:${card.direction}`)).size : 0;
@@ -2307,7 +2313,7 @@
     const mistakes = focusedMistakes();
     atlas.detach();
     clear(dom.panel); clearMapMarks(); stopTimer();
-    dom.shell.dataset.questionVisual = 'false';
+    dom.shell.dataset.questionMap = 'false';
     dom.panel.append(create('div', { className: 'plate' }, [
       create('span', { text: 'Sessão concluída' }),
       create('span', { text: `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}` }),
