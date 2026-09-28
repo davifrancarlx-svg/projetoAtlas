@@ -46,12 +46,50 @@
       return !area || country.r === area || country.sr === area;
     }
 
+    // O filtro que nasce na ficha: clicar em "francês" lista quem o tem como
+    // oficial. Compara o valor exato, e não o texto da busca, porque "turco"
+    // acharia o Turcomenistão e "EUR" acharia a Europa inteira.
+    function matchesFacet(country) {
+      const facet = state.atlasFacet;
+      if (!facet) return true;
+      if (facet.kind === 'idioma') return (country.idiomas || []).includes(facet.value);
+      return (country.moedas || []).some((moeda) => moeda.codigo === facet.value);
+    }
+
+    function facetCopy(facet) {
+      return `com ${facet.label} como ${facet.kind === 'idioma' ? 'idioma oficial' : 'moeda'}`;
+    }
+
+    function showFacet(kind, value, label) {
+      state.atlasFacet = { kind, value, label };
+      state.atlasQuery = '';
+      state.atlasArea = '';
+      state.atlasLimit = 60;
+      if (!elements) return;
+      elements.search.value = '';
+      renderAreas();
+      renderList();
+      // O foco vai para a contagem: rola a lista para a vista e o leitor de
+      // tela lê quantos países entraram.
+      elements.count.focus();
+      announce(`${elements.count.textContent}.`);
+    }
+
+    function clearFacet() {
+      state.atlasFacet = null;
+      state.atlasLimit = 60;
+      renderList();
+      if (elements) elements.count.focus();
+      announce('Filtro da ficha removido.');
+    }
+
     function matches() {
       const query = Core.normalizeText(state.atlasQuery);
       return SORTED.filter((country) => {
-        if (!matchesArea(country)) return false;
+        if (!matchesArea(country) || !matchesFacet(country)) return false;
         if (!query) return true;
-        const aliases = (country.aliases || []).map((alias) => alias.value);
+        const aliases = (country.aliases || []).map((alias) => alias.value)
+          .concat(country.alsoKnownAs || [], (country.formerNames || []).map((item) => item.name));
         // O idioma entra na busca ("francês" lista quem o tem como oficial), e
         // a moeda também ("euro", "EUR"). Nenhum dos dois é resposta do quiz.
         const idiomas = Array.isArray(country.idiomas) ? country.idiomas : [];
@@ -111,7 +149,9 @@
       } });
       const areas = el('div', { className: 'atlas-areas', attrs: { role: 'group', 'aria-label': 'Filtrar por área' } });
       const detail = el('section', { className: 'atlas-detail', attrs: { 'aria-live': 'polite', 'aria-label': 'País selecionado' } });
-      const count = el('p', { className: 'count' });
+      const count = el('p', { className: 'count', attrs: { tabindex: '-1' } });
+      const facet = el('button', { className: 'btn ghost atlas-facet', type: 'button', text: 'Limpar filtro' });
+      facet.addEventListener('click', clearFacet);
       const list = el('div', { className: 'list', attrs: { 'aria-label': 'Resultados da busca' } });
       const more = el('button', { className: 'btn ghost wide', text: 'Mostrar mais países', type: 'button' });
       search.addEventListener('input', () => {
@@ -121,8 +161,8 @@
         searchTimer = setTimeout(renderList, 120);
       });
       more.addEventListener('click', () => { state.atlasLimit += 60; renderList(); });
-      ui.panel().append(search, areas, detail, count, list, more);
-      elements = { search, areas, detail, count, list, more };
+      ui.panel().append(search, areas, detail, count, facet, list, more);
+      elements = { search, areas, detail, count, facet, list, more };
       renderAreas();
       renderDetail();
       renderList();
@@ -137,36 +177,49 @@
       clear(elements.detail);
       const idiomas = Array.isArray(country.idiomas) ? country.idiomas : [];
       const moedas = Array.isArray(country.moedas) ? country.moedas : [];
-      const copy = el('div', { className: 'atlas-detail-copy' }, [
-        el('h3', { text: country.n }),
-        el('p', { text: `Capital: ${country.cap}` }),
-        el('p', { text: `${country.sr} · ${formatArea(country.ar)}` }),
-      ]);
+      const copy = el('div', { className: 'atlas-detail-copy' }, [el('h3', { text: country.n, attrs: { tabindex: '-1' } })]);
+      // Os nomes que a pessoa pode ter ouvido: só os escritos para leitura em
+      // content-policy.json, nunca os erros comuns que a busca também aceita.
+      const outros = country.alsoKnownAs || [];
+      const anteriores = country.formerNames || [];
+      if (outros.length) copy.append(el('p', { className: 'outros-nomes', text: `${outros.length === 1 ? 'Outro nome' : 'Outros nomes'}: ${formatList(outros)}` }));
+      if (anteriores.length) {
+        copy.append(el('p', { className: 'outros-nomes', text: `${anteriores.length === 1 ? 'Nome anterior' : 'Nomes anteriores'}: ${
+          formatList(anteriores.map((item) => `${item.name} (até ${item.until})`))}` }));
+      }
+      copy.append(el('p', { text: `Capital: ${country.cap}` }));
+      // As mesmas notas do veredito do erro: a ficha é onde se estuda, e antes
+      // ela dizia "Capital: Pretória" e mais nada.
+      Core.capitalNotes(country).forEach((nota) => copy.append(el('p', { className: 'note', text: nota })));
+      copy.append(el('p', { text: `${country.sr} · ${formatArea(country.ar)}` }));
       // Idioma e moeda ficam junto da capital: são do mesmo tipo de dado de
       // identidade do país, não indicadores com ano. A nota só existe quando o
-      // uso cotidiano diverge do que vale por lei.
+      // uso cotidiano diverge do que vale por lei. Cada um lista, ao clique, os
+      // países que o compartilham.
       if (idiomas.length) {
-        copy.append(el('p', {
-          className: 'idiomas',
-          text: `${idiomas.length === 1 ? 'Idioma' : 'Idiomas'}: ${formatList(idiomas)}`,
-        }));
+        copy.append(linkLine('idiomas', idiomas.length === 1 ? 'Idioma' : 'Idiomas', idiomas.map((idioma) => ({
+          text: idioma, go: () => showFacet('idioma', idioma, idioma),
+          label: `${idioma}: ver os países com este idioma oficial`,
+        }))));
         if (country.idiomasNota) copy.append(el('p', { className: 'note', text: country.idiomasNota }));
       }
       if (moedas.length) {
-        copy.append(el('p', {
-          className: 'moedas',
-          text: `${moedas.length === 1 ? 'Moeda' : 'Moedas'}: ${formatList(moedas.map((moeda) => `${moeda.nome} (${moeda.codigo})`))}`,
-        }));
+        copy.append(linkLine('moedas', moedas.length === 1 ? 'Moeda' : 'Moedas', moedas.map((moeda) => {
+          const nome = `${moeda.nome} (${moeda.codigo})`;
+          return { text: nome, go: () => showFacet('moeda', moeda.codigo, nome), label: `${nome}: ver os países que usam esta moeda` };
+        })));
         if (country.moedaNota) copy.append(el('p', { className: 'note', text: country.moedaNota }));
       }
-      // Fronteiras terrestres, editoriais (src/borders.json). Quem é ilha diz isso.
+      // Fronteiras terrestres, editoriais (src/borders.json). Quem é ilha diz
+      // isso; quem não é leva ao vizinho com um clique.
       const vizinhos = (country.nb || []).map((id) => byId[id]).filter(Boolean);
-      copy.append(el('p', { className: 'fronteiras', text: vizinhos.length
-        ? `${vizinhos.length === 1 ? 'Fronteira terrestre' : `Fronteiras terrestres (${vizinhos.length})`}: ${formatList(vizinhos.map((outro) => {
-          const nota = country.nbNotas && country.nbNotas[outro.id];
-          return nota ? `${outro.n} (${nota})` : outro.n;
-        }))}`
-        : 'Sem fronteiras terrestres.' }));
+      copy.append(vizinhos.length
+        ? linkLine('fronteiras', vizinhos.length === 1 ? 'Fronteira terrestre' : `Fronteiras terrestres (${vizinhos.length})`,
+          vizinhos.map((outro) => {
+            const nota = country.nbNotas && country.nbNotas[outro.id];
+            return { text: outro.n, suffix: nota ? `(${nota})` : '', go: () => goTo(outro.id) };
+          }))
+        : el('p', { className: 'fronteiras', text: 'Sem fronteiras terrestres.' }));
       elements.detail.append(flagImage(country, { eager: true }), copy);
       // A ficha é onde se estuda a forma, então a silhueta é a real, e não a do
       // mapa-múndi. Quando o mapa a deforma a ponto de se notar, a nota diz como.
@@ -216,6 +269,27 @@
       territoriesOf(country.id).forEach((territory) => {
         elements.detail.append(territoryCard(country, territory));
       });
+    }
+
+    // Uma linha da ficha em que cada item leva a algum lugar, com a mesma junção
+    // de formatList ("a, b e c") para o leitor de tela ler como frase.
+    function linkLine(className, label, items) {
+      const line = el('p', { className }, [document.createTextNode(`${label}: `)]);
+      items.forEach((item, index) => {
+        if (index) line.append(document.createTextNode(index === items.length - 1 ? ' e ' : ', '));
+        const button = el('button', { className: 'ficha-link', type: 'button', text: item.text, attrs: { 'aria-label': item.label || null } });
+        button.addEventListener('click', item.go);
+        line.append(button);
+        if (item.suffix) line.append(document.createTextNode(` ${item.suffix}`));
+      });
+      return line;
+    }
+
+    // Ir ao vizinho troca a ficha inteira, e o botão clicado some com ela: o
+    // foco vai para o nome do país novo em vez de cair no começo da página.
+    function goTo(id) {
+      select(id, true);
+      if (elements) elements.detail.querySelector('h3')?.focus();
     }
 
     // A ficha diz onde o jogador está com aquele país e oferece o atalho para
@@ -273,7 +347,10 @@
       const visible = found.slice(0, state.atlasLimit);
       clear(elements.list);
       elements.count.textContent = `${found.length} ${found.length === 1 ? 'resultado' : 'resultados'}`
-        + (state.atlasArea ? ` em ${state.atlasArea}` : '');
+        + (state.atlasArea ? ` em ${state.atlasArea}` : '')
+        + (state.atlasFacet ? ` ${facetCopy(state.atlasFacet)}` : '');
+      elements.facet.hidden = !state.atlasFacet;
+      if (state.atlasFacet) elements.facet.setAttribute('aria-label', `Limpar filtro: ${facetCopy(state.atlasFacet)}`);
       const query = Core.normalizeText(state.atlasQuery);
       visible.forEach((country) => {
         const territory = matchedTerritory(country, query);
@@ -289,9 +366,11 @@
       });
       elements.more.hidden = visible.length >= found.length;
       elements.more.textContent = `Mostrar mais (${found.length - visible.length})`;
-      if (!found.length) elements.list.append(el('p', { className: 'empty', text: state.atlasArea
-        ? 'Nada corresponde à busca dentro dessa área. Toque no filtro ativo para ver o mundo inteiro.'
-        : 'Nenhum país, capital, região, idioma ou moeda corresponde à busca.' }));
+      if (!found.length) elements.list.append(el('p', { className: 'empty', text: state.atlasFacet
+        ? 'Nada corresponde à busca com esse filtro. Limpe o filtro para ver todos os países.'
+        : state.atlasArea
+          ? 'Nada corresponde à busca dentro dessa área. Toque no filtro ativo para ver o mundo inteiro.'
+          : 'Nenhum país, capital, região, idioma ou moeda corresponde à busca.' }));
     }
 
     function select(id, fit = false, territory = null) {

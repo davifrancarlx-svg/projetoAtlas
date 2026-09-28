@@ -18,8 +18,9 @@ const LIMITS = {
   // folga: o orçamento dela é próprio, não uma transferência de bytes.
   'src/account.js': 24 * 1024,
   // A aba Atlas saiu de app.js na mesma linha de raciocínio, junto do filtro
-  // por área e da moeda na ficha (2026-09-16).
-  'src/atlas.js': 20 * 1024,
+  // por área e da moeda na ficha (2026-09-16). 20 → 24 KiB com a ficha
+  // navegável, os outros nomes e as notas da capital (2026-09-28).
+  'src/atlas.js': 24 * 1024,
   // A aba Progresso saiu de app.js em 2026-09-28, antes de a ficha do Atlas
   // crescer: sem isso, qualquer mudança de tela esbarrava no teto do app.
   'src/progress.js': 26 * 1024,

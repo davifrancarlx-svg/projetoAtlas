@@ -121,7 +121,7 @@
     question: null, answered: false,
     selectedAnswer: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
-    atlasSelected: 'BR', atlasQuery: '', atlasArea: '', atlasLimit: 60, resetArmed: false, resetPending: false,
+    atlasSelected: 'BR', atlasQuery: '', atlasArea: '', atlasFacet: null, atlasLimit: 60, resetArmed: false, resetPending: false,
     mapCursorId: 'BR',
     theme: 'auto',
     timeLimit: 0, askedAt: 0, expired: false,
@@ -1358,11 +1358,7 @@
         + `${territory.cap} — por isso o ponto ${territory.of === country.id ? 'vale' : 'foi lido'} como `
         + `${sovereign.n}, cuja capital é ${sovereign.cap}.`);
     }
-    if (country.alternateCapitals && country.alternateCapitals.length) notes.push(`Também é capital oficial: ${country.alternateCapitals.join(', ')}.`);
-    if (country.otherSeats && country.otherSeats.length) notes.push(`Outra sede de governo: ${country.otherSeats.join(', ')}.`);
-    if (country.formerCapitalNames && country.formerCapitalNames.length) notes.push(`Nome antigo da capital: ${country.formerCapitalNames.join(', ')}.`);
-    if (country.capitalNote) notes.push(country.capitalNote);
-    return notes;
+    return notes.concat(Core.capitalNotes(country));
   }
 
   // O erro só ensina se disser por que a confusão era plausível. O núcleo diz

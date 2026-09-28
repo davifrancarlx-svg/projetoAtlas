@@ -153,6 +153,18 @@ function loadCountries() {
     const countryColloquialisms = policy.countryColloquialisms ?? [];
     const countryMistakes = policy.countryMistakes ?? [];
     const capitalMistakes = policy.capitalMistakes ?? [];
+    // Os nomes que a ficha mostra são escritos para leitura. Os de cima servem à
+    // busca, vêm normalizados ("suazilandia") e incluem erros comuns, que não
+    // podem aparecer como "também conhecido como".
+    const alsoKnownAs = policy.alsoKnownAs ?? [];
+    const formerNames = policy.formerNames ?? [];
+    if (!alsoKnownAs.every((name) => typeof name === 'string' && name.trim())) {
+      throw new Error(`Outro nome malformado para ${country.id} (${country.n}).`);
+    }
+    if (!formerNames.every((item) => item && typeof item.name === 'string' && item.name.trim()
+      && Number.isInteger(item.until) && item.until >= 1800 && item.until <= new Date().getFullYear())) {
+      throw new Error(`Nome anterior malformado para ${country.id} (${country.n}): precisa de nome e ano.`);
+    }
     const aliases = [
       ...nameAliases.map((value) => ({ value, field: 'country', type: 'equivalent' })),
       ...capitalAliases.map((value) => ({ value, field: 'capital', type: 'transliteration' })),
@@ -188,6 +200,9 @@ function loadCountries() {
       capitalMistakes,
       capitalType: policy.capitalType || 'official',
       capitalNote: policy.capitalNote || '',
+      // Só 16 países têm outro nome: o campo vazio nos outros 179 seria peso à toa.
+      ...(alsoKnownAs.length ? { alsoKnownAs } : {}),
+      ...(formerNames.length ? { formerNames } : {}),
       idiomas: language.oficiais,
       idiomasNota: language.nota || '',
       moedas: currency.moedas,

@@ -1522,6 +1522,20 @@
     { campo: 'urb', artigo: 'o', alto: 'mais urbanizado' },
   ]);
 
+  // O que se sabe da capital além do nome: outras capitais oficiais, sedes de
+  // governo, o nome antigo e a nota editorial. Vale para o veredito do erro e
+  // para a ficha do Atlas, que antes dizia "Capital: Pretória" e mais nada.
+  function capitalNotes(country) {
+    if (!country) return [];
+    var notes = [];
+    var list = function (items) { return Array.isArray(items) ? items.filter(Boolean) : []; };
+    if (list(country.alternateCapitals).length) notes.push('Também é capital oficial: ' + list(country.alternateCapitals).join(', ') + '.');
+    if (list(country.otherSeats).length) notes.push('Outra sede de governo: ' + list(country.otherSeats).join(', ') + '.');
+    if (list(country.formerCapitalNames).length) notes.push('Nome antigo da capital: ' + list(country.formerCapitalNames).join(', ') + '.');
+    if (country.capitalNote) notes.push(country.capitalNote);
+    return notes;
+  }
+
   function ordenarPor(lista, campo) {
     return lista
       .filter(function (item) { return Number.isFinite(item && item[campo]); })
@@ -1630,6 +1644,7 @@
 
   return Object.freeze({
     derivedFacts: derivedFacts,
+    capitalNotes: capitalNotes,
     SCHEMA_VERSION: SCHEMA_VERSION,
     MAX_LEVEL: MAX_LEVEL,
     QUESTION_DIRECTIONS: QUESTION_DIRECTIONS,
