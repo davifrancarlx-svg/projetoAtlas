@@ -7,6 +7,10 @@
   if (!Core) throw new Error('AtlasCore não foi carregado.');
   const SyncQueue = globalThis.AtlasSyncQueue;
   if (!SyncQueue) throw new Error('AtlasSyncQueue não foi carregado.');
+  // O traçado viaja compactado no artefato (ver Core.decodePath); daqui em
+  // diante todo mundo lê o path de sempre.
+  DATA.forEach((country) => { country.d = Core.decodePath(country.d); });
+  if (typeof CONTEXT_AREAS !== 'undefined') CONTEXT_AREAS.forEach((area) => { area.d = Core.decodePath(area.d); });
 
   const IDS = DATA.map((country) => country.id);
   const byId = Object.fromEntries(DATA.map((country) => [country.id, country]));

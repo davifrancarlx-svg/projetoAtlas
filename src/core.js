@@ -1522,6 +1522,52 @@
     { campo: 'urb', artigo: 'o', alto: 'mais urbanizado' },
   ]);
 
+  // O traçado do mapa viaja compacto no artefato: centésimos inteiros, o
+  // primeiro ponto de cada anel absoluto e os seguintes como diferença do
+  // anterior, anéis separados por ";". Descompactar devolve exatamente o path
+  // que o gerador escreveu ("M-155.53 96.19L...Z") — o build confere isso em
+  // todo país —, então nada que lê `d` precisa saber da compactação. Um path
+  // que já começa com "M" passa direto.
+  function decodePath(packed) {
+    if (typeof packed !== 'string' || !packed || packed.charAt(0) === 'M') return packed;
+    // Laço à mão, sem regex nem conversão de número para texto: roda a cada
+    // abertura, sobre 165 mil pontos, e num celular cada milissegundo conta.
+    var parts = [];
+    var x = 0;
+    var y = 0;
+    var value = 0;
+    var sign = 1;
+    var reading = false;
+    var count = 0;
+    for (var k = 0, length = packed.length; k <= length; k++) {
+      var code = k < length ? packed.charCodeAt(k) : 59;
+      if (code >= 48 && code <= 57) { value = value * 10 + code - 48; reading = true; continue; }
+      if (reading) {
+        if (count % 2 === 0) x += sign * value;
+        else { y += sign * value; parts.push((count > 1 ? 'L' : 'M') + hundredths(x) + ' ' + hundredths(y)); }
+        count += 1;
+        value = 0;
+        sign = 1;
+        reading = false;
+      }
+      if (code === 45) sign = -1;
+      else if (code === 59) { parts.push('Z'); x = 0; y = 0; count = 0; }
+    }
+    return parts.join('');
+  }
+
+  // 15553 → "155.53", -5 → "-0.05", 9360 → "93.6": o mesmo texto que o
+  // gerador escreveu com String(numero).
+  function hundredths(value) {
+    var text = '';
+    if (value < 0) { text = '-'; value = -value; }
+    var whole = Math.floor(value / 100);
+    var rest = value - whole * 100;
+    text += whole;
+    if (rest) text += rest < 10 ? '.0' + rest : (rest % 10 ? '.' + rest : '.' + rest / 10);
+    return text;
+  }
+
   // O que se sabe da capital além do nome: outras capitais oficiais, sedes de
   // governo, o nome antigo e a nota editorial. Vale para o veredito do erro e
   // para a ficha do Atlas, que antes dizia "Capital: Pretória" e mais nada.
@@ -1645,6 +1691,7 @@
   return Object.freeze({
     derivedFacts: derivedFacts,
     capitalNotes: capitalNotes,
+    decodePath: decodePath,
     SCHEMA_VERSION: SCHEMA_VERSION,
     MAX_LEVEL: MAX_LEVEL,
     QUESTION_DIRECTIONS: QUESTION_DIRECTIONS,

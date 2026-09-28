@@ -108,7 +108,15 @@ test('o artefato contém exatamente os 195 países e IDs únicos', () => {
   const ids = built.DATA.map(country => country.id);
   assert.equal(new Set(ids).size, 195);
   ids.forEach((id) => assert.match(id, /^[A-Z]{2}$/, `ID inválido: ${id}`));
-  built.DATA.forEach(country => assert.match(country.f, /^data:image\/svg\+xml;base64,/, `${country.id}: bandeira SVG não integrada.`));
+  // A bandeira viaja como texto na data URI, não em base64 (ver packFlag no
+  // build): o SVG precisa sair inteiro dela e sem nada que feche o <script>.
+  built.DATA.forEach((country) => {
+    assert.match(country.f, /^data:image\/svg\+xml,%3Csvg /, `${country.id}: bandeira SVG não integrada.`);
+    assert.doesNotMatch(country.f, /[<>"#]/, `${country.id}: caractere sem escape na bandeira.`);
+    const svg = decodeURIComponent(country.f.slice('data:image/svg+xml,'.length));
+    assert.match(svg, /<\/svg>$/, `${country.id}: bandeira cortada.`);
+    assert.doesNotMatch(svg, /<\s*(?:script|foreignObject)\b/i);
+  });
   assert.match(html, /flag-icons 7\.5\.0 — MIT license/);
 });
 
@@ -176,10 +184,16 @@ test('o build anexa os vizinhos terrestres em ordem alfabética, sem tocar nas r
 });
 
 test('o build incorporou path, centro e bounds válidos para todo país', () => {
+  const geometry = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'map-geometry.json'), 'utf8'));
+  const original = new Map(geometry.countries.map((item) => [item.id, item.d]));
   for (const country of built.DATA) {
     assert.equal(typeof country.d, 'string', `${country.id}: path ausente.`);
-    assert.match(country.d, /^M[-\d.]/, `${country.id}: path não começa com um comando M.`);
-    assert.match(country.d, /Z$/, `${country.id}: path não termina fechado.`);
+    // O artefato leva o traçado compactado; aberto, ele é o path do gerador.
+    assert.doesNotMatch(country.d, /^M/, `${country.id}: traçado sem compactar.`);
+    const d = Core.decodePath(country.d);
+    assert.equal(d, original.get(country.id), `${country.id}: o traçado não volta igual ao do gerador.`);
+    assert.match(d, /^M[-\d.]/, `${country.id}: path não começa com um comando M.`);
+    assert.match(d, /Z$/, `${country.id}: path não termina fechado.`);
     assert.equal(Array.isArray(country.c), true, `${country.id}: centro ausente.`);
     assert.equal(country.c.length, 2, `${country.id}: centro precisa ter duas coordenadas.`);
     assert.equal(country.c.every(Number.isFinite), true, `${country.id}: centro não finito.`);

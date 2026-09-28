@@ -24,7 +24,10 @@ const LIMITS = {
   // A aba Progresso saiu de app.js em 2026-09-28, antes de a ficha do Atlas
   // crescer: sem isso, qualquer mudança de tela esbarrava no teto do app.
   'src/progress.js': 26 * 1024,
-  'atlas-195.html': 5.25 * 1024 * 1024,
+  // 5,25 → 3,25 MiB em 2026-09-28: traçado e bandeiras passaram a viajar
+  // compactados (de 5,0 para 2,9 MiB). O teto desce junto para o arquivo não
+  // voltar a engordar em silêncio.
+  'atlas-195.html': 3.25 * 1024 * 1024,
   'src/app.js': 150 * 1024,
   // 80 → 88 KiB com as três variantes de "país → mapa" (mapa, silhueta e
   // fronteira): o núcleo é lógica pura e não tem bloco que valha separar sem

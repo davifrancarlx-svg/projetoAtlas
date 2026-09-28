@@ -1,6 +1,7 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const Core = require('../src/core.js');
 
 const root = path.resolve(__dirname, '..');
 // O parser HTML normaliza quebras de linha (CRLF e CR viram LF) antes de o
@@ -424,10 +425,43 @@ if (mapMetaEnxuto.contextLand) {
 }
 delete mapMetaEnxuto.contextAreas;
 
+// O artefato leva o traçado e as bandeiras compactados, sem perder nada: os
+// dois eram 4 dos 5 MB do arquivo, e ele é baixado inteiro na primeira visita.
+// - Traçado: centésimos inteiros, cada ponto como diferença do anterior (ver
+//   Core.decodePath). O app descompacta ao abrir e todo país volta a ser, byte
+//   a byte, o path do gerador — o build recusa o artefato se não voltar.
+// - Bandeira: o SVG vai como texto, não em base64, que cresce um terço e
+//   comprime mal. Sai só o espaço entre as tags; as aspas viram simples e só
+//   o que a URI exige (%, #) e o que poderia fechar o <script> (<, >) escapa.
+function packPath(d, label) {
+  const rings = d.split('Z').filter(Boolean).map((ring) => {
+    const numbers = ring.match(/-?\d*\.?\d+/g).map((value) => Math.round(Number(value) * 100));
+    return numbers.map((value, index) => {
+      const delta = index < 2 ? value : value - numbers[index - 2];
+      return (index && delta >= 0 ? ' ' : '') + delta;
+    }).join('');
+  });
+  const packed = rings.join(';');
+  if (Core.decodePath(packed) !== d) throw new Error(`O traçado de ${label} não sobrevive à compactação.`);
+  return packed;
+}
+
+function packFlag(uri, label) {
+  const svg = Buffer.from(uri.slice(uri.indexOf(',') + 1), 'base64').toString('utf8')
+    .replace(/\s*\n\s*/g, ' ').replace(/>\s+</g, '><').trim();
+  if (svg.includes("'")) throw new Error(`A bandeira de ${label} tem aspas simples: trocar as duplas quebraria o SVG.`);
+  return `data:image/svg+xml,${svg.replace(/"/g, "'").replace(/[%#<>]/g, encodeURIComponent)}`;
+}
+
+const packedCountries = countries.map((country) => ({
+  ...country, d: packPath(country.d, country.id), f: packFlag(country.f, country.id),
+}));
+const packedAreas = contextAreas.map((area) => ({ ...area, d: packPath(area.d, area.code) }));
+
 const data = `const MAP_META = ${JSON.stringify(mapMetaEnxuto)};\n`
-  + `const DATA = ${JSON.stringify(countries)};\n`
+  + `const DATA = ${JSON.stringify(packedCountries)};\n`
   + `const TERRITORIES = ${JSON.stringify(territories)};\n`
-  + `const CONTEXT_AREAS = ${JSON.stringify(contextAreas)};\n`
+  + `const CONTEXT_AREAS = ${JSON.stringify(packedAreas)};\n`
   + `const INDICATOR_META = ${JSON.stringify(indicatorMeta)};\n`
   + `const CLOUD = ${JSON.stringify(cloud)};`;
 const flagLicense = read('data/flag-icons/LICENSE').trim().replace(/--/g, '—');

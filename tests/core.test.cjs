@@ -476,3 +476,16 @@ test('escolher uma subregião restringe o sorteio sem alterar o balde amplo', ()
   assert.deepEqual([...amplo].sort(), ['CA', 'CU', 'GT', 'JM'], 'O balde amplo segue cobrindo as três subregiões.');
   assert.ok(ids.length === 5);
 });
+
+test('o traçado compactado volta exatamente ao path do gerador', () => {
+  // Centésimos inteiros; o primeiro ponto do anel é absoluto e os seguintes
+  // são diferenças. A formatação precisa bater com String(numero) do gerador:
+  // sem zero à direita, sem ponto quando é inteiro e com o sinal no -0,05.
+  assert.equal(Core.decodePath('-15553 9619 24-15;100 200-105 50'),
+    'M-155.53 96.19L-155.29 96.04ZM1 2L-0.05 2.5Z');
+  assert.equal(Core.decodePath('936 -7 1 3'), 'M9.36 -0.07L9.37 -0.04Z');
+  // Um path comum passa direto, e o vazio continua vazio.
+  assert.equal(Core.decodePath('M1 2L3 4Z'), 'M1 2L3 4Z');
+  assert.equal(Core.decodePath(''), '');
+  assert.equal(Core.decodePath(undefined), undefined);
+});
