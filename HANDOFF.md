@@ -272,7 +272,21 @@ do worker já com o nome `atlas-195-fb6d9cedae82` guardando o HTML novo.
   160 testes passando com Chrome real, mais conferência da ficha num Chrome de
   verdade (Japão, China, Portugal e Alemanha).
 
-### Rodada de 28 de setembro de 2026 — commitada, **não publicada**
+### Rodada de 28 de setembro de 2026 — publicada no release `51cc13762c0f`
+
+**No ar desde 28/09/2026, 15h UTC**, a pedido do usuário, junto com a página
+inicial do Lovable descrita mais abaixo. PR
+https://github.com/davifrancarlx-svg/projetoAtlas/pull/1 com CI verde.
+Publicação feita assim, e é o caminho a repetir: os dois arquivos que mudaram
+(`atlas-195.html`, 5.187.315 bytes, `2770118bda6a6366…`, e `sw.js`, 4.183
+bytes, `71b8066edf1d1876…`) foram enviados por `get_file_upload_url` + PUT e
+anexados numa mensagem ao agente do Lovable, que os copiou com `cp` para
+`public/` e devolveu os sha256 idênticos (commit Lovable `4bafa2a`, só esses
+dois arquivos no diff). Depois de `deploy_project`, o próprio agente do Lovable
+baixou do domínio publicado com `curl` e conferiu os dois hashes e o
+cabeçalho de `/`. Este contêiner não alcança `*.lovable.app` (a rede do
+ambiente bloqueia), por isso `npm run verify:production` não roda daqui.
+
 
 - **No celular, o mapa só vem antes do painel quando é a própria pergunta**
   (apontar no mapa ou ler o pin). Antes, toda pergunta visual subia o mapa, e
@@ -294,8 +308,7 @@ do worker já com o nome `atlas-195-fb6d9cedae82` guardando o HTML novo.
   grade na primeira tela e nenhuma instrução repetindo a placa. 167 testes com
   Chrome real. `src/app.js` ficou em 146,3 de 150 KiB (97,6%).
 
-**Silhuetas na forma real e barra de opções aberta por padrão** (mesmo dia,
-commitadas, não publicadas). O usuário estranhou a Islândia no mapa. Não é
+**Silhuetas na forma real e barra de opções aberta por padrão** (mesmo dia). O usuário estranhou a Islândia no mapa. Não é
 defeito de dado: é a Robinson, que estica na horizontal o que fica perto dos
 polos e inclina o que fica longe do meridiano central. Medido nos 195: 35
 passam de 25% de deformação (Islândia 78%, Suécia, Noruega, Finlândia, Nova
@@ -325,7 +338,7 @@ corrigir onde a forma é o assunto:
   separar um bloco antes; a geometria de exibição do núcleo (projeção, zoom,
   enquadramento e forma real) é a candidata natural.
 
-**Resposta só por escolha** (mesmo dia, commitada, não publicada). A pedido do
+**Resposta só por escolha** (mesmo dia). A pedido do
 usuário, a digitação saiu do app inteiro: o controle "Resposta" da barra, o
 campo de texto, o reconhecimento de texto do núcleo (`matchAnswer`,
 `matchCountryAnswer`, `fuzzy`, `acceptedAnswers`, tipos de alias seguros) e
@@ -354,7 +367,7 @@ gravado (69,7 KB) ficou intacto. Consequência documentada: sem sessão, um
 pedido com a chave `anon` agora é recusado em vez de devolver lista vazia; o
 app só consulta a tabela com sessão, então nada muda para quem usa.
 
-**Página inicial do Lovable corrigida, mas ainda não publicada.** O
+**Página inicial do Lovable corrigida e publicada.** O
 `src/routes/__root.tsx` do projeto Lovable tinha o cabeçalho padrão ("Lovable
 App", "Lovable Generated Project", `lang="en"`), que é o que o WhatsApp e as
 redes sociais mostram ao compartilhar `atlas-195.lovable.app`. O agente do
@@ -364,9 +377,8 @@ textos do `atlas-195.html`, pôs `lang="pt-BR"`, traduziu as páginas de erro e
 que leva a `/atlas-195.html` antes de o React carregar (commit Lovable
 `2f30adb`). O mesmo commit trouxe duas atualizações automáticas da
 plataforma: `@lovable.dev/vite-tanstack-config` fixado em 2.23.1 e um ajuste
-em `previewAuthStorage.ts`. `public/atlas-195.html` e `public/sw.js`
-continuam com os hashes do release `fb6d9cedae82`. **Falta publicar** pelo
-botão Publish do editor; depois, conferir a pré-visualização do link.
+em `previewAuthStorage.ts`. Foi ao ar junto com o release `51cc13762c0f`;
+o WhatsApp pode guardar a prévia antiga do link por algum tempo.
 
 ### Armadilha de verificação no navegador
 
