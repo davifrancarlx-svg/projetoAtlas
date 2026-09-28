@@ -21,6 +21,8 @@ O conteúdo anterior foi preservado como base e passa por validações automáti
 
 Decisões editoriais sensíveis são explícitas em `src/content-policy.json`. Entre elas estão a capital da Guiné Equatorial conforme o Decreto-Lei 1/2026, a classificação M49 do Chipre na Ásia Ocidental e a distinção entre capitais, sedes de governo e nomes históricos.
 
+Os nomes que a ficha mostra ("Outro nome", "Nome anterior") ficam em `alsoKnownAs` e `formerNames` do mesmo arquivo, escritos para leitura — os de busca vêm normalizados ("suazilandia") e incluem erros comuns. Todo nome exibido precisa ser um que a busca já conhecia, e nunca de `countryMistakes` ou `countryAmbiguousNames`: "Inglaterra" e "Santa Sé" não aparecem como outro nome. O nome anterior leva o ano em que deixou de valer (Alto Volta até 1984, Birmânia até 1989, Suazilândia até 2018, Macedônia até 2019). `tests/names.test.cjs` confere as duas coisas. As grafias que só existiam para a digitação ("Abidja", "Aden", "Birmania") saíram em 28/09/2026: com as notas da capital na ficha, elas apareceriam repetidas.
+
 ### Região (`r`) e subregião (`sr`)
 
 Todo país carrega dois rótulos geográficos. `r` é o balde amplo usado pelo modo "país → região" — inclui, por exemplo, "América do Norte, Central e Caribe" como uma única opção de resposta, para não cobrar ortografia de topônimo em vez de geografia. `sr` é a subregião do país e é o que aparece na ficha do Atlas, no resultado da pergunta, na busca e como área de estudo própria no filtro de região.
@@ -80,7 +82,7 @@ Desde 16 de setembro de 2026 as fronteiras também sustentam uma **variante de p
 - Fonte: [flag-icons](https://github.com/lipis/flag-icons), versão 7.5.0, SVG 4:3.
 - Licença da coleção: MIT, copyright (c) 2013 Panayiotis Lipiridis.
 - Cobertura: 195/195 IDs ISO 3166-1 alfa-2 presentes no Atlas.
-- Distribuição: URIs `data:image/svg+xml;base64` incorporadas ao HTML, sem requisições externas.
+- Distribuição: `data/flags.json` guarda cada SVG em base64, que é o que o gerador valida por hash. O build o reescreve como texto numa URI `data:image/svg+xml,` incorporada ao HTML, sem requisições externas: tira só o espaço entre as tags, troca as aspas duplas por simples e escapa `%`, `#`, `<` e `>`. Base64 cresce um terço e comprime mal; as 195 foram comparadas pixel a pixel com as de base64, sem diferença (28/09/2026).
 
 O pacote de origem, os hashes, a licença integral, o procedimento reproduzível e
 a ressalva sobre regras locais aplicáveis a símbolos nacionais estão registrados
@@ -171,6 +173,11 @@ uma pergunta de localização não registra resposta.
 A silhueta fundida continua em `data/map-geometry.json`, onde o gerador a valida,
 mas não viaja no artefato — levar as duas duplicaria 285 KB de contorno para
 desenhar a mesma coisa.
+
+O traçado dos países e das áreas de contexto viaja compactado, sem perda:
+centésimos inteiros, cada ponto como diferença do anterior (`Core.decodePath`).
+O app descompacta ao abrir e o build recusa o artefato se algum contorno não
+voltar, byte a byte, ao path de `data/map-geometry.json`.
 
 ## Idiomas
 

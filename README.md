@@ -22,7 +22,7 @@ O treino combina sete direções independentes (bandeira ↔ país, capital ↔ 
 
 ## Atlas
 
-A ficha de cada país traz a silhueta na forma real (sem a deformação do mapa-múndi), capital, subregião, área, idiomas oficiais, **moeda** com o código ISO ("Moeda: real (BRL)"), **fronteiras terrestres** ("Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres"), os seis indicadores oficiais com o ano de cada um e os destaques derivados. Ela também mostra **o seu domínio** daquele país por habilidade (bandeira, capital, localização, região, com nível e revisão vencida) e um botão **Praticar** que abre uma série com todas as direções desse país.
+A ficha de cada país traz a silhueta na forma real (sem a deformação do mapa-múndi), **outros nomes** e **nome anterior** quando existem ("Outro nome: Eswatini", "Nome anterior: Suazilândia (até 2018)"), capital com as **mesmas notas do veredito do erro** (as três capitais da África do Sul, a sede de governo do Benin, o nome antigo da capital do Cazaquistão), subregião, área, idiomas oficiais, **moeda** com o código ISO ("Moeda: real (BRL)"), **fronteiras terrestres** ("Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres"), os seis indicadores oficiais com o ano de cada um e os destaques derivados. Vizinhos, idiomas e moedas são clicáveis: o vizinho abre a própria ficha, e o idioma ou a moeda lista os países que os compartilham, comparando o valor exato ("turco" não traz o Turcomenistão, "EUR" não traz a Europa inteira). O filtro soma com a busca e com a área e sai pelo botão **Limpar filtro**. Ela também mostra **o seu domínio** daquele país por habilidade (bandeira, capital, localização, região, com nível e revisão vencida) e um botão **Praticar** que abre uma série com todas as direções desse país.
 
 A busca aceita país, capital, região, subregião, território, **idioma** e **moeda**: "francês" lista quem o tem como oficial, "euro" e "EUR" listam quem o usa. Ao lado dela, um **filtro por área**: os seis baldes amplos em fila e, quando um deles é escolhido, as subregiões dele logo abaixo. Tocar de novo no filtro ativo devolve o mundo inteiro.
 
@@ -79,6 +79,7 @@ Abra `http://127.0.0.1:8743/atlas-195.html`.
 - `src/sync-queue.js`: coordenador assíncrono testável que garante uma nova sincronização quando o progresso muda durante um envio em curso.
 - `src/account.js`: a conta opcional (link mágico, perfil, apelido, sincronização), com as dependências injetadas pelo app e testes sem DOM.
 - `src/atlas.js`: a aba Atlas — busca, filtro por área, ficha do país e territórios. Saiu de `app.js` pelo mesmo motivo da conta: é um bloco coeso que cresce sozinho.
+- `src/progress.js`: a aba Progresso — totais, domínio, revisões, prova, backup e o recomeço. Apagar de verdade continua no app, que é quem sabe gravar; o módulo cuida da conversa com a pessoa.
 - `src/app.js`: mapa, controles e renderização. Não guarda cópia própria dessas regras: consome o núcleo, que é testado sem DOM.
 - `src/theme-boot.js`: aplica o tema salvo antes da primeira pintura. Só isso — a lógica de tema mora em `app.js`.
 - `src/countries.base.json`: conteúdo educacional, com região e subregião (M49) de cada país.
@@ -123,7 +124,9 @@ A conta é sempre opcional e nunca aparece na frente de quem quer treinar: ela v
 
 O backup por arquivo continua existindo para quem prefere não criar conta nenhuma. A série interrompida fica só neste navegador (`atlas195:serie:v1`) e não é enviada a lugar nenhum.
 
-O servidor local negocia `Accept-Encoding` e responde comprimido: os 4,9 MB do artefato viram cerca de 1,6 MB na primeira resposta e 1,1 MB nas seguintes, quando o brotli de qualidade máxima termina em segundo plano e substitui o cache. Nenhuma dependência é usada para isso.
+O servidor local negocia `Accept-Encoding` e responde comprimido: os 2,9 MB do artefato viram cerca de 1,0 MB na primeira resposta e 0,9 MB nas seguintes, quando o brotli de qualidade máxima termina em segundo plano e substitui o cache. Nenhuma dependência é usada para isso.
+
+O artefato já sai do build compactado sem perda: o traçado do mapa viaja em centésimos inteiros, cada ponto como diferença do anterior, e o app o descompacta ao abrir (`Core.decodePath`) de volta, byte a byte, ao path do gerador — o build recusa o arquivo se algum país não voltar igual. As bandeiras vão como SVG em texto na data URI, não em base64. Foi isso que levou o arquivo de 5,0 para 2,9 MB em 28/09/2026; o custo é a descompactação a cada abertura, cerca de 70 ms com a CPU quatro vezes mais lenta.
 
 ## Apelido opcional da conta
 

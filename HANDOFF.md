@@ -41,8 +41,9 @@ bem contado lá.
 
 ### Como está organizado
 
-O produto final é **um único arquivo autocontido**, `atlas-195.html` (~4,9 MB),
-com CSS, JS, mapa SVG, bandeiras e fontes embutidos. Abre direto do disco, sem
+O produto final é **um único arquivo autocontido**, `atlas-195.html` (~2,9 MB),
+com CSS, JS, mapa SVG, bandeiras e fontes embutidos. O traçado do mapa e as
+bandeiras viajam compactados sem perda (ver a rodada da tarde de 28/09). Abre direto do disco, sem
 servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
 
 - `src/core.js` — regras puras, sem DOM: validação de respostas, progresso,
@@ -54,6 +55,9 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
   sincronização). Recebe as dependências do app por injeção e é testada sem DOM.
 - `src/atlas.js` — a aba Atlas: busca, filtro por área, ficha do país e
   territórios. Saiu de `app.js` pelo mesmo motivo da conta.
+- `src/progress.js` — a aba Progresso: totais, domínio, revisões, prova,
+  backup e a conversa do recomeço. Apagar de verdade continua em `app.js`
+  (`resetAllProgress`), que é quem sabe gravar.
 - `src/sync-queue.js` — fila pequena e testável que serializa sincronizações e não perde mudanças concorrentes.
 - `src/study.js` — treino de hoje, próxima revisão e resumo de evolução.
 - `src/audio.js` — sons opcionais sintetizados (acerto, erro e fim de série),
@@ -157,11 +161,14 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
   identificadas — dependência de um dos 195 recebe a cor do soberano; área
   disputada ou sem soberania recebe cor própria e uma nota, nunca um dono.
   Nenhuma delas é resposta de pergunta.
-- **Ficha do país**: capital, subregião, área, idiomas oficiais, moeda com
-  código ISO, fronteiras terrestres, seis indicadores oficiais (com o ano de
-  cada um), fatos derivados, o domínio do jogador por habilidade e o botão
-  Praticar. A busca aceita também idioma e moeda, e há um filtro por área:
-  os seis baldes amplos e, sob o escolhido, as subregiões dele.
+- **Ficha do país**: outro nome e nome anterior (quando há), capital com as
+  mesmas notas do veredito do erro (`Core.capitalNotes`), subregião, área,
+  idiomas oficiais, moeda com código ISO, fronteiras terrestres, seis
+  indicadores oficiais (com o ano de cada um), fatos derivados, o domínio do
+  jogador por habilidade e o botão Praticar. Vizinhos abrem a própria ficha;
+  idioma e moeda filtram a lista pelo valor exato (`state.atlasFacet`). A
+  busca aceita também idioma, moeda e os outros nomes, e há um filtro por
+  área: os seis baldes amplos e, sob o escolhido, as subregiões dele.
 - **Explicação do erro**: diz de quem era a resposta escolhida (a capital
   errada é de qual país, a bandeira errada é de quem) e o motivo da confusão
   (bandeira parecida, capitais parecidas, fronteira em comum, perto no mapa,
@@ -380,6 +387,42 @@ plataforma: `@lovable.dev/vite-tanstack-config` fixado em 2.23.1 e um ajuste
 em `previewAuthStorage.ts`. Foi ao ar junto com o release `51cc13762c0f`;
 o WhatsApp pode guardar a prévia antiga do link por algum tempo.
 
+### Rodada da tarde de 28 de setembro de 2026 — não publicada
+
+Pedida pelo usuário a partir da lista de melhorias: itens 2, 3 e 5 (o 1, o
+app se atualizar sozinho e o aviso aparecer no modo Foco, ficou para depois).
+Branch `claude/epic-galileo-og69d5`, recomeçada do `main` depois do merge do
+PR 1.
+
+- **Aba Progresso em módulo próprio** (`src/progress.js`, orçamento de 26
+  KiB), no formato de `atlas.js`: recebe estado, fabricantes de elemento e
+  ações por injeção e devolve `render`. `src/app.js` foi de 142,3 para ~123
+  KiB. Mesmos textos e IDs de antes; os testes de reset, importação e revisão
+  passaram sem mudança. De carona, o comentário de `scripts/build.cjs` que
+  fala do NUL deixou de ter um NUL de verdade.
+- **Ficha do Atlas mais completa.** As notas da capital saíram de
+  `explanatoryNotes` para `Core.capitalNotes` e aparecem na ficha; vizinhos,
+  idiomas e moedas são botões com cara de link (`.ficha-link`). O filtro de
+  idioma e moeda compara o valor exato, porque a busca por texto acharia o
+  Turcomenistão em "turco" e a Europa inteira em "EUR"; soma com área e busca
+  e sai pelo botão "Limpar filtro". "Outro nome" e "Nome anterior" vêm de
+  `alsoKnownAs` e `formerNames` em `src/content-policy.json`; ver
+  `DATA_SOURCES.md`. Saíram as grafias só de digitação (Abidja, Aden,
+  Birmania). O orçamento de `atlas.js` subiu de 20 para 24 KiB. Testes novos:
+  `tests/names.test.cjs` e `tests/ficha-browser.cjs` (no smoke test).
+- **Arquivo de 5,0 para 2,9 MB, sem perda.** O traçado viaja em centésimos
+  inteiros como diferença do ponto anterior e `Core.decodePath` o abre no
+  início de `app.js`; o build recusa o artefato se algum país ou área de
+  contexto não voltar byte a byte ao path do gerador. As bandeiras vão como
+  SVG em texto em vez de base64, e as 195 foram comparadas pixel a pixel no
+  Chrome contra as antigas, sem diferença. Comprimido: gzip de 1,62 para
+  1,05 MB, brotli de 1,14 para 0,88 MB. Custo: com a CPU quatro vezes mais
+  lenta, abrir levou cerca de 70 ms a mais (mediana de ~880 para ~950 ms). A
+  simplificação do traçado, que perderia detalhe dos países pequenos, não foi
+  feita. O teto do artefato desceu de 5,25 para 3,25 MiB.
+
+174 testes com Chrome real.
+
 ### Armadilha de verificação no navegador
 
 **Isso vale também para o site publicado.** Ao conferir o release
@@ -400,11 +443,13 @@ porque usa um perfil temporário a cada execução.
 
 ### Ideias registradas, não pedidas ainda
 
-`IMPROVEMENTS.md` tem dezesseis, da mais barata à mais cara, cada uma com o
-trecho de código que a justifica. As mais baratas: a ficha do Atlas mostrar as
-notas da capital (hoje elas só existem no veredito do erro), tornar a ficha
-navegável pelos vizinhos e mostrar "também conhecido como". Duas saíram junto
-com a digitação, em 28/09/2026.
+`IMPROVEMENTS.md` tem treze, da mais barata à mais cara, cada uma com o
+trecho de código que a justifica. As três primeiras da lista anterior (notas
+da capital na ficha, ficha navegável e outros nomes) foram feitas na tarde de
+28/09/2026; duas saíram junto com a digitação, no mesmo dia. Fora da lista,
+o usuário deixou para depois o app se atualizar sozinho quando não há
+pergunta em andamento e o aviso de versão nova aparecer no modo Foco, que
+hoje esconde `.app-status`.
 
 Duas foram **descartadas pelo usuário** e não devem voltar: a busca aceitar o
 código ISO e o domínio por subregião na aba Progresso. Continuam fora:
