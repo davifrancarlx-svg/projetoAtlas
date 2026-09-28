@@ -382,9 +382,10 @@ const template = read('src/index.template.html');
 const css = embedFonts() + read('src/styles.css').trim();
 const core = read('src/core.js').trim();
 const syncQueue = read('src/sync-queue.js').trim();
-// A conta vive em módulo próprio para o app principal não crescer sem fim; os
-// quatro entram no mesmo bloco de script, na ordem de dependência.
-const app = ['src/audio.js', 'src/study.js', 'src/account.js', 'src/atlas.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
+// Som, estudo, conta, Atlas e Progresso vivem em módulos próprios para o app
+// principal não crescer sem fim; todos entram no mesmo bloco de script, na
+// ordem de dependência.
+const app = ['src/audio.js', 'src/study.js', 'src/account.js', 'src/atlas.js', 'src/progress.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
 const themeBoot = read('src/theme-boot.js').trim();
 // A configuração de conta entra no artefato e também define a única origem que
 // a CSP vai autorizar. Se o arquivo sumir ou vier incompleto, o build segue: o
@@ -476,7 +477,7 @@ if (/\{\{[A-Z_]+\}\}/.test(output)) throw new Error('Há placeholders não resol
 const artifact = `${output.trim()}\n`;
 if (artifact.includes('\r')) throw new Error('O artefato saiu com CRLF: os hashes da CSP não sobreviveriam ao parser HTML.');
 // Mesma família de defeito: o parser HTML troca um NUL por U+FFFD antes de
-// calcular o hash, e um escape " " que vira caractere de verdade num
+// calcular o hash, e um escape "\0" que vira caractere de verdade num
 // editor derruba a página inteira sem erro visível (aconteceu em 2026-09-16).
 if (artifact.includes(String.fromCharCode(0))) throw new Error('O artefato contém um caractere NUL: o hash da CSP não bateria no navegador.');
 // Escrita atômica: o runner de testes roda cada arquivo em um processo próprio e

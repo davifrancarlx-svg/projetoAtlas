@@ -20,6 +20,9 @@ const LIMITS = {
   // A aba Atlas saiu de app.js na mesma linha de raciocínio, junto do filtro
   // por área e da moeda na ficha (2026-09-16).
   'src/atlas.js': 20 * 1024,
+  // A aba Progresso saiu de app.js em 2026-09-28, antes de a ficha do Atlas
+  // crescer: sem isso, qualquer mudança de tela esbarrava no teto do app.
+  'src/progress.js': 26 * 1024,
   'atlas-195.html': 5.25 * 1024 * 1024,
   'src/app.js': 150 * 1024,
   // 80 → 88 KiB com as três variantes de "país → mapa" (mapa, silhueta e

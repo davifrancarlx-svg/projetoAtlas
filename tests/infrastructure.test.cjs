@@ -63,7 +63,7 @@ test('a camada visual oferece foco, domínio e encerramento de sessão responsiv
   const app = read('src/app.js');
   assert.match(html, /id="filterSummary"/);
   assert.match(html, /id="focusToggle"[^>]+aria-pressed="false"/);
-  assert.match(app, /function masteryOverview/);
+  assert.match(read('src/progress.js'), /function masteryOverview/);
   assert.match(app, /function renderSessionResult/);
   assert.match(app, /function sessionMiniMap/);
   assert.match(app, /regionCelebration/);

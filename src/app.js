@@ -1616,13 +1616,6 @@
     },
   });
 
-  function familyPercent(directions) {
-    const maximum = DATA.length * directions.length * Core.MAX_LEVEL;
-    const score = DATA.reduce((total, country) => total
-      + directions.reduce((sum, direction) => sum + Core.levelOf(progress, country.id, direction), 0), 0);
-    return { score, maximum, percent: maximum ? score / maximum * 100 : 0 };
-  }
-
   function attemptedSkills() {
     const skills = [];
     DATA.forEach((country) => DIRECTIONS.forEach((direction) => {
@@ -1630,24 +1623,6 @@
       if (skill.attempts > 0) skills.push({ country, direction, skill });
     }));
     return skills;
-  }
-
-  function dueAttemptedSkills() {
-    const now = Date.now();
-    return attemptedSkills().filter((item) => item.skill.nextReviewAt && Date.parse(item.skill.nextReviewAt) <= now);
-  }
-
-  function progressBar(label, directions) {
-    const value = familyPercent(directions);
-    const wrapper = create('div', { className: 'bar' });
-    wrapper.append(create('div', { className: 'bar-top' }, [
-      create('strong', { text: label }), create('span', { text: formatPercent(value.percent) }),
-    ]));
-    wrapper.append(create('progress', { className: 'progress-native', attrs: {
-      max: value.maximum, value: value.score,
-      'aria-label': `Domínio em ${label}: ${formatPercent(value.percent)}`,
-    } }));
-    return wrapper;
   }
 
   function countryFamilyLevel(country, directions) {
@@ -1671,41 +1646,6 @@
         (mapState.nodesById.get(country.id) || []).forEach((node) => node.classList.toggle('mastered-region', complete));
       });
     });
-  }
-
-  function masteryOverview() {
-    const section = create('section', { className: 'pgroup mastery-overview', attrs: { 'aria-labelledby': 'countryMasteryTitle' } });
-    section.append(create('h3', { id: 'countryMasteryTitle', text: 'Mapa de domínio' }));
-    const regions = create('div', { className: 'region-badges', attrs: { 'aria-label': 'Domínio por região' } });
-    Core.regionsOf(DATA).forEach((region) => {
-      const value = regionMastery(region);
-      const badge = create('div', { className: `region-badge${value.complete ? ' is-complete' : ''}` });
-      badge.append(create('span', { className: 'region-badge-mark', text: value.complete ? '◆' : '◇', attrs: { 'aria-hidden': 'true' } }));
-      badge.append(create('span', {}, [create('strong', { text: region }), create('small', { text: formatPercent(value.percent) })]));
-      regions.append(badge);
-    });
-    section.append(regions);
-    const details = create('details', { className: 'mastery-details' });
-    details.append(create('summary', { text: 'Ver os 195 países por habilidade' }));
-    const legend = create('p', { className: 'mastery-legend', text: 'Bandeira · Capital · Localização' });
-    const grid = create('div', { className: 'mastery-grid' });
-    DATA.slice().sort((a, b) => a.n.localeCompare(b.n, 'pt-BR')).forEach((country) => {
-      const values = [FAMILY_DIRECTIONS.Bandeiras, FAMILY_DIRECTIONS.Capitais, FAMILY_DIRECTIONS.Localização]
-        .map((directions) => Math.round(countryFamilyLevel(country, directions) * 5));
-      const tile = create('button', { className: 'mastery-tile', type: 'button', attrs: {
-        title: country.n,
-        'aria-label': `${country.n}: bandeira nível ${values[0]}, capital nível ${values[1]}, localização nível ${values[2]}`,
-      } });
-      tile.append(create('b', { text: country.id }));
-      const skills = create('span', { className: 'mastery-skills', attrs: { 'aria-hidden': 'true' } });
-      values.forEach((value) => skills.append(create('i', { attrs: { 'data-level': value } })));
-      tile.append(skills);
-      tile.addEventListener('click', () => { state.atlasSelected = country.id; setView('atlas'); atlas.select(country.id, true); });
-      grid.append(tile);
-    });
-    details.append(legend, grid);
-    section.append(details);
-    return section;
   }
 
   // Trocar de assunto encerra a fila anterior; uma carta forçada não pode
@@ -2142,54 +2082,6 @@
     startDeck(mistakes, `Revisão focada iniciada com ${mistakes.length} ${mistakes.length === 1 ? 'habilidade' : 'habilidades'}. Cada uma sai do baralho após dois acertos.`);
   }
 
-  function renderSessionSummary(container) {
-    const stats = sessionStats();
-    const section = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'sessionTitle' } });
-    section.append(create('h3', { id: 'sessionTitle', text: 'Esta sessão' }));
-    if (!stats.total) {
-      section.append(create('p', { className: 'empty', text: 'Nenhuma pergunta respondida nesta sessão ainda.' }));
-      container.append(section);
-      return;
-    }
-    const facts = [
-      `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}`,
-      `${formatPercent(stats.accuracy)} de precisão`,
-      stats.averageSeconds !== null ? `${stats.averageSeconds.toFixed(1).replace('.', ',')}s por resposta` : null,
-      stats.expired ? `${stats.expired} por tempo esgotado` : null,
-    ].filter(Boolean);
-    section.append(create('p', { className: 'section-copy', text: facts.join(' · ') }));
-    Study.note(section, Study.evolution(state.sessionAnswers));
-
-    // A mesma lista do fechamento da sessão, na mesma ordem de gravidade: dois
-    // lugares contando "os erros desta sessão" de jeitos diferentes confundiam.
-    const mistakes = focusedMistakes();
-    if (mistakes.length) {
-      const deck = create('button', {
-        className: 'btn wide', type: 'button',
-        text: mistakes.length === 1
-          ? 'Revisar o erro desta sessão'
-          : `Revisar os ${mistakes.length} pontos fracos desta sessão`,
-      });
-      deck.addEventListener('click', startMistakeDeck);
-      section.append(deck);
-      const list = create('div', { className: 'weak' });
-      mistakes.slice(0, 12).forEach((item) => {
-        const chip = create('button', {
-          className: `chip${item.recovered ? '' : ' chip-urgent'}`, type: 'button',
-          text: item.misses > 1
-            ? `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]} · ${item.misses}×`
-            : `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}`,
-        });
-        chip.addEventListener('click', () => startReview(item.id, item.direction));
-        list.append(chip);
-      });
-      section.append(list);
-    } else {
-      section.append(create('p', { className: 'empty', text: 'Nenhum erro pendente nesta sessão.' }));
-    }
-    container.append(section);
-  }
-
   function sessionOutcomeByCountry(answers = state.sessionAnswers) {
     const outcome = new Map();
     answers.forEach((answer) => {
@@ -2328,79 +2220,6 @@
     createNextQuestion({ focus: true });
   }
 
-  function progressFileName() {
-    const now = new Date();
-    const stamp = [
-      now.getFullYear(),
-      String(now.getMonth() + 1).padStart(2, '0'),
-      String(now.getDate()).padStart(2, '0'),
-    ].join('-');
-    return `atlas-195-progresso-${stamp}.json`;
-  }
-
-  function exportProgress() {
-    const serialized = Core.serializeProgress(progress, { countryIds: IDS });
-    const blob = new Blob([serialized], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = create('a', { attrs: { href: url, download: progressFileName() } });
-    document.body.append(link);
-    link.click();
-    link.remove();
-    // O objeto fica vivo até o download começar; um tempo curto basta e evita
-    // vazar a URL na sessão.
-    setTimeout(() => URL.revokeObjectURL(url), 30_000);
-    const studied = Object.keys(progress.countries || {}).length;
-    state.importStatus = { kind: 'ok', text: `Arquivo gerado com ${studied} ${studied === 1 ? 'país' : 'países'} no histórico.` };
-    renderProgress();
-    announce('Progresso exportado para arquivo.');
-  }
-
-  // A importação funde, nunca sobrescreve: mergeProgress resolve por geração,
-  // época e revisão, então trazer um backup antigo não apaga o que já existe
-  // neste navegador, e um reset mais recente continua vencendo.
-  async function importProgressFile(file) {
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      state.importStatus = { kind: 'error', text: 'Arquivo grande demais para ser um progresso do Atlas.' };
-      renderProgress();
-      announce('Arquivo recusado: tamanho incompatível.');
-      return;
-    }
-    let raw;
-    try {
-      raw = await file.text();
-    } catch (_) {
-      state.importStatus = { kind: 'error', text: 'Não foi possível ler o arquivo escolhido.' };
-      renderProgress();
-      return;
-    }
-    const decoded = Core.deserializeProgress(raw, { countryIds: IDS });
-    if (decoded.recovered) {
-      state.importStatus = { kind: 'error', text: 'Este arquivo não é um progresso válido do Atlas 195. Nada foi alterado.' };
-      renderProgress();
-      announce('Importação recusada: arquivo inválido.');
-      return;
-    }
-    const before = Core.serializeProgress(progress, { countryIds: IDS });
-    const merged = Core.mergeProgress(progress, decoded.progress, { countryIds: IDS });
-    const after = Core.serializeProgress(merged, { countryIds: IDS });
-    progress = merged;
-    const incomingCountries = Object.keys(decoded.progress.countries || {}).length;
-    const totalCountries = Object.keys(merged.countries || {}).length;
-    if (after === before) {
-      state.importStatus = { kind: 'ok', text: 'Arquivo válido, mas ele não trazia nada novo além do que já estava aqui.' };
-    } else {
-      queueProgressSave(true);
-      state.importStatus = {
-        kind: 'ok',
-        text: `Progresso fundido: ${incomingCountries} ${incomingCountries === 1 ? 'país' : 'países'} no arquivo, `
-          + `${totalCountries} no histórico agora.`,
-      };
-    }
-    renderProgress();
-    announce(state.importStatus.text);
-  }
-
   /* ------------------------------------------------------------------ *
    * Conta (opcional): vive em src/account.js. Aqui ficam só as pontes com o
    * estado do app — o módulo não conhece `state` nem `progress` diretamente,
@@ -2419,271 +2238,86 @@
     rerender: () => { if (state.view === 'prog') renderProgress(); },
   });
 
-  function renderBackup(container) {
-    const card = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'backupTitle' } });
-    card.append(create('h3', { id: 'backupTitle', text: 'Backup do progresso' }));
-    card.append(create('p', {
-      text: 'O progresso vive somente neste navegador. Exporte um arquivo para guardar ou levar '
-        + 'para outro aparelho; a importação funde com o que já existe aqui, sem apagar nada.',
-    }));
-    const actions = create('div', { className: 'button-row' });
-    const exportButton = create('button', { className: 'btn ghost', type: 'button', text: 'Exportar progresso' });
-    exportButton.addEventListener('click', exportProgress);
-    const input = create('input', {
-      id: 'importProgressInput', className: 'file-input',
-      attrs: { type: 'file', accept: 'application/json,.json' },
-    });
-    input.addEventListener('change', () => {
-      const file = input.files && input.files[0];
-      input.value = '';
-      importProgressFile(file);
-    });
-    const label = create('label', {
-      className: 'btn ghost', text: 'Importar progresso',
-      attrs: { for: 'importProgressInput' },
-    });
-    actions.append(exportButton, input, label);
-    card.append(actions);
-    if (state.importStatus) {
-      card.append(create('p', {
-        className: `note${state.importStatus.kind === 'error' ? ' note-error' : ''}`,
-        text: state.importStatus.text, attrs: { role: 'status' },
-      }));
-    }
-    container.append(card);
-  }
+  // A aba Progresso mora em src/progress.js, na mesma linha da conta e do
+  // Atlas: o módulo recebe o estado e as ações e devolve `render`.
+  const progressView = globalThis.AtlasProgress.create({
+    Core, Study, state, sounds, account,
+    getProgress: () => progress,
+    setProgress: (next) => { progress = next; },
+    data: {
+      countries: DATA, ids: IDS, byId, directions: DIRECTIONS,
+      families: FAMILY_DIRECTIONS, labels: DIRECTION_LABEL, mapMeta: MAP_META,
+    },
+    ui: {
+      create, announce, formatPercent, numero, panel: () => dom.panel,
+      prepare: () => { atlas.detach(); clear(dom.panel); renderScorebar(); },
+      familyLevel: countryFamilyLevel, regionMastery, storageStatus: setStorageStatus,
+      lockShell: (locked) => {
+        dom.shell.classList.toggle('is-resetting', locked);
+        dom.topbar.toggleAttribute('inert', locked);
+        dom.controls.toggleAttribute('inert', locked);
+      },
+    },
+    actions: {
+      attempted: attemptedSkills, pending: pendingCards, nextReview: nextReviewCopy,
+      sessionStats, mistakes: focusedMistakes, startMistakeDeck, startReview,
+      startDaily, startExam, startDue, savePreferences, saveNow: () => queueProgressSave(true),
+      openCountry: (id) => { state.atlasSelected = id; setView('atlas'); atlas.select(id, true); },
+      resetAll: resetAllProgress,
+    },
+  });
+  function renderProgress() { progressView.render(); }
 
-  // Números de toda a história, não só desta sessão. O recorde de sequência já
-  // era salvo e sincronizado, mas nunca aparecia em lugar nenhum.
-  function overallStats(attempted) {
-    const attempts = attempted.reduce((sum, item) => sum + item.skill.attempts, 0);
-    const correct = attempted.reduce((sum, item) => sum + item.skill.correct, 0);
-    const strip = create('div', { className: 'session-result-stats overall-stats', attrs: { 'aria-label': 'Totais de todo o histórico' } });
-    strip.append(
-      create('span', {}, [create('b', { text: numero(attempts) }), document.createTextNode(attempts === 1 ? ' resposta' : ' respostas')]),
-      create('span', {}, [create('b', { text: attempts ? formatPercent(correct / attempts * 100) : '—' }), document.createTextNode(' de acerto')]),
-      create('span', {}, [create('b', { text: numero(progress.bestStreak) }), document.createTextNode(' recorde de sequência')]),
-    );
-    return strip;
-  }
-
-  function renderProgress() {
-    const focused = document.activeElement;
-    const accountFocus = focused && ['contaEmail', 'pedirLink', 'retomarConta', 'contaApelido', 'salvarApelido'].includes(focused.id)
-      ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
-    atlas.detach();
-    clear(dom.panel);
-    renderScorebar();
-    const attempted = attemptedSkills();
-    const due = dueAttemptedSkills();
-    const attemptedCountries = new Set(attempted.map((item) => item.country.id));
-    const mastered = DATA.filter((country) => DIRECTIONS.every((direction) => Core.levelOf(progress, country.id, direction) === Core.MAX_LEVEL)).length;
-    dom.panel.append(create('div', { className: 'plate' }, [
-      create('span', { text: 'Progresso validado' }), create('span', { text: `esquema v${Core.SCHEMA_VERSION}` }),
-    ]));
-    dom.panel.append(create('h2', { id: 'progressTitle', className: 'panel-title', text: 'Seu aprendizado', attrs: { tabindex: '-1' } }));
-    dom.panel.append(create('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
-    dom.panel.append(overallStats(attempted));
-
-    renderSessionSummary(dom.panel);
-    Study.card(dom.panel, startDaily, state.dailySize || 10, size => { state.dailySize = size; savePreferences(); });
-    Study.note(dom.panel, nextReviewCopy());
-
-    // O treino livre é infinito, o que serve para revisar mas não para medir.
-    // A prova fecha uma série e dá uma nota, respeitando o modo e a área de
-    // estudo escolhidos na barra de controles.
-    const prova = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'examTitle' } });
-    prova.append(create('h3', { id: 'examTitle', text: 'Prova' }));
-    prova.append(create('p', {
-      className: 'section-copy',
-      text: 'Uma série fechada, com nota no fim. Usa o modo e a área de estudo selecionados.',
-    }));
-    const opcoes = create('div', { className: 'button-row' });
-    [10, 20, 30].forEach((total) => {
-      const botao = create('button', {
-        className: total === 20 ? 'btn' : 'btn ghost', type: 'button',
-        text: `${total} perguntas`,
-        attrs: { 'aria-label': `Iniciar prova de ${total} perguntas` },
+  // Apagar de verdade. A conversa do recomeço mora em src/progress.js, mas só
+  // o app sabe gravar: funde o que o armazenamento já tinha antes de apagar e
+  // lança se não conseguir gravar, para a aba Progresso avisar.
+  async function resetAllProgress() {
+    resetSyncDirty = false;
+    const performReset = async () => {
+      clearTimeout(saveTimer);
+      await saveChain.catch(() => undefined);
+      const hostRaw = await readHost(STORAGE_KEY);
+      let latest = progress;
+      [hostRaw, readLocal(STORAGE_KEY)].forEach((raw) => {
+        if (typeof raw !== 'string') return;
+        const decoded = Core.deserializeProgress(raw, { countryIds: IDS });
+        if (!decoded.recovered) latest = Core.mergeProgress(latest, decoded.progress, { countryIds: IDS });
       });
-      botao.addEventListener('click', () => startExam(total));
-      opcoes.append(botao);
-    });
-    prova.append(opcoes);
-    dom.panel.append(prova);
-
-    const mastery = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'masteryTitle' } });
-    mastery.append(create('h3', { id: 'masteryTitle', text: 'Domínio por habilidade' }));
-    Object.entries(FAMILY_DIRECTIONS).forEach(([label, directions]) => mastery.append(progressBar(label, directions)));
-    dom.panel.append(mastery);
-    dom.panel.append(masteryOverview());
-
-    const review = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'reviewTitle' } });
-    review.append(create('h3', { id: 'reviewTitle', text: 'Revisões recomendadas' }));
-    const pending = pendingCards();
-    const reviewAll = create('button', { id: 'dueTraining', className: 'btn', type: 'button', text: 'Revisar somente pendências', attrs: { disabled: pending.length ? null : '' } });
-    reviewAll.addEventListener('click', startDue);
-    review.append(reviewAll);
-    Study.note(review, `${pending.length} habilidades vencidas no modo e na área selecionados. Lotes de até 30 perguntas, das mais antigas às mais recentes; ao terminar, você pode continuar com as próximas.`);
-    const reviewList = create('div', { className: 'weak' });
-    due.slice(0, 12).forEach((item) => {
-      const button = create('button', { className: 'chip hot', type: 'button', text: `${item.country.n} · ${DIRECTION_LABEL[item.direction]}` });
-      button.addEventListener('click', () => startReview(item.country.id, item.direction));
-      reviewList.append(button);
-    });
-    if (!due.length) reviewList.append(create('p', { className: 'empty', text: attempted.length
-      ? 'Tudo revisado por enquanto. Novas revisões aparecerão na data adequada.'
-      : 'Responda algumas perguntas para criar seu primeiro ciclo de revisão.' }));
-    review.append(reviewList);
-    dom.panel.append(review);
-
-    const weakItems = attempted.filter((item) => item.skill.level <= 1)
-      .sort((a, b) => a.skill.level - b.skill.level || a.skill.correct / a.skill.attempts - b.skill.correct / b.skill.attempts)
-      .slice(0, 12);
-    const weakSection = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'weakTitle' } });
-    weakSection.append(create('h3', { id: 'weakTitle', text: 'Pontos para reforçar' }));
-    const weakList = create('div', { className: 'weak' });
-    weakItems.forEach((item) => {
-      const button = create('button', { className: 'chip', type: 'button', text: `${item.country.n} · ${DIRECTION_LABEL[item.direction]}` });
-      button.addEventListener('click', () => startReview(item.country.id, item.direction));
-      weakList.append(button);
-    });
-    if (!weakItems.length) weakList.append(create('p', { className: 'empty', text: attempted.length
-      ? 'Nenhuma habilidade fraca registrada.' : 'Ainda não há histórico suficiente para apontar dificuldades.' }));
-    weakSection.append(weakList);
-    dom.panel.append(weakSection);
-
-    // O botão do topo liga e desliga; volume, estilo e quando tocar ficam aqui,
-    // junto das outras preferências. O módulo monta o próprio painel.
-    sounds.panel(dom.panel);
-    account.render(dom.panel);
-    renderBackup(dom.panel);
-
-    const source = MAP_META && MAP_META.source || {};
-    const sourceSection = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'sourceTitle' } });
-    sourceSection.append(create('h3', { id: 'sourceTitle', text: 'Dados cartográficos' }));
-    sourceSection.append(create('p', { text: `${source.name || 'Natural Earth'} · ${MAP_META.scale || '1:10m'} · versão ${MAP_META.version || '5.1.1'} · ${source.boundaryPolicy || 'visão de fronteiras padrão'}.` }));
-    sourceSection.append(create('p', { className: 'source-note', text: `${MAP_META.stats && MAP_META.stats.worldPolygons
-      ? new Intl.NumberFormat('pt-BR').format(MAP_META.stats.worldPolygons) : 'Milhares de'} componentes territoriais mundiais preservados. Dados em domínio público.` }));
-    sourceSection.append(create('p', { className: 'source-note', text: 'Bandeiras: flag-icons 7.5.0, coleção SVG sob licença MIT.' }));
-    dom.panel.append(sourceSection);
-
-    const reset = create('section', { className: 'reset-zone', attrs: { 'aria-labelledby': 'resetTitle' } });
-    reset.append(create('h3', { id: 'resetTitle', text: 'Recomeçar' }));
-    if (!state.resetArmed) {
-      const button = create('button', { id: 'resetProgress', className: 'btn ghost', text: 'Apagar todo o progresso', type: 'button' });
-      button.addEventListener('click', () => {
-        state.resetArmed = true;
-        renderProgress();
-        document.getElementById('confirmReset')?.focus();
-      });
-      reset.append(button);
-    } else {
-      reset.append(create('p', {
-        id: state.resetPending ? 'resetPendingStatus' : null,
-        className: 'note',
-        text: state.resetPending
-          ? 'Conferindo os dados mais recentes antes de apagar…'
-          : 'Esta ação apaga níveis, histórico de revisão e recorde. As preferências e o apelido serão mantidos.',
-        attrs: state.resetPending ? { role: 'status', 'aria-live': 'polite', tabindex: '-1' } : {},
-      }));
-      const actions = create('div', { className: 'button-row' });
-      const cancel = create('button', { className: 'btn ghost', text: 'Cancelar', type: 'button', attrs: {
-        disabled: state.resetPending ? '' : null,
-      } });
-      const confirm = create('button', { id: 'confirmReset', className: 'btn danger', text: 'Confirmar exclusão', type: 'button', attrs: {
-        disabled: state.resetPending ? '' : null,
-      } });
-      cancel.addEventListener('click', () => {
-        if (state.resetPending) return;
-        state.resetArmed = false;
-        renderProgress();
-        document.getElementById('resetProgress')?.focus();
-      });
-      confirm.addEventListener('click', async () => {
-        if (state.resetPending) return;
-        state.resetPending = true;
-        resetSyncDirty = false;
-        dom.shell.classList.add('is-resetting');
-        dom.topbar.setAttribute('inert', '');
-        dom.controls.setAttribute('inert', '');
-        renderProgress();
-        document.getElementById('resetPendingStatus')?.focus();
-        const performReset = async () => {
-          clearTimeout(saveTimer);
-          await saveChain.catch(() => undefined);
-          const hostRaw = await readHost(STORAGE_KEY);
-          let latest = progress;
-          [hostRaw, readLocal(STORAGE_KEY)].forEach((raw) => {
-            if (typeof raw !== 'string') return;
-            const decoded = Core.deserializeProgress(raw, { countryIds: IDS });
-            if (!decoded.recovered) latest = Core.mergeProgress(latest, decoded.progress, { countryIds: IDS });
-          });
-          const cleared = Core.resetProgress(latest, { now: new Date().toISOString(), countryIds: IDS });
-          progress = cleared;
-          setStorageStatus('Apagando progresso…');
-          let persisted = false;
-          try {
-            let result;
-            let attempts = 0;
-            do {
-              resetSyncDirty = false;
-              const canonical = Core.serializeProgress(progress, { countryIds: IDS });
-              result = await writeAll(canonical);
-              persisted = true;
-              const localMatches = !result.localOk || readLocal(STORAGE_KEY) === canonical;
-              attempts += 1;
-              if (!resetSyncDirty && localMatches) break;
-            } while (attempts < 4);
-            if (resetSyncDirty) flushLocalProgress();
-            const destinations = [result.localOk && 'neste navegador', result.hostOk && 'no armazenamento do app']
-              .filter(Boolean).join(' e ');
-            setStorageStatus(`Progresso apagado ${destinations}.`, 'ok');
-          } catch (error) {
-            if (!persisted) progress = latest;
-            throw error;
-          }
-        };
-        try {
-          if (navigator.locks && typeof navigator.locks.request === 'function') {
-            await navigator.locks.request(RESET_LOCK_KEY, performReset);
-          } else await performReset();
-          account.schedule();
-          state.resetPending = false;
-          state.resetArmed = false;
-          dom.shell.classList.remove('is-resetting');
-          dom.topbar.removeAttribute('inert');
-          dom.controls.removeAttribute('inert');
-          state.hits = 0;
-          state.misses = 0;
-          state.streak = 0;
-          state.sessionAnswers = []; state.questionNumber = 0;
-          state.question = null; state.answered = false; state.sessionEnded = false;
-          abandonExercise();
-          if (state.view === 'prog') renderProgress();
-          announce('Todo o progresso foi apagado.');
-          if (state.view === 'prog') document.getElementById('progressTitle')?.focus();
-        } catch (_) {
-          state.resetPending = false;
-          dom.shell.classList.remove('is-resetting');
-          dom.topbar.removeAttribute('inert');
-          dom.controls.removeAttribute('inert');
-          if (state.view === 'prog') renderProgress();
-          setStorageStatus('Não foi possível apagar o progresso com segurança.', 'error', true);
-          if (state.view === 'prog') document.getElementById('confirmReset')?.focus();
-        }
-      });
-      actions.append(cancel, confirm);
-      reset.append(actions);
-    }
-    dom.panel.append(reset);
-    if (accountFocus) {
-      const restored = document.getElementById(accountFocus.id)
-        || (accountFocus.id === 'retomarConta' && document.getElementById('contaApelido'));
-      restored?.focus({ preventScroll: true });
-      if (restored && accountFocus.start !== null && accountFocus.start !== undefined) {
-        restored.setSelectionRange(accountFocus.start, accountFocus.end);
+      const cleared = Core.resetProgress(latest, { now: new Date().toISOString(), countryIds: IDS });
+      progress = cleared;
+      setStorageStatus('Apagando progresso…');
+      let persisted = false;
+      try {
+        let result;
+        let attempts = 0;
+        do {
+          resetSyncDirty = false;
+          const canonical = Core.serializeProgress(progress, { countryIds: IDS });
+          result = await writeAll(canonical);
+          persisted = true;
+          const localMatches = !result.localOk || readLocal(STORAGE_KEY) === canonical;
+          attempts += 1;
+          if (!resetSyncDirty && localMatches) break;
+        } while (attempts < 4);
+        if (resetSyncDirty) flushLocalProgress();
+        const destinations = [result.localOk && 'neste navegador', result.hostOk && 'no armazenamento do app']
+          .filter(Boolean).join(' e ');
+        setStorageStatus(`Progresso apagado ${destinations}.`, 'ok');
+      } catch (error) {
+        if (!persisted) progress = latest;
+        throw error;
       }
-    }
+    };
+    if (navigator.locks && typeof navigator.locks.request === 'function') {
+      await navigator.locks.request(RESET_LOCK_KEY, performReset);
+    } else await performReset();
+    account.schedule();
+    state.hits = 0;
+    state.misses = 0;
+    state.streak = 0;
+    state.sessionAnswers = []; state.questionNumber = 0;
+    state.question = null; state.answered = false; state.sessionEnded = false;
+    abandonExercise();
   }
 
   function setView(view) {
