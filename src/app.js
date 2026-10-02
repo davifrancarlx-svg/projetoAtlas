@@ -3,6 +3,7 @@
 
   const Core = globalThis.AtlasCore;
   const Study = globalThis.AtlasStudy;
+  const Feedback = globalThis.AtlasFeedback;
   const sounds = globalThis.AtlasAudio.create();
   if (!Core) throw new Error('AtlasCore não foi carregado.');
   const SyncQueue = globalThis.AtlasSyncQueue;
@@ -156,6 +157,8 @@
   // Os três tipos de série fechada compartilham o mesmo mecanismo (N perguntas,
   // nota no fim) e diferem só no texto e em como se refaz.
   const SERIES_COPY = {
+    pair: { label: 'Treino do par', done: 'Treino do par concluído', again: 'Treinar este par novamente', start: 'Treino do par iniciado' },
+    fresh: { label: 'Novidades', done: 'Lote de novidades concluído', again: 'Continuar novidades', start: 'Treino de novidades iniciado' },
     due: { label: 'Revisões pendentes', done: 'Lote de revisões concluído', again: 'Continuar revisões pendentes', start: 'Revisão de pendências iniciada' },
     exam: { label: 'Prova', done: 'Prova concluída', again: 'Nova prova', start: 'Prova iniciada' },
     daily: { label: 'Treino de hoje', done: 'Treino de hoje concluído', again: 'Treino de hoje', start: 'Treino de hoje iniciado' },
@@ -551,7 +554,7 @@
       });
       mapState.root.append(contexto);
     }
-    mapState.land = svgElement('g', { 'aria-hidden': 'false' });
+    mapState.land = svgElement('g', { role: 'group', 'aria-label': 'Países' });
     mapState.markers = svgElement('g', { 'aria-hidden': 'true' });
     mapState.effects = svgElement('g', { 'aria-hidden': 'true' });
     DATA.forEach((country) => {
@@ -595,7 +598,7 @@
 
   function clearMapMarks() {
     mapState.nodesById.forEach((nodes) => nodes.forEach((node) => node.classList.remove(
-      'on', 'ok', 'bad', 'neighbor', 'dimmed', 'is-current', 'is-correct', 'is-wrong', 'is-dimmed',
+      'on', 'ok', 'bad', 'neighbor', 'filtered', 'dimmed', 'is-current', 'is-correct', 'is-wrong', 'is-dimmed',
     )));
     clear(mapState.effects);
     mapState.reticle = null;
@@ -646,112 +649,25 @@
     updateMapScaleSensitiveElements();
   }
 
-  function renderedScale() {
-    return mapMetrics().scale;
-  }
-
-  function mapMetrics(refreshPosition = false) {
-    if (mapState.metrics && !refreshPosition) return mapState.metrics;
-    const rect = dom.map.getBoundingClientRect();
-    const scale = rect.width && rect.height ? Math.min(rect.width / mapState.view.w, rect.height / mapState.view.h) : 1;
-    mapState.metrics = {
-      rect, scale,
-      offsetX: (rect.width - mapState.view.w * scale) / 2,
-      offsetY: (rect.height - mapState.view.h * scale) / 2,
-    };
-    return mapState.metrics;
-  }
-
-  function updateMapScaleSensitiveElements() {
-    const unitsPerPixel = 1 / Math.max(.0001, renderedScale());
-    if (mapState.reticle && mapState.reticlePoint) {
-      const [x, y] = mapState.reticlePoint;
-      mapState.reticle.setAttribute('transform', `translate(${x} ${y}) scale(${unitsPerPixel.toFixed(5)})`);
-    }
-    const zoom = WORLD.w / mapState.view.w;
-    if (mapState.markers) mapState.markers.classList.toggle('shows-micro', zoom >= MICRO_MARKER_ZOOM);
-    mapState.microMarkers.forEach(({ marker, point }) => {
-      marker.setAttribute('transform', `translate(${point[0]} ${point[1]}) scale(${unitsPerPixel.toFixed(5)})`);
-    });
-  }
-
   const clamp = Core.clampNumber;
-  const VIEW_OPTIONS = { minimumWidth: MIN_VIEW_WIDTH };
-
-  function applyMapView(view) {
-    mapState.view = view;
-    dom.map.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
-    mapState.metrics = null;
-    updateMapScaleSensitiveElements();
-    updateZoomControls();
-    updateReadout();
-  }
-
-  function setMapView(x, y, width) {
-    applyMapView(Core.clampView({ x, y, w: width, h: width * WORLD.h / WORLD.w }, WORLD, VIEW_OPTIONS));
-  }
-
-  function zoomAt(factor, center) {
-    const selected = state.view === 'atlas' && byId[state.atlasSelected]?.c;
-    if (!center && selected && pointInView(selected)) center = selected;
-    applyMapView(Core.zoomView(mapState.view, factor, center, WORLD, VIEW_OPTIONS));
-  }
-
-  function pointInView([x, y]) {
-    const v = mapState.view;
-    const margin = v.w * 0.015;
-    return x >= v.x + margin && x <= v.x + v.w - margin
-      && y >= v.y + margin && y <= v.y + v.h - margin;
-  }
-
-  function updateZoomControls() {
-    const atMaximum = mapState.view.w <= MIN_VIEW_WIDTH + 1e-6;
-    const atMinimum = mapState.view.w >= WORLD.w - 1e-6;
-    if (dom.zoomIn) dom.zoomIn.disabled = atMaximum;
-    if (dom.zoomOut) dom.zoomOut.disabled = atMinimum;
-    if (dom.zoomReset) dom.zoomReset.disabled = atMinimum
-      && mapState.view.x <= WORLD.x + 1e-6 && mapState.view.y <= WORLD.y + 1e-6;
-  }
-  function resetMapView() { setMapView(WORLD.x, WORLD.y, WORLD.w); }
-
-  // O enquadramento usa o aglomerado principal do país (`pb`), não o bounding
-  // box completo: senão Alasca, Guiana Francesa ou Svalbard forçam a visão do
-  // mundo inteiro e o país "enquadrado" some no meio do oceano.
-  function fitCountry(id) {
-    const country = byId[id];
-    if (!country) return;
-    const box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
-    // Microestado enquadrado a 14× continuava com menos de um pixel de largura.
-    // Com o teto em 60× o piso deles desce para 45×, o suficiente para a forma
-    // aparecer sem perder a referência regional em volta.
-    applyMapView(Core.fitBox(box, WORLD, {
-      ...VIEW_OPTIONS, floorWidth: country.a < 5 ? WORLD.w / 45 : WORLD.w / 22,
-    }));
-  }
-
-  // O box do território vem em graus; a projeção Robinson curva os paralelos,
-  // então os quatro cantos são projetados antes de virar um retângulo.
-  function territoryBounds(territory) {
-    const corners = [
-      robinson(territory.box[0], territory.box[1]), robinson(territory.box[2], territory.box[1]),
-      robinson(territory.box[0], territory.box[3]), robinson(territory.box[2], territory.box[3]),
-    ];
-    const xs = corners.map((corner) => corner[0]);
-    const ys = corners.map((corner) => corner[1]);
-    return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
-  }
-
-  function territoryPoint(territory) { return robinson(territory.p[0], territory.p[1]); }
-
-  function fitTerritory(territory) {
-    applyMapView(Core.fitBox(territoryBounds(territory), WORLD, { ...VIEW_OPTIONS, floorWidth: WORLD.w / 40 }));
-  }
-
-  function screenToWorld(clientX, clientY, providedMetrics) {
-    const metrics = providedMetrics || mapMetrics(true);
-    return [mapState.view.x + (clientX - metrics.rect.left - metrics.offsetX) / metrics.scale,
-      mapState.view.y + (clientY - metrics.rect.top - metrics.offsetY) / metrics.scale];
-  }
+  const mapViewport = globalThis.AtlasMapViewport.create({
+    Core, mapState, state, dom, byId, WORLD, MIN_VIEW_WIDTH, MICRO_MARKER_ZOOM, robinson,
+    actions: { updateReadout },
+  });
+  function renderedScale(...args) { return mapViewport.renderedScale(...args); }
+  function mapMetrics(...args) { return mapViewport.mapMetrics(...args); }
+  function updateMapScaleSensitiveElements(...args) { return mapViewport.updateMapScaleSensitiveElements(...args); }
+  function setMapView(...args) { return mapViewport.setMapView(...args); }
+  function zoomAt(...args) { return mapViewport.zoomAt(...args); }
+  function pointInView(...args) { return mapViewport.pointInView(...args); }
+  function resetMapView(...args) { return mapViewport.resetMapView(...args); }
+  function fitArea(...args) { return mapViewport.fitArea(...args); }
+  function fitCountry(...args) { return mapViewport.fitCountry(...args); }
+  function territoryBounds(...args) { return mapViewport.territoryBounds(...args); }
+  function territoryPoint(...args) { return mapViewport.territoryPoint(...args); }
+  function fitTerritory(...args) { return mapViewport.fitTerritory(...args); }
+  function screenToWorld(...args) { return mapViewport.screenToWorld(...args); }
+  function schedulePan(...args) { return mapViewport.schedulePan(...args); }
 
   function countryAt(clientX, clientY, originalTarget, providedPoint, providedScale) {
     const directId = originalTarget && originalTarget.dataset ? originalTarget.dataset.id : null;
@@ -874,17 +790,6 @@
       if (score < bestScore) { best = candidate; bestScore = score; }
     });
     return best ? best.id : current.id;
-  }
-
-  function schedulePan(x, y, width) {
-    mapState.pendingPan = { x, y, width };
-    if (mapState.panFrame) return;
-    mapState.panFrame = requestAnimationFrame(() => {
-      mapState.panFrame = 0;
-      const pending = mapState.pendingPan;
-      mapState.pendingPan = null;
-      if (pending) setMapView(pending.x, pending.y, pending.width);
-    });
   }
 
   function endPointer(pointerId, event) {
@@ -1066,6 +971,7 @@
       progress,
       recentIds: state.recentIds,
       forcedId: forced ? forced.id : undefined,
+      opponentId: forced?.opponent,
     });
     state.question = result.question;
     state.recentIds = result.recentIds;
@@ -1075,12 +981,15 @@
     state.expired = false;
     state.questionNumber += 1;
     state.askedAt = Date.now();
+    activeMilliseconds = 0; activeSince = document.hidden ? 0 : Date.now();
     renderQuiz();
     syncMapForQuestion();
     startTimer();
     saveDraft();
     if (options.focus) {
-      document.getElementById('questionTitle')?.focus();
+      const mobile = matchMedia('(max-width: 820px)').matches;
+      document.getElementById('questionTitle')?.focus({ preventScroll: mobile });
+      if (mobile) (isMapQuestion(state.question) ? dom.mapRegion : dom.panel).scrollIntoView({ block: 'start', behavior: 'instant' });
       announce(questionCopy(state.question)[0]);
     }
   }
@@ -1111,6 +1020,7 @@
   // Trocar de aba por um instante não pode virar "tempo esgotado": com a página
   // oculta o relógio congela e retoma de onde parou quando ela volta.
   function pauseTimerWhileHidden() {
+    checkpointStudy();
     if (document.hidden) {
       if (!timer.handle) return;
       timer.paused = Math.max(1, timer.deadline - Date.now());
@@ -1202,6 +1112,22 @@
     return direction === 'cap' ? country.cap : country.n;
   }
 
+  const historySession = crypto.randomUUID();
+  // Um contador por instalação; o envelope funde cada contador pelo máximo.
+  const historyDevice = (() => {
+    const key = 'atlas195:history-device';
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved && /^[a-z0-9-]{8,80}$/.test(saved)) return saved;
+      const id = crypto.randomUUID(); localStorage.setItem(key, id); return id;
+    } catch (_) { return crypto.randomUUID(); }
+  })();
+  let activeSince = 0, activeMilliseconds = 0;
+  function checkpointStudy() {
+    if (activeSince) activeMilliseconds += Math.max(0, Date.now() - activeSince);
+    activeSince = state.view === 'quiz' && state.question && !state.answered && !document.hidden ? Date.now() : 0;
+  }
+
   function answerQuestion(value, territory) {
     if (!state.question || state.answered) return;
     const target = byId[state.question.id];
@@ -1210,6 +1136,7 @@
     else if (state.question.direction === 'reg') correct = value === target.r;
     else correct = value === expectedId();
     stopTimer();
+    checkpointStudy(); activeSince = 0;
     state.answered = true;
     state.selectedAnswer = value === EXPIRED_ANSWER ? null : value;
     state.answerTerritory = territory || null;
@@ -1224,7 +1151,7 @@
       direction: state.question.direction,
       correct,
       expired: state.expired,
-      ms: state.askedAt ? Math.max(0, Date.now() - state.askedAt) : null,
+      ms: state.askedAt ? activeMilliseconds : null,
     };
     state.sessionAnswers.push(registro);
     // A carta revisada volta para a fila em vez de sair no primeiro acerto.
@@ -1248,6 +1175,10 @@
     });
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
       countryIds: IDS, bestStreak: state.streak, grade,
+      learning: { device: historyDevice, session: historySession, event: crypto.randomUUID(), ms: registro.ms,
+        targetId: expectedId(), chosen: !correct && byId[state.selectedAnswer] ? state.selectedAnswer : null,
+        reason: !correct && byId[state.selectedAnswer]
+          ? Core.confusionReason(byId[expectedId()], byId[state.selectedAnswer], state.question.direction) : null },
     });
     if (!regionWasComplete && regionMastery(target.r).complete) state.regionCelebration = target.r;
     refreshMapMastery();
@@ -1262,7 +1193,9 @@
       ? `Correto. ${expected}.`
       : `${state.expired ? 'Tempo esgotado' : 'Resposta incorreta'}. A resposta é ${expected}.`;
     announce(verdict + marked);
-    document.getElementById('nextQuestion')?.focus();
+    const mobile = matchMedia('(max-width: 820px)').matches;
+    document.getElementById('nextQuestion')?.focus({ preventScroll: mobile });
+    if (mobile) document.querySelector('.verdict')?.scrollIntoView({ block: 'start', behavior: 'instant' });
   }
 
   function skipVisualQuestion() {
@@ -1363,34 +1296,6 @@
         + `${sovereign.n}, cuja capital é ${sovereign.cap}.`);
     }
     return notes.concat(Core.capitalNotes(country));
-  }
-
-  // O erro só ensina se disser por que a confusão era plausível. O núcleo diz
-  // qual é a relação entre o que foi respondido e a resposta certa; aqui ela
-  // vira frase, sempre terminando no traço que separa os dois.
-  function confusionCopy(country, chosen, direction) {
-    const reason = Core.confusionReason(country, chosen, direction);
-    if (!reason) return null;
-    const nome = chosen.n;
-    if (reason === 'flag-similar') {
-      return `${nome} tem bandeira parecida — compare as proporções e os símbolos, não só as cores.`;
-    }
-    if (reason === 'capital-similar') {
-      return `${chosen.cap} e ${country.cap} têm escrita muito parecida — repare no que muda entre as duas.`;
-    }
-    if (reason === 'capital-initial') {
-      return `${chosen.cap} começa com a mesma letra de ${country.cap}, o que facilita a troca.`;
-    }
-    if (reason === 'border') {
-      return `${nome} faz fronteira com ${country.n} — os dois se tocam no mapa.`;
-    }
-    if (reason === 'neighbour') {
-      return `${nome} fica perto de ${country.n} no mapa — o erro foi de poucos graus.`;
-    }
-    if (reason === 'same-subregion') {
-      return `${nome} fica na mesma subregião, ${chosen.sr}: os dois disputam o mesmo lugar na memória.`;
-    }
-    return `${nome} fica na mesma região, ${chosen.r}.`;
   }
 
   // Errar também precisa dizer de quem era a resposta escolhida: "Banjul e
@@ -1494,7 +1399,7 @@
           if (question.variant === 'shape') card.append(countryShape(item, `Silhueta de ${item.n}`));
           else if (['flag', 'flagOf'].includes(question.direction)) card.append(flagImage(item));
           card.append(create('span', { text: item.n }));
-          if (['cap', 'capOf'].includes(question.direction)) card.append(create('span', { className: 'factmeta', text: `Capital: ${item.cap}` }));
+          if (['cap', 'capOf'].includes(question.direction)) card.append(Feedback.capitalLabel(create, item.cap, item.id === chosen.id ? byId[expectedId(question)].cap : chosen.cap));
           else if (question.direction === 'locate' || question.direction === 'mapId') card.append(create('span', { className: 'factmeta', text: item.sr }));
           comparison.append(card);
         });
@@ -1502,7 +1407,7 @@
       }
       const owner = chosen ? chosenNote(chosen, question.direction) : null;
       if (owner) verdict.append(create('p', { className: 'note', text: owner }));
-      const copy = chosen ? confusionCopy(country, chosen, question.direction) : null;
+      const copy = chosen ? Feedback.copy(Core, byId[expectedId(question)], chosen, question.direction, typeof EDITORIAL_META === 'undefined' ? {} : EDITORIAL_META) : null;
       if (copy) verdict.append(create('p', { className: 'note note-confusion', text: copy }));
     }
 
@@ -1530,6 +1435,7 @@
     dom.shell.dataset.questionMap = String(isMapQuestion(question));
     const country = byId[question.id];
     const [headline, eyebrow] = questionCopy(question);
+    document.getElementById('mobileMapQuestion').textContent = isMapQuestion(question) ? headline : '';
     dom.panel.append(create('div', { className: 'plate' }, [
       create('span', { text: state.fromDeck
         ? `Revisão focada · ${reviewRemaining() > 1 ? `faltam ${reviewRemaining()}` : 'última habilidade'}`
@@ -1602,7 +1508,7 @@
     Core, state, getProgress: () => progress, onPractice: (id) => startCountryPractice(id),
     data: {
       countries: DATA, byId, territories: TERRITORY_LIST, territoriesByCountry,
-      indicatorMeta: INDICATOR_META, families: FAMILY_DIRECTIONS,
+      indicatorMeta: INDICATOR_META, editorialMeta: EDITORIAL_META, families: FAMILY_DIRECTIONS,
     },
     ui: {
       create, clear, flagImage, formatArea, formatList, announce, renderScorebar,
@@ -1612,7 +1518,8 @@
     },
     map: {
       setCursor: setMapCursor, clearMarks: clearMapMarks, mark: markCountry, reticle: showReticle,
-      fitCountry, fitTerritory, territoryPoint,
+      fitCountry, fitTerritory, territoryPoint, fitArea, reset: resetMapView,
+      reveal: () => { setMapCollapsed(false); dom.mapRegion.scrollIntoView({ block: 'start', behavior: 'instant' }); dom.map.focus({ preventScroll: true }); },
     },
   });
 
@@ -1800,6 +1707,13 @@
     startExam(cards.length, cards, 'country', id);
   }
 
+  function startPairPractice(id, chosen, direction) {
+    if (!byId[id] || !byId[chosen] || id === chosen) return;
+    const cards = Core.Learning.pairPlan(id, chosen, direction, state.includeVisual);
+    startExam(cards.length, cards, 'pair');
+    announce(`Treino de ${byId[id].n} e ${byId[chosen].n}: seis perguntas sobre os dois países.`);
+  }
+
   function endExam() {
     state.exam = null;
     clearExamDraft();
@@ -1875,6 +1789,14 @@
       if (!Array.isArray(draft.cards) || draft.cards.length !== draft.total || !draft.cards.every(validCard)) return null;
     }
     if (draft.kind === 'country' && !byId[draft.countryId]) return null;
+    if (draft.kind === 'pair') {
+      if (!Array.isArray(draft.cards) || draft.cards.length !== 6) return null;
+      const first = draft.cards[0];
+      if (!byId[first.opponent] || first.opponent === first.id) return null;
+      if (!draft.cards.every(card => ['cap', 'capOf', 'flag', 'flagOf', 'mapId', 'locate'].includes(card.direction)
+        && ((card.id === first.id && card.opponent === first.opponent)
+          || (card.id === first.opponent && card.opponent === first.id)))) return null;
+    } else if (draft.cards?.some(card => card.opponent !== undefined)) return null;
     return draft;
   }
 
@@ -2051,12 +1973,17 @@
     refazer.addEventListener('click', () => {
       if (kind === 'daily') startDaily();
       else if (kind === 'due') startDue();
+      else if (kind === 'fresh') startFresh();
       else if (kind === 'country') startCountryPractice(countryId);
+      else if (kind === 'pair') { const card = state.exam.cards[0]; startPairPractice(card.id, card.opponent, card.direction); }
       else startExam(total);
     });
     const voltar = create('button', { className: 'btn ghost', type: 'button', text: 'Voltar ao treino livre' });
     voltar.addEventListener('click', endExam);
     acoes.append(refazer, voltar);
+    if (kind === 'fresh' && !freshCards().length) {
+      refazer.disabled = true; refazer.textContent = 'Nenhuma novidade nestes filtros';
+    }
     if (kind === 'due' && !pendingCards().length) {
       refazer.disabled = true;
       refazer.textContent = 'Nenhuma revisão pendente nestes filtros';
@@ -2116,6 +2043,13 @@
 
   function pendingCards() {
     return Study.duePlan(Core, DATA, progress, effectiveDirections(), state.region);
+  }
+
+  function freshCards() { return Study.freshPlan(Core, DATA, progress, effectiveDirections(), state.region); }
+  function startFresh() {
+    const cards = freshCards().slice(0, 30);
+    if (cards.length) startExam(cards.length, cards, 'fresh');
+    else { state.exam = null; setView('prog'); announce('Nenhuma novidade nestes filtros.'); }
   }
 
   function startDue() {
@@ -2261,7 +2195,9 @@
     actions: {
       attempted: attemptedSkills, pending: pendingCards, nextReview: nextReviewCopy,
       sessionStats, mistakes: focusedMistakes, startMistakeDeck, startReview,
-      startDaily, startExam, startDue, savePreferences, saveNow: () => queueProgressSave(true),
+      startDaily, startExam, startDue, startFresh, fresh: freshCards, practiceCountry: startCountryPractice, savePreferences, saveNow: () => queueProgressSave(true),
+      practicePair: startPairPractice,
+      comparePair: (id, chosen) => { state.atlasSelected = id; setView('atlas'); atlas.compare(id, chosen); },
       openCountry: (id) => { state.atlasSelected = id; setView('atlas'); atlas.select(id, true); },
       resetAll: resetAllProgress,
     },
@@ -2320,40 +2256,16 @@
     abandonExercise();
   }
 
-  function setView(view) {
-    if (!['quiz', 'atlas', 'prog'].includes(view)) return;
-    state.view = view;
-    document.body.dataset.view = view;
-    dom.shell.dataset.view = view;
-    dom.shell.classList.toggle('is-focus-mode', state.focusMode && view === 'quiz');
-    dom.tabs.forEach((tab) => {
-      if (tab.dataset.view === view) tab.setAttribute('aria-current', 'page');
-      else tab.removeAttribute('aria-current');
-    });
-    dom.skipVisual.hidden = true;
-    dom.map.classList.remove('picking');
-    stopTimer();
-    if (view === 'quiz' && state.sessionEnded) renderSessionResult();
-    else if (view === 'quiz' && !state.question && state.examDraft) renderExamResume();
-    else if (view === 'quiz' && !state.question && !state.exam && !state.fromDeck && !state.forcedQuestion) createNextQuestion();
-    else if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); startTimer(); }
-    else if (view === 'atlas') atlas.render();
-    else { clearMapMarks(); renderProgress(); }
-    announce(view === 'quiz' ? 'Treino aberto.' : view === 'atlas' ? 'Atlas aberto.' : 'Progresso aberto.');
-  }
-
-  function setMapCollapsed(collapsed, persist = true) {
-    state.mapCollapsed = Boolean(collapsed);
-    dom.mapRegion.classList.toggle('is-collapsed', state.mapCollapsed);
-    dom.mapRegion.dataset.collapsed = String(state.mapCollapsed);
-    dom.mapToggle.setAttribute('aria-expanded', String(!state.mapCollapsed));
-    const label = dom.mapToggle.querySelector('.map-toggle-label');
-    const icon = dom.mapToggle.querySelector('.map-toggle-icon');
-    if (label) label.textContent = state.mapCollapsed ? 'Mostrar mapa' : 'Recolher mapa';
-    if (icon) icon.textContent = state.mapCollapsed ? '+' : '−';
-    if (persist) savePreferences();
-    if (!state.mapCollapsed) requestAnimationFrame(updateMapScaleSensitiveElements);
-  }
+  const navigation = globalThis.AtlasNavigation.create({ state, dom, actions: {
+    checkpointStudy, isMapQuestion, stopTimer, renderSessionResult, renderExamResume,
+    createNextQuestion, renderQuiz, syncMapForQuestion, startTimer, clearMapMarks,
+    renderProgress, renderAtlas: () => atlas.render(), announce, savePreferences,
+    updateMapScaleSensitiveElements, setActiveSince: value => { activeSince = value; },
+  } });
+  function setView(view) { navigation.setView(view); }
+  function setMapCollapsed(collapsed, persist = true) { navigation.setMapCollapsed(collapsed, persist); }
+  function setFiltersCollapsed(collapsed) { navigation.setFiltersCollapsed(collapsed); }
+  function syncFilterLayout() { navigation.syncFilterLayout(); }
 
   function syncControls() {
     dom.modeSeg.querySelectorAll('[data-mode]').forEach((button) => {
@@ -2374,29 +2286,6 @@
     dom.region.value = state.region;
     setMapCollapsed(state.mapCollapsed, false);
     syncFilterLayout();
-  }
-
-  // Sem escolha guardada, a barra fica aberta no computador e no tablet e
-  // recolhida no celular, onde ocuparia a primeira tela inteira e empurraria as
-  // alternativas para baixo da dobra. Abrir ou recolher pelo botão vira escolha
-  // da pessoa e passa a valer em qualquer tamanho.
-  const PHONE_LAYOUT = matchMedia('(max-width: 560px), (max-height: 500px)');
-  function filtersHidden() {
-    return typeof state.filtersCollapsed === 'boolean' ? state.filtersCollapsed : PHONE_LAYOUT.matches;
-  }
-
-  function setFiltersCollapsed(collapsed) {
-    state.filtersCollapsed = Boolean(collapsed);
-    syncFilterLayout();
-    savePreferences();
-  }
-
-  function syncFilterLayout() {
-    const hidden = filtersHidden();
-    dom.controls.hidden = hidden;
-    dom.filterToggle.setAttribute('aria-expanded', String(!hidden));
-    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
-    if (icon) icon.textContent = hidden ? '+' : '−';
   }
 
   function bindControls() {
@@ -2463,9 +2352,7 @@
       const expanded = dom.filterToggle.getAttribute('aria-expanded') === 'true';
       setFiltersCollapsed(expanded);
     });
-    if (PHONE_LAYOUT.addEventListener) PHONE_LAYOUT.addEventListener('change', syncFilterLayout);
-    else PHONE_LAYOUT.addListener(syncFilterLayout);
-    syncFilterLayout();
+    navigation.observeFilters();
     dom.mapToggle.addEventListener('click', () => setMapCollapsed(!state.mapCollapsed));
     dom.skipVisual.addEventListener('click', skipVisualQuestion);
     dom.zoomIn.addEventListener('click', () => zoomAt(1.4));
@@ -2536,9 +2423,35 @@
     const recarregar = create('button', { className: 'btn', type: 'button', text: 'Recarregar' });
     recarregar.addEventListener('click', () => location.reload());
     aviso.append(recarregar);
-    const barra = document.querySelector('.app-status');
-    if (barra) barra.append(aviso);
+    const barra = dom.shell;
+    if (barra) barra.prepend(aviso);
+    const automatic = create('p', { className: 'note', text: 'A atualização será aplicada automaticamente após encerrar o treino, quando o progresso estiver salvo.' });
+    aviso.append(automatic);
+    const tryUpdate = async () => {
+      const busy = !state.ready || document.hidden || state.resetPending || !state.sessionEnded
+        || (state.exam && !examFinished()) || state.fromDeck || state.examDraft
+        || document.activeElement?.closest('input, textarea, select, [contenteditable="true"]');
+      if (!busy) {
+        const snapshot = Core.serializeProgress(progress, { countryIds: IDS });
+        try {
+          await saveChain;
+          await writeAll(snapshot);
+          if (snapshot === Core.serializeProgress(progress, { countryIds: IDS }) && state.sessionEnded && !document.hidden) {
+            location.reload(); return;
+          }
+        } catch (_) { automatic.textContent = 'Salve um backup antes de recarregar: não foi possível confirmar a gravação.'; return; }
+      }
+      setTimeout(tryUpdate, 10000);
+    };
+    setTimeout(tryUpdate, 10000);
     announce('Uma versão nova do Atlas está pronta. Recarregue para usá-la.');
+  }
+
+  function openCountryLink() {
+    const id = globalThis.AtlasCountryTools.countryFromHash(location.hash, byId);
+    if (!id) return;
+    state.atlasQuery = ''; state.atlasArea = ''; state.atlasFacet = null;
+    state.atlasSelected = id; setView('atlas'); atlas.select(id, true);
   }
 
   async function initialize() {
@@ -2558,11 +2471,14 @@
       state.ready = true;
       bindMapEvents();
       bindControls();
+      document.getElementById('mapInstructions').textContent = Study.SHORTCUTS.slice(2).map(([key, action]) => key + ': ' + action).join(' ');
+      window.addEventListener('hashchange', openCountryLink);
       state.examDraft = readExamDraft();
       if (state.examDraft) renderExamResume(); else createNextQuestion();
       // A conta entra depois que o treino já está de pé: nada aqui pode atrasar
       // ou impedir a primeira pergunta aparecer.
       account.initialize();
+      openCountryLink();
     } catch (error) {
       setStorageStatus('O Atlas não pôde ser iniciado.', 'error', true);
       clear(dom.panel);

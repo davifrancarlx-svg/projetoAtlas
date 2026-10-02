@@ -9,6 +9,13 @@ const ROOT = path.resolve(__dirname, '..');
 // justifica. `src/app.js` foi de 140 para 150 KiB com a revisão focada e o
 // contraste didático do erro (2026-08-21).
 const LIMITS = {
+  'src/map-viewport.js': 10 * 1024,
+  'src/navigation.js': 8 * 1024,
+  'src/feedback.js': 6 * 1024,
+  // 12 → 14 KiB: métricas por habilidade, migração e comparação entre sessões.
+  'src/learning.js': 14 * 1024,
+  'src/country-tools.js': 12 * 1024,
+  'src/features.css': 6 * 1024,
   // 8 → 12 KiB com quatro estilos de timbre, o som de fim de série e o painel
   // de preferências que o próprio módulo monta (2026-09-16). O painel podia ter
   // ido para `app.js`, que estava em 97% do teto dele: som mora com o som.
@@ -20,7 +27,8 @@ const LIMITS = {
   // A aba Atlas saiu de app.js na mesma linha de raciocínio, junto do filtro
   // por área e da moeda na ficha (2026-09-16). 20 → 24 KiB com a ficha
   // navegável, os outros nomes e as notas da capital (2026-09-28).
-  'src/atlas.js': 24 * 1024,
+  // 24 → 26 KiB com busca antes da ficha, retorno e acesso ao mapa no celular.
+  'src/atlas.js': 26 * 1024,
   // A aba Progresso saiu de app.js em 2026-09-28, antes de a ficha do Atlas
   // crescer: sem isso, qualquer mudança de tela esbarrava no teto do app.
   'src/progress.js': 26 * 1024,

@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const Core = require('../src/core.js');
+const { validateEditorialMetadata } = require('./editorial-metadata.cjs');
 
 const root = path.resolve(__dirname, '..');
 // O parser HTML normaliza quebras de linha (CRLF e CR viram LF) antes de o
@@ -125,8 +126,8 @@ function loadCountries() {
       throw new Error(`Indicadores ausentes para ${country.id} (${country.n}). Rode "npm run indicators".`);
     }
     // Idiomas seguem a mesma política dos indicadores: complementam a ficha e
-    // nunca viram resposta de pergunta. O que entra é o que é oficial por lei;
-    // a nota existe só quando o uso cotidiano diverge do estatuto oficial.
+    // nunca viram resposta de pergunta. A lista pode ser representativa ou de uso
+    // de facto; a nota distingue esses casos do estatuto oficial por lei.
     const language = languages[country.id];
     if (!language || !Array.isArray(language.oficiais) || !language.oficiais.length) {
       throw new Error(`Idiomas ausentes para ${country.id} (${country.n}). Preencha src/languages.json.`);
@@ -395,13 +396,14 @@ function embedFonts() {
 }
 
 const template = read('src/index.template.html');
-const css = embedFonts() + read('src/styles.css').trim();
-const core = read('src/core.js').trim();
+const css = embedFonts() + ['src/styles.css', 'src/features.css'].map(file => read(file).trim()).join('\n');
+const core = ['src/learning.js', 'src/core.js'].map(file => read(file).trim()).join('\n');
+const editorialMeta = { ...validateEditorialMetadata(readJson('src/editorial-meta.json'), readJson('src/countries.base.json')), currencyCodes: readJson('data/currency-code-audit.json') };
 const syncQueue = read('src/sync-queue.js').trim();
 // Som, estudo, conta, Atlas e Progresso vivem em módulos próprios para o app
 // principal não crescer sem fim; todos entram no mesmo bloco de script, na
 // ordem de dependência.
-const app = ['src/audio.js', 'src/study.js', 'src/account.js', 'src/atlas.js', 'src/progress.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
+const app = ['src/audio.js', 'src/study.js', 'src/feedback.js', 'src/navigation.js', 'src/map-viewport.js', 'src/account.js', 'src/country-tools.js', 'src/atlas.js', 'src/progress.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
 const themeBoot = read('src/theme-boot.js').trim();
 // A configuração de conta entra no artefato e também define a única origem que
 // a CSP vai autorizar. Se o arquivo sumir ou vier incompleto, o build segue: o
@@ -463,6 +465,7 @@ const data = `const MAP_META = ${JSON.stringify(mapMetaEnxuto)};\n`
   + `const TERRITORIES = ${JSON.stringify(territories)};\n`
   + `const CONTEXT_AREAS = ${JSON.stringify(packedAreas)};\n`
   + `const INDICATOR_META = ${JSON.stringify(indicatorMeta)};\n`
+  + `const EDITORIAL_META = ${JSON.stringify(editorialMeta)};\n`
   + `const CLOUD = ${JSON.stringify(cloud)};`;
 const flagLicense = read('data/flag-icons/LICENSE').trim().replace(/--/g, '—');
 // A OFL exige que a licença acompanhe a fonte redistribuída; as famílias vão

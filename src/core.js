@@ -7,7 +7,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  var SCHEMA_VERSION = 2;
+  var SCHEMA_VERSION = 4;
+  var Learning = typeof module === 'object' && module.exports ? require('./learning.js') : globalThis.AtlasLearning;
   var MAX_LEVEL = 5;
   var QUESTION_DIRECTIONS = Object.freeze([
     'flag', 'flagOf', 'cap', 'capOf', 'locate', 'mapId', 'reg'
@@ -44,7 +45,7 @@
   // forma: abaixo disso (Malta, Singapura, os microestados) ela vira um ponto.
   var SHAPE_MIN_AREA = 1;
   var ROOT_KEYS = Object.freeze([
-    'schemaVersion', 'generation', 'epoch', 'revision', 'updatedAt', 'bestStreak', 'countries'
+    'schemaVersion', 'generation', 'epoch', 'revision', 'updatedAt', 'bestStreak', 'countries', 'learning'
   ]);
   var COUNTRY_PROGRESS_KEYS = Object.freeze(['skills']);
   var SKILL_KEYS = Object.freeze([
@@ -203,7 +204,8 @@
       revision: 0,
       updatedAt: now,
       bestStreak: best,
-      countries: {}
+      countries: {},
+      learning: Learning.empty()
     };
   }
 
@@ -243,6 +245,7 @@
     if (!safeInteger(progress.revision, 0, Number.MAX_SAFE_INTEGER)) error('progress.revision', 'must be a non-negative safe integer');
     if (!isIsoTimestamp(progress.updatedAt)) error('progress.updatedAt', 'must be a canonical ISO timestamp');
     if (!safeInteger(progress.bestStreak, 0, Number.MAX_SAFE_INTEGER)) error('progress.bestStreak', 'must be a non-negative safe integer');
+    if (!Learning.valid(progress.learning, ids, QUESTION_DIRECTIONS)) error('progress.learning', 'invalid learning history');
     if (!isPlainObject(progress.countries)) {
       error('progress.countries', 'must be a plain object');
       return { valid: false, errors: errors };
@@ -331,7 +334,8 @@
       revision: progress.revision,
       updatedAt: progress.updatedAt,
       bestStreak: progress.bestStreak,
-      countries: countries
+      countries: countries,
+      learning: Learning.clone(progress.learning)
     };
   }
 
@@ -379,7 +383,9 @@
     var secondary = comparison >= 0 ? right : left;
 
     var merged = cloneProgress(primary);
-    var changed = secondary.bestStreak > merged.bestStreak;
+    var combinedHistory = Learning.merge(primary.learning, secondary.learning);
+    var changed = secondary.bestStreak > merged.bestStreak || JSON.stringify(combinedHistory) !== JSON.stringify(merged.learning);
+    merged.learning = combinedHistory;
     merged.bestStreak = Math.max(merged.bestStreak, secondary.bestStreak);
     Object.keys(secondary.countries).forEach(function (id) {
       var sourceSkills = secondary.countries[id].skills;
@@ -439,6 +445,21 @@
   function migrateProgressDetailed(input, options) {
     options = options || {};
     var now = isoTimestamp(hasOwn(options, 'now') ? options.now : Date.now());
+    if (isPlainObject(input) && input.schemaVersion === 2) {
+      if (hasOwn(input, 'learning')) throw new TypeError('Unexpected learning history in v2');
+      var upgraded = Object.assign({}, input, { schemaVersion: SCHEMA_VERSION, learning: Learning.empty() });
+      assertValidProgress(upgraded, options);
+      return { progress: cloneProgress(upgraded), migrated: true, sourceVersion: 2, warnings: [] };
+    }
+    if (isPlainObject(input) && input.schemaVersion === 3) {
+      if (!isPlainObject(input.learning) || !isPlainObject(input.learning.sessions)
+        || Object.values(input.learning.sessions).some(row => !isPlainObject(row) || Object.keys(row).sort().join() !== 'answers,at,ms')) {
+        throw new TypeError('Invalid v3 learning history');
+      }
+      var upgradedV3 = Object.assign({}, input, { schemaVersion: SCHEMA_VERSION });
+      assertValidProgress(upgradedV3, options);
+      return { progress: cloneProgress(upgradedV3), migrated: true, sourceVersion: 3, warnings: [] };
+    }
     if (isPlainObject(input) && input.schemaVersion === SCHEMA_VERSION) {
       assertValidProgress(input, options);
       return { progress: cloneProgress(input), migrated: false, sourceVersion: SCHEMA_VERSION, warnings: [] };
@@ -612,6 +633,10 @@
     skill.intervalDays = schedule.intervalDays;
     skill.nextReviewAt = new Date(Date.parse(now) + skill.intervalDays * DAY_MS).toISOString();
     next.countries[countryId].skills[direction] = skill;
+    if (options.learning) next.learning = Learning.record(next.learning, Object.assign({}, options.learning, {
+      at: now, id: options.learning.targetId || countryId, direction: direction, correct: !!correct,
+      chosen: correct ? null : options.learning.chosen
+    }));
     next.revision += 1;
     next.updatedAt = now;
     if (safeInteger(options.bestStreak, 0, Number.MAX_SAFE_INTEGER)) {
@@ -1059,9 +1084,15 @@
       question.variant = isShapeable(target) && sampleUnit(options.rng) < 0.5 ? 'shape' : 'pin';
     }
     if (direction === 'locate') question.variant = locateVariant(target, countries, options);
+    // No treino de um par, localização pergunta o país no mapa. Fronteira teria
+    // outro país como resposta e deixaria de exercitar a confusão selecionada.
+    if (direction === 'locate' && options.opponentId) question.variant = 'map';
     function pickFrom(answer, localPool, globalPool) {
+      var wrong = distractors(target, 3, localPool, globalPool, options.rng, direction);
+      var opponent = globalPool.find(function (country) { return country.id === options.opponentId && country.id !== itemId(answer); });
+      if (opponent) wrong = [opponent].concat(wrong.filter(function (country) { return itemId(country) !== opponent.id; })).slice(0, 3);
       return shuffled(
-        [answer].concat(distractors(target, 3, localPool, globalPool, options.rng, direction)),
+        [answer].concat(wrong),
         options.rng
       ).map(itemId);
     }
@@ -1693,6 +1724,7 @@
     capitalNotes: capitalNotes,
     decodePath: decodePath,
     SCHEMA_VERSION: SCHEMA_VERSION,
+    Learning: Learning,
     MAX_LEVEL: MAX_LEVEL,
     QUESTION_DIRECTIONS: QUESTION_DIRECTIONS,
     DIRECTION_FAMILY: DIRECTION_FAMILY,

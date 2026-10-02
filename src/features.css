@@ -1,0 +1,74 @@
+.atlas-order { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.atlas-comparison, .ficha-actions { grid-column: 1 / -1; min-width: 0; }
+.indicator-sources { grid-column: 1 / -1; min-width: 0; overflow-wrap: anywhere; }
+.indicator-sources summary { cursor: pointer; padding: .75rem 0; }
+.indicator-sources a { color: var(--gold); text-decoration: underline; }
+.atlas-results summary { cursor: pointer; padding-block: .75rem; }
+.mobile-map-question { display: none; }
+.capital-difference { color: inherit; background: transparent; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+@media (pointer: coarse), (max-width: 820px) {
+  .focus-toggle, .map-toggle, .atlas-area, .update-notice .btn, summary { min-width: 44px; min-height: 44px; }
+  input:not([type="checkbox"]):not([type="range"]), select { font-size: 16px; }
+  .atlas-detail .ficha-link { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; padding-inline: 6px; }
+  .atlas-area { font-size: 13px; }
+  .atlas-area.is-sub { font-size: 12px; }
+}
+@media screen and (max-width: 820px) {
+  html { scroll-padding-block: 12px 150px; }
+  .shell { --mobile-nav-space: calc(58px + var(--safe-bottom)); padding-block-end: var(--mobile-nav-space); }
+  .shell.is-focus-mode { --mobile-nav-space: 0px; }
+  .tabs { position: fixed; z-index: 30; inset: auto 0 0; width: 100%; min-height: var(--mobile-nav-space); padding: 4px max(8px, var(--safe-right)) max(4px, var(--safe-bottom)) max(8px, var(--safe-left)); background: var(--panel); border-block-start: 1px solid var(--line); }
+  .tab { min-height: 48px; }
+  .scorebar { inset-block-end: var(--mobile-nav-space); }
+  #nextQuestion { inset-block-end: calc(var(--mobile-nav-space) + 64px); }
+  .side-body { scroll-margin-block-start: 10px; }
+  .atlas-results, .atlas-detail, .search { scroll-margin-block-start: 12px; }
+  .atlas-results { margin-block: 8px 16px; }
+  .atlas-detail > .btn.wide { grid-column: 1 / -1; }
+  .ficha-actions { display: grid; grid-template-columns: 1fr; }
+  .button-row { max-width: 100%; }
+  .chip { white-space: normal; overflow-wrap: anywhere; }
+  .source-note { font-size: 12px !important; }
+  .session-strip span { font-size: 10px; }
+  .session-finish { font-size: 11px; }
+  .map-heading { flex-wrap: wrap; }
+  .shell[data-view="quiz"][data-question-map="true"] .mobile-map-question { display: block; margin: 0; padding: 8px 14px; font-size: 16px; line-height: 1.4; color: var(--ink); background: var(--panel); }
+  .shell[data-view="quiz"][data-question-map="true"] .map-region { min-height: 320px; }
+  .map-region.is-collapsed { min-height: 0; }
+}
+.atlas-comparison summary, .pgroup summary { cursor: pointer; padding: .75rem 0; }
+.atlas-comparison select { display: block; max-width: 100%; margin: .5rem 0; }
+.comparison-result { min-width: 0; }
+.comparison-scroll { overflow-x: auto; max-width: 100%; }
+.comparison-scroll table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.comparison-scroll th, .comparison-scroll td { padding: .6rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: break-word; min-width: 0; }
+.comparison-scroll thead, .comparison-scroll tbody { display: block; }
+.comparison-scroll tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.comparison-scroll thead th:first-child { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
+.comparison-scroll tbody th { grid-column: 1 / -1; border-bottom: 0; padding-bottom: 0; color: var(--muted); }
+.comparison-scroll th { font-weight: 600; }
+.comparison-scroll caption { text-align: left; padding: .5rem 0; }
+.comparison-flags { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.comparison-flags figure { margin: 1rem 0; min-width: 0; }
+.comparison-flags img { width: 80px; height: 60px; object-fit: contain; }
+.cty.filtered { stroke: var(--gold); stroke-width: 1.5; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }
+.shell > .update-notice { margin: .75rem; }
+@media (forced-colors: active) {
+  .cty.filtered { stroke: Highlight; stroke-dasharray: 3 2; forced-color-adjust: none; }
+}
+@media print {
+  .atlas-detail > button { display: none !important; }
+  :root { color-scheme: light; }
+  body, .shell, .stage, .side, .side-body, #panel { display: block !important; position: static !important; width: auto !important; max-width: none !important; height: auto !important; max-height: none !important; overflow: visible !important; background: Canvas !important; color: CanvasText !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
+  .topbar, .tabs, .controls, .app-status, .filter-toggle, .map-region, .scorebar, .skip-link, .update-notice, #panel > :not(.atlas-detail), .ficha-actions, .atlas-mastery, .atlas-comparison > label, .atlas-comparison > select, .territory-card button, .sr-only { display: none !important; }
+  .atlas-detail { display: block !important; border: 0; color: CanvasText; background: Canvas; }
+  .atlas-detail > img { width: 100px; height: auto; }
+  .atlas-detail p, .atlas-detail dd, .atlas-detail dt, .atlas-detail .note, .atlas-detail .source-note, .ficha-link { color: CanvasText !important; }
+  .ficha-link { border: 0; padding: 0; min-height: 0; background: none; font: inherit; }
+  .atlas-shape { width: 180px; break-inside: avoid; }
+  .shape-svg path { fill: CanvasText; }
+  .indicadores, figure, .territory-card, tr { break-inside: avoid; }
+  .comparison-scroll { overflow: visible; }
+  .atlas-comparison:not([open]) { display: none; }
+  @page { margin: 15mm; }
+}

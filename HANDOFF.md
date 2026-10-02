@@ -1,3 +1,161 @@
+# Documentação editorial dos 195 países — 02/10/2026
+
+Documentação consolidada em [docs/editorial-195.md](docs/editorial-195.md), com
+capital, notas, idiomas listados, moedas e referências individuais. O registro
+contém 399 fontes de idiomas/capitais e cobre os 195 países em ambos os campos.
+A data de consulta não certifica vigência: 68 países em idiomas e 92 em capitais
+têm apenas referência histórica. A cópia independente do Factbook usa revisão
+fixa; textos constitucionais traduzidos identificam a versão. O snapshot de
+procedência está em data/editorial-reference-audit.json. Nomes traduzidos de
+moedas e todas as notas sem fonte específica ainda exigem revisão.
+
+Corrigidos os idiomas listados de Lesoto (cinco, conforme a emenda de 2025),
+Quirguistão (russo) e Macedônia do Norte (albanês com estatuto qualificado),
+além das notas de Índia, Burkina Faso, México, Maurício e da capital de Honduras.
+Fichas, filtros e exportações distinguem idioma listado de idioma oficial nacional;
+fontes históricas exibem aviso também no arquivo exportado.
+
+Validação: **203 testes aprovados, zero falhas e zero ignorados**, com Chrome real;
+build, orçamentos, atualidade dos indicadores e auditoria editorial estrita passaram.
+Artefato: 3183,9 KiB de 3328 KiB. Passaram 24 cenários Firefox/WebKit sem violações
+automáticas detectadas, com verificações humanas inconclusivas do axe preservadas.
+Chrome 360/1280 px aprovou fontes e download da ficha com o aviso histórico.
+Ensaios locais não substituem aparelhos físicos ou avaliação com jogadores.
+Contas/Supabase, instalação e novos recursos offline continuam adiados.
+
+---
+
+# Continuação: fontes editoriais e módulos do mapa — 02/10/2026
+
+A suíte completa passou: **201 testes, zero falhas e zero ignorados**, com Chrome
+real. Build, orçamentos e verificação de atualidade dos indicadores passaram.
+O artefato tem 3065,1 KiB, abaixo do teto de 3328 KiB.
+
+Fontes para trechos de idiomas: 11/195 países; capitais: 10/195. As 16 novas
+referências cobrem Brasil, Portugal, França, Espanha, Canadá, Suíça, Países Baixos,
+Malásia, Benim, Sri Lanka, Burundi, Guiné Equatorial e Indonésia. O escopo é
+individual: a fonte de Putrajaya não certifica toda a ficha da Malásia, por exemplo.
+A nota suíça agora distingue línguas nacionais e o uso oficial federal do romanche.
+Códigos ISO continuam conferidos nos 195 países. Não há revisão completa de todas
+as notas, idiomas e nomes traduzidos de moedas.
+
+O build e audit:editorial agora rejeitam IDs desconhecidos, fontes sem escopo,
+URLs inválidas ou com credenciais, datas impossíveis e duplicatas. Essa validação
+confere o registro, não comprova a veracidade do conteúdo por si só.
+
+Extraídos src/navigation.js (abas, recolhimento do mapa e dos filtros) e
+src/map-viewport.js (escala, zoom, enquadramento, coordenadas e pan agrupado por
+frame). app.js caiu de 128,1 para 121,6 KiB. Detecção de países, gestos e regras
+do treino ainda têm código no app principal; não se trata de modularização total.
+Testes novos verificam toque após rolagem, margens do SVG, pan e limites do zoom.
+
+A avaliação com participantes reais continua pendente. Contas/Supabase,
+instalação e disponibilidade offline permanecem adiados pelo usuário.
+
+Verificações complementares desta continuação: 24 cenários Firefox/WebKit
+(360/1280 px, claro/escuro, três abas), sem violações automáticas detectadas;
+persistem verificações manuais do axe. QA de orientação em Chrome 360/1280 px
+e ensaio de desempenho com histórico volumoso e gestos de toque passaram.
+São ensaios locais de laboratório, sem validação em aparelho físico ou
+observação de participantes reais. Relatórios em reports/compatibility,
+reports/guidance e reports/performance.json (arquivos locais ignorados pelo Git).
+
+---
+
+# Clareza do progresso e explicação dos erros — 02/10/2026
+
+Resultado: **197 testes aprovados, zero falhas e zero ignorados** em npm run check
+com Chrome real; build, orçamentos e atualidade mínima dos indicadores aprovados.
+24 cenários Firefox/WebKit passaram sem violações automáticas detectadas.
+
+Progresso ganhou uma recomendação principal: pendências nos filtros atuais,
+depois revisão dos erros da sessão, novidades e treino de hoje. Demais treinos,
+histórico, prova, barras de domínio, revisões e dificuldades ficam recolhíveis.
+As ações antigas continuam disponíveis. Preferências de conta e backup continuam
+acessíveis para preservar foco e edição.
+
+Explicação dos erros: pareamento explícito capital→país, trechos distintos das
+capitais sublinhados sem modificar nomes e descrições documentadas para Austrália
+versus Nova Zelândia. Outros pares de bandeiras usam orientação visual sem
+inventar características; localização mostra subregiões reais e fronteira quando
+registrada. Lógica extraída para src/feedback.js, com testes puros; a recomendação
+fica em AtlasStudy. Não houve reestruturação completa de mapa/navegação nesta etapa.
+
+Códigos ISO 4217: consulta oficial em 02/10/2026, publicação SIX 17/09/2026,
+142 códigos locais presentes, cobrindo os 195 países. Snapshot, hash e códigos em
+data/currency-code-audit.json. Não verifica nomes traduzidos ou notas de uso.
+Fontes editoriais registradas por trecho em src/editorial-meta.json: idiomas de
+4 países, capitais da África do Sul e características de duas bandeiras. Cobertura
+individual ainda parcial: npm run audit:editorial gera lista de pendências em
+reports/editorial-coverage.md/.json. Fontes, escopo e data aparecem na ficha e na
+exportação de texto. Nenhuma data foi atribuída a itens não conferidos.
+
+Novo npm --prefix qa run test:guidance passou em 360 e 1280 px, com cliques reais:
+recomendação inicia série de novidades, erro de capital apresenta destaque e ficha
+neozelandesa revela as fontes. Capturas inspecionadas visualmente em
+reports/guidance/. Um ajuste posterior de classe fez as fontes ocupar a largura
+inteira no mobile; build, orçamento e este cenário foram repetidos e passaram.
+
+Roteiro de jogadores atualizado para observar compreensão da recomendação, dos
+erros e do escopo das fontes. Nenhum participante real foi observado. Leitores de
+tela e aparelhos físicos continuam pendentes. Etapa remota de conta permanece
+adiada pelo usuário. Nenhum commit, push, deploy ou escrita no backend.
+
+---
+
+# Evolução, desempenho e acessibilidade — 02/10/2026
+
+Implementadas as três prioridades autorizadas: evolução entre sessões, redução do trabalho ao abrir Progresso e revisão de teclado/foco. Esquema atual 4, com migração de v2/v3; acertos por habilidade só existem nas sessões novas. Comparação exige duas sessões com cinco respostas da mesma família e informa diferença em pontos percentuais sem afirmar ganho de domínio.
+
+Learning.record/merge preservam imutabilidade e ordenação determinística das métricas; backups e fusão exercitados. Listas e grade de domínio montadas por toggle, uma vez por painel. Testes de ficha e confusões agora abrem os detalhes como o jogador.
+
+Suíte completa passou com 193 testes em Chrome, sem falhas/ignorados. Banco local: 19 verificações, incluindo v4→v3 recusado pelo trigger existente. Benchmark 360×640/CPU4: 587 elementos no painel recolhido, 1.757 com a grade de domínio aberta (195 botões, 1.170 elementos adiados). Resultado em reports/performance.json. Timings são de laboratório e não INP/celular físico. CI preparado para rodar o benchmark.
+
+O usuário adiou a etapa de validação remota da conta. Não retomar essa etapa sem nova orientação. Migração segue pendente antes da publicação; nada foi enviado ou publicado. Aparelhos físicos e leitores de tela reais seguem sem validação.
+
+---
+
+# Validação de contas e acessibilidade — 02/10/2026
+
+Correções de sessão impedem renovação concorrente, reconexão após saída e aplicação
+de progresso de uma sessão anterior. Erros 429/5xx preservam o login. Saída local
+é imediata, mesmo se o servidor ainda não respondeu.
+
+O ambiente encontrado é o backend já configurado em src/cloud.json. Não há
+configuração de teste ou acesso administrativo confirmado; a consulta pública de
+autenticação respondeu 200 e uma consulta anônima de progresso sem linhas (limit=0)
+respondeu 401. Contas de teste não puderam ser confirmadas. Nenhuma escrita remota.
+
+QA adicional em qa/: PostgreSQL WASM descartável executa migrações duas vezes e
+18 verificações de isolamento, permissões, limites e versões; Firefox/WebKit,
+axe-core e cenários móveis/desktop. Dependências apenas de desenvolvimento,
+fixadas com lockfile separado, sem inclusão no artefato. Job preparado no CI.
+
+Corrigidos grupos ARIA do mapa, status e busca; contraste do título do mapa e do
+país selecionado no tema claro. Reprodução em qa/README.md; avaliação humana e
+contas reais em docs/validacao-com-jogadores.md. Continuam pendentes a migração
+remota, login por e-mail, aparelhos físicos e observação de participantes.
+
+---
+
+# Atualização prioritária — 01/10/2026
+
+Checkup mobile concluído: navegação inferior em até 820 px, alvos de toque de 44 px, campos de 16 px, busca antes da ficha e resultados recolhíveis no celular, retorno à busca e botão para o mapa, enunciado junto do mapa e rolagem para feedback/próxima pergunta. Cenário tests/mobile-checkup-browser.cjs integrado ao smoke test; pode ser executado com ATLAS_BROWSER_SCENARIO=mobile-checkup. O npm run check passou com 187 testes, sem falhas nem ignorados. Evidências e limites em TEST_REPORT.md e docs/mobile-review/.
+
+Três melhorias adicionais concluídas: `npm run audit:sources` gera relatórios Markdown/JSON com diferenças e falhas independentes; o CI mensal/manual guarda os relatórios. Fichas têm links e definições por indicador, também exportados. Confusões recorrentes permitem comparar o par e praticar seis perguntas com retomada. Validação atual: 187 testes aprovados, nenhum ignorado, com Chrome real; auditoria remota sem mudanças. A configuração do CI ainda precisa ser enviada ao repositório para executar remotamente.
+
+Nova varredura de dados concluída em 01/10/2026: área florestal agora vem da API publicada da FRA 2025, com 195/195 países. scripts/fra-data.cjs valida a porcentagem publicada contra as áreas e recusa ausências; o ciclo 2025 fica fixado e revisões dentro dele são consultadas pelo importador. Inglês oficial na Nova Zelândia e curdo nacional na Síria atualizados. Auditoria em DATA_SOURCES.md; 182 testes aprovados com Chrome real e nova comparação remota dos indicadores sem divergências.
+
+As melhorias de exploração e estudo foram implementadas localmente nesta rodada. Instalação e novas funcionalidades offline foram adiadas pelo usuário. O estado atual está em IMPROVEMENTS.md e na seção de melhorias de outubro do README; as listas e contagens históricas abaixo descrevem rodadas anteriores.
+
+Novos módulos: src/learning.js (validação, fusão, retenção e apresentação dos históricos), src/country-tools.js (comparação, links e exportação), src/features.css (estilos e impressão). Todos estão integrados ao build e aos orçamentos. Progresso usa esquema 3 e migra dados anteriores; o backend aceita o mesmo envelope JSON, sem nova tabela. A migração supabase/migrations/202610010001_impede_regressao_esquema.sql deve ser aplicada antes da publicação para impedir que clientes antigos sobrescrevam históricos v3; foi preparada, mas não executada. Backups v3 não são compatíveis com clientes antigos. A política de conta foi atualizada para informar tempo de resposta e confusões.
+
+Os históricos começam nesta versão: tempo ativo em perguntas respondidas, 200 sessões detalhadas e 1.000 confusões recentes. Tempo total permanece acumulado. Instalação/offline não receberam novos recursos. Nenhuma publicação ou alteração do Supabase real foi executada.
+
+Os cenários novos estão em tests/features.test.cjs e tests/features-browser.cjs; capturas em docs/features-review/. O teste de navegador precisa rodar com acesso ao Chrome; no ambiente restrito a conexão CDP era encerrada. A identificação do país nos cenários de revisão agora compara a pergunta inteira, para não confundir Guiné com Papua-Nova Guiné.
+
+---
+
 # Prompt de continuação — Atlas 195
 
 > Copie tudo daqui para baixo e cole como primeira mensagem numa sessão nova
@@ -485,3 +643,5 @@ gamificação.
 Dois arquivos editoriais merecem reconferência periódica, porque envelhecem em
 silêncio: `src/languages.json` (Burkina Faso, Mali, Níger) e
 `src/currencies.json` (adesões ao euro, redenominações, dolarizações).
+
+Validação final de 02/10: 191 testes com Chrome, 18 verificações de banco e 24 cenários Firefox/WebKit aprovados. Detalhes e limites no início de TEST_REPORT.md.

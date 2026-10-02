@@ -647,7 +647,7 @@ select {
 }
 
 .map-heading-title {
-  color: var(--muted-2);
+  color: var(--muted);
   font-family: var(--mono);
   font-size: 10px;
   font-weight: 500;
@@ -1740,6 +1740,7 @@ label.btn:focus-within {
 .row[aria-current="location"] {
   border-color: var(--line);
   background: var(--seg-active);
+  color: var(--seg-active-ink);
 }
 
 .row img {

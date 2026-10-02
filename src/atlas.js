@@ -14,6 +14,7 @@
     const { Core, state, ui, map, data } = deps;
     const { countries, byId, territoriesByCountry, indicatorMeta, families } = data;
     const { create: el, clear, flagImage, formatArea, formatList, announce } = ui;
+    const tools = globalThis.AtlasCountryTools.create({ Core, countries, byId, ui, indicatorMeta, territories: data.territories, editorialMeta: data.editorialMeta });
     const getProgress = deps.getProgress;
     const onPractice = deps.onPractice;
 
@@ -21,10 +22,18 @@
     // subregiões em que ele se divide. É a mesma lista do filtro de treino.
     const AREAS = Core.studyAreasOf(countries);
     const SORTED = countries.slice().sort((a, b) => a.n.localeCompare(b.n, 'pt-BR'));
+    let filterSignature = null;
     let elements = null;
     let searchTimer = 0;
+    const mobileLayout = matchMedia('(max-width: 820px)');
+    function arrangeResults() {
+      if (!elements) return;
+      const { detail, results } = elements;
+      ui.panel().insertBefore(mobileLayout.matches ? results : detail, mobileLayout.matches ? detail : results);
+    }
+    mobileLayout.addEventListener('change', arrangeResults);
 
-    function detach() { elements = null; }
+    function detach() { elements = null; filterSignature = null; clearTimeout(searchTimer); }
     function territoriesOf(id) { return territoriesByCountry.get(id) || []; }
 
     function matchedTerritory(country, query) {
@@ -57,7 +66,7 @@
     }
 
     function facetCopy(facet) {
-      return `com ${facet.label} como ${facet.kind === 'idioma' ? 'idioma oficial' : 'moeda'}`;
+      return `com ${facet.label} como ${facet.kind === 'idioma' ? 'idioma listado na ficha' : 'moeda'}`;
     }
 
     function showFacet(kind, value, label) {
@@ -149,10 +158,11 @@
       } });
       const areas = el('div', { className: 'atlas-areas', attrs: { role: 'group', 'aria-label': 'Filtrar por área' } });
       const detail = el('section', { className: 'atlas-detail', attrs: { 'aria-live': 'polite', 'aria-label': 'País selecionado' } });
-      const count = el('p', { className: 'count', attrs: { tabindex: '-1' } });
+      const count = el('summary', { className: 'count', attrs: { tabindex: '0' } });
+      const results = el('details', { className: 'atlas-results', attrs: { open: '' } });
       const facet = el('button', { className: 'btn ghost atlas-facet', type: 'button', text: 'Limpar filtro' });
       facet.addEventListener('click', clearFacet);
-      const list = el('div', { className: 'list', attrs: { 'aria-label': 'Resultados da busca' } });
+      const list = el('div', { className: 'list', attrs: { role: 'group', 'aria-label': 'Resultados da busca' } });
       const more = el('button', { className: 'btn ghost wide', text: 'Mostrar mais países', type: 'button' });
       search.addEventListener('input', () => {
         state.atlasQuery = search.value;
@@ -161,20 +171,47 @@
         searchTimer = setTimeout(renderList, 120);
       });
       more.addEventListener('click', () => { state.atlasLimit += 60; renderList(); });
-      ui.panel().append(search, areas, detail, count, facet, list, more);
-      elements = { search, areas, detail, count, facet, list, more };
+      const orderRow = el('div', { className: 'atlas-order' });
+      const order = el('select', { id: 'atlasOrder' });
+      [['name', 'Nome (A–Z)'], ['area', 'Maior área'], ['population', 'Maior população']].forEach(([value, label]) =>
+        order.append(el('option', { text: label, attrs: { value } })));
+      order.value = state.atlasOrder || 'name';
+      order.addEventListener('change', () => { state.atlasOrder = order.value; state.atlasLimit = 60; renderList(); });
+      orderRow.append(el('label', { text: 'Ordenar por', attrs: { for: 'atlasOrder' } }), order);
+      results.append(count, facet, list, more);
+      ui.panel().append(search, areas, orderRow, detail, results);
+      elements = { search, areas, detail, count, facet, list, more, results };
+      arrangeResults();
+      search.setAttribute('enterkeyhint', 'search');
+      search.setAttribute('autocapitalize', 'none');
+      search.setAttribute('spellcheck', 'false');
+      search.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && matches().length === 1) {
+          event.preventDefault(); search.blur();
+          const country = matches()[0]; select(country.id, true, matchedTerritory(country, Core.normalizeText(search.value)));
+        }
+      });
       renderAreas();
       renderDetail();
       renderList();
-      map.clearMarks();
-      map.mark(state.atlasSelected, 'on');
-      map.reticle(state.atlasSelected);
     }
 
     function renderDetail() {
       if (!elements) return;
       const country = byId[state.atlasSelected] || countries[0];
       clear(elements.detail);
+      if (mobileLayout.matches) {
+        const back = el('button', { className: 'btn ghost wide', type: 'button', text: 'Voltar à busca e aos países' });
+        back.addEventListener('click', () => {
+          elements.results.open = true;
+          elements.search.focus({ preventScroll: true });
+          elements.search.scrollIntoView({ block: 'start', behavior: 'instant' });
+        });
+        elements.detail.append(back);
+        const locate = el('button', { className: 'btn ghost wide', type: 'button', text: 'Ver este país no mapa', attrs: { 'data-show-country-map': country.id } });
+        locate.addEventListener('click', () => { map.reveal(); map.fitCountry(country.id); });
+        elements.detail.append(locate);
+      }
       const idiomas = Array.isArray(country.idiomas) ? country.idiomas : [];
       const moedas = Array.isArray(country.moedas) ? country.moedas : [];
       const copy = el('div', { className: 'atlas-detail-copy' }, [el('h3', { text: country.n, attrs: { tabindex: '-1' } })]);
@@ -199,7 +236,7 @@
       if (idiomas.length) {
         copy.append(linkLine('idiomas', idiomas.length === 1 ? 'Idioma' : 'Idiomas', idiomas.map((idioma) => ({
           text: idioma, go: () => showFacet('idioma', idioma, idioma),
-          label: `${idioma}: ver os países com este idioma oficial`,
+          label: `${idioma}: ver os países com este idioma listado na ficha`,
         }))));
         if (country.idiomasNota) copy.append(el('p', { className: 'note', text: country.idiomasNota }));
       }
@@ -267,6 +304,8 @@
         className: 'source-note',
         text: `Indicadores: ${bancoMundial.fonte} (${bancoMundial.licenca}). Área florestal: ${fao.fonte} (${fao.licenca}). IDH: ${idh.fonte}.`,
       }));
+      tools.append(elements.detail, country);
+      tools.appendSources(elements.detail, country);
       territoriesOf(country.id).forEach((territory) => {
         elements.detail.append(territoryCard(country, territory));
       });
@@ -342,9 +381,24 @@
       return card;
     }
 
+    function syncFilterMap(found = matches(), fit = true) {
+      const active = Boolean(state.atlasArea || state.atlasFacet || state.atlasQuery.trim());
+      const signature = active ? found.map(c => c.id).sort().join(',') : '';
+      map.clearMarks();
+      if (active) found.forEach(c => map.mark(c.id, 'filtered'));
+      map.mark(state.atlasSelected, 'on'); map.reticle(state.atlasSelected);
+      if (fit && signature !== filterSignature) {
+        if (active && found.length) map.fitArea(found);
+        else if (!active || !found.length) map.reset();
+      }
+      filterSignature = signature;
+    }
+
     function renderList() {
       if (!elements) return;
-      const found = matches();
+      elements.results.open = true;
+      const found = matches().sort((a, b) => globalThis.AtlasCountryTools.compareCountries(a, b, state.atlasOrder));
+      syncFilterMap(found);
       const visible = found.slice(0, state.atlasLimit);
       clear(elements.list);
       elements.count.textContent = `${found.length} ${found.length === 1 ? 'resultado' : 'resultados'}`
@@ -374,19 +428,34 @@
           : 'Nenhum país, capital, região, idioma ou moeda corresponde à busca.' }));
     }
 
+    function compare(id, otherId) {
+      tools.compareWith(otherId);
+      select(id, true);
+      elements?.detail.querySelector('.atlas-comparison summary')?.focus();
+    }
+
     function select(id, fit = false, territory = null) {
       if (!byId[id]) return;
       const focused = territory && territory.of === id ? territory : null;
       state.atlasSelected = id;
+      const fragment = new URLSearchParams(location.hash.slice(1));
+      if (!fragment.has('access_token') && !fragment.has('refresh_token') && !fragment.has('error')) {
+        history.replaceState(null, '', location.pathname + location.search + '#pais=' + id);
+      }
       map.setCursor(id, false);
-      map.clearMarks();
-      map.mark(id, 'on');
+      syncFilterMap(matches(), false);
       map.reticle(id, focused ? map.territoryPoint(focused) : null);
       if (fit) {
         if (focused) map.fitTerritory(focused);
         else map.fitCountry(id);
       }
       renderDetail();
+      if (mobileLayout.matches && elements) {
+        elements.results.open = false;
+        const title = elements.detail.querySelector('h3');
+        title?.focus({ preventScroll: true });
+        elements.detail.scrollIntoView({ block: 'start', behavior: 'instant' });
+      }
       if (elements) elements.list.querySelectorAll('[data-country]').forEach((row) => {
         if (row.dataset.country === id) row.setAttribute('aria-current', 'true');
         else row.removeAttribute('aria-current');
@@ -400,7 +469,7 @@
         : `${byId[id].n}. Capital ${byId[id].cap}. ${byId[id].sr}.`);
     }
 
-    return Object.freeze({ render, renderDetail, renderList, select, detach });
+    return Object.freeze({ render, renderDetail, renderList, select, compare, detach });
   }
 
   const api = { create };

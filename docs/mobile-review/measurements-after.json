@@ -1,0 +1,312 @@
+[
+  {
+    "width": 320,
+    "height": 568,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [],
+    "fields": [],
+    "first": 333.703125,
+    "score": 458
+  },
+  {
+    "width": 320,
+    "height": 568,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "16px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 320,
+    "height": 568,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "16px"
+      },
+      {
+        "id": "somVolume",
+        "size": "16px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "16px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "16px"
+      },
+      {
+        "id": "contaApelido",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 360,
+    "height": 640,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [],
+    "fields": [],
+    "first": 306.46875,
+    "score": 528
+  },
+  {
+    "width": 360,
+    "height": 640,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "16px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 360,
+    "height": 640,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "16px"
+      },
+      {
+        "id": "somVolume",
+        "size": "16px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "16px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "16px"
+      },
+      {
+        "id": "contaApelido",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [],
+    "fields": [],
+    "first": 306.46875,
+    "score": 528
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "16px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "16px"
+      },
+      {
+        "id": "somVolume",
+        "size": "16px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "16px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "16px"
+      },
+      {
+        "id": "contaApelido",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [],
+    "fields": [],
+    "first": 348.671875,
+    "score": 351.5
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "16px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "16px"
+      },
+      {
+        "id": "somVolume",
+        "size": "16px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "16px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "16px"
+      },
+      {
+        "id": "contaApelido",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 320,
+    "height": 340,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [],
+    "fields": [],
+    "first": 303.46875,
+    "score": 230
+  },
+  {
+    "width": 320,
+    "height": 340,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "16px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 320,
+    "height": 340,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "16px"
+      },
+      {
+        "id": "somVolume",
+        "size": "16px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "16px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "16px"
+      },
+      {
+        "id": "contaApelido",
+        "size": "16px"
+      }
+    ],
+    "score": 0
+  }
+]

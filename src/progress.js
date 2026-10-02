@@ -42,7 +42,7 @@
     function masteryOverview() {
       const section = el('section', { className: 'pgroup mastery-overview', attrs: { 'aria-labelledby': 'countryMasteryTitle' } });
       section.append(el('h3', { id: 'countryMasteryTitle', text: 'Mapa de domínio' }));
-      const regions = el('div', { className: 'region-badges', attrs: { 'aria-label': 'Domínio por região' } });
+      const regions = el('div', { className: 'region-badges', attrs: { role: 'group', 'aria-label': 'Domínio por região' } });
       Core.regionsOf(countries).forEach((region) => {
         const value = ui.regionMastery(region);
         const badge = el('div', { className: `region-badge${value.complete ? ' is-complete' : ''}` });
@@ -55,19 +55,24 @@
       details.append(el('summary', { text: 'Ver os 195 países por habilidade' }));
       const legend = el('p', { className: 'mastery-legend', text: 'Bandeira · Capital · Localização' });
       const grid = el('div', { className: 'mastery-grid' });
-      SORTED.forEach((country) => {
-        const values = [families.Bandeiras, families.Capitais, families.Localização]
-          .map((directions) => Math.round(ui.familyLevel(country, directions) * 5));
-        const tile = el('button', { className: 'mastery-tile', type: 'button', attrs: {
-          title: country.n,
-          'aria-label': `${country.n}: bandeira nível ${values[0]}, capital nível ${values[1]}, localização nível ${values[2]}`,
-        } });
-        tile.append(el('b', { text: country.id }));
-        const skills = el('span', { className: 'mastery-skills', attrs: { 'aria-hidden': 'true' } });
-        values.forEach((value) => skills.append(el('i', { attrs: { 'data-level': value } })));
-        tile.append(skills);
-        tile.addEventListener('click', () => actions.openCountry(country.id));
-        grid.append(tile);
+      let populated = false;
+      details.addEventListener('toggle', () => {
+        if (!details.open || populated) return;
+        populated = true;
+        SORTED.forEach((country) => {
+          const values = [families.Bandeiras, families.Capitais, families.Localização]
+            .map((directions) => Math.round(ui.familyLevel(country, directions) * 5));
+          const tile = el('button', { className: 'mastery-tile', type: 'button', attrs: {
+            title: country.n,
+            'aria-label': `${country.n}: bandeira nível ${values[0]}, capital nível ${values[1]}, localização nível ${values[2]}`,
+          } });
+          tile.append(el('b', { text: country.id }));
+          const skills = el('span', { className: 'mastery-skills', attrs: { 'aria-hidden': 'true' } });
+          values.forEach((value) => skills.append(el('i', { attrs: { 'data-level': value } })));
+          tile.append(skills);
+          tile.addEventListener('click', () => actions.openCountry(country.id));
+          grid.append(tile);
+        });
       });
       details.append(legend, grid);
       section.append(details);
@@ -105,7 +110,7 @@
         deck.addEventListener('click', actions.startMistakeDeck);
         section.append(deck);
         const list = el('div', { className: 'weak' });
-        mistakes.slice(0, 12).forEach((item) => {
+        mistakes.forEach((item) => {
           const chip = el('button', {
             className: `chip${item.recovered ? '' : ' chip-urgent'}`, type: 'button',
             text: item.misses > 1
@@ -115,7 +120,7 @@
           chip.addEventListener('click', () => actions.startReview(item.id, item.direction));
           list.append(chip);
         });
-        section.append(list);
+        section.append(expandList(list, 'Ver todos os erros, por gravidade'));
       } else {
         section.append(el('p', { className: 'empty', text: 'Nenhum erro pendente nesta sessão.' }));
       }
@@ -236,7 +241,7 @@
     function overallStats(attempted) {
       const attempts = attempted.reduce((sum, item) => sum + item.skill.attempts, 0);
       const correct = attempted.reduce((sum, item) => sum + item.skill.correct, 0);
-      const strip = el('div', { className: 'session-result-stats overall-stats', attrs: { 'aria-label': 'Totais de todo o histórico' } });
+      const strip = el('div', { className: 'session-result-stats overall-stats', attrs: { role: 'group', 'aria-label': 'Totais de todo o histórico' } });
       strip.append(
         el('span', {}, [el('b', { text: numero(attempts) }), document.createTextNode(attempts === 1 ? ' resposta' : ' respostas')]),
         el('span', {}, [el('b', { text: attempts ? formatPercent(correct / attempts * 100) : '—' }), document.createTextNode(' de acerto')]),
@@ -245,15 +250,25 @@
       return strip;
     }
 
+    function expandList(list, label) {
+      if (list.children.length <= 12) return list;
+      const details = el('details');
+      details.append(el('summary', { text: label + ' (' + list.children.length + ')' }));
+      const rest = el('div', { className: 'weak' });
+      [...list.children].slice(12).forEach(child => rest.append(child));
+      details.append(rest);
+      return el('div', {}, [list, details]);
+    }
+
     function skillChips(items, className, empty) {
       const list = el('div', { className: 'weak' });
-      items.slice(0, 12).forEach((item) => {
+      items.forEach((item) => {
         const button = el('button', { className, type: 'button', text: `${item.country.n} · ${labels[item.direction]}` });
         button.addEventListener('click', () => actions.startReview(item.country.id, item.direction));
         list.append(button);
       });
       if (!items.length) list.append(el('p', { className: 'empty', text: empty }));
-      return list;
+      return expandList(list, 'Ver todas');
     }
 
     function sourceCard() {
@@ -313,7 +328,7 @@
         className: 'note',
         text: state.resetPending
           ? 'Conferindo os dados mais recentes antes de apagar…'
-          : 'Esta ação apaga níveis, histórico de revisão e recorde. As preferências e o apelido serão mantidos.',
+          : 'Esta ação apaga níveis, histórico de revisão, tempo de estudo, confusões e recorde. As preferências e o apelido serão mantidos.',
         attrs: state.resetPending ? { role: 'status', 'aria-live': 'polite', tabindex: '-1' } : {},
       }));
       const row = el('div', { className: 'button-row' });
@@ -344,19 +359,44 @@
       const progress = getProgress();
       const attempted = actions.attempted();
       const now = Date.now();
-      const due = attempted.filter((item) => item.skill.nextReviewAt && Date.parse(item.skill.nextReviewAt) <= now);
+      const due = attempted.filter((item) => item.skill.nextReviewAt && Date.parse(item.skill.nextReviewAt) <= now)
+        .sort((a, b) => Date.parse(a.skill.nextReviewAt) - Date.parse(b.skill.nextReviewAt));
       const attemptedCountries = new Set(attempted.map((item) => item.country.id));
       const mastered = countries.filter((country) => DIRECTIONS.every((direction) => Core.levelOf(progress, country.id, direction) === Core.MAX_LEVEL)).length;
       panel.append(el('div', { className: 'plate' }, [
         el('span', { text: 'Progresso validado' }), el('span', { text: `esquema v${Core.SCHEMA_VERSION}` }),
       ]));
       panel.append(el('h2', { id: 'progressTitle', className: 'panel-title', text: 'Seu aprendizado', attrs: { tabindex: '-1' } }));
-      panel.append(el('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
+      panel.append(el('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${countries.length - attemptedCountries.size} ainda não estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
+      const fresh = actions.fresh();
+      const pending = actions.pending();
+      const recommended = Study.recommendation({ pending, fresh, mistakes: actions.mistakes() });
+      const next = el('section', { className: 'source-card next-study', attrs: { 'aria-labelledby': 'nextStudyTitle' } });
+      next.append(el('h3', { id: 'nextStudyTitle', text: 'Seu próximo passo' }),
+        el('p', { text: recommended.text }));
+      const begin = el('button', { id: 'recommendedTraining', className: 'btn wide', type: 'button', text: recommended.title,
+        attrs: { 'data-recommendation': recommended.kind } });
+      begin.addEventListener('click', () => {
+        if (recommended.kind === 'due') actions.startDue();
+        else if (recommended.kind === 'mistakes') actions.startMistakeDeck();
+        else if (recommended.kind === 'fresh') actions.startFresh();
+        else actions.startDaily(state.dailySize || 10);
+      });
+      next.append(begin); panel.append(next);
       panel.append(overallStats(attempted));
 
       renderSessionSummary(panel);
-      Study.card(panel, actions.startDaily, state.dailySize || 10, (size) => { state.dailySize = size; actions.savePreferences(); });
       Study.note(panel, actions.nextReview());
+      const otherTraining = el('details', { className: 'pgroup', attrs: { 'data-other-training': '' } });
+      otherTraining.append(el('summary', { text: 'Escolher outro treino' }));
+      Study.card(otherTraining, actions.startDaily, state.dailySize || 10, (size) => { state.dailySize = size; actions.savePreferences(); });
+      const newButton = el('button', { id: 'freshTraining', className: 'btn', type: 'button', text: 'Treinar somente novidades', attrs: { disabled: fresh.length ? null : '' } });
+      newButton.addEventListener('click', actions.startFresh);
+      otherTraining.append(newButton);
+      Study.note(otherTraining, fresh.length + ' habilidades ainda não praticadas nestes filtros. Lotes de até 30 perguntas.');
+      panel.append(otherTraining);
+      Core.Learning.panel(panel, progress, { el, byId, labels, practicePair: actions.practicePair, comparePair: actions.comparePair });
+      Study.shortcuts(panel);
 
       // O treino livre é infinito, o que serve para revisar mas não para medir.
       // A prova fecha uma série e dá uma nota, respeitando o modo e a área de
@@ -388,11 +428,11 @@
 
       const review = el('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'reviewTitle' } });
       review.append(el('h3', { id: 'reviewTitle', text: 'Revisões recomendadas' }));
-      const pending = actions.pending();
       const reviewAll = el('button', { id: 'dueTraining', className: 'btn', type: 'button', text: 'Revisar somente pendências', attrs: { disabled: pending.length ? null : '' } });
       reviewAll.addEventListener('click', actions.startDue);
       review.append(reviewAll);
       Study.note(review, `${pending.length} habilidades vencidas no modo e na área selecionados. Lotes de até 30 perguntas, das mais antigas às mais recentes; ao terminar, você pode continuar com as próximas.`);
+      Study.note(review, 'Lista geral: revisões mais antigas primeiro, independentemente dos filtros de treino.');
       review.append(skillChips(due, 'chip hot', attempted.length
         ? 'Tudo revisado por enquanto. Novas revisões aparecerão na data adequada.'
         : 'Responda algumas perguntas para criar seu primeiro ciclo de revisão.'));
@@ -402,6 +442,7 @@
         .sort((a, b) => a.skill.level - b.skill.level || a.skill.correct / a.skill.attempts - b.skill.correct / b.skill.attempts);
       const weakSection = el('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'weakTitle' } });
       weakSection.append(el('h3', { id: 'weakTitle', text: 'Pontos para reforçar' }));
+      Study.note(weakSection, 'Lista geral: menor nível primeiro; em empate, menor proporção de acertos.');
       weakSection.append(skillChips(weakItems, 'chip', attempted.length
         ? 'Nenhuma habilidade fraca registrada.' : 'Ainda não há histórico suficiente para apontar dificuldades.'));
       panel.append(weakSection);
@@ -412,6 +453,16 @@
       account.render(panel);
       renderBackup(panel);
       panel.append(sourceCard(), resetZone());
+      // Conserva títulos e controles; detalhes secundários deixam de competir
+      // com o treino recomendado. Foco de conta/backup permanece visível.
+      for (const [id, title] of [['historyTitle', 'Evolução e histórico de estudo'], ['examTitle', 'Fazer uma prova'],
+        ['masteryTitle', 'Domínio por habilidade'], ['reviewTitle', 'Ver todas as revisões'], ['weakTitle', 'Ver pontos para reforçar']]) {
+        const section = panel.querySelector('#' + id)?.parentElement;
+        if (!section) continue;
+        const details = el('details', { className: 'pgroup progress-details', attrs: { 'data-progress-details': id } });
+        details.append(el('summary', { text: title }));
+        section.replaceWith(details); details.append(section);
+      }
       if (accountFocus) {
         const restored = document.getElementById(accountFocus.id)
           || (accountFocus.id === 'retomarConta' && document.getElementById('contaApelido'));

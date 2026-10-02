@@ -1,70 +1,70 @@
-# Sugestões novas — somente para avaliação
+# Estado das melhorias — 01/10/2026
 
-Atualizado em 16 de setembro de 2026. Da lista anterior, **os fatos derivados de
-fronteira foram implementados** (`Core.derivedFacts` agora rende "um dos 39 países
-sem fronteira terrestre", "um dos 17 países com um único vizinho" e "entre os
-países com mais vizinhos do mundo, 14"). Duas foram **descartadas por decisão
-sua** e não voltam nesta lista: a busca do Atlas aceitar o código ISO e o domínio
-por subregião na aba Progresso. As marcadas *(da lista anterior)* continuam de pé;
-as demais são novas, levantadas lendo o código à procura de dado embarcado que
-ainda não rende nada na tela.
+O usuário autorizou as melhorias restantes e adiou instalação e disponibilidade offline.
 
-Em 28 de setembro de 2026 a resposta digitada saiu do app: o Atlas passou a
-responder só por escolha. Com ela saíram duas sugestões que dependiam dela:
-explicar o erro catalogado de quem digita "Inglaterra" e a pergunta de capital
-entre quatro capitais, que é como toda pergunta de capital funciona agora.
+| Melhoria | Estado |
+| --- | --- |
+| Integrar filtros e mapa | Implementada: destaque, enquadramento e limpeza |
+| Convite para instalar | Adiado pelo usuário |
+| Aviso de disponibilidade offline | Adiado pelo usuário |
+| Painel de atalhos | Implementado, com instrução compartilhada com o mapa |
+| Lote só de novidades e países não estudados | Implementado, com retomada e continuação |
+| Listas completas de pendências e dificuldades | Implementadas com expansão e ordem explícita |
+| Ordenação do Atlas | Implementada por nome, área e população |
+| Comparar países | Implementado com indicadores datados e ausências explícitas |
+| Link direto da ficha | Implementado, separado do fragmento de autenticação |
+| Impressão da ficha | Implementada, incluindo a comparação quando aberta |
+| Exportação da ficha | Implementada em texto, com notas, territórios e fontes |
+| Duração das sessões | Implementada como tempo ativo de resposta; ver limites no README |
+| Histórico de confusões | Implementado e incluído no backup e na conta opcional |
+| Aviso de atualização no modo Foco | Corrigido |
+| Atualização automática em momento seguro | Implementada após encerrar o treino e confirmar a gravação |
 
-Ainda em 28 de setembro, a pedido seu, **as três primeiras foram implementadas**:
-a ficha do Atlas mostra as notas da capital, os vizinhos, idiomas e moedas
-viraram links e há "Outro nome" e "Nome anterior". A lista foi renumerada.
+## Verificações externas
 
-Nada do que sobrou aqui foi pedido nem implementado. A ordem considera benefício para quem
-joga, esforço e risco. Não inclui inglês, fichas para terras fora dos 195 nem
-qualquer forma de gamificação.
+Login por e-mail e sincronização com contas reais, matriz de navegadores/aparelhos físicos e alto contraste real do Windows continuam sendo verificações de ambiente. As simulações automatizadas não substituem esses ensaios. Instalação da PWA fica fora do escopo atual.
 
-## Antes de implementar qualquer uma
+## Decisões anteriores preservadas
 
-A aba Progresso saiu de `app.js` para `src/progress.js` em 28/09/2026, e o app
-principal voltou a ter folga (81,8%). Quem aperta agora é `src/styles.css`, em
-96,6%, e `src/core.js`, em 90,1%: uma sugestão que traga regra visual nova
-provavelmente precisa antes separar um bloco do CSS. Atlas (83,9%) e Progresso
-(83,7%) têm orçamento próprio e cabem as sugestões que moram neles.
+Não propor novamente busca por código ISO, domínio por subregião no Progresso, tradução para inglês, fichas para terras fora dos 195, digitação de respostas ou gamificação.
 
-| Ordem | Sugestão | Por que faz sentido neste código | Decisão e custo a avaliar |
-| --- | --- | --- | --- |
-| 1 | O filtro de área mexer no mapa | Clicar em "Sudeste Asiático" filtra a lista e deixa o mapa-múndi exatamente como estava. As duas metades da aba Atlas não conversam, embora o mapa já saiba enquadrar (`fitCountry`) e pintar. | Enquadrar a área e destacar seus países ao ativar o filtro. O mesmo valeria para o filtro de idioma e moeda que nasce na ficha: hoje a lista mostra os 27 países de língua francesa e o mapa não pinta nenhum. Precisa de um `fitArea` e cuidado com o alto contraste (regra nova no bloco do fim do CSS). Esforço médio. |
-| 2 | Convite para instalar o app *(da lista anterior)* | O Atlas é uma PWA completa e nunca oferece instalação: o navegador guarda o evento `beforeinstallprompt` e o app o descarta. É por isso que "instalação efetiva da PWA" está pendente de verificação há três rodadas, sem ninguém conseguir exercitá-la. | Guardar o evento e mostrar um botão discreto na aba Progresso, que some quando o app já está instalado. Não muda o que sai do aparelho. Esforço baixo; destrava uma verificação parada. |
-| 3 | Avisar quando o app ficou pronto para usar sem internet | O worker avisa a aba quando existe **versão nova** (`versao-nova` → `showUpdateNotice`), mas nada avisa quando o app terminou de baixar pela primeira vez. A promessa "funciona sem internet" está no texto da loja e no `<meta>`, e o app nunca a confirma — quem entra no avião não tem como saber se deu certo. | Reaproveitar o canal de mensagens que já existe entre o worker e a página. Esforço baixo. |
-| 4 | Painel de atalhos de teclado *(da lista anterior)* | O app é inteiramente navegável por teclado — 1 a 4 respondem, Enter e Espaço avançam, no mapa há setas, Home/End, inicial, Enter, mais, menos e zero — e nada disso está escrito fora do texto para leitor de tela. Quem usa teclado por necessidade descobre por acaso. | Um bloco recolhível na aba Progresso, alimentado por uma lista única que também vira o texto do leitor de tela, para os dois nunca divergirem. Esforço baixo. |
-| 5 | Lote só de novidades, e quantos países faltam ver | "Revisar somente pendências" provou o formato. Falta o simétrico: o treino de hoje reserva 20% para novidades, mas não existe botão para atacar só o que nunca foi visto, nem lugar que diga quantos países ainda não foram tocados — o cabeçalho conta os estudados e nunca o complemento. | Um `freshPlan` ao lado do `duePlan` que já existe em `src/study.js`, e um número no cabeçalho. Esforço baixo. |
-| 6 | Ver a lista inteira de pendências e de pontos fracos | As duas listas da aba Progresso cortam em 12 (`due.slice(0, 12)`). Com 195 países e sete habilidades, quem estuda há semanas vê uma janelinha e não tem como saber o que ficou de fora nem por que aqueles doze. | Um "ver todas" que expande, com a ordem dita em palavras. Esforço baixo. |
-| 7 | Ordenar a lista do Atlas | A lista sai sempre em ordem alfabética. Ordenar por área ou por população transformaria o Atlas em ferramenta de comparação sem fazer indicador virar pergunta — que é a linha que o projeto não cruza. | Um seletor de ordem em `renderList`. Decidir o que fazer com quem não tem o dado (Vaticano não tem população). Esforço baixo. |
-| 8 | Comparar dois países lado a lado no Atlas *(da lista anterior)* | Os cartões de comparação do veredito do erro serviriam para uma comparação escolhida pela pessoa, que é como se estuda "qual é maior" sem transformar indicador em pergunta. | Reaproveita `.comparison-card`; precisa de um segundo seletor de país e de decidir o que comparar. Esforço médio. |
-| 9 | Link direto para um país | Hoje o endereço nunca muda: o `#` só é usado pelo link mágico da conta, que o lê e o apaga. Não dá para mandar a ficha do Paraguai para alguém, nem voltar nela amanhã pelo favorito. | Um `#pais=PY` lido na abertura. Precisa conviver com o token da conta, que também mora no `#`. Esforço médio, e mexe em como o app trata o endereço — vale conferir se não vira rastro do que se estuda. |
-| 10 | Folha de impressão da ficha | Não existe `@media print` no CSS. Imprimir ou salvar em PDF a ficha de um país sai com barra, botões e mapa no meio. Para quem estuda no papel, é o caminho mais curto entre o app e o caderno. | Um bloco de impressão pequeno, sem JavaScript. Esbarra no teto do `styles.css` (96,6%): provavelmente exige extrair um bloco antes. Esforço baixo, obstáculo de orçamento. |
-| 11 | Exportar a ficha de um país *(da lista anterior)* | Quem estuda quer levar a ficha para fora do app; hoje só copiando à mão. | Sem dependência: `canvas` ou cópia estruturada para a área de transferência. Decidir o que fazer com a bandeira embutida. Esforço médio. Se a 10 entrar, talvez cubra parte disto. |
-| 12 | Registrar a duração das sessões *(da lista anterior)* | O app mostra tempo por resposta, mas não quanto tempo de estudo se acumulou — o número que mais motiva quem estuda com regularidade. | Exige campo novo no progresso, o que toca validação, migração, fusão e sincronização. É o mesmo cuidado que manteve `struggleFactor` derivado em vez de gravado. Esforço alto para o benefício. |
-| 13 | Guardar o motivo do erro, não só o erro | `confusionReason` já classifica cada erro na hora — vizinho, mesma fronteira, nome parecido, mesma região — e a classificação morre quando a tela sai. Saber que você troca Eslováquia por Eslovênia há três semanas é outro tipo de informação, e ela existiria de graça. | Mesmo custo da 12: campo novo no progresso, com migração e fusão. Além disso, guarda mais sobre quem estuda do que o app guarda hoje — decisão de privacidade, não só de código. Esforço alto. |
+## Manutenção dos dados
 
-## Verificações pendentes, não sugestões
+Idiomas, moedas e fronteiras exigem revisão editorial periódica. Além da checagem local de idade, `npm run audit:sources` consulta as fontes oficiais e produz relatórios de valores, anos, ausências e versões. O CI executa a auditoria no agendamento mensal existente e por disparo manual, mantendo o relatório como artefato; mudanças e falhas de consulta sinalizam atenção sem alterar o conteúdo automaticamente.
 
-A instalação efetiva da PWA em janela independente nunca foi exercitada, porque o
-Chrome de teste não expõe o comando de instalação e o app não oferece o convite.
-A sugestão 2 é o caminho para destravar isso.
+## Três melhorias adicionais — 01/10/2026
 
-O alto contraste do sistema está corrigido e medido num Chrome real com a media
-query emulada, e um teste em `tests/theme.test.cjs` recolhe os destaques do mapa
-direto do `app.js`, de modo que um destaque novo sem regra de alto contraste
-quebra a suíte. Ainda assim, uma conferência num Windows com alto contraste de
-verdade continua valendo: a emulação liga a media query, mas quem troca a paleta
-no fim é o sistema operacional.
+- Auditoria remota de indicadores, novas edições do IDH, bandeiras, cartografia e lista ISO 4217, com relatório Markdown e JSON em `reports/`.
+- Fichas com seis links de fonte, definições, ano de referência e data de consulta; links e definições também acompanham a exportação em texto.
+- Histórico de confusões com comparação direta dos dois países e treino de seis perguntas alternando o par. A habilidade registrada é priorizada quando compatível com a preferência sem visual; perguntas de localização usam o mapa. O outro país aparece nas alternativas das perguntas de escolha. A série oferece retomada e repetição.
 
-## Dados editoriais que envelhecem em silêncio
+## Checkup mobile — 01/10/2026
 
-Nenhum deles é resposta de pergunta, então um dado defasado erra uma linha da
-ficha, não a correção de um exercício.
+Implementados: navegação inferior persistente, alvos de toque maiores, seletores de 16 px, resultados do Atlas antes da ficha no celular, lista recolhível, retorno à busca e acesso ao mapa, Enter para busca com um único resultado, enunciado junto do mapa e rolagem orientada ao feedback/próxima pergunta. Cobertura de toque, arraste, pinça, retrato, paisagem e altura reduzida adicionada ao smoke test. Instalação e novos recursos offline continuam fora do escopo.
 
-- `src/languages.json`: Burkina Faso, Mali e Níger mudaram de regime linguístico entre 2023 e 2025.
-- `src/currencies.json`: adesões ao euro, redenominações e dolarizações.
-- `src/borders.json`: 313 pares escritos à mão. Agora eles também alimentam os fatos da ficha, então um par a mais ou a menos muda a frase de quem está no topo — o teste em `tests/indicators.test.cjs` confere a contagem, mas não confere a geografia.
-- `data/indicators.json`: IDH com três anos de defasagem; `npm run data:freshness` avisa.
+## Evolução e desempenho — 02/10/2026
+
+Implementados resumo de acertos entre sessões por habilidade, migração preservando histórico anterior, listas e grade de domínio criadas sob demanda, benchmark com histórico cheio e CPU reduzida e expansão de testes de teclado/foco e acessibilidade em listas abertas. Validação remota da conta adiada pelo usuário. As outras sugestões (timeout de rede, proveniência editorial detalhada e nova divisão de app.js) continuam propostas, não implementadas nesta etapa.
+
+## Clareza e procedência — 02/10/2026
+
+Recomendação principal em Progresso e detalhes recolhíveis implementados. Explicações com capitais pareadas/sublinhadas, subregiões e duas bandeiras documentadas; módulo feedback.js extraído. Fontes editoriais por trecho e exportação implementadas; códigos de moeda cobrem 195/195 países, idiomas e capitais seguem com documentação individual parcial (audit:editorial). Roteiro humano atualizado; avaliação real com jogadores pendente.
+
+## Continuação de 02/10/2026
+
+Navegação e enquadramento do mapa separados em módulos próprios, com orçamentos.
+Registro editorial validado no build; cobertura ampliada para trechos de idiomas
+de 11 países e capitais de 10. Nota do romanche corrigida para explicitar o uso
+federal. 201 testes locais passaram. Seguem pendentes a cobertura editorial
+completa, a observação de jogadores reais e a separação restante dos gestos e
+regras de sessão.
+
+## Documentação dos demais países — 02/10/2026
+
+Concluída a cobertura de referências individuais de idiomas e capitais: 195/195
+em ambos os campos, com documento consolidado em docs/editorial-195.md.
+O aviso de referência histórica aparece na ficha e exportação. Restam a revisão
+atual de fontes exclusivamente históricas (68 países em idiomas, 92 em capitais),
+a fundamentação específica de outras notas e dos nomes traduzidos de moedas.
+203 testes e os cenários de navegador passaram. A documentação completa de
+referências não equivale à certificação atual de todas as afirmações.

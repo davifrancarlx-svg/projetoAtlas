@@ -1,6 +1,6 @@
 # Atlas 195
 
-Aplicação educacional offline para praticar bandeiras, capitais e localização de 193 Estados-membros da ONU, da Santa Sé e do Estado da Palestina.
+Aplicação educacional para praticar bandeiras, capitais e localização de 193 Estados-membros da ONU, da Santa Sé e do Estado da Palestina.
 
 O treino combina sete direções independentes (bandeira ↔ país, capital ↔ país, mapa ↔ país e país → região), sempre respondidas por escolha entre alternativas (ou apontando no mapa), tempo por pergunta opcional, revisão espaçada e reforço das habilidades mais fracas. O Atlas é navegável por teclado, aceita pular questões visuais sem penalidade e mantém o progresso no dispositivo, com conta opcional para sincronizar.
 
@@ -22,9 +22,9 @@ O treino combina sete direções independentes (bandeira ↔ país, capital ↔ 
 
 ## Atlas
 
-A ficha de cada país traz a silhueta na forma real (sem a deformação do mapa-múndi), **outros nomes** e **nome anterior** quando existem ("Outro nome: Eswatini", "Nome anterior: Suazilândia (até 2018)"), capital com as **mesmas notas do veredito do erro** (as três capitais da África do Sul, a sede de governo do Benin, o nome antigo da capital do Cazaquistão), subregião, área, idiomas oficiais, **moeda** com o código ISO ("Moeda: real (BRL)"), **fronteiras terrestres** ("Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres"), os seis indicadores oficiais com o ano de cada um e os destaques derivados. Vizinhos, idiomas e moedas são clicáveis: o vizinho abre a própria ficha, e o idioma ou a moeda lista os países que os compartilham, comparando o valor exato ("turco" não traz o Turcomenistão, "EUR" não traz a Europa inteira). O filtro soma com a busca e com a área e sai pelo botão **Limpar filtro**. Ela também mostra **o seu domínio** daquele país por habilidade (bandeira, capital, localização, região, com nível e revisão vencida) e um botão **Praticar** que abre uma série com todas as direções desse país.
+A ficha de cada país traz a silhueta na forma real (sem a deformação do mapa-múndi), **outros nomes** e **nome anterior** quando existem ("Outro nome: Eswatini", "Nome anterior: Suazilândia (até 2018)"), capital com as **mesmas notas do veredito do erro** (as três capitais da África do Sul, a sede de governo do Benin, o nome antigo da capital do Cazaquistão), subregião, área, idiomas listados com notas sobre seu estatuto, **moeda** com o código ISO ("Moeda: real (BRL)"), **fronteiras terrestres** ("Fronteiras terrestres (10): Argentina, Bolívia, …" ou "Sem fronteiras terrestres"), os seis indicadores oficiais com o ano de cada um e os destaques derivados. Vizinhos, idiomas e moedas são clicáveis: o vizinho abre a própria ficha, e o idioma ou a moeda lista os países que os compartilham, comparando o valor exato ("turco" não traz o Turcomenistão, "EUR" não traz a Europa inteira). O filtro soma com a busca e com a área e sai pelo botão **Limpar filtro**. Ela também mostra **o seu domínio** daquele país por habilidade (bandeira, capital, localização, região, com nível e revisão vencida) e um botão **Praticar** que abre uma série com todas as direções desse país.
 
-A busca aceita país, capital, região, subregião, território, **idioma** e **moeda**: "francês" lista quem o tem como oficial, "euro" e "EUR" listam quem o usa. Ao lado dela, um **filtro por área**: os seis baldes amplos em fila e, quando um deles é escolhido, as subregiões dele logo abaixo. Tocar de novo no filtro ativo devolve o mundo inteiro.
+A busca aceita país, capital, região, subregião, território, **idioma** e **moeda**: "francês" lista quem o tem na ficha, "euro" e "EUR" listam quem o usa. Ao lado dela, um **filtro por área**: os seis baldes amplos em fila e, quando um deles é escolhido, as subregiões dele logo abaixo. Tocar de novo no filtro ativo devolve o mundo inteiro.
 
 ## Progresso
 
@@ -57,6 +57,29 @@ Quatro estilos mudam só o timbre, nunca as notas nem os tempos, para "acertei" 
 Não há música de fundo, tique-taque, sons de navegação nem aumento de volume por sequência. Ao ocultar a aba ou desligar o som, a reprodução é interrompida.
 
 Os sons são sintetizados localmente pela Web Audio API, sem downloads, arquivos de áudio no app ou dependências. Funcionam offline após a interação necessária para o navegador liberar áudio. Se o áudio não estiver disponível, o treino continua funcionando. `src/audio.js` contém síntese, preferência, controle e o painel da aba Progresso; as amostras em `docs/audio-samples/` são apenas para revisão e não entram no build.
+
+## Melhorias de 1º de outubro de 2026
+
+Instalação e novas funcionalidades de disponibilidade offline estão fora desta rodada, por decisão do usuário. A infraestrutura que já existia não foi expandida.
+
+- Os filtros do Atlas (área, idioma, moeda e busca) destacam os resultados com contorno tracejado e enquadram seus aglomerados principais. Limpar os filtros restaura a visão mundial. Selecionar uma ficha ainda permite aproximar um país individualmente.
+- A lista pode ser ordenada por nome, maior área ou maior população; valores ausentes ficam no fim, com desempate por nome.
+- A ficha oferece comparação entre dois países, com capital, área, idiomas, moedas, fronteiras e os seis indicadores com seus anos. Ausências e diferenças de ano ficam explícitas.
+- **Copiar link da ficha** produz um endereço com #pais=BR, por exemplo. Abrir esse endereço seleciona e enquadra o país. O fragmento de autenticação continua reservado à conta, e o link compartilhado não inclui tokens nem parâmetros de consulta.
+- **Imprimir / PDF** usa um layout próprio para a ficha, incluindo bandeira e silhueta. **Exportar ficha (.txt)** baixa os dados, notas, territórios e fontes em texto; não inclui progresso pessoal.
+- Progresso mostra quantos países ainda não foram estudados. **Treinar somente novidades** usa exclusivamente habilidades sem tentativas, respeita os filtros e oferece lotes de até 30, retomada e continuação.
+- Revisões e dificuldades mostram os primeiros 12 itens e oferecem expansão para todos; a ordem está explicada. Os atalhos do teclado têm um painel recolhível e alimentam também as instruções acessíveis do mapa.
+- O aviso de versão nova permanece visível no modo Foco. Depois de encerrar o treino, sem série/revisão ativa ou edição de campo, a atualização pode recarregar automaticamente após confirmar a gravação local. Durante exercícios permanece o botão manual.
+
+### Histórico e compatibilidade
+
+O envelope de progresso usa agora o **esquema 4**, com migração dos esquemas anteriores. A chave local permanece atlas195:v2 para encontrar os dados existentes. Backups novos exigem esta versão ou posterior; versões antigas do app não entendem o esquema 4. Antes de publicar, aplique supabase/migrations/202610010001_impede_regressao_esquema.sql: ela bloqueia gravações que rebaixem o esquema de uma linha existente. Clientes antigos mantêm seu progresso local, mas precisam atualizar a página para voltar a sincronizar. A migração foi preparada, não aplicada nesta rodada.
+
+O tempo contabiliza apenas as perguntas respondidas a partir desta versão, excluindo períodos com a aba oculta ou em outra aba do Atlas. É tempo ativo de resposta, não uma estimativa retroativa. Uma nova visita inicia uma sessão. Guardam-se detalhes das 200 sessões mais recentes e das 1.000 escolhas incorretas identificáveis; o tempo acumulado continua incluindo sessões mais antigas. Confusões são agrupadas por país esperado, escolhido, habilidade e motivo. Erros de região e expirações não identificam outro país e não entram nessa lista.
+
+Os históricos seguem o mesmo backup, sincronização opcional e limite de reset do restante do progresso. Contadores por instalação são fundidos pelo máximo; sessões e erros têm identificadores próprios para não duplicar reenvios. Apagar o progresso apaga também estes históricos. Não há nova chamada de rede nem novo serviço. A política de conta explica os dados adicionais.
+
+Os módulos src/learning.js e src/country-tools.js isolam o histórico e as ferramentas de ficha; src/features.css contém seus estilos e a impressão, com orçamentos próprios. Nenhuma dependência foi adicionada.
 
 ## Desenvolvimento
 
@@ -118,7 +141,7 @@ As bandeiras usam a coleção flag-icons 7.5.0 sob licença MIT. O progresso pos
 
 **Sem conta, nada sai.** Sem entrar, o Atlas não faz nenhuma requisição de rede — nem para o backend, nem para qualquer outro lugar. É verificável: a política de segurança do artefato autoriza exatamente uma origem em `connect-src`, a do backend de contas, e nada dispara pedido sem sessão iniciada. Todo o resto (mapa, bandeiras, fontes) vem embutido no próprio arquivo.
 
-**Com conta, são enviados ao Supabase:** o e-mail usado para entrar, o apelido (se você cadastrar) e o seu progresso — países, níveis, datas de revisão e recorde. Isso é derivado das suas respostas. Não há anúncio, rastreio, analytics nem terceiro envolvido; a conta existe só para levar o progresso a outro aparelho.
+**Com conta, são enviados ao Supabase:** o e-mail usado para entrar, o apelido (se você cadastrar) e o seu progresso — países, níveis, datas de revisão, recorde, tempo ativo respondendo e histórico de confusões entre países. Isso é derivado das suas respostas. Não há anúncio, rastreio, analytics nem terceiro envolvido; a conta existe só para levar o progresso a outro aparelho.
 
 A conta é sempre opcional e nunca aparece na frente de quem quer treinar: ela vive num cartão da aba Progresso. Aberto direto do disco, o cartão nem existe. O aparelho continua sendo o dono do progresso — a conta é uma cópia que sincroniza, e o que decide conflito é o mesmo `Core.mergeProgress` que já reconcilia duas abas abertas, fundindo os dois lados em vez de escolher um. Se a rede cair ou o serviço sair do ar, aparece um aviso discreto e o treino continua igual.
 
@@ -137,3 +160,52 @@ Com conta, são enviados ao Supabase o e-mail usado para entrar, o progresso e, 
 O perfil é consultado ao reabrir uma sessão e ao usar “Sincronizar agora”. Entre edições em aparelhos diferentes, prevalece a última gravação aceita pelo servidor. Salvar requer conexão; uma falha mantém o texto em edição para nova tentativa enquanto a página continuar aberta, sem impedir o treino ou a sincronização do progresso.
 
 Enquanto o magic link confirma a identidade, o cartão informa o carregamento e permite sair. Uma falha oferece nova tentativa; editar o apelido só aparece depois da confirmação. O envio do link preserva o e-mail digitado e o foco, inclusive quando a rede falha.
+
+## Auditoria das fontes e treino de confusões
+
+Execute `npm run audit:sources` para consultar os indicadores oficiais, versões de bandeiras e cartografia, a lista ISO 4217 e novas edições do IDH. O comando escreve `reports/source-audit.md` e `.json`, sem alterar dados educacionais. Retorna 0 sem mudanças, 1 com mudanças e 2 com falha de consulta. O workflow existente executa essa consulta mensalmente e por disparo manual, publicando o relatório no resumo e nos artefatos do CI. A configuração passa a valer quando enviada ao repositório; nenhum serviço remoto foi alterado nesta implementação. Não depende da abertura do site por usuários.
+
+Revise cada diferença antes de importar: `npm run indicators` atualiza as séries; versões de mapas e bandeiras permanecem fixadas até revisão. A referência da SIX fica em `data/source-audit-baseline.json` e só deve mudar após revisar o novo arquivo. Idiomas e capitais continuam exigindo análise editorial. A verificação local `data:freshness` permanece disponível sem rede.
+
+Nas fichas, abra “Fontes e definições dos indicadores” para consultar a origem, o significado, o ano de referência e a data da coleta. Os links abrem uma nova aba e não são consultados automaticamente. A exportação de ficha inclui os endereços e as definições.
+
+Em Progresso → Histórico de estudo → Confusões recorrentes, “Comparar os dois” abre a comparação pronta e “Treinar este par” inicia seis perguntas sobre os dois países. O treino alterna o par, prioriza a habilidade da confusão, inclui capitais como reforço e mantém o outro país nas alternativas de escolha. Respeita a preferência sem visual; localização é exercitada no mapa, sem perguntas de fronteira que mudariam a resposta esperada. O treino específico usa os países escolhidos independentemente do filtro regional, registra o progresso normalmente e pode ser retomado após recarga.
+
+## Experiência no celular
+
+As seções Treinar, Atlas e Progresso ficam numa barra inferior em telas de até 820 px. A barra respeita a área segura do aparelho e desaparece no modo Foco. Botões pequenos do Atlas e links de idioma, moeda e fronteira têm alvos de pelo menos 44 px em telas pequenas ou com ponteiro de toque; campos e seletores usam 16 px.
+
+No Atlas móvel, os resultados aparecem antes da ficha, em uma lista recolhível. Selecionar um país recolhe a lista e leva à ficha. A ficha oferece retorno à busca e acesso ao mapa. Buscar um único resultado e pressionar Enter também abre a ficha. No treino, a próxima pergunta leva ao enunciado ou ao mapa necessário; o retorno após responder prioriza a explicação. Perguntas respondidas no mapa mostram o enunciado junto dele.
+
+O cenário `tests/mobile-checkup-browser.cjs` verifica telas de 320×568, 360×640, 390×844, 844×390 e 320×340, sem transbordamento horizontal, campos legíveis, alvos de toque, navegação, busca, ficha, mapa, resposta e avanço. Usa eventos de toque do Chrome, incluindo arraste e pinça sem resposta acidental. Capturas e medições estão em `docs/mobile-review/`. A janela de altura reduzida verifica falta de espaço, mas não substitui testes com teclado virtual, Safari/iOS ou aparelhos físicos.
+
+## Validação ampliada
+
+A suíte opcional em [qa/README.md](qa/README.md) verifica migrações em banco
+descartável, Firefox, WebKit e acessibilidade automática. Suas dependências são
+exclusivas dos testes. O [roteiro de avaliação](docs/validacao-com-jogadores.md)
+cobre aparelhos físicos, jogadores iniciantes e contas reais; não há ambiente
+de teste remoto ou contas de teste confirmados nesta sessão.
+
+## Evolução entre sessões — 02/10/2026
+
+Progresso compara acertos nas duas sessões mais recentes de cada habilidade: capitais, bandeiras, localização e regiões. Cada lado precisa de ao menos cinco respostas. A comparação mostra acertos/total e diferença em pontos percentuais; não equivale a domínio, pois países e dificuldade podem mudar. A sessão atual é atualizada enquanto você joga.
+
+Acertos por habilidade começam nesta versão. Históricos v2/v3 migram sem inventar acertos anteriores; duração, confusões e revisões são preservadas. O esquema 4 participa do backup e da sincronização. A proteção SQL já preparada também impede v4→v3; sua implantação remota foi adiada.
+
+Listas de sessões, confusões e os 195 botões de domínio são montados ao abrir os respectivos painéis. A medição reproduzível em qa/performance.cjs usa CPU reduzida e dados fictícios, sem representar um aparelho real.
+
+## Próximo passo e explicações — 02/10/2026
+
+Progresso destaca um treino recomendado e recolhe opções secundárias. A escolha respeita pendências nos filtros atuais; depois considera erros da sessão, novidades e treino de hoje. As explicações associam cada capital ao seu país e sublinham diferenças de escrita. Bandeiras da Austrália/Nova Zelândia têm descrição verificada; outros pares recebem orientação visual. A lógica vive em src/feedback.js.
+
+As fichas e a exportação incluem fontes editoriais por trecho, com data e escopo. Os 142 códigos ISO de moeda foram conferidos na SIX para os 195 países; nomes traduzidos e notas de uso não são validados por essa consulta. Fontes individuais de idiomas e capitais cobrem os 195 países; parte depende de arquivos históricos identificados. npm run audit:editorial gera o relatório e a [documentação por país](docs/editorial-195.md).
+
+A navegação de abas e recolhimento vive em src/navigation.js; zoom, enquadramento,
+coordenadas e pan vivem em src/map-viewport.js. Os módulos usam o mesmo estado do
+mapa para preservar a seleção por toque. O build valida o registro de fontes
+editoriais com scripts/editorial-metadata.cjs. audit:editorial registra referências para idiomas e capitais dos 195 países, em
+02/10/2026. Idiomas de 68 países e capitais de 92 têm apenas fonte histórica.
+Textos legais identificam a versão; consulta não equivale a vigência atual.
+O snapshot em data/editorial-reference-audit.json registra revisão, hashes e
+artigos consultados. npm run check exige cobertura completa desses dois campos.

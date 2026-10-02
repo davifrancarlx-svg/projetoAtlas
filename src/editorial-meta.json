@@ -1,0 +1,3966 @@
+{
+  "countries": {
+    "AU": {
+      "flag": {
+        "description": "Cinco estrelas brancas formam o Cruzeiro do Sul; uma estrela branca maior fica abaixo da Union Jack.",
+        "source": "Governo da Austrália — Australian National Flag",
+        "url": "https://www.pmc.gov.au/resources/australian-symbols-booklet/national-symbols/australian-national-flag",
+        "checked": "2026-10-02"
+      },
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/as.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Canberra — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/as.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "NZ": {
+      "flag": {
+        "description": "Quatro estrelas vermelhas com bordas brancas aparecem à direita; não há uma estrela grande abaixo da Union Jack.",
+        "source": "Ministério da Cultura da Nova Zelândia",
+        "url": "https://www.mch.govt.nz/our-work/flags-anthems-and-emblems/new-zealand-flag",
+        "checked": "2026-10-02"
+      },
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Inglês: estatuto oficial",
+          "source": "English Language Act 2026, seção 5",
+          "url": "https://www.legislation.govt.nz/act/public/2026/49/en/latest/",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Maori e língua de sinais: estatuto oficial",
+          "source": "Governo da Nova Zelândia",
+          "url": "https://www.govt.nz/browse/history-culture-and-heritage/maori-language-culture-and-heritage/revitalising-te-reo-maori/",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Wellington — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nz.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "IE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Irlandês e inglês: estatuto constitucional",
+          "source": "Constituição da Irlanda, artigo 8",
+          "url": "https://www.irishstatutebook.ie/eli/cons/en/html",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Dublin — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ei.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "US": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Inglês: designação por ordem executiva",
+          "source": "Ordem executiva 14224",
+          "url": "https://www.govinfo.gov/app/details/DCPD-202500315",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Washington, D.C. — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/us.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "ZA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Língua de sinais sul-africana: reconhecimento constitucional",
+          "source": "Constitution Eighteenth Amendment Act 3 of 2023",
+          "url": "https://www.gov.za/documents/constitutional-amendments/constitution-eighteenth-amendment-act-3-2023-english-sesotho-27",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Pretória, Cidade do Cabo e Bloemfontein: funções de cada capital",
+          "source": "Governo da África do Sul",
+          "url": "https://www.gov.za/about-sa/south-africas-provinces",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sf.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Pretória — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sf.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "BR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Português: idioma oficial da República",
+          "source": "Constituição brasileira, artigo 13",
+          "url": "https://www.planalto.gov.br/ccivil_03/constituicao/constituicaocompilado.htm",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Brasília: capital federal",
+          "source": "Constituição brasileira, artigo 18, § 1º",
+          "url": "https://www4.planalto.gov.br/legislacao/legis-federal/constituicao",
+          "checked": "2026-10-02"
+        }
+      ]
+    },
+    "PT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Português: língua oficial",
+          "source": "Constituição portuguesa, artigo 11, nº 3",
+          "url": "https://www.parlamento.pt/Legislacao/Paginas/ConstituicaoRepublicaPortuguesa.aspx",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Lisboa — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/po.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "FR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Francês: língua da República",
+          "source": "Constituição francesa, artigo 2 — Légifrance",
+          "url": "https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000006527453",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Paris — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fr.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "ES": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Castelhano: língua oficial do Estado; cooficialidade regional conforme os estatutos",
+          "source": "Constituição espanhola, artigo 3 — BOE",
+          "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1978-31229",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Madrid: capital do Estado",
+          "source": "Constituição espanhola, artigo 5 — BOE",
+          "url": "https://www.boe.es/buscar/act.php?id=BOE-A-1978-31229",
+          "checked": "2026-10-02"
+        }
+      ]
+    },
+    "CA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Inglês e francês: igualdade de estatuto nas instituições federais",
+          "source": "Ministério da Justiça do Canadá — Carta, seção 16",
+          "url": "https://www.justice.gc.ca/eng/csj-sjc/rfc-dlc/ccrf-ccdl/check/art16.html",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Canada 2011 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Canada_2011?lang=en#s40",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "CH": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Alemão, francês e italiano: uso oficial federal; romanche nas relações com seus falantes",
+          "source": "Departamento Federal de Assuntos Estrangeiros da Suíça",
+          "url": "https://www.aboutswitzerland.eda.admin.ch/en/multilingualism",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Capital",
+          "scope": "Berna: cidade federal e capital de facto, sem capital de jure",
+          "source": "Departamento Federal de Assuntos Estrangeiros da Suíça",
+          "url": "https://www.aboutswitzerland.eda.admin.ch/en/political-system",
+          "checked": "2026-10-02"
+        }
+      ]
+    },
+    "NL": {
+      "sources": [
+        {
+          "field": "Capital",
+          "scope": "Amsterdã: capital; Haia: sede do governo e do parlamento",
+          "source": "União Europeia — Países Baixos",
+          "url": "https://european-union.europa.eu/principles-countries-history/eu-countries/netherlands_en",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/nl.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "MY": {
+      "sources": [
+        {
+          "field": "Capital",
+          "scope": "Putrajaya: centro administrativo e sede do primeiro-ministro",
+          "source": "Gabinete do Primeiro-Ministro da Malásia",
+          "url": "https://www.pmo.gov.my/en/perdana-putra/",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Malaysia 2025 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Malaysia_2025?lang=en#s2258",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BJ": {
+      "sources": [
+        {
+          "field": "Capital",
+          "scope": "Porto-Novo: capital e sede de instituições políticas",
+          "source": "Ministério da Descentralização do Benim",
+          "url": "https://www.decentralisation.gouv.bj/commune/62/porto-novo/",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Benin 1990 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Benin_1990?lang=en#s22",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "LK": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Cingalês e tâmil: idiomas oficiais; inglês: língua de ligação",
+          "source": "Constituição do Sri Lanka, artigo 18 — Parlamento",
+          "url": "https://www.parliament.lk/files/pdf/constitution.pdf",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Sri Lanka 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Sri_Lanka_2015?lang=en#s143",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Sri Jayawardenapura Kotte — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/ce.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "BI": {
+      "sources": [
+        {
+          "field": "Capital",
+          "scope": "Gitega: capital política; Bujumbura: capital econômica",
+          "source": "Gabinete do Primeiro-Ministro do Burundi",
+          "url": "https://primature.gov.bi/presentation-generale/",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/by.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GQ": {
+      "sources": [
+        {
+          "field": "Capital",
+          "scope": "Ciudad de la Paz: proclamação como capital em 2 de janeiro de 2026",
+          "source": "Portal oficial do governo da Guiné Equatorial",
+          "url": "https://www.guineaecuatorialpress.com/index.php/noticias/el_presidente_de_la_republica_proclama_la_ciudad_de_la_paz_como_capital_de_la_republica_de_guinea_ecuatorial_con_la_firma_de_un_decreto_ley",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ek.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "ID": {
+      "sources": [
+        {
+          "field": "Capital",
+          "scope": "Transferência de Jacarta para Nusantara depende de decreto presidencial; condição descrita pela Corte em 2026",
+          "source": "Corte Constitucional da Indonésia",
+          "url": "https://www.mkri.id/berita/waktu-pemindahan-ikn-bergantung-pada-pemberlakuan-keputusan-presiden-25031",
+          "checked": "2026-10-02"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Indonesia 2002 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Indonesia_2002?lang=en#s448",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "ML": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Línguas nacionais: estatuto oficial; francês: língua de trabalho — artigo 31",
+          "source": "Constituição de 2023 — Diário Oficial do Mali",
+          "url": "https://sgg-mali.ml/JO/2023/mali-jo-2023-20.pdf",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Mali 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mali_2023?lang=en#s105",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BF": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Artigo 35: línguas nacionais oficializadas por lei; inglês e francês como línguas de trabalho",
+          "source": "Conselho Constitucional do Burkina Faso — decisão 2024-01/CC",
+          "url": "https://www.conseil-constitutionnel.gov.bf/fileadmin/user_upload/decision_2024-01-cc_sur_la_verification_du_respect_de_la_procedure_de_revision_de_la_constitution_pour_l_adoption_de_la_loi_constituttionnlle_n___45_alt_du_30_12_03_portant_revision_de_la_constituttion.pdf",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Ouagadougou — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/uv.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "NE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Hauçá: língua nacional; inglês e francês: línguas de trabalho — artigo 12",
+          "source": "Carta da Refundação de 2025 — Refworld/ACNUR",
+          "url": "https://www.refworld.org/legal/legislation/natlegbod/2025/fr/122645",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Niamey — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ng.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "PS": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Árabe: idioma oficial — artigo 4 da Lei Básica",
+          "source": "Lei Básica palestina de 2003, com emendas",
+          "url": "https://www.palestinianbasiclaw.org/basic-law/2003-amended-basic-law",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Jerusalém Oriental: reivindicação palestina; questão de estatuto internacional",
+          "source": "Presidência palestina — declaração publicada pela ONU",
+          "url": "https://www.un.org/unispal/wp-content/uploads/2023/11/29-November-2023-unofficial-English-translation-President-Abbas-statement-on-Solidarity-day-Final.pdf",
+          "checked": "2026-10-02",
+          "kind": "institutional"
+        },
+        {
+          "field": "Capital",
+          "scope": "Jerusalém Oriental: estatuto internacional e limites não reconhecidos sem negociação",
+          "source": "Conselho de Segurança da ONU — resolução 2334 (2016)",
+          "url": "https://www.un.org/unispal/document/unsc-resolution-2334-illegality-israeli-settlements/",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "IL": {
+      "sources": [
+        {
+          "field": "Capital",
+          "scope": "Jerusalém Oriental: estatuto internacional e limites não reconhecidos sem negociação",
+          "source": "Conselho de Segurança da ONU — resolução 2334 (2016)",
+          "url": "https://www.un.org/unispal/document/unsc-resolution-2334-illegality-israeli-settlements/",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/is.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Israel 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Israel_2013?lang=en#s475",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "MM": {
+      "sources": [
+        {
+          "field": "Capital",
+          "scope": "Nay Pyi Taw: capital; prevalece sobre a convenção política de Rangum usada no arquivo norte-americano",
+          "source": "Ministério de Hotéis e Turismo de Myanmar",
+          "url": "https://tourism.gov.mm/en/regions/naypyitaw",
+          "checked": "2026-10-02",
+          "kind": "institutional"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Myanmar 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Myanmar_2015?lang=en#s3171",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "PG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Língua de sinais: reconhecimento como quarto idioma oficial em 2015",
+          "source": "Departamento de Relações Exteriores da Austrália — relatório do programa SPSN",
+          "url": "https://www.dfat.gov.au/sites/default/files/png-spsn-smpr-jan-jun-2015.pdf",
+          "checked": "2026-10-02",
+          "kind": "institutional"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/pp.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Port Moresby — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/pp.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "MX": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Espanhol e idiomas indígenas: línguas nacionais; 68 agrupamentos e 364 variantes",
+          "source": "Instituto Nacional de Línguas Indígenas do México",
+          "url": "https://site.inali.gob.mx/Micrositios/DILM2022/diversidad_linguistica.html",
+          "checked": "2026-10-02",
+          "kind": "institutional"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Mexico 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mexico_2015?lang=en#s877",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "GT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Reconhecimento de 22 idiomas maias, além de xinca, garífuna e espanhol",
+          "source": "Congresso da Guatemala",
+          "url": "https://www.congreso.gob.gt/noticias_congreso/12876/2025/",
+          "checked": "2026-10-02",
+          "kind": "institutional"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Guatemala 1993 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Guatemala_1993?lang=en#s605",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Guatemala 1993 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Guatemala_1993?lang=en#s1085",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "KG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Quirguiz: língua do Estado; russo: idioma oficial — artigo 13",
+          "source": "Gabinete de Ministros do Quirguistão — Constituição de 2021",
+          "url": "https://www.gov.kg/ru/p/constitution",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Bishkek: capital — artigo 14",
+          "source": "Gabinete de Ministros do Quirguistão — Constituição de 2021",
+          "url": "https://www.gov.kg/ru/p/constitution",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "LS": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Cinco idiomas oficiais: soto, inglês, xhosa, phuthi e língua de sinais — seção 3",
+          "source": "Diário Oficial do Lesoto — Tenth Amendment Act 2 of 2025, cópia preservada",
+          "url": "https://www.webbernew.com/uploads/Tenth%20Amendment%20to%20the%20Constitution%20Act%202%20of%202025.pdf",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Maseru — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/lt.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SY": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Curdo: reconhecimento e ensino sob o Decreto 13/2026; implementação no ano letivo 2026–2027",
+          "source": "Agência estatal síria SANA — Ministério da Educação",
+          "url": "https://sana.sy/en/syria/2338598/",
+          "checked": "2026-10-02",
+          "kind": "institutional"
+        },
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sy.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Damasco — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sy.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "LU": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Luxemburguês: língua nacional; francês, alemão e luxemburguês: uso administrativo e judicial",
+          "source": "Governo do Luxemburgo — lei linguística de 1984",
+          "url": "https://luxembourg.public.lu/en/society-and-culture/languages/languages-spoken-luxembourg.html",
+          "checked": "2026-10-02",
+          "kind": "institutional"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Luxembourg 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Luxembourg_2009?lang=en#s418",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "AF": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/af.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Cabul — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/af.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "AL": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Albania 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Albania_2016?lang=en#s85",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Albania 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Albania_2016?lang=en#s95",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "DE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional German Federal Republic 2014 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/German_Federal_Republic_2014?lang=en#s181",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "AD": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Andorra 1993 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Andorra_1993?lang=en#s22",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Andorra 1993 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Andorra_1993?lang=en#s26",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "AO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Angola 2010 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Angola_2010?lang=en#s178",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Angola 2010 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Angola_2010?lang=en#s183",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "AG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ac.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Saint John's — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ac.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Saudi Arabia 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Saudi_Arabia_2013?lang=en#s7",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Saudi Arabia 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Saudi_Arabia_2013?lang=en#s8",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "DZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Algeria 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Algeria_2020?lang=en#s34",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Algeria 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Algeria_2020?lang=en#s45",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "AR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ar.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Buenos Aires — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ar.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "AM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Armenia 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Armenia_2020?lang=en#s89",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Armenia 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Armenia_2020?lang=en#s100",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "AT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Austria 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Austria_2013?lang=en#s50",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Austria 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Austria_2013?lang=en#s27",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "AZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Azerbaijan 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Azerbaijan_2016?lang=en#s145",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Azerbaijan 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Azerbaijan_2016?lang=en#s149",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BS": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bf.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Nassau — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bf.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "BH": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Bahrain 2017 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bahrain_2017?lang=en#s25",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Manama — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ba.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "BD": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Bangladesh 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bangladesh_2018?lang=en#s18",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Bangladesh 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bangladesh_2018?lang=en#s31",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BB": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bb.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Bridgetown — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bb.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "BE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Belgium 2025 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Belgium_2025?lang=en#s8",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Belgium 2025 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Belgium_2025?lang=en#s1074",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bh.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Belmopan — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bh.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "BY": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Belarus 2004 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Belarus_2004?lang=en#s63",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Belarus 2004 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Belarus_2004?lang=en#s70",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Bolivia 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bolivia_2009?lang=en#s21",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Bolivia 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bolivia_2009?lang=en#s26",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bk.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Bosnia Herzegovina 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bosnia_Herzegovina_2009?lang=en#s21",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BW": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bc.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Gaborone — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bc.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "BN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Brunei 2006 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Brunei_2006?lang=en#s717",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Bandar Seri Begawan — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/bx.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "BG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Bulgaria 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bulgaria_2015?lang=en#s19",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Bulgaria 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bulgaria_2015?lang=en#s1190",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "BT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Bhutan 2008 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Bhutan_2008?lang=en#s21",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Thimphu — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/bt.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CV": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cv.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Cape Verde 1992 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Cape_Verde_1992?lang=en#s111",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "CM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Cameroon 2008 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Cameroon_2008?lang=en#s65",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Cameroon 2008 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Cameroon_2008?lang=en#s77",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "KH": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Cambodia 2008 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Cambodia_2008?lang=en#s18",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Cambodia 2008 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Cambodia_2008?lang=en#s20",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "QA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Qatar 2003 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Qatar_2003?lang=en#s2",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Qatar 2003 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Qatar_2003?lang=en#s4",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "KZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Kazakhstan 2026 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Kazakhstan_2026?lang=en#s58",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Kazakhstan 2026 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Kazakhstan_2026?lang=en#s22",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "TD": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cd.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Ndjamena — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cd.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CL": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ci.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Santiago — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ci.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ch.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional China 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/China_2018?lang=en#s564",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "CY": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Cyprus 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Cyprus_2013?lang=en#s38",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Nicósia — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/cy.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Colombia 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Colombia_2015?lang=en#s26",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Colombia 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Colombia_2015?lang=en#s1794",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "KM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Comoros 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Comoros_2018?lang=en#s60",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Comoros 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Comoros_2018?lang=en#s62",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "KP": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Peoples Republic of Korea 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Peoples_Republic_of_Korea_2016?lang=en#s126",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Peoples Republic of Korea 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Peoples_Republic_of_Korea_2016?lang=en#s536",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "KR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ks.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Seul — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ks.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CI": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Cote DIvoire 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Cote_DIvoire_2020?lang=en#s179",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Yamoussoukro — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/iv.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Costa Rica 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Costa_Rica_2020?lang=en#s232",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: San José — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cs.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "HR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Croatia 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Croatia_2013?lang=en#s74",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Croatia 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Croatia_2013?lang=en#s77",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "CU": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cu.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Cuba 2019 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Cuba_2019?lang=en#s35",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "DK": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/da.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Copenhague — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/da.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "DJ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Djibouti 2010 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Djibouti_2010?lang=en#s13",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Djibouti 2010 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Djibouti_2010?lang=en#s14",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "DM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/do.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Roseau — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/do.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "EG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Egypt 2019 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Egypt_2019?lang=en#s37",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Egypt 2019 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Egypt_2019?lang=en#s748",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "SV": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional El Salvador 2014 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/El_Salvador_2014?lang=en#s239",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: San Salvador — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/es.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "AE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional United Arab Emirates 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/United_Arab_Emirates_2009?lang=en#s25",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional United Arab Emirates 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/United_Arab_Emirates_2009?lang=en#s30",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "EC": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Ecuador 2021 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Ecuador_2021?lang=en#s23",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Ecuador 2021 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Ecuador_2021?lang=en#s45",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "ER": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/er.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Asmara — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/er.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SK": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Slovakia 2017 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Slovakia_2017?lang=en#s44",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Slovakia 2017 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Slovakia_2017?lang=en#s76",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "SI": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Slovenia 2021 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Slovenia_2021?lang=en#s35",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Slovenia 2021 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Slovenia_2021?lang=en#s33",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "SZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Swaziland 2005 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Swaziland_2005?lang=en#s33",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Lobamba — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wz.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "EE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Estonia 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Estonia_2015?lang=en#s22",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Tallinn — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/en.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "ET": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/et.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Ethiopia 1994 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Ethiopia_1994?lang=en#s437",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "FJ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fj.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Suva — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fj.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "PH": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Philippines 1987 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Philippines_1987?lang=en#s871",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Manila — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/rp.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "FI": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Finland 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Finland_2018?lang=en#s63",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Helsinque — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fi.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gb.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Libreville — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gb.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ga.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Banjul — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ga.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GH": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gh.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Acra — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gh.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Georgia 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Georgia_2018?lang=en#s14",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Georgia 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Georgia_2018?lang=en#s12",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "GD": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/gj.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: St. George's — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/gj.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gr.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Atenas — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gr.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GY": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/gy.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Guyana 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Guyana_2016?lang=en#s20",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "GN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gv.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Conacri — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gv.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GW": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/pu.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Guinea Bissau 1996 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Guinea_Bissau_1996?lang=en#s137",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "HT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Haiti 2012 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Haiti_2012?lang=en#s30",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Haiti 2012 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Haiti_2012?lang=en#s16",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "HN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Honduras 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Honduras_2013?lang=en#s40",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Honduras 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Honduras_2013?lang=en#s45",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "HU": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Hungary 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Hungary_2016?lang=en#s77",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Hungary 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Hungary_2016?lang=en#s63",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "YE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Yemen 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Yemen_2015?lang=en#s5",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Yemen 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Yemen_2015?lang=en#s172",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "MH": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/rm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Majuro — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/rm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SB": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/bp.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Honiara — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/bp.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "IN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional India 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/India_2023?lang=en#s3506",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Nova Délhi — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/in.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "IR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Iran 1989 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Iran_1989?lang=en#s124",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Teerã — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ir.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "IQ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Iraq 2005 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Iraq_2005?lang=en#s25",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Iraq 2005 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Iraq_2005?lang=en#s74",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "IS": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ic.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Iceland 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Iceland_2013?lang=en#s34",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "IT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/it.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Italy 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Italy_2020?lang=en#s433",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "JM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/jm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Kingston — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/jm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "JP": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ja.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Tóquio — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ja.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "JO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Jordan 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Jordan_2016?lang=en#s6",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Jordan 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Jordan_2016?lang=en#s8",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "KI": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/kr.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: South Tarawa — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/kr.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "KW": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Kuwait 1992 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Kuwait_1992?lang=en#s16",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Cidade do Kuwait — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ku.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "LA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Laos 2025 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Laos_2025?lang=en#s436",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Laos 2025 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Laos_2025?lang=en#s448",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "LV": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Latvia 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Latvia_2018?lang=en#s17",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Riga — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lg.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "LB": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Lebanon 2004 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Lebanon_2004?lang=en#s49",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Lebanon 2004 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Lebanon_2004?lang=en#s34",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "LR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/li.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Monrovia — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/li.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "LY": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ly.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Libya 2012 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Libya_2012?lang=en#s7",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "LI": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Liechtenstein 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Liechtenstein_2020?lang=en#s20",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Liechtenstein 2020 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Liechtenstein_2020?lang=en#s7",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "LT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Lithuania 2022 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Lithuania_2022?lang=en#s50",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Lithuania 2022 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Lithuania_2022?lang=en#s58",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "MK": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Macedonia 2019 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Macedonia_2019?lang=en#s30",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Macedonia 2019 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Macedonia_2019?lang=en#s28",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "MG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Madagascar 2010 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Madagascar_2010?lang=en#s44",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Madagascar 2010 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Madagascar_2010?lang=en#s46",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "MW": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mi.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Lilongwe — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mi.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "MV": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Maldives 2008 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Maldives_2008?lang=en#s38",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Maldives 2008 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Maldives_2008?lang=en#s47",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "MT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Malta 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Malta_2016?lang=en#s37",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Valeta — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mt.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "MA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Morocco 2011 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Morocco_2011?lang=en#s31",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Rabat — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mo.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "MU": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Mauritius 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mauritius_2016?lang=en#s1023",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Port Louis — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mp.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "MR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Mauritania 2012 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mauritania_2012?lang=en#s33",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Mauritania 2012 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mauritania_2012?lang=en#s35",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "FM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Palikir — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "MZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Mozambique 2007 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mozambique_2007?lang=en#s43",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Mozambique 2007 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mozambique_2007?lang=en#s2276",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "MD": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Moldova 2024 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Moldova_2024?lang=en#s76",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Moldova 2024 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Moldova_2024?lang=en#s84",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "MC": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Monaco 2002 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Monaco_2002?lang=en#s21",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Mônaco — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mn.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "MN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Mongolia 2001 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mongolia_2001?lang=en#s61",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Mongolia 2001 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Mongolia_2001?lang=en#s102",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "ME": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Montenegro 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Montenegro_2013?lang=en#s53",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Montenegro 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Montenegro_2013?lang=en#s23",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "NA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Namibia 2014 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Namibia_2014?lang=en#s39",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Namibia 2014 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Namibia_2014?lang=en#s24",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "NR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nr.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Yaren — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nr.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "NP": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Nepal 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Nepal_2016?lang=en#s34",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Nepal 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Nepal_2016?lang=en#s3217",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "NI": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Nicaragua 2014 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Nicaragua_2014?lang=en#s59",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Nicaragua 2014 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Nicaragua_2014?lang=en#s61",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "NG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Nigeria 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Nigeria_2023?lang=en#s850",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Nigeria 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Nigeria_2023?lang=en#s31",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "NO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/no.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Oslo — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/no.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "OM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/mu.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Mascate — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/mu.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "PW": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Palau 1992 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Palau_1992?lang=en#s264",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Ngerulmud — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/ps.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "PA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Panama 2004 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Panama_2004?lang=en#s18",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Cidade do Panamá — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/pm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "PK": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Pakistan 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Pakistan_2018?lang=en#s2645",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Pakistan 2018 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Pakistan_2018?lang=en#s29",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "PY": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Paraguay 2011 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Paraguay_2011?lang=en#s516",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Paraguay 2011 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Paraguay_2011?lang=en#s601",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "PE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Peru 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Peru_2023?lang=en#s265",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Peru 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Peru_2023?lang=en#s267",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "PL": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Poland 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Poland_2009?lang=en#s110",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Poland 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Poland_2009?lang=en#s123",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "KE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Kenya 2010 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Kenya_2010?lang=en#s66",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Nairobi — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ke.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "GB": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/uk.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Londres — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/uk.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CF": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ct.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Bangui — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ct.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CD": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Democratic Republic of the Congo 2011 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Democratic_Republic_of_the_Congo_2011?lang=en#s23",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Democratic Republic of the Congo 2011 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Democratic_Republic_of_the_Congo_2011?lang=en#s29",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "CG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cf.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Brazzaville — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cf.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "DO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Dominican Republic 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Dominican_Republic_2015?lang=en#s151",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Dominican Republic 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Dominican_Republic_2015?lang=en#s46",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "RO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Romania 2003 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Romania_2003?lang=en#s69",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Romania 2003 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Romania_2003?lang=en#s71",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "RW": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Rwanda 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Rwanda_2015?lang=en#s41",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Rwanda 2015 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Rwanda_2015?lang=en#s37",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "RU": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Russia 2014 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Russia_2014?lang=en#s404",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Russia 2014 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Russia_2014?lang=en#s415",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "WS": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Samoa 2025 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Samoa_2025?lang=en#s549",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Apia — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/ws.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: San Marino — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sm.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "LC": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/st.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Castries — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/st.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "KN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/sc.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Basseterre — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/sc.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "ST": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tp.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Sao Tome and Principe 2003 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Sao_Tome_and_Principe_2003?lang=en#s26",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "VC": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/vc.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Kingstown — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/vc.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SC": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Seychelles 2025 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Seychelles_2025?lang=en#s47",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Victoria — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/se.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Senegal 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Senegal_2016?lang=en#s28",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Senegal 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Senegal_2016?lang=en#s33",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "SL": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sl.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Freetown — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sl.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "RS": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Serbia 2006 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Serbia_2006?lang=en#s36",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Serbia 2006 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Serbia_2006?lang=en#s34",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "SG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Singapore 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Singapore_2016?lang=en#s1598",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Singapura — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/sn.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Somalia 2012 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Somalia_2012?lang=en#s32",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Mogadíscio — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/so.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SD": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/su.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Cartum — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/su.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SS": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional South Sudan 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/South_Sudan_2013?lang=en#s58",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional South Sudan 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/South_Sudan_2013?lang=en#s483",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "SE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sw.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Estocolmo — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sw.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "SR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ns.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Paramaribo — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ns.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "TH": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/th.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Bangkok — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/th.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "TJ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Tajikistan 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Tajikistan_2016?lang=en#s16",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Tajikistan 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Tajikistan_2016?lang=en#s22",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "TZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tz.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Dodoma — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tz.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "CZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ez.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Czech Republic 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Czech_Republic_2013?lang=en#s68",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "TL": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional East Timor 2002 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/East_Timor_2002?lang=en#s123",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Dili — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/tt.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "TG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/to.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Lomé — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/to.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "TO": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/tn.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Tonga 2025 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Tonga_2025?lang=en#s228",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "TT": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/td.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Port of Spain — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/td.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "TN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Tunisia 2022 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Tunisia_2022?lang=en#s9845924",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Túnis — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ts.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "TM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Turkmenistan 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Turkmenistan_2016?lang=en#s73",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Turkmenistan 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Turkmenistan_2016?lang=en#s79",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "TR": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Turkey 2017 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Turkey_2017?lang=en#s20",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Turkey 2017 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Turkey_2017?lang=en#s23",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "TV": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/tv.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Funafuti — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/tv.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "UA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Ukraine 2019 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Ukraine_2019?lang=en#s40",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Ukraine 2019 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Ukraine_2019?lang=en#s85",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "UG": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Uganda 2017 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Uganda_2017?lang=en#s247",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Uganda 2017 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Uganda_2017?lang=en#s241",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "UY": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/uy.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Montevidéu — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/uy.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "UZ": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Uzbekistan 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Uzbekistan_2023?lang=en#s16",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Uzbekistan 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Uzbekistan_2023?lang=en#s21",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "VU": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Vanuatu 2023 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Vanuatu_2023?lang=en#s15",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Port Vila — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nh.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "VA": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas e uso linguístico — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/vt.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Cidade do Vaticano — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/vt.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "VE": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Venezuela 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Venezuela_2009?lang=en#s24",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Venezuela 2009 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Venezuela_2009?lang=en#s52",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "VN": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Socialist Republic of Vietnam 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Socialist_Republic_of_Vietnam_2013?lang=en#s32",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Capital: disposições no texto constitucional Socialist Republic of Vietnam 2013 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Socialist_Republic_of_Vietnam_2013?lang=en#s79",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        }
+      ]
+    },
+    "ZM": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Zambia 2016 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Zambia_2016?lang=en#s3673",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Lusaka — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/za.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    },
+    "ZW": {
+      "sources": [
+        {
+          "field": "Idiomas",
+          "scope": "Idiomas: disposições no texto constitucional Zimbabwe 2021 (versão traduzida)",
+          "source": "Comparative Constitutions Project — Constitute",
+          "url": "https://www.constituteproject.org/constitution/Zimbabwe_2021?lang=en#s98",
+          "checked": "2026-10-02",
+          "kind": "legal-text"
+        },
+        {
+          "field": "Capital",
+          "scope": "Nome da capital ou sede: Harare — referência histórica",
+          "source": "CIA — World Factbook, cópia preservada por factbook.json",
+          "url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/zi.json",
+          "checked": "2026-10-02",
+          "kind": "archived-reference"
+        }
+      ]
+    }
+  }
+}

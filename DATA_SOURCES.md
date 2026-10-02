@@ -272,24 +272,35 @@ Cada número aparece **com o próprio ano**, porque as séries não andam juntas
 | Expectativa de vida | Banco Mundial, `SP.DYN.LE00.IN` | 2024 | 194/195 |
 | Densidade demográfica | Banco Mundial, `EN.POP.DNST` | 2023 | 194/195 |
 | População urbana | Banco Mundial, `SP.URB.TOTL.IN.ZS` | 2025 | 194/195 |
-| Área florestal | FAO, FAOSTAT Uso da terra (item 6646, elemento 7209) | 2024 | 192/195 |
+| Área florestal | FAO, FRA 2025, ODS 15.1.1 | 2025 | 195/195 |
 
 O IDH vem do PNUD porque **é ele quem define e calcula o índice** — qualquer
 outro site apenas republica. A área florestal vem da **FAO**, que produz o dado a
-partir da Avaliação Global dos Recursos Florestais (FRA), pelo arquivo completo do
-domínio Uso da terra do FAOSTAT (CC BY 4.0). Os demais vêm do Banco Mundial (CC BY
+partir da Avaliação Global dos Recursos Florestais (FRA), pela API de dados
+publicados do ciclo 2025 (CC BY 4.0). Os demais vêm do Banco Mundial (CC BY
 4.0), que republica as projeções da ONU numa API estável. PIB per capita e taxa de
 fecundidade foram medidos e ficaram de fora: o primeiro cobre só 181 dos 195, o
 segundo diz pouco sobre geografia.
 
 As ausências são poucas, conhecidas e explicadas na própria ficha: Coreia do
 Norte, Mônaco e Vaticano ficam sem IDH; o Vaticano fica fora de todas as séries
-do Banco Mundial, por ter cerca de 800 residentes; e o FAOSTAT não traz área
-florestal para Mônaco, Nauru e Vaticano — a ficha diz isso em vez de supor zero.
-Nenhum aparece zerado ou some da ficha. O gerador **recusa** deixar um país sem
+do Banco Mundial. A FRA 2025 publica área florestal para os 195, inclusive
+zero explícito para Mônaco, Nauru e Vaticano. Ausência nunca é convertida em zero. O gerador **recusa** deixar um país sem
 número sem explicação registrada.
 
-### Conferência de 28 de setembro de 2026
+### Conferência de 1 de outubro de 2026
+
+- **Floresta:** incorporada a [API publicada da FRA](https://fra-data.fao.org/api-docs/), [anunciada pela FAO em fevereiro de 2026](https://www.fao.org/forest-resources-assessment/resources/news/detail/timely--transparent-and-accessible--fao-s-global-forest-resources-assessment-data-platform/en). Referência 2025, cobertura de 195/195. Em relação à série FAOSTAT 2024 anterior, 120 valores existentes mudaram após arredondamento e três países ganharam valores publicados (Mônaco, Nauru e Vaticano: 0%). Todos os 195 passaram a exibir 2025. Brasil: 58,5% (2024) → 58,2% (2025).
+- A consulta usa `/api/explorer/data` (somente dados publicados), tabela `sustainableDevelopment15_1_1`, variável `forestAreaProportionLandArea2015`, coluna 2025. Apesar do sufixo histórico do identificador, o ano é o da coluna. A porcentagem é fornecida pela FAO; o importador confere sua consistência com `forestArea / totalLandArea` da tabela `extentOfForest`, distingue zero de ausência e interrompe a atualização diante de inconsistências. Trata-se da proporção da **área terrestre**, não da área total com águas interiores, nem de toda cobertura arbórea.
+- URL completa, ciclo, data de coleta e SHA-256 estão em `data/indicators.json`. A data de coleta não é apresentada como data de publicação. O ciclo fica fixado em 2025 para evitar migrar silenciosamente para outra metodologia; revisões publicadas dentro desse ciclo são consultadas novamente por `npm run indicators`.
+- **Nova Zelândia:** inglês incluído como oficial, ao lado de maori e língua de sinais neozelandesa. O [English Language Act 2026, seções 2 e 5](https://www.legislation.govt.nz/act/public/2026/49/en/latest/) entrou em vigor em 7/8/2026. A nota anterior dizia incorretamente que nunca havia sido declarado oficial por lei.
+- **Síria:** acrescentada nota sobre o curdo como língua nacional, conforme o [Decreto 13/2026, artigo 3, publicado pela SANA](https://sana.sy/en/politics/2290787/). O reconhecimento nacional não foi confundido com cooficialidade; árabe permanece na lista de línguas oficiais.
+- **Indicadores mantidos:** nova consulta integral ao PNUD, Banco Mundial e FAOSTAT confirmou os valores anteriores antes da migração florestal. O [catálogo do PNUD](https://hdr.undp.org/data-center/documentation-and-downloads) continua oferecendo HDR 2025 (IDH 2023). População 2025, vida 2024, densidade 2023 e urbanização 2025 foram mantidas. A nota sobre ausência do Vaticano no Banco Mundial foi simplificada, retirando a alegação não documentada de um limite populacional.
+- **Versões mantidas:** [Natural Earth](https://api.github.com/repos/nvkelso/natural-earth-vector/tags?per_page=5) v5.1.2 e [flag-icons](https://registry.npmjs.org/flag-icons/latest) 7.5.0 continuam sendo as versões mais recentes nos catálogos consultados. A [lista ISO 4217 da SIX](https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml) ainda tem publicação em 17/9/2026; SHA-256 `33139b438657d1cee116ba737807ea71d19d6de4b90f799a09c56f0cc6a1b0ff`. Nenhuma mudança adicional de moeda foi identificada.
+
+Esta conferência combina comparação automatizada das séries e versões com revisão dirigida de alterações institucionais recentes. Não equivale a uma nova auditoria jurídica de todas as línguas e capitais dos 195 países.
+
+### Conferência histórica de 28 de setembro de 2026
 
 Cada fonte foi comparada com a edição mais recente de quem produz o dado, não só
 com quem o republica:
@@ -357,3 +368,74 @@ O cartão de conta permite cadastrar, editar e remover um apelido de até 40 car
 Com conta, são enviados ao Supabase o e-mail usado para entrar, o progresso e, se cadastrado, o apelido. O apelido fica nos dados do perfil do Supabase Auth (`user_metadata.atlas_nickname`), atualizado por `PUT /auth/v1/user`, com HTTP direto e sem SDK. Não integra o backup de progresso nem é apagado ao zerar o aprendizado. O apelido não exige alteração de tabela ou política de acesso.
 
 O perfil é consultado ao reabrir uma sessão e ao usar “Sincronizar agora”. Entre edições em aparelhos diferentes, prevalece a última gravação aceita pelo servidor. Salvar requer conexão; uma falha mantém o texto em edição para nova tentativa enquanto a página continuar aberta, sem impedir o treino ou a sincronização do progresso.
+
+## Procedência editorial por trecho — 02/10/2026
+
+Registro em src/editorial-meta.json: estatuto linguístico da Nova Zelândia ([inglês](https://www.legislation.govt.nz/act/public/2026/49/en/latest/), [maori e língua de sinais](https://www.govt.nz/browse/history-culture-and-heritage/maori-language-culture-and-heritage/revitalising-te-reo-maori/)), [Irlanda](https://www.irishstatutebook.ie/eli/cons/en/html), [EUA](https://www.govinfo.gov/app/details/DCPD-202500315) e [língua de sinais sul-africana](https://www.gov.za/documents/constitutional-amendments/constitution-eighteenth-amendment-act-3-2023-english-sesotho-27); [capitais da África do Sul](https://www.gov.za/about-sa/south-africas-provinces). A fonte comprova apenas o trecho indicado, não todas as notas da ficha.
+
+Descrições didáticas de bandeiras: [Austrália](https://www.pmc.gov.au/resources/australian-symbols-booklet/national-symbols/australian-national-flag) e [Nova Zelândia](https://www.mch.govt.nz/our-work/flags-anthems-and-emblems/new-zealand-flag). Comparação textual derivada das características publicadas, sem significado simbólico inventado.
+
+Nova consulta à [lista ISO 4217 da SIX](https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml): publicação 17/09/2026; os 142 códigos locais foram encontrados. Snapshot/hash em data/currency-code-audit.json. Esta verificação não comprova a tradução dos nomes ou notas de circulação. Cobertura individual de idiomas/capitais ainda parcial; npm run audit:editorial lista as pendências, sem atribuir datas inexistentes.
+
+### Ampliação por trecho — 02/10/2026
+
+Foram registradas 16 novas referências oficiais em src/editorial-meta.json.
+Idiomas têm trechos documentados em 11 países; capitais em 10. Incluem
+[artigos 13 e 18 da Constituição brasileira](https://www4.planalto.gov.br/legislacao/legis-federal/constituicao),
+[artigo 11 da Constituição portuguesa](https://www.parlamento.pt/Legislacao/Paginas/ConstituicaoRepublicaPortuguesa.aspx),
+[artigo 2 da Constituição francesa](https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000006527453),
+[artigos 3 e 5 da Constituição espanhola](https://www.boe.es/buscar/act.php?id=BOE-A-1978-31229),
+[seção 16 da Carta canadense](https://www.justice.gc.ca/eng/csj-sjc/rfc-dlc/ccrf-ccdl/check/art16.html)
+e [artigo 18 da Constituição do Sri Lanka](https://www.parliament.lk/files/pdf/constitution.pdf).
+As referências de capitais distinguem sede administrativa, capital política e
+capital de facto, conforme o escopo registrado. A nota suíça foi ajustada com a
+[explicação oficial de multilinguismo](https://www.aboutswitzerland.eda.admin.ch/en/multilingualism):
+as quatro línguas são nacionais, mas o romanche é oficial no nível federal nas
+relações com seus falantes.
+
+O build e o relatório de cobertura validam IDs, campos, escopo, HTTPS, datas e
+duplicatas. Referência registrada não significa revisão de todos os trechos do
+país. Nomes traduzidos de moedas e notas sem fonte individual continuam pendentes.
+
+### Documentação dos demais países — 02/10/2026
+
+A cobertura atual substitui os totais parciais acima: 399 referências de idiomas
+ou capital distribuídas pelos 195 países, em src/editorial-meta.json. O documento
+[editorial-195.md](docs/editorial-195.md) reúne o conteúdo e o escopo de cada fonte.
+Os tipos são texto legal, fonte institucional e arquivo histórico. Datas indicam
+consulta, não promulgação, atualização do dado ou certificação de vigência.
+
+O [World Factbook foi encerrado pela CIA em 2026](https://www.cia.gov/stories/story/spotlighting-the-world-factbook-as-we-bid-a-fond-farewell/).
+Usou-se a cópia independente de factbook/factbook.json na revisão fixa
+144d6977b2b01ac1cbd220de754c0a005616760b. data/editorial-reference-audit.json
+preserva os trechos públicos do arquivo e os hashes dos perfis. Uma revisão do
+repositório não data a edição de cada perfil. Palestina usa fontes próprias,
+sem equiparar o perfil territorial da Cisjordânia ao Estado.
+
+Textos do [Constitute, projeto do Comparative Constitutions Project](https://www.constituteproject.org/content/about),
+foram consultados nos artigos de idioma e capital das versões identificadas.
+São traduções e referências legais versionadas: o catálogo não garante vigência
+em outubro de 2026. O snapshot registra URL, hash e identificadores dos artigos,
+sem reproduzir o texto constitucional integral. Fontes específicas prevalecem
+sobre referências antigas em casos como Guiné Equatorial, Mali e Níger.
+
+Correções resultantes incluem os cinco idiomas de Lesoto na
+[Emenda constitucional 2/2025, publicada no Diário Oficial de 13/08/2025, cópia preservada](https://www.webbernew.com/uploads/Tenth%20Amendment%20to%20the%20Constitution%20Act%202%20of%202025.pdf),
+o russo oficial no [artigo 13 da Constituição do Quirguistão](https://www.gov.kg/ru/p/constitution),
+o albanês com o critério constitucional da Macedônia do Norte, os 22 idiomas do
+Oitavo Anexo indiano incluindo hindi e as
+[68 agrupações e 364 variantes linguísticas do México](https://site.inali.gob.mx/Micrositios/DILM2022/diversidad_linguistica.html).
+Honduras mantém Tegucigalpa no treino e explica a capital conjunta com
+Comayagüela conforme o artigo 8. Burkina Faso distingue a oficialização das
+línguas nacionais por lei e o uso de trabalho do francês e inglês.
+
+As listas podem ser representativas ou incluir idiomas de trabalho/de facto;
+os filtros e a exportação usam “idioma listado”, sem atribuir o mesmo estatuto
+a todos. Permanecem 68 países com somente arquivo histórico para idiomas e 92
+para capital. As fontes não certificam automaticamente todas as notas nem as
+grafias portuguesas. Códigos ISO têm auditoria própria; nomes de moedas e notas
+de circulação não são verificados por ela.
+
+npm run audit:editorial -- --strict exige referências nos dois campos dos 195
+países e códigos de moeda auditados; npm run check inclui essa exigência. Os
+relatórios locais e docs/editorial-195.md são regenerados pelo mesmo script.

@@ -78,7 +78,7 @@ module.exports = async (client, evaluate, until) => {
   const falamTurco = JSON.parse(await ev("JSON.stringify(DATA.filter(c => c.idiomas.includes('turco')).map(c => c.id).sort())"));
   assert.deepEqual(turco.linhas, falamTurco);
   assert.ok(!turco.linhas.includes('TM'), 'Turcomenistão não fala turco por decreto.');
-  assert.equal(turco.contagem, `${falamTurco.length} ${falamTurco.length === 1 ? 'resultado' : 'resultados'} com turco como idioma oficial`);
+  assert.equal(turco.contagem, `${falamTurco.length} ${falamTurco.length === 1 ? 'resultado' : 'resultados'} com turco como idioma listado na ficha`);
   assert.equal(turco.busca, '', 'O filtro da ficha começa do mundo inteiro.');
   assert.equal(turco.limpar, true);
   assert.equal(turco.foco, true, 'O foco vai para a contagem, que leva a lista para a vista.');
@@ -110,6 +110,8 @@ module.exports = async (client, evaluate, until) => {
   // O mapa de domínio da aba Progresso, agora num módulo próprio, continua
   // levando à ficha do país.
   await ev("document.querySelector('[data-view=prog]').click()");
+  assert.equal(await ev("document.querySelectorAll('.mastery-tile').length"), 0);
+  await ev("document.querySelector('.mastery-details summary').click()");
   await until('Progresso aberto', () => ev("Boolean(document.querySelector('.mastery-tile'))"));
   await ev("[...document.querySelectorAll('.mastery-tile')].find(b => b.title === 'Japão').click()");
   await until('ficha do Japão', () => ev("document.querySelector('.atlas-detail h3')?.textContent === 'Japão'"));

@@ -10,7 +10,7 @@ module.exports=async(client,evaluate,until)=>{
   }
   for(const theme of ['light','dark']){
     await client.send('Emulation.setDeviceMetricsOverride',{width:theme==='light'?360:1280,height:900,deviceScaleFactor:1,mobile:theme==='light'});
-    await ev(`for(let n=0;n<3&&document.documentElement.dataset.theme!=='${theme}';n++)document.getElementById('themeToggle').click();document.querySelector('[data-mode=reg]').click();document.querySelector('[data-view=prog]').click();document.getElementById('dailyTraining').focus()`);
+    await ev(`for(let n=0;n<3&&document.documentElement.dataset.theme!=='${theme}';n++)document.getElementById('themeToggle').click();document.querySelector('[data-mode=reg]').click();document.querySelector('[data-view=prog]').click();document.querySelector('[data-other-training]').open=true;document.getElementById('dailyTraining').focus()`);
     for(const type of ['keyDown','keyUp'])await client.send('Input.dispatchKeyEvent',{type,key:'Enter',code:'Enter',windowsVirtualKeyCode:13,...(type==='keyDown'?{text:'\r'}:{})});
     for(let i=0;i<10;i++){
       await until('pergunta diária',()=>ev("Boolean(document.querySelector('[data-answer]:not(:disabled)'))"));

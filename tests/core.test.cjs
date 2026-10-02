@@ -24,6 +24,7 @@ function progress() {
 test('exports the same API to CommonJS and a classic browser global', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'src', 'core.js'), 'utf8');
   const context = {};
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'src', 'learning.js'), 'utf8'), context);
   vm.runInNewContext(source, context, { filename: 'core.js' });
   assert.equal(typeof context.AtlasCore, 'object');
   assert.equal(context.AtlasCore.normalizeText('São Tomé'), 'sao tome');
@@ -59,13 +60,14 @@ test('dataset invariants detect duplicate IDs and repeated capitals', () => {
 test('new progress is a valid, versioned, sparse envelope', () => {
   const value = progress();
   assert.deepEqual(value, {
-    schemaVersion: 2,
+    schemaVersion: 4,
     generation: 0,
     epoch: '',
     revision: 0,
     updatedAt: NOW,
     bestStreak: 0,
-    countries: {}
+    countries: {},
+    learning: { devices: {}, sessions: {}, errors: {} }
   });
   assert.deepEqual(Core.validateProgress(value, { countryIds: IDS }), { valid: true, errors: [] });
   assert.equal(Core.createEnvelope(NOW).updatedAt, NOW);
@@ -114,7 +116,7 @@ test('legacy family levels migrate into independent directions and are clamped',
 
 test('current malformed envelopes are not silently migrated', () => {
   const malformed = progress();
-  malformed.schemaVersion = 2;
+  malformed.schemaVersion = Core.SCHEMA_VERSION;
   malformed.revision = -1;
   assert.throws(() => Core.migrateProgress(malformed), Core.ProgressValidationError);
 });
@@ -138,7 +140,7 @@ test('serialization is deterministic and corrupt input recovers safely', () => {
 
   const recovered = Core.deserializeProgress('{not json', { now: NOW, countryIds: IDS });
   assert.equal(recovered.recovered, true);
-  assert.equal(recovered.progress.schemaVersion, 2);
+  assert.equal(recovered.progress.schemaVersion, Core.SCHEMA_VERSION);
   assert.equal(recovered.errors.length, 1);
 });
 

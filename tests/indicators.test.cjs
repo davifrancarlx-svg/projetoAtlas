@@ -40,15 +40,14 @@ test('a origem de cada indicador está registrada e é oficial', () => {
   assert.ok(Number.isInteger(idh.ano) && idh.ano >= 2020, `Ano do IDH implausível: ${idh.ano}`);
 
   // A FAO produz a área florestal a partir da FRA; o Banco Mundial republicava
-  // uma revisão anterior. O arquivo é o do próprio FAOSTAT, com hash e a data
-  // em que a FAO o atualizou.
-  assert.match(fao.url, /^https:\/\/bulks-faostat\.fao\.org\//, 'A área florestal precisa vir do FAOSTAT.');
+  // uma revisão anterior. A API publicada da FRA traz o hash e a data de coleta.
+  assert.match(fao.url, /^https:\/\/fra-data\.fao\.org\//, 'A área florestal precisa vir da API da FRA.');
   assert.match(fao.sha256, /^[0-9a-f]{64}$/);
-  assert.match(fao.atualizado, /^\d{4}-\d{2}-\d{2}$/);
+  assert.match(fao.coletado, /^\d{4}-\d{2}-\d{2}$/);
   assert.equal(fao.licenca, 'CC BY 4.0');
   SERIES_FAO.forEach((campo) => {
     const serie = fao.indicadores[campo];
-    assert.ok(serie && serie.item && serie.elemento && serie.rotulo, `Faltou registrar a série ${campo} da FAO.`);
+    assert.ok(serie && serie.tabela && serie.variavel && serie.rotulo, `Faltou registrar a série ${campo} da FAO.`);
     assert.ok(serie.cobertura >= 190, `${campo} caiu para ${serie.cobertura}/195.`);
     assert.equal(bancoMundial.indicadores[campo], undefined, `${campo} não pode vir das duas fontes.`);
   });
@@ -95,7 +94,7 @@ test('todo país tem o dado ou a explicação de por que não tem', () => {
   const semPop = built.DATA.filter((c) => !Number.isFinite(c.pop)).map((c) => c.id).sort();
   assert.deepEqual(semPop, ['VA'], 'Mudou quem fica sem população: revise antes de aceitar.');
   const semFloresta = built.DATA.filter((c) => !Number.isFinite(c.flor)).map((c) => c.id).sort();
-  assert.deepEqual(semFloresta, ['MC', 'NR', 'VA'], 'Mudou quem fica sem área florestal: revise antes de aceitar.');
+  assert.deepEqual(semFloresta, [], 'Mudou quem fica sem área florestal: revise antes de aceitar.');
 });
 
 test('indicadores e fatos nunca viram resposta de pergunta', () => {

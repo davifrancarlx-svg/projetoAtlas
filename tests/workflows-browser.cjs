@@ -15,7 +15,7 @@ module.exports = async (client, evaluate, until) => {
     await until('app pronto para cenário independente',()=>ev("Boolean(document.querySelector('[data-answer]')) && !document.getElementById('appShell').classList.contains('is-initializing')"));
   };
   const wrong = () => ev(`(() => {
-    const c=DATA.find(c=>document.getElementById('questionTitle').textContent.includes(c.n+'?'));
+    const c=DATA.find(c=>document.getElementById('questionTitle').textContent === 'Em que região fica '+c.n+'?');
     [...document.querySelectorAll('[data-answer]')].find(b=>b.dataset.answer!==c.r).click();
   })()`);
   const daily = () => ev("document.querySelector('[data-view=prog]').click();document.getElementById('dailyTraining').click()");
@@ -43,7 +43,7 @@ module.exports = async (client, evaluate, until) => {
     await wrong();
     await ev("document.querySelector('.session-finish').click();[...document.querySelectorAll('button')].find(b=>/^Revisar /.test(b.textContent)).click()");
     for(let i=0;i<5;i++) { await wrong(); await ev("document.getElementById('nextQuestion').click()"); }
-    await ev(`(() => {const c=DATA.find(c=>document.getElementById('questionTitle').textContent.includes(c.n+'?'));
+    await ev(`(() => {const c=DATA.find(c=>document.getElementById('questionTitle').textContent === 'Em que região fica '+c.n+'?');
       [...document.querySelectorAll('[data-answer]')].find(b=>b.dataset.answer===c.r).click();})()`);
     assert.equal(await ev("localStorage.getItem('atlas195:serie:v1')"),null);
     await ev("document.getElementById('nextQuestion').click()");
