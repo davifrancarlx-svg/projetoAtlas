@@ -25,6 +25,18 @@ branch `claude/rodada-02-10`, e corrigiu no commit seguinte:
   `tests/`, `supabase/`, `qa/` ou da raiz pode ter CR ou NUL. Ele pegaria o CR
   que veio no fim de `scripts/check-editorial-coverage.cjs`.
 
+**Publicado em 02/10/2026 no release `02fa7ce9db11`**, a pedido do usuário,
+junto com a rodada da tarde de 28/09, que até então não tinha ido ao ar. Antes,
+com autorização dele, a migração `202610010001_impede_regressao_esquema.sql`
+foi aplicada no Supabase do Lovable (`wckbqklezfxfoaaiybab`): um bloco que
+termina sempre desfeito confirmou que v2 → v1 é recusado e v2 → v4 passa, e o
+único progresso gravado (73.514 caracteres, esquema 2) ficou com o mesmo md5
+e a mesma data. Só `atlas-195.html` e `sw.js` mudaram; o agente do Lovable os
+copiou byte a byte e `npm run verify:production` confere. No site, com o
+service worker limpo, o app abre no esquema 4 sem erro no console. O PR 2
+(`claude/rodada-02-10` → `main`) passou no CI, inclusive no primeiro job de
+compatibilidade Firefox/WebKit, e ficou para o usuário fazer o merge.
+
 Duas decisões continuam com o usuário: a pasta `qa/` traz dependências npm de
 desenvolvimento (contraria a regra 1 abaixo, embora nada entre no artefato), e
 o código passou a chamar os idiomas de "idioma listado na ficha" e a aceitar
