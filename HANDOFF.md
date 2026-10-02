@@ -1,3 +1,208 @@
+# Revisão da rodada do Codex — 02/10/2026
+
+O Codex trabalhou em 01 e 02/10 direto na pasta do projeto, sem commit, sobre
+a branch `claude/epic-galileo-og69d5` (a rodada da tarde de 28/09, que nunca
+tinha entrado no `main`), enquanto o git da pasta ainda apontava para o commit
+de 17/09. A revisão guardou o trabalho dele como veio, num commit próprio da
+branch `claude/rodada-02-10`, e corrigiu no commit seguinte:
+
+- **A atualização automática apagava o resumo da sessão.** Com versão nova
+  pendente, o app recarregava cerca de 10 s depois de "Encerrar", e o resumo e
+  a revisão focada dos erros, que só existem na memória da aba, sumiam
+  (reproduzido no navegador). Agora a troca acontece em "Nova sessão"
+  (`reloadForUpdate` em `src/app.js`), depois de confirmar a gravação; o
+  cenário de `tests/features-browser.cjs` confere que o resumo fica e que a
+  troca preserva o progresso.
+- **A explicação de erro de bandeira inventava elementos.** Sem descrição
+  conferida (só Austrália e Nova Zelândia têm), a frase mandava comparar
+  "faixas, símbolos e estrelas" de qualquer par, inclusive Irlanda ×
+  Madagascar. Agora só pede para comparar as duas imagens. Também não diz
+  "parecidas": as alternativas saem dos oito vizinhos de `fs`, uma estimativa
+  automática que junta, por exemplo, Kiribati e Turcomenistão.
+- Os cenários de navegador do Codex regravavam os PNGs de `docs/` a cada
+  `npm test`; agora só com `ATLAS_SAVE_EVIDENCE=1`.
+- Teste novo em `tests/build.test.cjs`: nenhum arquivo de `src/`, `scripts/`,
+  `tests/`, `supabase/`, `qa/` ou da raiz pode ter CR ou NUL. Ele pegaria o CR
+  que veio no fim de `scripts/check-editorial-coverage.cjs`.
+
+**Publicado em 02/10/2026 no release `02fa7ce9db11`**, a pedido do usuário,
+junto com a rodada da tarde de 28/09, que até então não tinha ido ao ar. Antes,
+com autorização dele, a migração `202610010001_impede_regressao_esquema.sql`
+foi aplicada no Supabase do Lovable (`wckbqklezfxfoaaiybab`): um bloco que
+termina sempre desfeito confirmou que v2 → v1 é recusado e v2 → v4 passa, e o
+único progresso gravado (73.514 caracteres, esquema 2) ficou com o mesmo md5
+e a mesma data. Só `atlas-195.html` e `sw.js` mudaram; o agente do Lovable os
+copiou byte a byte e `npm run verify:production` confere. No site, com o
+service worker limpo, o app abre no esquema 4 sem erro no console. O PR 2
+(`claude/rodada-02-10` → `main`) passou no CI, inclusive no primeiro job de
+compatibilidade Firefox/WebKit, e ficou para o usuário fazer o merge.
+
+Duas decisões continuam com o usuário: a pasta `qa/` traz dependências npm de
+desenvolvimento (contraria a regra 1 abaixo, embora nada entre no artefato), e
+o código passou a chamar os idiomas de "idioma listado na ficha" e a aceitar
+lista representativa ou de uso de facto, quando a política escolhida era
+mostrar os oficiais por lei.
+
+---
+
+# Documentação editorial dos 195 países — 02/10/2026
+
+Documentação consolidada em [docs/editorial-195.md](docs/editorial-195.md), com
+capital, notas, idiomas listados, moedas e referências individuais. O registro
+contém 399 fontes de idiomas/capitais e cobre os 195 países em ambos os campos.
+A data de consulta não certifica vigência: 68 países em idiomas e 92 em capitais
+têm apenas referência histórica. A cópia independente do Factbook usa revisão
+fixa; textos constitucionais traduzidos identificam a versão. O snapshot de
+procedência está em data/editorial-reference-audit.json. Nomes traduzidos de
+moedas e todas as notas sem fonte específica ainda exigem revisão.
+
+Corrigidos os idiomas listados de Lesoto (cinco, conforme a emenda de 2025),
+Quirguistão (russo) e Macedônia do Norte (albanês com estatuto qualificado),
+além das notas de Índia, Burkina Faso, México, Maurício e da capital de Honduras.
+Fichas, filtros e exportações distinguem idioma listado de idioma oficial nacional;
+fontes históricas exibem aviso também no arquivo exportado.
+
+Validação: **203 testes aprovados, zero falhas e zero ignorados**, com Chrome real;
+build, orçamentos, atualidade dos indicadores e auditoria editorial estrita passaram.
+Artefato: 3183,9 KiB de 3328 KiB. Passaram 24 cenários Firefox/WebKit sem violações
+automáticas detectadas, com verificações humanas inconclusivas do axe preservadas.
+Chrome 360/1280 px aprovou fontes e download da ficha com o aviso histórico.
+Ensaios locais não substituem aparelhos físicos ou avaliação com jogadores.
+Contas/Supabase, instalação e novos recursos offline continuam adiados.
+
+---
+
+# Continuação: fontes editoriais e módulos do mapa — 02/10/2026
+
+A suíte completa passou: **201 testes, zero falhas e zero ignorados**, com Chrome
+real. Build, orçamentos e verificação de atualidade dos indicadores passaram.
+O artefato tem 3065,1 KiB, abaixo do teto de 3328 KiB.
+
+Fontes para trechos de idiomas: 11/195 países; capitais: 10/195. As 16 novas
+referências cobrem Brasil, Portugal, França, Espanha, Canadá, Suíça, Países Baixos,
+Malásia, Benim, Sri Lanka, Burundi, Guiné Equatorial e Indonésia. O escopo é
+individual: a fonte de Putrajaya não certifica toda a ficha da Malásia, por exemplo.
+A nota suíça agora distingue línguas nacionais e o uso oficial federal do romanche.
+Códigos ISO continuam conferidos nos 195 países. Não há revisão completa de todas
+as notas, idiomas e nomes traduzidos de moedas.
+
+O build e audit:editorial agora rejeitam IDs desconhecidos, fontes sem escopo,
+URLs inválidas ou com credenciais, datas impossíveis e duplicatas. Essa validação
+confere o registro, não comprova a veracidade do conteúdo por si só.
+
+Extraídos src/navigation.js (abas, recolhimento do mapa e dos filtros) e
+src/map-viewport.js (escala, zoom, enquadramento, coordenadas e pan agrupado por
+frame). app.js caiu de 128,1 para 121,6 KiB. Detecção de países, gestos e regras
+do treino ainda têm código no app principal; não se trata de modularização total.
+Testes novos verificam toque após rolagem, margens do SVG, pan e limites do zoom.
+
+A avaliação com participantes reais continua pendente. Contas/Supabase,
+instalação e disponibilidade offline permanecem adiados pelo usuário.
+
+Verificações complementares desta continuação: 24 cenários Firefox/WebKit
+(360/1280 px, claro/escuro, três abas), sem violações automáticas detectadas;
+persistem verificações manuais do axe. QA de orientação em Chrome 360/1280 px
+e ensaio de desempenho com histórico volumoso e gestos de toque passaram.
+São ensaios locais de laboratório, sem validação em aparelho físico ou
+observação de participantes reais. Relatórios em reports/compatibility,
+reports/guidance e reports/performance.json (arquivos locais ignorados pelo Git).
+
+---
+
+# Clareza do progresso e explicação dos erros — 02/10/2026
+
+Resultado: **197 testes aprovados, zero falhas e zero ignorados** em npm run check
+com Chrome real; build, orçamentos e atualidade mínima dos indicadores aprovados.
+24 cenários Firefox/WebKit passaram sem violações automáticas detectadas.
+
+Progresso ganhou uma recomendação principal: pendências nos filtros atuais,
+depois revisão dos erros da sessão, novidades e treino de hoje. Demais treinos,
+histórico, prova, barras de domínio, revisões e dificuldades ficam recolhíveis.
+As ações antigas continuam disponíveis. Preferências de conta e backup continuam
+acessíveis para preservar foco e edição.
+
+Explicação dos erros: pareamento explícito capital→país, trechos distintos das
+capitais sublinhados sem modificar nomes e descrições documentadas para Austrália
+versus Nova Zelândia. Outros pares de bandeiras usam orientação visual sem
+inventar características; localização mostra subregiões reais e fronteira quando
+registrada. Lógica extraída para src/feedback.js, com testes puros; a recomendação
+fica em AtlasStudy. Não houve reestruturação completa de mapa/navegação nesta etapa.
+
+Códigos ISO 4217: consulta oficial em 02/10/2026, publicação SIX 17/09/2026,
+142 códigos locais presentes, cobrindo os 195 países. Snapshot, hash e códigos em
+data/currency-code-audit.json. Não verifica nomes traduzidos ou notas de uso.
+Fontes editoriais registradas por trecho em src/editorial-meta.json: idiomas de
+4 países, capitais da África do Sul e características de duas bandeiras. Cobertura
+individual ainda parcial: npm run audit:editorial gera lista de pendências em
+reports/editorial-coverage.md/.json. Fontes, escopo e data aparecem na ficha e na
+exportação de texto. Nenhuma data foi atribuída a itens não conferidos.
+
+Novo npm --prefix qa run test:guidance passou em 360 e 1280 px, com cliques reais:
+recomendação inicia série de novidades, erro de capital apresenta destaque e ficha
+neozelandesa revela as fontes. Capturas inspecionadas visualmente em
+reports/guidance/. Um ajuste posterior de classe fez as fontes ocupar a largura
+inteira no mobile; build, orçamento e este cenário foram repetidos e passaram.
+
+Roteiro de jogadores atualizado para observar compreensão da recomendação, dos
+erros e do escopo das fontes. Nenhum participante real foi observado. Leitores de
+tela e aparelhos físicos continuam pendentes. Etapa remota de conta permanece
+adiada pelo usuário. Nenhum commit, push, deploy ou escrita no backend.
+
+---
+
+# Evolução, desempenho e acessibilidade — 02/10/2026
+
+Implementadas as três prioridades autorizadas: evolução entre sessões, redução do trabalho ao abrir Progresso e revisão de teclado/foco. Esquema atual 4, com migração de v2/v3; acertos por habilidade só existem nas sessões novas. Comparação exige duas sessões com cinco respostas da mesma família e informa diferença em pontos percentuais sem afirmar ganho de domínio.
+
+Learning.record/merge preservam imutabilidade e ordenação determinística das métricas; backups e fusão exercitados. Listas e grade de domínio montadas por toggle, uma vez por painel. Testes de ficha e confusões agora abrem os detalhes como o jogador.
+
+Suíte completa passou com 193 testes em Chrome, sem falhas/ignorados. Banco local: 19 verificações, incluindo v4→v3 recusado pelo trigger existente. Benchmark 360×640/CPU4: 587 elementos no painel recolhido, 1.757 com a grade de domínio aberta (195 botões, 1.170 elementos adiados). Resultado em reports/performance.json. Timings são de laboratório e não INP/celular físico. CI preparado para rodar o benchmark.
+
+O usuário adiou a etapa de validação remota da conta. Não retomar essa etapa sem nova orientação. Migração segue pendente antes da publicação; nada foi enviado ou publicado. Aparelhos físicos e leitores de tela reais seguem sem validação.
+
+---
+
+# Validação de contas e acessibilidade — 02/10/2026
+
+Correções de sessão impedem renovação concorrente, reconexão após saída e aplicação
+de progresso de uma sessão anterior. Erros 429/5xx preservam o login. Saída local
+é imediata, mesmo se o servidor ainda não respondeu.
+
+O ambiente encontrado é o backend já configurado em src/cloud.json. Não há
+configuração de teste ou acesso administrativo confirmado; a consulta pública de
+autenticação respondeu 200 e uma consulta anônima de progresso sem linhas (limit=0)
+respondeu 401. Contas de teste não puderam ser confirmadas. Nenhuma escrita remota.
+
+QA adicional em qa/: PostgreSQL WASM descartável executa migrações duas vezes e
+18 verificações de isolamento, permissões, limites e versões; Firefox/WebKit,
+axe-core e cenários móveis/desktop. Dependências apenas de desenvolvimento,
+fixadas com lockfile separado, sem inclusão no artefato. Job preparado no CI.
+
+Corrigidos grupos ARIA do mapa, status e busca; contraste do título do mapa e do
+país selecionado no tema claro. Reprodução em qa/README.md; avaliação humana e
+contas reais em docs/validacao-com-jogadores.md. Continuam pendentes a migração
+remota, login por e-mail, aparelhos físicos e observação de participantes.
+
+---
+
+# Atualização prioritária — 01/10/2026
+
+Checkup mobile concluído: navegação inferior em até 820 px, alvos de toque de 44 px, campos de 16 px, busca antes da ficha e resultados recolhíveis no celular, retorno à busca e botão para o mapa, enunciado junto do mapa e rolagem para feedback/próxima pergunta. Cenário tests/mobile-checkup-browser.cjs integrado ao smoke test; pode ser executado com ATLAS_BROWSER_SCENARIO=mobile-checkup. O npm run check passou com 187 testes, sem falhas nem ignorados. Evidências e limites em TEST_REPORT.md e docs/mobile-review/.
+
+Três melhorias adicionais concluídas: `npm run audit:sources` gera relatórios Markdown/JSON com diferenças e falhas independentes; o CI mensal/manual guarda os relatórios. Fichas têm links e definições por indicador, também exportados. Confusões recorrentes permitem comparar o par e praticar seis perguntas com retomada. Validação atual: 187 testes aprovados, nenhum ignorado, com Chrome real; auditoria remota sem mudanças. A configuração do CI ainda precisa ser enviada ao repositório para executar remotamente.
+
+Nova varredura de dados concluída em 01/10/2026: área florestal agora vem da API publicada da FRA 2025, com 195/195 países. scripts/fra-data.cjs valida a porcentagem publicada contra as áreas e recusa ausências; o ciclo 2025 fica fixado e revisões dentro dele são consultadas pelo importador. Inglês oficial na Nova Zelândia e curdo nacional na Síria atualizados. Auditoria em DATA_SOURCES.md; 182 testes aprovados com Chrome real e nova comparação remota dos indicadores sem divergências.
+
+As melhorias de exploração e estudo foram implementadas localmente nesta rodada. Instalação e novas funcionalidades offline foram adiadas pelo usuário. O estado atual está em IMPROVEMENTS.md e na seção de melhorias de outubro do README; as listas e contagens históricas abaixo descrevem rodadas anteriores.
+
+Novos módulos: src/learning.js (validação, fusão, retenção e apresentação dos históricos), src/country-tools.js (comparação, links e exportação), src/features.css (estilos e impressão). Todos estão integrados ao build e aos orçamentos. Progresso usa esquema 3 e migra dados anteriores; o backend aceita o mesmo envelope JSON, sem nova tabela. A migração supabase/migrations/202610010001_impede_regressao_esquema.sql deve ser aplicada antes da publicação para impedir que clientes antigos sobrescrevam históricos v3; foi preparada, mas não executada. Backups v3 não são compatíveis com clientes antigos. A política de conta foi atualizada para informar tempo de resposta e confusões.
+
+Os históricos começam nesta versão: tempo ativo em perguntas respondidas, 200 sessões detalhadas e 1.000 confusões recentes. Tempo total permanece acumulado. Instalação/offline não receberam novos recursos. Nenhuma publicação ou alteração do Supabase real foi executada.
+
+Os cenários novos estão em tests/features.test.cjs e tests/features-browser.cjs; capturas em docs/features-review/. O teste de navegador precisa rodar com acesso ao Chrome; no ambiente restrito a conexão CDP era encerrada. A identificação do país nos cenários de revisão agora compara a pergunta inteira, para não confundir Guiné com Papua-Nova Guiné.
+
+---
+
 # Prompt de continuação — Atlas 195
 
 > Copie tudo daqui para baixo e cole como primeira mensagem numa sessão nova
@@ -33,7 +238,7 @@ npm run icons        # regera os ícones PWA (raro precisar)
 
 **Antes de qualquer coisa, leia `README.md` e `DATA_SOURCES.md`.** Os dois
 estão atualizados e documentam em detalhe: todo modo de jogo, a proveniência
-de cada fonte de dados (Natural Earth, flag-icons, PNUD, Banco Mundial), a
+de cada fonte de dados (Natural Earth, flag-icons, PNUD, Banco Mundial, FAO), a
 distinção região/subregião, as fronteiras terrestres, o esquema de
 conta/sincronização, a classificação das terras fora dos 195 e os fatos
 derivados. Este arquivo aqui é só o operacional — não repete o que já está
@@ -41,8 +246,9 @@ bem contado lá.
 
 ### Como está organizado
 
-O produto final é **um único arquivo autocontido**, `atlas-195.html` (~4,9 MB),
-com CSS, JS, mapa SVG, bandeiras e fontes embutidos. Abre direto do disco, sem
+O produto final é **um único arquivo autocontido**, `atlas-195.html` (~2,9 MB),
+com CSS, JS, mapa SVG, bandeiras e fontes embutidos. O traçado do mapa e as
+bandeiras viajam compactados sem perda (ver a rodada da tarde de 28/09). Abre direto do disco, sem
 servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
 
 - `src/core.js` — regras puras, sem DOM: validação de respostas, progresso,
@@ -54,6 +260,9 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
   sincronização). Recebe as dependências do app por injeção e é testada sem DOM.
 - `src/atlas.js` — a aba Atlas: busca, filtro por área, ficha do país e
   territórios. Saiu de `app.js` pelo mesmo motivo da conta.
+- `src/progress.js` — a aba Progresso: totais, domínio, revisões, prova,
+  backup e a conversa do recomeço. Apagar de verdade continua em `app.js`
+  (`resetAllProgress`), que é quem sabe gravar.
 - `src/sync-queue.js` — fila pequena e testável que serializa sincronizações e não perde mudanças concorrentes.
 - `src/study.js` — treino de hoje, próxima revisão e resumo de evolução.
 - `src/audio.js` — sons opcionais sintetizados (acerto, erro e fim de série),
@@ -157,11 +366,14 @@ servidor e sem internet. **Esse arquivo é gerado — nunca edite ele à mão.**
   identificadas — dependência de um dos 195 recebe a cor do soberano; área
   disputada ou sem soberania recebe cor própria e uma nota, nunca um dono.
   Nenhuma delas é resposta de pergunta.
-- **Ficha do país**: capital, subregião, área, idiomas oficiais, moeda com
-  código ISO, fronteiras terrestres, seis indicadores oficiais (com o ano de
-  cada um), fatos derivados, o domínio do jogador por habilidade e o botão
-  Praticar. A busca aceita também idioma e moeda, e há um filtro por área:
-  os seis baldes amplos e, sob o escolhido, as subregiões dele.
+- **Ficha do país**: outro nome e nome anterior (quando há), capital com as
+  mesmas notas do veredito do erro (`Core.capitalNotes`), subregião, área,
+  idiomas oficiais, moeda com código ISO, fronteiras terrestres, seis
+  indicadores oficiais (com o ano de cada um), fatos derivados, o domínio do
+  jogador por habilidade e o botão Praticar. Vizinhos abrem a própria ficha;
+  idioma e moeda filtram a lista pelo valor exato (`state.atlasFacet`). A
+  busca aceita também idioma, moeda e os outros nomes, e há um filtro por
+  área: os seis baldes amplos e, sob o escolhido, as subregiões dele.
 - **Explicação do erro**: diz de quem era a resposta escolhida (a capital
   errada é de qual país, a bandeira errada é de quem) e o motivo da confusão
   (bandeira parecida, capitais parecidas, fronteira em comum, perto no mapa,
@@ -380,6 +592,68 @@ plataforma: `@lovable.dev/vite-tanstack-config` fixado em 2.23.1 e um ajuste
 em `previewAuthStorage.ts`. Foi ao ar junto com o release `51cc13762c0f`;
 o WhatsApp pode guardar a prévia antiga do link por algum tempo.
 
+### Rodada da tarde de 28 de setembro de 2026 — não publicada
+
+Pedida pelo usuário a partir da lista de melhorias: itens 2, 3 e 5 (o 1, o
+app se atualizar sozinho e o aviso aparecer no modo Foco, ficou para depois).
+Branch `claude/epic-galileo-og69d5`, recomeçada do `main` depois do merge do
+PR 1.
+
+- **Aba Progresso em módulo próprio** (`src/progress.js`, orçamento de 26
+  KiB), no formato de `atlas.js`: recebe estado, fabricantes de elemento e
+  ações por injeção e devolve `render`. `src/app.js` foi de 142,3 para ~123
+  KiB. Mesmos textos e IDs de antes; os testes de reset, importação e revisão
+  passaram sem mudança. De carona, o comentário de `scripts/build.cjs` que
+  fala do NUL deixou de ter um NUL de verdade.
+- **Ficha do Atlas mais completa.** As notas da capital saíram de
+  `explanatoryNotes` para `Core.capitalNotes` e aparecem na ficha; vizinhos,
+  idiomas e moedas são botões com cara de link (`.ficha-link`). O filtro de
+  idioma e moeda compara o valor exato, porque a busca por texto acharia o
+  Turcomenistão em "turco" e a Europa inteira em "EUR"; soma com área e busca
+  e sai pelo botão "Limpar filtro". "Outro nome" e "Nome anterior" vêm de
+  `alsoKnownAs` e `formerNames` em `src/content-policy.json`; ver
+  `DATA_SOURCES.md`. Saíram as grafias só de digitação (Abidja, Aden,
+  Birmania). O orçamento de `atlas.js` subiu de 20 para 24 KiB. Testes novos:
+  `tests/names.test.cjs` e `tests/ficha-browser.cjs` (no smoke test).
+- **Arquivo de 5,0 para 2,9 MB, sem perda.** O traçado viaja em centésimos
+  inteiros como diferença do ponto anterior e `Core.decodePath` o abre no
+  início de `app.js`; o build recusa o artefato se algum país ou área de
+  contexto não voltar byte a byte ao path do gerador. As bandeiras vão como
+  SVG em texto em vez de base64, e as 195 foram comparadas pixel a pixel no
+  Chrome contra as antigas, sem diferença. Comprimido: gzip de 1,62 para
+  1,05 MB, brotli de 1,14 para 0,88 MB. Custo: com a CPU quatro vezes mais
+  lenta, abrir levou cerca de 70 ms a mais (mediana de ~880 para ~950 ms). A
+  simplificação do traçado, que perderia detalhe dos países pequenos, não foi
+  feita. O teto do artefato desceu de 5,25 para 3,25 MiB.
+
+174 testes com Chrome real.
+
+**Conferência das fontes de dados** (mesmo dia, a pedido do usuário: "as mais
+recentes e as mais confiáveis"). Cada dado foi comparado com a edição mais nova
+de quem o produz; a tabela completa está em `DATA_SOURCES.md` § Conferência de
+28 de setembro de 2026. O que mudou:
+
+- **Área florestal passou do Banco Mundial para a FAO** (FAOSTAT, arquivo do
+  domínio Uso da terra, atualizado em 16/09/2026, ano 2024). O Banco Mundial
+  ainda servia a revisão anterior à FRA 2025, com 78 países diferindo em mais
+  de um ponto. `scripts/update-indicators.cjs` ganhou um leitor mínimo de ZIP e
+  CSV, só com o Node; Mônaco, Nauru e Vaticano ficam com nota (`faoNota`), não
+  com zero. A ficha credita a FAO.
+- **Idiomas**: notas de EUA (ordem executiva 14224), Burkina Faso (inglês
+  também é língua de trabalho), Mali (13 línguas nacionais), Níger (Carta da
+  Refundação) e Cazaquistão (Constituição de 2026), cada uma lida na fonte.
+- **Moedas**: Butão, Lesoto e Namíbia listam também rupia indiana e rand, como
+  a ISO 4217 de 17/09/2026.
+- **Capital da Indonésia**: nota sobre Nusantara, depois da decisão da Corte
+  Constitucional de maio de 2026.
+
+Sem mudança, por já estarem na última edição: IDH (Relatório 2025), população,
+expectativa de vida e urbanização (o Banco Mundial já usa a WPP 2024 e a WUP
+2025), densidade (2023 é o último ano publicado), Natural Earth v5.1.2,
+flag-icons 7.5.0 e as 195 subregiões do M49. A API do portal de dados da ONU
+passou a exigir login (401), por isso a conferência usou os arquivos de
+download da WUP.
+
 ### Armadilha de verificação no navegador
 
 **Isso vale também para o site publicado.** Ao conferir o release
@@ -400,11 +674,13 @@ porque usa um perfil temporário a cada execução.
 
 ### Ideias registradas, não pedidas ainda
 
-`IMPROVEMENTS.md` tem dezesseis, da mais barata à mais cara, cada uma com o
-trecho de código que a justifica. As mais baratas: a ficha do Atlas mostrar as
-notas da capital (hoje elas só existem no veredito do erro), tornar a ficha
-navegável pelos vizinhos e mostrar "também conhecido como". Duas saíram junto
-com a digitação, em 28/09/2026.
+`IMPROVEMENTS.md` tem treze, da mais barata à mais cara, cada uma com o
+trecho de código que a justifica. As três primeiras da lista anterior (notas
+da capital na ficha, ficha navegável e outros nomes) foram feitas na tarde de
+28/09/2026; duas saíram junto com a digitação, no mesmo dia. Fora da lista,
+o usuário deixou para depois o app se atualizar sozinho quando não há
+pergunta em andamento e o aviso de versão nova aparecer no modo Foco, que
+hoje esconde `.app-status`.
 
 Duas foram **descartadas pelo usuário** e não devem voltar: a busca aceitar o
 código ISO e o domínio por subregião na aba Progresso. Continuam fora:
@@ -414,3 +690,5 @@ gamificação.
 Dois arquivos editoriais merecem reconferência periódica, porque envelhecem em
 silêncio: `src/languages.json` (Burkina Faso, Mali, Níger) e
 `src/currencies.json` (adesões ao euro, redenominações, dolarizações).
+
+Validação final de 02/10: 191 testes com Chrome, 18 verificações de banco e 24 cenários Firefox/WebKit aprovados. Detalhes e limites no início de TEST_REPORT.md.

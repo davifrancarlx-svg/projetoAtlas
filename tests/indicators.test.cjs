@@ -24,10 +24,14 @@ function builtData() {
   return JSON.parse(JSON.stringify(context.__D__));
 }
 const built = builtData();
-const SERIES = ['pop', 'vida', 'dens', 'urb', 'flor'];
+// A área florestal vem da FAO, que produz o dado; as outras quatro, do Banco
+// Mundial. Cada lista diz de onde a série tem de vir.
+const SERIES_BM = ['pop', 'vida', 'dens', 'urb'];
+const SERIES_FAO = ['flor'];
+const SERIES = SERIES_BM.concat(SERIES_FAO);
 
 test('a origem de cada indicador está registrada e é oficial', () => {
-  const { idh, bancoMundial } = indicators.meta;
+  const { idh, bancoMundial, fao } = indicators.meta;
 
   // O IDH é definido e calculado pelo PNUD; qualquer outra origem é republicação.
   assert.match(idh.url, /^https:\/\/hdr\.undp\.org\//, 'O IDH precisa vir do PNUD.');
@@ -35,8 +39,21 @@ test('a origem de cada indicador está registrada e é oficial', () => {
   assert.ok(idh.fonte && idh.termos);
   assert.ok(Number.isInteger(idh.ano) && idh.ano >= 2020, `Ano do IDH implausível: ${idh.ano}`);
 
+  // A FAO produz a área florestal a partir da FRA; o Banco Mundial republicava
+  // uma revisão anterior. A API publicada da FRA traz o hash e a data de coleta.
+  assert.match(fao.url, /^https:\/\/fra-data\.fao\.org\//, 'A área florestal precisa vir da API da FRA.');
+  assert.match(fao.sha256, /^[0-9a-f]{64}$/);
+  assert.match(fao.coletado, /^\d{4}-\d{2}-\d{2}$/);
+  assert.equal(fao.licenca, 'CC BY 4.0');
+  SERIES_FAO.forEach((campo) => {
+    const serie = fao.indicadores[campo];
+    assert.ok(serie && serie.tabela && serie.variavel && serie.rotulo, `Faltou registrar a série ${campo} da FAO.`);
+    assert.ok(serie.cobertura >= 190, `${campo} caiu para ${serie.cobertura}/195.`);
+    assert.equal(bancoMundial.indicadores[campo], undefined, `${campo} não pode vir das duas fontes.`);
+  });
+
   assert.equal(bancoMundial.licenca, 'CC BY 4.0');
-  SERIES.forEach((campo) => {
+  SERIES_BM.forEach((campo) => {
     const serie = bancoMundial.indicadores[campo];
     assert.ok(serie, `Faltou registrar a série ${campo}.`);
     assert.match(serie.url, /^https:\/\/api\.worldbank\.org\//, `${campo} precisa vir do Banco Mundial.`);
@@ -64,7 +81,8 @@ test('todo país tem o dado ou a explicação de por que não tem', () => {
         assert.ok(Number.isInteger(ano) && ano >= 2020, `${country.id}: ${campo} sem ano plausível.`);
       } else {
         // Sem número, a ficha precisa poder dizer por quê.
-        const explicado = campo === 'hdi' ? country.hdiNota : country.bmNota;
+        const explicado = campo === 'hdi' ? country.hdiNota
+          : SERIES_FAO.includes(campo) ? country.faoNota : country.bmNota;
         assert.ok(explicado, `${country.id}: sem ${campo} e sem explicação.`);
       }
     }
@@ -75,6 +93,8 @@ test('todo país tem o dado ou a explicação de por que não tem', () => {
   assert.deepEqual(semHdi, ['KP', 'MC', 'VA'], 'Mudou quem fica sem IDH: revise antes de aceitar.');
   const semPop = built.DATA.filter((c) => !Number.isFinite(c.pop)).map((c) => c.id).sort();
   assert.deepEqual(semPop, ['VA'], 'Mudou quem fica sem população: revise antes de aceitar.');
+  const semFloresta = built.DATA.filter((c) => !Number.isFinite(c.flor)).map((c) => c.id).sort();
+  assert.deepEqual(semFloresta, [], 'Mudou quem fica sem área florestal: revise antes de aceitar.');
 });
 
 test('indicadores e fatos nunca viram resposta de pergunta', () => {
@@ -165,10 +185,13 @@ test('a ficha mostra cada número com o ano e credita as fontes', () => {
   // caminho dentro dela continua sendo o do objeto embarcado: um campo que não
   // existe mais quebraria a ficha em execução e passaria batido se o teste
   // aceitasse o texto solto.
-  assert.match(html, /indicatorMeta\.bancoMundial\.fonte/, 'A ficha precisa creditar o Banco Mundial.');
-  assert.match(html, /indicatorMeta\.idh\.fonte/, 'A ficha precisa creditar o PNUD.');
+  assert.match(html, /const \{ bancoMundial, fao, idh \} = indicatorMeta;/, 'A ficha precisa ler a procedência do objeto embarcado.');
+  assert.match(html, /\$\{bancoMundial\.fonte\}/, 'A ficha precisa creditar o Banco Mundial.');
+  assert.match(html, /Área florestal: \$\{fao\.fonte\}/, 'A ficha precisa creditar a FAO pela área florestal.');
+  assert.match(html, /\$\{idh\.fonte\}/, 'A ficha precisa creditar o PNUD.');
   assert.match(html, /indicatorMeta: INDICATOR_META/, 'A procedência precisa chegar ao Atlas vinda do artefato.');
   assert.doesNotMatch(html, /INDICATOR_META\.populacao/, 'Referência a um campo que não existe mais.');
   assert.ok(built.INDICATOR_META && built.INDICATOR_META.idh.ano, 'O artefato precisa embarcar a procedência.');
   assert.ok(built.INDICATOR_META.bancoMundial.indicadores.vida, 'A procedência das séries precisa viajar junto.');
+  assert.ok(built.INDICATOR_META.fao.indicadores.flor, 'A procedência da área florestal precisa viajar junto.');
 });

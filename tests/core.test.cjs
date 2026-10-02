@@ -24,6 +24,7 @@ function progress() {
 test('exports the same API to CommonJS and a classic browser global', () => {
   const source = fs.readFileSync(path.join(__dirname, '..', 'src', 'core.js'), 'utf8');
   const context = {};
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '..', 'src', 'learning.js'), 'utf8'), context);
   vm.runInNewContext(source, context, { filename: 'core.js' });
   assert.equal(typeof context.AtlasCore, 'object');
   assert.equal(context.AtlasCore.normalizeText('São Tomé'), 'sao tome');
@@ -59,13 +60,14 @@ test('dataset invariants detect duplicate IDs and repeated capitals', () => {
 test('new progress is a valid, versioned, sparse envelope', () => {
   const value = progress();
   assert.deepEqual(value, {
-    schemaVersion: 2,
+    schemaVersion: 4,
     generation: 0,
     epoch: '',
     revision: 0,
     updatedAt: NOW,
     bestStreak: 0,
-    countries: {}
+    countries: {},
+    learning: { devices: {}, sessions: {}, errors: {} }
   });
   assert.deepEqual(Core.validateProgress(value, { countryIds: IDS }), { valid: true, errors: [] });
   assert.equal(Core.createEnvelope(NOW).updatedAt, NOW);
@@ -114,7 +116,7 @@ test('legacy family levels migrate into independent directions and are clamped',
 
 test('current malformed envelopes are not silently migrated', () => {
   const malformed = progress();
-  malformed.schemaVersion = 2;
+  malformed.schemaVersion = Core.SCHEMA_VERSION;
   malformed.revision = -1;
   assert.throws(() => Core.migrateProgress(malformed), Core.ProgressValidationError);
 });
@@ -138,7 +140,7 @@ test('serialization is deterministic and corrupt input recovers safely', () => {
 
   const recovered = Core.deserializeProgress('{not json', { now: NOW, countryIds: IDS });
   assert.equal(recovered.recovered, true);
-  assert.equal(recovered.progress.schemaVersion, 2);
+  assert.equal(recovered.progress.schemaVersion, Core.SCHEMA_VERSION);
   assert.equal(recovered.errors.length, 1);
 });
 
@@ -475,4 +477,17 @@ test('escolher uma subregião restringe o sorteio sem alterar o balde amplo', ()
   }
   assert.deepEqual([...amplo].sort(), ['CA', 'CU', 'GT', 'JM'], 'O balde amplo segue cobrindo as três subregiões.');
   assert.ok(ids.length === 5);
+});
+
+test('o traçado compactado volta exatamente ao path do gerador', () => {
+  // Centésimos inteiros; o primeiro ponto do anel é absoluto e os seguintes
+  // são diferenças. A formatação precisa bater com String(numero) do gerador:
+  // sem zero à direita, sem ponto quando é inteiro e com o sinal no -0,05.
+  assert.equal(Core.decodePath('-15553 9619 24-15;100 200-105 50'),
+    'M-155.53 96.19L-155.29 96.04ZM1 2L-0.05 2.5Z');
+  assert.equal(Core.decodePath('936 -7 1 3'), 'M9.36 -0.07L9.37 -0.04Z');
+  // Um path comum passa direto, e o vazio continua vazio.
+  assert.equal(Core.decodePath('M1 2L3 4Z'), 'M1 2L3 4Z');
+  assert.equal(Core.decodePath(''), '');
+  assert.equal(Core.decodePath(undefined), undefined);
 });

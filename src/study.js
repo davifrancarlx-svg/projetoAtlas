@@ -54,6 +54,41 @@
     if(!text)return;
     const p=document.createElement('p');p.className='section-copy study-summary';p.textContent=text;container.append(p);
   }
+  function recommendation({ pending = [], mistakes = [], fresh = [] }) {
+    if (pending.length) return { kind: 'due', title: 'Revisar pendências',
+      text: `${pending.length} habilidades estão vencidas nos filtros atuais. Comece pelas revisões mais antigas.` };
+    if (mistakes.length) return { kind: 'mistakes', title: 'Reforçar os erros desta sessão',
+      text: `${mistakes.length} pontos ainda precisam de revisão nesta sessão.` };
+    if (fresh.length) return { kind: 'fresh', title: 'Conhecer novos países e habilidades',
+      text: `${fresh.length} habilidades ainda não foram praticadas nos filtros atuais.` };
+    return { kind: 'daily', title: 'Fazer o treino de hoje', text: 'As revisões estão em dia nestes filtros. Faça uma série curta para continuar praticando.' };
+  }
+  const SHORTCUTS = [
+    ['1 a 4', 'Escolher uma alternativa no treino, fora de campos e botões.'],
+    ['Enter ou Espaço', 'Depois da resposta, avançar; em um botão, ativá-lo.'],
+    ['Setas', 'Com o mapa em foco, percorrer os países pela direção.'],
+    ['Inicial do país', 'Com o mapa em foco, ir ao próximo país com essa inicial.'],
+    ['Home / End', 'No mapa, ir ao primeiro / último país em ordem alfabética.'],
+    ['Enter ou Espaço no mapa', 'Selecionar o país ativo.'],
+    ['+ / −', 'No mapa, aproximar / afastar.'],
+    ['0 ou Escape', 'No mapa, restaurar a visão do mundo.'],
+  ];
+  function shortcuts(container) {
+    const details = document.createElement('details'); details.className = 'pgroup';
+    const title = document.createElement('summary'); title.textContent = 'Atalhos de teclado'; details.append(title);
+    const list = document.createElement('dl');
+    SHORTCUTS.forEach(([key, action]) => {
+      const dt = document.createElement('dt'), dd = document.createElement('dd');
+      dt.textContent = key; dd.textContent = action; list.append(dt, dd);
+    });
+    details.append(list); container.append(details);
+  }
+  function freshPlan(Core, countries, progress, directions, region) {
+    return countries.filter(c => region === 'Mundo inteiro' || c.r === region || c.sr === region)
+      .flatMap(c => directions.filter(direction => !Core.skillOf(progress, c.id, direction).attempts)
+        .map(direction => ({ id: c.id, direction })))
+      .sort((a, b) => directions.indexOf(a.direction) - directions.indexOf(b.direction) || a.id.localeCompare(b.id));
+  }
   function duePlan(Core, countries, progress, directions, region, now = Date.now()) {
     return countries.filter(c => region === 'Mundo inteiro' || c.r === region || c.sr === region)
       .flatMap(c => directions.map(direction => ({ id: c.id, direction, skill: Core.skillOf(progress, c.id, direction) })))
@@ -73,6 +108,6 @@
     note(section,'Revisões vencidas, pontos fracos e novidades, conforme o modo e a área selecionados. Com poucas habilidades disponíveis, a série será menor.');
     container.append(section);
   }
-  const api={plan,duePlan,nextReview,evolution,note,card};
+  const api={plan,duePlan,freshPlan,nextReview,evolution,note,card,shortcuts,recommendation,SHORTCUTS};
   if(typeof module==='object'&&module.exports)module.exports=api;else root.AtlasStudy=api;
 })(globalThis);

@@ -647,7 +647,7 @@ select {
 }
 
 .map-heading-title {
-  color: var(--muted-2);
+  color: var(--muted);
   font-family: var(--mono);
   font-size: 10px;
   font-weight: 500;
@@ -1740,6 +1740,7 @@ label.btn:focus-within {
 .row[aria-current="location"] {
   border-color: var(--line);
   background: var(--seg-active);
+  color: var(--seg-active-ink);
 }
 
 .row img {
@@ -1997,6 +1998,36 @@ a.chip {
 .atlas-detail .idiomas {
   margin-block-start: 5px;
   color: var(--ink);
+}
+
+/* Vizinho, idioma e moeda levam a algum lugar, mas a linha continua lida como
+   frase: o item parece link de texto, não botão. É alvo de toque em linha, a
+   exceção prevista para links no meio do texto; a entrelinha maior dá o
+   respiro que o dedo precisa. */
+.atlas-detail :is(.idiomas, .moedas, .fronteiras) {
+  line-height: 1.75;
+}
+
+.ficha-link {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.ficha-link:hover {
+  color: var(--gold);
+  text-decoration-style: solid;
+}
+
+.atlas-facet {
+  margin-block-end: 10px;
 }
 
 /* A ressalva do idioma vive colada à linha que explica, dentro do bloco compacto

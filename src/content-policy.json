@@ -1,12 +1,18 @@
 {
   "GQ": {
-    "capitalAliases": ["Cidade da Paz"],
-    "formerCapitalNames": ["Malabo"],
+    "capitalAliases": [
+      "Cidade da Paz"
+    ],
+    "formerCapitalNames": [
+      "Malabo"
+    ],
     "capitalNote": "Ciudad de la Paz é a capital oficial desde 2 de janeiro de 2026; Malabo é a antiga capital."
   },
   "PS": {
     "capitalAliases": [],
-    "otherSeats": ["Ramallah"],
+    "otherSeats": [
+      "Ramallah"
+    ],
     "capitalType": "claimed-disputed",
     "capitalNote": "O Estado da Palestina reivindica Jerusalém Oriental como capital; Ramallah funciona como sede administrativa. O estatuto de Jerusalém permanece disputado internacionalmente."
   },
@@ -15,56 +21,111 @@
   },
   "ZA": {
     "capitalAliases": [],
-    "alternateCapitals": ["Cidade do Cabo", "Bloemfontein"],
+    "alternateCapitals": [
+      "Cidade do Cabo",
+      "Bloemfontein"
+    ],
     "capitalNote": "Pretória é a capital administrativa, Cidade do Cabo a legislativa e Bloemfontein a judicial."
   },
   "BJ": {
     "capitalAliases": [],
-    "otherSeats": ["Cotonou"],
+    "otherSeats": [
+      "Cotonou"
+    ],
     "capitalNote": "Porto-Novo é a capital constitucional; a sede do governo fica em Cotonou."
   },
   "BO": {
     "capitalAliases": [],
-    "otherSeats": ["La Paz"],
+    "otherSeats": [
+      "La Paz"
+    ],
     "capitalNote": "Sucre é a capital constitucional; Executivo e Legislativo funcionam em La Paz."
   },
   "KZ": {
     "capitalAliases": [],
-    "formerCapitalNames": ["Nur-Sultan"]
+    "formerCapitalNames": [
+      "Nur-Sultan"
+    ]
   },
   "CI": {
     "capitalAliases": [],
-    "otherSeats": ["Abidjan", "Abidja"],
+    "otherSeats": [
+      "Abidjan"
+    ],
     "capitalNote": "Yamoussoukro é a capital oficial; Abidjan permanece o principal centro econômico e abriga órgãos governamentais."
   },
   "SZ": {
-    "nameAliases": ["Eswatini"],
-    "countryHistoricNames": ["Suazilândia"],
+    "nameAliases": [
+      "Eswatini"
+    ],
+    "countryHistoricNames": [
+      "Suazilândia"
+    ],
+    "alsoKnownAs": [
+      "Eswatini"
+    ],
+    "formerNames": [
+      {
+        "name": "Suazilândia",
+        "until": 2018
+      }
+    ],
     "capitalAliases": [],
-    "alternateCapitals": ["Mbabane"],
+    "alternateCapitals": [
+      "Mbabane"
+    ],
     "capitalNote": "Lobamba é a capital real e legislativa; Mbabane é a capital administrativa."
   },
   "NL": {
-    "nameAliases": ["Países Baixos"],
-    "countryColloquialisms": ["Holanda"],
-    "capitalAliases": ["Amsterda"],
-    "otherSeats": ["Haia"],
+    "nameAliases": [
+      "Países Baixos"
+    ],
+    "countryColloquialisms": [
+      "Holanda"
+    ],
+    "alsoKnownAs": [
+      "Holanda"
+    ],
+    "capitalAliases": [
+      "Amsterda"
+    ],
+    "otherSeats": [
+      "Haia"
+    ],
     "capitalNote": "Amsterdã é a capital constitucional; governo e parlamento ficam em Haia."
   },
   "GB": {
-    "nameAliases": ["Reino Unido"],
-    "countryMistakes": ["Inglaterra", "Grã-Bretanha"]
+    "nameAliases": [
+      "Reino Unido"
+    ],
+    "countryMistakes": [
+      "Inglaterra",
+      "Grã-Bretanha"
+    ]
   },
   "LK": {
-    "capitalAliases": ["Kotte"],
-    "otherSeats": ["Colombo"],
+    "capitalAliases": [
+      "Kotte"
+    ],
+    "otherSeats": [
+      "Colombo"
+    ],
     "capitalNote": "Sri Jayawardenapura Kotte é a capital legislativa; Colombo é o principal centro comercial e ainda concentra órgãos executivos e judiciais."
   },
   "VA": {
-    "nameAliases": ["Cidade do Vaticano"],
-    "countryAmbiguousNames": ["Santa Sé"],
+    "nameAliases": [
+      "Cidade do Vaticano"
+    ],
+    "countryAmbiguousNames": [
+      "Santa Sé"
+    ],
+    "alsoKnownAs": [
+      "Cidade do Vaticano"
+    ],
     "capitalAliases": [],
-    "capitalMistakes": ["Roma"]
+    "capitalMistakes": [
+      "Roma"
+    ]
   },
   "NR": {
     "capitalType": "government-seat",
@@ -75,41 +136,142 @@
     "capitalNote": "Berna é a cidade federal e exerce a função de capital de facto; a Suíça não possui capital de jure."
   },
   "MY": {
-    "otherSeats": ["Putrajaya"],
+    "otherSeats": [
+      "Putrajaya"
+    ],
     "capitalNote": "Kuala Lumpur é a capital nacional; Putrajaya é o centro administrativo federal."
   },
   "BI": {
     "capitalNote": "Gitega é a capital política; Bujumbura é a capital econômica e maior cidade."
   },
   "YE": {
-    "otherSeats": ["Áden", "Aden"],
+    "otherSeats": [
+      "Áden"
+    ],
     "capitalNote": "Sanaá é a capital constitucional; Áden funciona como sede temporária do governo internacionalmente reconhecido."
   },
   "BF": {
     "nameAliases": [],
-    "countryHistoricNames": ["Alto Volta"]
+    "countryHistoricNames": [
+      "Alto Volta"
+    ],
+    "formerNames": [
+      {
+        "name": "Alto Volta",
+        "until": 1984
+      }
+    ]
   },
   "MK": {
     "nameAliases": [],
-    "countryHistoricNames": ["Macedônia"]
+    "countryHistoricNames": [
+      "Macedônia"
+    ],
+    "formerNames": [
+      {
+        "name": "Macedônia",
+        "until": 2019
+      }
+    ]
   },
   "CG": {
-    "nameAliases": ["Congo-Brazzaville"],
-    "countryAmbiguousNames": ["Congo"]
+    "nameAliases": [
+      "Congo-Brazzaville"
+    ],
+    "countryAmbiguousNames": [
+      "Congo"
+    ],
+    "alsoKnownAs": [
+      "Congo-Brazzaville"
+    ]
   },
   "TL": {
-    "nameAliases": ["Timor Leste"],
-    "countryAmbiguousNames": ["Timor"]
+    "nameAliases": [
+      "Timor Leste"
+    ],
+    "countryAmbiguousNames": [
+      "Timor"
+    ]
   },
   "CV": {
-    "nameAliases": ["Cabo Verde"],
-    "countryHistoricNames": ["Cape Verde"]
+    "nameAliases": [
+      "Cabo Verde"
+    ],
+    "countryHistoricNames": [
+      "Cape Verde"
+    ]
   },
   "MM": {
-    "nameAliases": ["Mianmar"],
-    "countryHistoricNames": ["Birmânia", "Birmania"]
+    "nameAliases": [
+      "Mianmar"
+    ],
+    "countryHistoricNames": [
+      "Birmânia"
+    ],
+    "alsoKnownAs": [
+      "Mianmar"
+    ],
+    "formerNames": [
+      {
+        "name": "Birmânia",
+        "until": 1989
+      }
+    ]
   },
   "CY": {
     "region": "Ásia"
+  },
+  "ID": {
+    "capitalNote": "Jacarta continua capital até um decreto presidencial transferir o posto para Nusantara, designada pela lei de 2022, como confirmou a Corte Constitucional em 2026."
+  },
+  "BY": {
+    "alsoKnownAs": [
+      "Belarus"
+    ]
+  },
+  "BW": {
+    "alsoKnownAs": [
+      "Botswana"
+    ]
+  },
+  "CD": {
+    "alsoKnownAs": [
+      "RDC",
+      "Congo-Kinshasa"
+    ]
+  },
+  "CZ": {
+    "alsoKnownAs": [
+      "República Tcheca",
+      "Chéquia"
+    ]
+  },
+  "MD": {
+    "alsoKnownAs": [
+      "Moldova"
+    ]
+  },
+  "MU": {
+    "alsoKnownAs": [
+      "Ilhas Maurício"
+    ]
+  },
+  "MW": {
+    "alsoKnownAs": [
+      "Malaui"
+    ]
+  },
+  "SC": {
+    "alsoKnownAs": [
+      "Seychelles"
+    ]
+  },
+  "TR": {
+    "alsoKnownAs": [
+      "Türkiye"
+    ]
+  },
+  "HN": {
+    "capitalNote": "Tegucigalpa e Comayagüela constituem conjuntamente a capital da República, conforme o artigo 8 da Constituição."
   }
 }

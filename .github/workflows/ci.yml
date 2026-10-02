@@ -9,6 +9,62 @@ on:
     - cron: '17 8 1 * *'
 
 jobs:
+  compatibilidade:
+    name: Banco, Firefox, WebKit e acessibilidade
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: qa/package-lock.json
+      - run: npm ci --prefix qa --ignore-scripts
+      - run: npm --prefix qa run test:database
+      - run: npx --prefix qa playwright install --with-deps firefox webkit
+      - run: npm run build
+      - run: npm --prefix qa run test:browsers
+      - run: npm --prefix qa run test:performance
+      - run: npm --prefix qa run test:guidance
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compatibility
+          path: |
+            reports/compatibility/
+            reports/performance.json
+            reports/guidance/
+
+  auditar-fontes:
+    name: Atualizações das fontes oficiais
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Comparar fontes e gerar relatório
+        run: npm run audit:sources
+      - name: Resumo da auditoria
+        if: always()
+        run: |
+          if [ -f reports/source-audit.md ]; then
+            cat reports/source-audit.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Guardar relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-audit
+          path: reports/source-audit.*
+          retention-days: 90
   verificar:
     name: Testes e artefato
     runs-on: ubuntu-latest

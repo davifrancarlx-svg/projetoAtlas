@@ -281,6 +281,16 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
       return parsed && parsed.temDados && parsed.temNucleo ? parsed : null;
     });
     assert.equal(dados.paises, 195, 'O artefato precisa expor os 195 países ao navegador.');
+    if (process.env.ATLAS_BROWSER_SCENARIO === 'mobile-checkup') {
+      await until('inicialização', () => evaluate(client, "Boolean(document.getElementById('questionTitle')) && !document.getElementById('appShell').classList.contains('is-initializing')"));
+      await require('./mobile-checkup-browser.cjs')(client, evaluate, until);
+      return;
+    }
+    if (process.env.ATLAS_BROWSER_SCENARIO === 'features') {
+      await until('inicialização', () => evaluate(client, "Boolean(document.querySelector('[data-answer]'))"));
+      await require('./features-browser.cjs')(client, evaluate, until);
+      return;
+    }
 
     // 2. A inicialização precisa terminar: o seletor sai do placeholder e o
     //    painel recebe a primeira pergunta.
@@ -562,7 +572,7 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     // numa geração nova — é a geração que impede um aparelho velho ressuscitar
     // o que foi apagado.
     await evaluate(client, `document.getElementById('resetProgress').click()`);
-    assert.ok(await evaluate(client, `document.getElementById('panel').textContent.includes('histórico de revisão e recorde')`));
+    assert.ok(await evaluate(client, `document.getElementById('panel').textContent.includes('histórico de revisão, tempo de estudo, confusões e recorde')`));
     await evaluate(client, `document.getElementById('confirmReset').click()`);
     await until('reset apagar o progresso local', async () => evaluate(client, `(() => {
       const p = JSON.parse(localStorage.getItem('atlas195:v2'));
@@ -578,6 +588,9 @@ test('o Atlas inicia num navegador real e responde a uma pergunta', { timeout: H
     await require('./due-browser.cjs')(client, evaluate, until);
     await require('./workflows-browser.cjs')(client, evaluate, until);
     await require('./filters-browser.cjs')(client, evaluate, until);
+    await require('./ficha-browser.cjs')(client, evaluate, until);
+    await require('./features-browser.cjs')(client, evaluate, until);
+    await require('./mobile-checkup-browser.cjs')(client, evaluate, until);
     await until('service worker pronto para uso offline',()=>evaluate(client,"Boolean(navigator.serviceWorker.controller)"));
     await client.send('Network.enable');
     await client.send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});

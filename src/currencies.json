@@ -247,9 +247,13 @@
       {
         "nome": "ngultrum",
         "codigo": "BTN"
+      },
+      {
+        "nome": "rupia indiana",
+        "codigo": "INR"
       }
     ],
-    "nota": "O ngultrum tem paridade fixa com a rupia indiana, que também circula."
+    "nota": "O ngultrum tem paridade fixa com a rupia indiana, que também é curso legal."
   },
   "CV": {
     "moedas": [
@@ -805,6 +809,10 @@
       {
         "nome": "loti",
         "codigo": "LSL"
+      },
+      {
+        "nome": "rand",
+        "codigo": "ZAR"
       }
     ],
     "nota": "O loti tem paridade fixa com o rand sul-africano, que também é curso legal."
@@ -1019,6 +1027,10 @@
       {
         "nome": "dólar namibiano",
         "codigo": "NAD"
+      },
+      {
+        "nome": "rand",
+        "codigo": "ZAR"
       }
     ],
     "nota": "O dólar namibiano tem paridade fixa com o rand sul-africano, que também é curso legal."

@@ -76,7 +76,7 @@ test('o artefato leva a moeda para a ficha e não para as perguntas', () => {
   const build = fs.readFileSync(path.join(ROOT, 'scripts/build.cjs'), 'utf8');
   assert.match(build, /moedas: currency\.moedas/, 'O build precisa anexar a moeda ao país.');
   assert.match(build, /Moeda ausente para/, 'O build precisa recusar um país sem moeda.');
-  assert.match(html, /className: 'moedas'/, 'A ficha precisa exibir a moeda.');
+  assert.match(html, /linkLine\('moedas'/, 'A ficha precisa exibir a moeda.');
   // A ficha mostra o código junto do nome; o quiz não conhece nenhum dos dois.
   assert.match(html, /moeda\.nome\} \(\$\{moeda\.codigo\}\)/);
   const DATA = require('node:vm').runInNewContext(

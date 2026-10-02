@@ -25,6 +25,8 @@
     const onRemoteProgress = deps.onRemoteProgress || (() => {});
     const rerender = deps.rerender || (() => {});
     const options = { countryIds: ids };
+    let sessionRevision = 0;
+    let refreshing = null;
 
     const cloud = { session: null, status: null, lastSyncAt: null, queue: null, requestingLink: false,
       emailDraft: '', identityPending: false,
@@ -36,6 +38,7 @@
     }
 
     async function loadNickname() {
+      const sessionVersion = sessionRevision;
       const session = cloud.session;
       const revision = cloud.nicknameRevision;
       if (!session || cloud.savingNickname) return;
@@ -43,12 +46,12 @@
         const response = await cloudRequest('/auth/v1/user');
         if (!response.ok) throw new Error('perfil indisponível');
         const user = await response.json();
-        if (!cloud.session || user.id !== cloud.session.user_id || session.user_id !== user.id
+        if (sessionVersion !== sessionRevision || !cloud.session || user.id !== cloud.session.user_id || session.user_id !== user.id
           || revision !== cloud.nicknameRevision) return;
-        writeSession({ ...cloud.session, nickname: nicknameOf(user) });
+        writeSession({ ...cloud.session, nickname: nicknameOf(user) }, true);
         cloud.nicknameStatus = null;
       } catch (_) {
-        if (revision !== cloud.nicknameRevision || !cloud.session || session.user_id !== cloud.session.user_id) return;
+        if (sessionVersion !== sessionRevision || revision !== cloud.nicknameRevision || !cloud.session || session.user_id !== cloud.session.user_id) return;
         cloud.nicknameStatus = { text: 'Não foi possível atualizar o apelido agora.', kind: 'error' };
       }
       rerender();
@@ -56,6 +59,7 @@
 
     async function saveNickname() {
       if (!cloud.session?.user_id || cloud.savingNickname) return;
+      const sessionVersion = sessionRevision;
       const value = (cloud.nicknameDraft ?? cloud.session.nickname ?? '').trim();
       if (Array.from(value).length > 40 || /[\u0000-\u001f\u007f]/u.test(value)) {
         cloud.nicknameStatus = { text: 'Use até 40 caracteres, sem quebras de linha ou caracteres de controle.', kind: 'error' };
@@ -73,16 +77,16 @@
         });
         if (!response.ok) throw new Error('gravação indisponível');
         const user = await response.json();
-        if (!cloud.session || cloud.session.user_id !== userId || user.id !== userId) return;
-        writeSession({ ...cloud.session, nickname: nicknameOf(user) });
+        if (sessionVersion !== sessionRevision || !cloud.session || cloud.session.user_id !== userId || user.id !== userId) return;
+        writeSession({ ...cloud.session, nickname: nicknameOf(user) }, true);
         cloud.nicknameDraft = null;
         cloud.nicknameStatus = { text: value ? 'Apelido salvo.' : 'Apelido removido.', kind: 'ok' };
       } catch (_) {
-        if (cloud.session && cloud.session.user_id === userId) {
+        if (sessionVersion === sessionRevision && cloud.session && cloud.session.user_id === userId) {
           cloud.nicknameStatus = { text: 'Não foi possível salvar o apelido. Seu texto foi mantido; tente novamente.', kind: 'error' };
         }
       } finally {
-        cloud.savingNickname = false;
+        if (sessionVersion === sessionRevision) cloud.savingNickname = false;
         rerender();
       }
     }
@@ -99,7 +103,13 @@
       } catch (_) { return null; }
     }
 
-    function writeSession(session) {
+    function writeSession(session, continuation = false) {
+      if (!continuation) {
+        sessionRevision += 1;
+        refreshing = null;
+        cloud.savingNickname = false;
+        cloud.identityPending = false;
+      }
       cloud.session = session;
       try {
         if (session) host.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
@@ -128,26 +138,50 @@
     // dispara uma única tentativa de renovar antes de considerar a sessão perdida.
     async function refreshSession() {
       if (!cloud.session || !cloud.session.refresh_token) return false;
-      const resposta = await host.fetch(`${config.url}/auth/v1/token?grant_type=refresh_token`, {
-        method: 'POST',
-        headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: cloud.session.refresh_token }),
-      });
-      if (!resposta.ok) { writeSession(null); return false; }
-      const dados = await resposta.json();
-      writeSession({
-        access_token: dados.access_token,
-        refresh_token: dados.refresh_token,
-        email: (dados.user && dados.user.email) || cloud.session.email,
-        user_id: (dados.user && dados.user.id) || cloud.session.user_id,
-        nickname: dados.user ? nicknameOf(dados.user) : cloud.session.nickname,
-      });
-      return true;
+      if (refreshing) return refreshing;
+      const session = cloud.session;
+      const revision = sessionRevision;
+      const pending = (async () => {
+        const resposta = await host.fetch(`${config.url}/auth/v1/token?grant_type=refresh_token`, {
+          method: 'POST',
+          headers: { apikey: config.anonKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: session.refresh_token }),
+        });
+        if (revision !== sessionRevision) return false;
+        if (!resposta.ok) {
+          // Indisponibilidade e limite de pedidos não invalidam a conta.
+          if (resposta.status === 400 || resposta.status === 401) writeSession(null);
+          return false;
+        }
+        const dados = await resposta.json();
+        if (revision !== sessionRevision) return false;
+        if (!dados.access_token || !dados.refresh_token
+          || (session.user_id && dados.user?.id && dados.user.id !== session.user_id)) return false;
+        writeSession({
+          access_token: dados.access_token,
+          refresh_token: dados.refresh_token,
+          email: (dados.user && dados.user.email) || session.email,
+          user_id: (dados.user && dados.user.id) || session.user_id,
+          nickname: dados.user ? nicknameOf(dados.user) : cloud.session.nickname,
+        }, true);
+        return true;
+      })();
+      refreshing = pending;
+      try { return await pending; }
+      finally { if (refreshing === pending) refreshing = null; }
     }
 
     async function cloudRequest(path, options = {}) {
+      const revision = sessionRevision;
+      const token = cloud.session?.access_token;
       let resposta = await cloudFetch(path, options);
-      if (resposta.status === 401 && await refreshSession()) resposta = await cloudFetch(path, options);
+      if (revision !== sessionRevision) throw new Error('sessão alterada');
+      if (resposta.status === 401) {
+        const renewed = token !== cloud.session?.access_token || await refreshSession();
+        if (revision !== sessionRevision) throw new Error('sessão alterada');
+        if (renewed) resposta = await cloudFetch(path, options);
+      }
+      if (revision !== sessionRevision) throw new Error('sessão alterada');
       return resposta;
     }
 
@@ -174,19 +208,23 @@
       if (!cloud.session) return false;
       if (cloud.session.user_id && cloud.session.email) return true;
       const revision = cloud.nicknameRevision;
+      const sessionVersion = sessionRevision;
       cloud.identityPending = true;
       rerender();
       try {
         const perfil = await cloudRequest('/auth/v1/user');
         if (!perfil.ok) return false;
         const usuario = await perfil.json();
-        if (!cloud.session || revision !== cloud.nicknameRevision
+        if (sessionVersion !== sessionRevision || !cloud.session || revision !== cloud.nicknameRevision
           || typeof usuario?.id !== 'string' || !usuario.id
           || typeof usuario.email !== 'string' || !usuario.email) return false;
-        writeSession({ ...cloud.session, email: usuario.email, user_id: usuario.id, nickname: nicknameOf(usuario) });
+        writeSession({ ...cloud.session, email: usuario.email, user_id: usuario.id, nickname: nicknameOf(usuario) }, true);
         return true;
+      } catch (error) {
+        if (sessionVersion !== sessionRevision) return false;
+        throw error;
       } finally {
-        cloud.identityPending = false;
+        if (sessionVersion === sessionRevision) cloud.identityPending = false;
         rerender();
       }
     }
@@ -221,7 +259,10 @@
       const linhas = await resposta.json();
       if (!Array.isArray(linhas) || !linhas.length) return null;
       const decoded = Core.deserializeProgress(JSON.stringify(linhas[0].envelope), options);
-      return decoded.recovered ? null : decoded.progress;
+      // Um envelope futuro ou inválido não equivale a uma conta vazia: nesse
+      // caso, enviar o progresso local poderia apagar dados que não entendemos.
+      if (decoded.recovered) throw new Error('Atualize o Atlas ou confira o backup da conta antes de sincronizar.');
+      return decoded.progress;
     }
 
     async function pushRemoteProgress(envelope) {
@@ -239,19 +280,24 @@
 
     async function syncOnce({ silencioso = false } = {}) {
       if (!enabled() || !cloud.session) return;
+      const revision = sessionRevision;
       if (!silencioso) setStatus('Sincronizando…');
       try {
         if (!await ensureCloudIdentity()) throw new Error('identidade da conta indisponível');
+        if (revision !== sessionRevision) return;
         const remoto = await pullRemoteProgress();
+        if (revision !== sessionRevision) return;
         const plano = Core.planSync(getProgress(), remoto, options);
         if (plano.download) {
           setProgress(plano.merged);
           onRemoteProgress();
         }
         if (plano.upload) await pushRemoteProgress(Core.serializeProgress(plano.merged, options));
+        if (revision !== sessionRevision) return;
         cloud.lastSyncAt = new Date();
         setStatus(plano.unchanged ? 'Tudo sincronizado.' : 'Progresso sincronizado com a conta.', 'ok');
       } catch (erro) {
+        if (revision !== sessionRevision) return;
         // Falha de rede não pode virar obstáculo: o progresso local continua
         // salvo e a próxima tentativa acontece na próxima mudança.
         setStatus('Sem sincronizar agora. O progresso continua salvo neste aparelho.', 'error');
@@ -278,19 +324,21 @@
 
     async function signOut() {
       if (cloud.queue) cloud.queue.cancel();
-      try { await cloudRequest('/auth/v1/logout', { method: 'POST' }); } catch (_) { /* melhor esforço */ }
+      // Captura o token antes de limpar; nenhuma resposta pode reabrir a conta.
+      const logout = cloud.session ? cloudFetch('/auth/v1/logout', { method: 'POST' }).catch(() => {}) : null;
       writeSession(null);
       cloud.nicknameDraft = null;
       cloud.nicknameStatus = null;
       cloud.nicknameRevision += 1;
       cloud.lastSyncAt = null;
       setStatus('Você saiu da conta. O progresso continua neste aparelho.', 'ok');
+      await logout;
     }
 
     async function initialize() {
       if (!enabled()) return;
       try {
-        cloud.session = readSession();
+        writeSession(readSession());
         const entrou = await consumeAuthCallback();
         if (cloud.session) {
           if (!await ensureCloudIdentity()) throw new Error('perfil da conta indisponível');
@@ -312,7 +360,7 @@
         card.append(el('p', {
           text: 'Entrar é opcional e serve só para levar o progresso a outro aparelho. '
             + 'Sem conta, nada sai daqui. Com conta, são enviados ao Supabase o seu e-mail, o apelido opcional e o seu progresso '
-            + '— países, níveis, datas de revisão e recorde. Nunca há anúncio, rastreio ou venda de dados.',
+            + '— países, níveis, datas de revisão, recorde, tempo de estudo e confusões entre países. Nunca há anúncio, rastreio ou venda de dados.',
         }));
         const linha = el('div', { className: 'button-row' });
         const email = el('input', {

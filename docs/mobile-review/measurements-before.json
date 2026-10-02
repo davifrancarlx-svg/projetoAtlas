@@ -1,0 +1,678 @@
+[
+  {
+    "width": 320,
+    "height": 568,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [
+      {
+        "text": "◎\n        Foco",
+        "w": 34.296875,
+        "h": 44
+      },
+      {
+        "text": "Recolher mapa\n              −",
+        "w": 30.796875,
+        "h": 44
+      }
+    ],
+    "fields": [],
+    "first": 354.46875,
+    "score": 518.25
+  },
+  {
+    "width": 320,
+    "height": 568,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [
+      {
+        "text": "Recolher mapa\n              −",
+        "w": 30.796875,
+        "h": 44
+      },
+      {
+        "text": "Todos",
+        "w": 51.640625,
+        "h": 32
+      },
+      {
+        "text": "Ásia",
+        "w": 43.046875,
+        "h": 32
+      },
+      {
+        "text": "África",
+        "w": 50.8125,
+        "h": 32
+      },
+      {
+        "text": "Europa",
+        "w": 57.0625,
+        "h": 32
+      },
+      {
+        "text": "América do Norte, Central e Caribe",
+        "w": 192.84375,
+        "h": 32
+      },
+      {
+        "text": "América do Sul",
+        "w": 96.25,
+        "h": 32
+      },
+      {
+        "text": "Oceania",
+        "w": 62.046875,
+        "h": 32
+      },
+      {
+        "text": "português",
+        "w": 54.703125,
+        "h": 21
+      },
+      {
+        "text": "real (BRL)",
+        "w": 57.421875,
+        "h": 22.75
+      },
+      {
+        "text": "Argentina",
+        "w": 56.265625,
+        "h": 22.75
+      },
+      {
+        "text": "Bolívia",
+        "w": 39.15625,
+        "h": 22.75
+      },
+      {
+        "text": "Colômbia",
+        "w": 55.25,
+        "h": 22.75
+      },
+      {
+        "text": "França",
+        "w": 39.546875,
+        "h": 22.75
+      },
+      {
+        "text": "Guiana",
+        "w": 40.9375,
+        "h": 22.75
+      },
+      {
+        "text": "Paraguai",
+        "w": 50.75,
+        "h": 22.75
+      },
+      {
+        "text": "Peru",
+        "w": 26.921875,
+        "h": 22.75
+      },
+      {
+        "text": "Suriname",
+        "w": 55.78125,
+        "h": 22.75
+      },
+      {
+        "text": "Uruguai",
+        "w": 45.359375,
+        "h": 22.75
+      },
+      {
+        "text": "Venezuela",
+        "w": 60.15625,
+        "h": 22.75
+      }
+    ],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "13px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "13px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 320,
+    "height": 568,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "13px"
+      },
+      {
+        "id": "somVolume",
+        "size": "13px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "13px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "13px"
+      },
+      {
+        "id": "contaEmail",
+        "size": "16px"
+      },
+      {
+        "id": "importProgressInput",
+        "size": "14px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 360,
+    "height": 640,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [
+      {
+        "text": "◎\n        Foco",
+        "w": 34.296875,
+        "h": 44
+      }
+    ],
+    "fields": [],
+    "first": 390.703125,
+    "score": 584.25
+  },
+  {
+    "width": 360,
+    "height": 640,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [
+      {
+        "text": "Todos",
+        "w": 51.640625,
+        "h": 32
+      },
+      {
+        "text": "Ásia",
+        "w": 43.046875,
+        "h": 32
+      },
+      {
+        "text": "África",
+        "w": 50.8125,
+        "h": 32
+      },
+      {
+        "text": "Europa",
+        "w": 57.0625,
+        "h": 32
+      },
+      {
+        "text": "América do Norte, Central e Caribe",
+        "w": 192.84375,
+        "h": 32
+      },
+      {
+        "text": "América do Sul",
+        "w": 96.25,
+        "h": 32
+      },
+      {
+        "text": "Oceania",
+        "w": 62.046875,
+        "h": 32
+      },
+      {
+        "text": "português",
+        "w": 54.703125,
+        "h": 21
+      },
+      {
+        "text": "real (BRL)",
+        "w": 57.421875,
+        "h": 22.75
+      },
+      {
+        "text": "Argentina",
+        "w": 56.265625,
+        "h": 22.75
+      },
+      {
+        "text": "Bolívia",
+        "w": 39.15625,
+        "h": 22.75
+      },
+      {
+        "text": "Colômbia",
+        "w": 55.25,
+        "h": 22.75
+      },
+      {
+        "text": "França",
+        "w": 39.546875,
+        "h": 22.75
+      },
+      {
+        "text": "Guiana",
+        "w": 40.9375,
+        "h": 22.75
+      },
+      {
+        "text": "Paraguai",
+        "w": 50.75,
+        "h": 22.75
+      },
+      {
+        "text": "Peru",
+        "w": 26.921875,
+        "h": 22.75
+      },
+      {
+        "text": "Suriname",
+        "w": 55.78125,
+        "h": 22.75
+      },
+      {
+        "text": "Uruguai",
+        "w": 45.359375,
+        "h": 22.75
+      },
+      {
+        "text": "Venezuela",
+        "w": 60.15625,
+        "h": 22.75
+      }
+    ],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "13px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "13px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 360,
+    "height": 640,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "13px"
+      },
+      {
+        "id": "somVolume",
+        "size": "13px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "13px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "13px"
+      },
+      {
+        "id": "contaEmail",
+        "size": "16px"
+      },
+      {
+        "id": "importProgressInput",
+        "size": "14px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [
+      {
+        "text": "◎\n        Foco",
+        "w": 34.296875,
+        "h": 44
+      }
+    ],
+    "fields": [],
+    "first": 360.46875,
+    "score": 584.25
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [
+      {
+        "text": "Todos",
+        "w": 51.640625,
+        "h": 32
+      },
+      {
+        "text": "Ásia",
+        "w": 43.046875,
+        "h": 32
+      },
+      {
+        "text": "África",
+        "w": 50.8125,
+        "h": 32
+      },
+      {
+        "text": "Europa",
+        "w": 57.0625,
+        "h": 32
+      },
+      {
+        "text": "América do Norte, Central e Caribe",
+        "w": 192.84375,
+        "h": 32
+      },
+      {
+        "text": "América do Sul",
+        "w": 96.25,
+        "h": 32
+      },
+      {
+        "text": "Oceania",
+        "w": 62.046875,
+        "h": 32
+      },
+      {
+        "text": "português",
+        "w": 54.703125,
+        "h": 21
+      },
+      {
+        "text": "real (BRL)",
+        "w": 57.421875,
+        "h": 22.75
+      },
+      {
+        "text": "Argentina",
+        "w": 56.265625,
+        "h": 22.75
+      },
+      {
+        "text": "Bolívia",
+        "w": 39.15625,
+        "h": 22.75
+      },
+      {
+        "text": "Colômbia",
+        "w": 55.25,
+        "h": 22.75
+      },
+      {
+        "text": "França",
+        "w": 39.546875,
+        "h": 22.75
+      },
+      {
+        "text": "Guiana",
+        "w": 40.9375,
+        "h": 22.75
+      },
+      {
+        "text": "Paraguai",
+        "w": 50.75,
+        "h": 22.75
+      },
+      {
+        "text": "Peru",
+        "w": 26.921875,
+        "h": 22.75
+      },
+      {
+        "text": "Suriname",
+        "w": 55.78125,
+        "h": 22.75
+      },
+      {
+        "text": "Uruguai",
+        "w": 45.359375,
+        "h": 22.75
+      },
+      {
+        "text": "Venezuela",
+        "w": 60.15625,
+        "h": 22.75
+      }
+    ],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "13px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "13px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "13px"
+      },
+      {
+        "id": "somVolume",
+        "size": "13px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "13px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "13px"
+      },
+      {
+        "id": "contaEmail",
+        "size": "16px"
+      },
+      {
+        "id": "importProgressInput",
+        "size": "14px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "view": "quiz",
+    "overflow": 0,
+    "small": [],
+    "fields": [],
+    "first": 316.28125,
+    "score": 351.5
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "view": "atlas",
+    "overflow": 0,
+    "small": [
+      {
+        "text": "Todos",
+        "w": 51.640625,
+        "h": 32
+      },
+      {
+        "text": "Ásia",
+        "w": 43.046875,
+        "h": 32
+      },
+      {
+        "text": "África",
+        "w": 50.8125,
+        "h": 32
+      },
+      {
+        "text": "Europa",
+        "w": 57.0625,
+        "h": 32
+      },
+      {
+        "text": "América do Norte, Central e Caribe",
+        "w": 192.84375,
+        "h": 32
+      },
+      {
+        "text": "América do Sul",
+        "w": 96.25,
+        "h": 32
+      },
+      {
+        "text": "Oceania",
+        "w": 62.046875,
+        "h": 32
+      },
+      {
+        "text": "português",
+        "w": 54.703125,
+        "h": 21
+      },
+      {
+        "text": "real (BRL)",
+        "w": 57.421875,
+        "h": 22.75
+      },
+      {
+        "text": "Argentina",
+        "w": 56.265625,
+        "h": 22.75
+      },
+      {
+        "text": "Bolívia",
+        "w": 39.15625,
+        "h": 22.75
+      },
+      {
+        "text": "Colômbia",
+        "w": 55.25,
+        "h": 22.75
+      },
+      {
+        "text": "França",
+        "w": 39.546875,
+        "h": 22.75
+      },
+      {
+        "text": "Guiana",
+        "w": 40.9375,
+        "h": 22.75
+      },
+      {
+        "text": "Paraguai",
+        "w": 50.75,
+        "h": 22.75
+      },
+      {
+        "text": "Peru",
+        "w": 26.921875,
+        "h": 22.75
+      },
+      {
+        "text": "Suriname",
+        "w": 55.78125,
+        "h": 22.75
+      },
+      {
+        "text": "Uruguai",
+        "w": 45.359375,
+        "h": 22.75
+      },
+      {
+        "text": "Venezuela",
+        "w": 60.15625,
+        "h": 22.75
+      }
+    ],
+    "fields": [
+      {
+        "id": "",
+        "size": "16px"
+      },
+      {
+        "id": "atlasOrder",
+        "size": "13px"
+      },
+      {
+        "id": "compareCountry",
+        "size": "13px"
+      }
+    ],
+    "score": 0
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "view": "prog",
+    "overflow": 0,
+    "small": [],
+    "fields": [
+      {
+        "id": "dailySize",
+        "size": "13px"
+      },
+      {
+        "id": "somVolume",
+        "size": "13px"
+      },
+      {
+        "id": "somEstilo",
+        "size": "13px"
+      },
+      {
+        "id": "somEscopo",
+        "size": "13px"
+      },
+      {
+        "id": "contaEmail",
+        "size": "16px"
+      },
+      {
+        "id": "importProgressInput",
+        "size": "15px"
+      }
+    ],
+    "score": 0
+  }
+]

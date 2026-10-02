@@ -27,7 +27,7 @@ function builtData() {
 }
 const built = builtData();
 
-test('todo país tem ao menos um idioma oficial, e nenhum sobra', () => {
+test('todo país tem ao menos um idioma listado, e nenhum sobra', () => {
   const ids = countries.map((country) => country.id);
   assert.equal(Object.keys(languages).length, 195, 'src/languages.json precisa cobrir exatamente os 195 países.');
 

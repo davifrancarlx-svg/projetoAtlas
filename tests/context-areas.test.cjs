@@ -12,6 +12,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const Core = require('../src/core.js');
 
 const ROOT = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'atlas-195.html'), 'utf8');
@@ -34,7 +35,7 @@ test('toda feição fora dos 195 está classificada', () => {
   const grupos = {};
   built.CONTEXT_AREAS.forEach((area) => {
     assert.ok(area.code && area.n && area.d, `${area.code}: registro incompleto.`);
-    assert.match(area.d, /^M[-\d.]/, `${area.code}: contorno inválido.`);
+    assert.match(Core.decodePath(area.d), /^M[-\d.]/, `${area.code}: contorno inválido.`);
     grupos[area.grupo] = (grupos[area.grupo] || 0) + 1;
   });
   assert.deepEqual(Object.keys(grupos).sort(), ['dependencia', 'disputado', 'sem-soberania']);

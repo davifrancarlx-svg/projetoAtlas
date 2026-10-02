@@ -1,6 +1,8 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const Core = require('../src/core.js');
+const { validateEditorialMetadata } = require('./editorial-metadata.cjs');
 
 const root = path.resolve(__dirname, '..');
 // O parser HTML normaliza quebras de linha (CRLF e CR viram LF) antes de o
@@ -124,8 +126,8 @@ function loadCountries() {
       throw new Error(`Indicadores ausentes para ${country.id} (${country.n}). Rode "npm run indicators".`);
     }
     // Idiomas seguem a mesma política dos indicadores: complementam a ficha e
-    // nunca viram resposta de pergunta. O que entra é o que é oficial por lei;
-    // a nota existe só quando o uso cotidiano diverge do estatuto oficial.
+    // nunca viram resposta de pergunta. A lista pode ser representativa ou de uso
+    // de facto; a nota distingue esses casos do estatuto oficial por lei.
     const language = languages[country.id];
     if (!language || !Array.isArray(language.oficiais) || !language.oficiais.length) {
       throw new Error(`Idiomas ausentes para ${country.id} (${country.n}). Preencha src/languages.json.`);
@@ -153,6 +155,18 @@ function loadCountries() {
     const countryColloquialisms = policy.countryColloquialisms ?? [];
     const countryMistakes = policy.countryMistakes ?? [];
     const capitalMistakes = policy.capitalMistakes ?? [];
+    // Os nomes que a ficha mostra são escritos para leitura. Os de cima servem à
+    // busca, vêm normalizados ("suazilandia") e incluem erros comuns, que não
+    // podem aparecer como "também conhecido como".
+    const alsoKnownAs = policy.alsoKnownAs ?? [];
+    const formerNames = policy.formerNames ?? [];
+    if (!alsoKnownAs.every((name) => typeof name === 'string' && name.trim())) {
+      throw new Error(`Outro nome malformado para ${country.id} (${country.n}).`);
+    }
+    if (!formerNames.every((item) => item && typeof item.name === 'string' && item.name.trim()
+      && Number.isInteger(item.until) && item.until >= 1800 && item.until <= new Date().getFullYear())) {
+      throw new Error(`Nome anterior malformado para ${country.id} (${country.n}): precisa de nome e ano.`);
+    }
     const aliases = [
       ...nameAliases.map((value) => ({ value, field: 'country', type: 'equivalent' })),
       ...capitalAliases.map((value) => ({ value, field: 'capital', type: 'transliteration' })),
@@ -188,6 +202,9 @@ function loadCountries() {
       capitalMistakes,
       capitalType: policy.capitalType || 'official',
       capitalNote: policy.capitalNote || '',
+      // Só 16 países têm outro nome: o campo vazio nos outros 179 seria peso à toa.
+      ...(alsoKnownAs.length ? { alsoKnownAs } : {}),
+      ...(formerNames.length ? { formerNames } : {}),
       idiomas: language.oficiais,
       idiomasNota: language.nota || '',
       moedas: currency.moedas,
@@ -379,12 +396,14 @@ function embedFonts() {
 }
 
 const template = read('src/index.template.html');
-const css = embedFonts() + read('src/styles.css').trim();
-const core = read('src/core.js').trim();
+const css = embedFonts() + ['src/styles.css', 'src/features.css'].map(file => read(file).trim()).join('\n');
+const core = ['src/learning.js', 'src/core.js'].map(file => read(file).trim()).join('\n');
+const editorialMeta = { ...validateEditorialMetadata(readJson('src/editorial-meta.json'), readJson('src/countries.base.json')), currencyCodes: readJson('data/currency-code-audit.json') };
 const syncQueue = read('src/sync-queue.js').trim();
-// A conta vive em módulo próprio para o app principal não crescer sem fim; os
-// quatro entram no mesmo bloco de script, na ordem de dependência.
-const app = ['src/audio.js', 'src/study.js', 'src/account.js', 'src/atlas.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
+// Som, estudo, conta, Atlas e Progresso vivem em módulos próprios para o app
+// principal não crescer sem fim; todos entram no mesmo bloco de script, na
+// ordem de dependência.
+const app = ['src/audio.js', 'src/study.js', 'src/feedback.js', 'src/navigation.js', 'src/map-viewport.js', 'src/account.js', 'src/country-tools.js', 'src/atlas.js', 'src/progress.js', 'src/app.js'].map(file => read(file).trim()).join('\n');
 const themeBoot = read('src/theme-boot.js').trim();
 // A configuração de conta entra no artefato e também define a única origem que
 // a CSP vai autorizar. Se o arquivo sumir ou vier incompleto, o build segue: o
@@ -408,11 +427,45 @@ if (mapMetaEnxuto.contextLand) {
 }
 delete mapMetaEnxuto.contextAreas;
 
+// O artefato leva o traçado e as bandeiras compactados, sem perder nada: os
+// dois eram 4 dos 5 MB do arquivo, e ele é baixado inteiro na primeira visita.
+// - Traçado: centésimos inteiros, cada ponto como diferença do anterior (ver
+//   Core.decodePath). O app descompacta ao abrir e todo país volta a ser, byte
+//   a byte, o path do gerador — o build recusa o artefato se não voltar.
+// - Bandeira: o SVG vai como texto, não em base64, que cresce um terço e
+//   comprime mal. Sai só o espaço entre as tags; as aspas viram simples e só
+//   o que a URI exige (%, #) e o que poderia fechar o <script> (<, >) escapa.
+function packPath(d, label) {
+  const rings = d.split('Z').filter(Boolean).map((ring) => {
+    const numbers = ring.match(/-?\d*\.?\d+/g).map((value) => Math.round(Number(value) * 100));
+    return numbers.map((value, index) => {
+      const delta = index < 2 ? value : value - numbers[index - 2];
+      return (index && delta >= 0 ? ' ' : '') + delta;
+    }).join('');
+  });
+  const packed = rings.join(';');
+  if (Core.decodePath(packed) !== d) throw new Error(`O traçado de ${label} não sobrevive à compactação.`);
+  return packed;
+}
+
+function packFlag(uri, label) {
+  const svg = Buffer.from(uri.slice(uri.indexOf(',') + 1), 'base64').toString('utf8')
+    .replace(/\s*\n\s*/g, ' ').replace(/>\s+</g, '><').trim();
+  if (svg.includes("'")) throw new Error(`A bandeira de ${label} tem aspas simples: trocar as duplas quebraria o SVG.`);
+  return `data:image/svg+xml,${svg.replace(/"/g, "'").replace(/[%#<>]/g, encodeURIComponent)}`;
+}
+
+const packedCountries = countries.map((country) => ({
+  ...country, d: packPath(country.d, country.id), f: packFlag(country.f, country.id),
+}));
+const packedAreas = contextAreas.map((area) => ({ ...area, d: packPath(area.d, area.code) }));
+
 const data = `const MAP_META = ${JSON.stringify(mapMetaEnxuto)};\n`
-  + `const DATA = ${JSON.stringify(countries)};\n`
+  + `const DATA = ${JSON.stringify(packedCountries)};\n`
   + `const TERRITORIES = ${JSON.stringify(territories)};\n`
-  + `const CONTEXT_AREAS = ${JSON.stringify(contextAreas)};\n`
+  + `const CONTEXT_AREAS = ${JSON.stringify(packedAreas)};\n`
   + `const INDICATOR_META = ${JSON.stringify(indicatorMeta)};\n`
+  + `const EDITORIAL_META = ${JSON.stringify(editorialMeta)};\n`
   + `const CLOUD = ${JSON.stringify(cloud)};`;
 const flagLicense = read('data/flag-icons/LICENSE').trim().replace(/--/g, '—');
 // A OFL exige que a licença acompanhe a fonte redistribuída; as famílias vão
@@ -476,7 +529,7 @@ if (/\{\{[A-Z_]+\}\}/.test(output)) throw new Error('Há placeholders não resol
 const artifact = `${output.trim()}\n`;
 if (artifact.includes('\r')) throw new Error('O artefato saiu com CRLF: os hashes da CSP não sobreviveriam ao parser HTML.');
 // Mesma família de defeito: o parser HTML troca um NUL por U+FFFD antes de
-// calcular o hash, e um escape " " que vira caractere de verdade num
+// calcular o hash, e um escape "\0" que vira caractere de verdade num
 // editor derruba a página inteira sem erro visível (aconteceu em 2026-09-16).
 if (artifact.includes(String.fromCharCode(0))) throw new Error('O artefato contém um caractere NUL: o hash da CSP não bateria no navegador.');
 // Escrita atômica: o runner de testes roda cada arquivo em um processo próprio e

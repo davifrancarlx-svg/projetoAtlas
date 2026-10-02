@@ -5,7 +5,7 @@ const Account = require('../src/account.js');
 
 // O módulo da conta recebe o "host" (fetch, localStorage, location) por
 // injeção, então os estados de rede são simulados sem DOM nem serviço real.
-function account() {
+function account(core, queue) {
   const saved = new Map();
   const host = {
     localStorage: { getItem: k => saved.get(k) ?? null, setItem: (k, v) => saved.set(k, v), removeItem: k => saved.delete(k) },
@@ -14,8 +14,8 @@ function account() {
     fetch: async () => { throw new Error('fetch não configurado'); },
   };
   const api = Account.create({
-    Core: { cloudReady: () => true },
-    SyncQueue: { create: () => ({ run: async () => true, schedule() {}, cancel() {} }) },
+    Core: core || { cloudReady: () => true },
+    SyncQueue: queue || { create: () => ({ run: async () => true, schedule() {}, cancel() {} }) },
     config: { url: 'https://example.invalid', anonKey: 'public', tabela: 't' },
     ids: [], host, el: () => { throw new Error('sem DOM'); },
     rerender() {},
@@ -23,6 +23,108 @@ function account() {
   api.writeSession({ user_id: 'one', email: 'test@example.invalid', access_token: 'a', refresh_token: 'r' });
   return { api, host, saved };
 }
+
+function deferred() {
+  let resolve;
+  const promise = new Promise(done => { resolve = done; });
+  return { promise, resolve };
+}
+
+const renewed = () => ({ ok: true, json: async () => ({ access_token: 'new', refresh_token: 'new-r', user: { id: 'one' } }) });
+
+test('renovações concorrentes usam um único pedido e preservam a sessão em falha temporária', async () => {
+  const { api, host } = account();
+  const response = deferred();
+  let calls = 0;
+  host.fetch = () => { calls++; return response.promise; };
+  const first = api.refreshSession();
+  const second = api.refreshSession();
+  response.resolve(renewed());
+  assert.deepEqual(await Promise.all([first, second]), [true, true]);
+  assert.equal(calls, 1);
+  for (const status of [429, 500, 503]) {
+    host.fetch = async () => ({ ok: false, status });
+    assert.equal(await api.refreshSession(), false);
+    assert.equal(api.cloud.session.access_token, 'new');
+  }
+  host.fetch = async () => ({ ok: false, status: 400 });
+  assert.equal(await api.refreshSession(), false);
+  assert.equal(api.cloud.session, null);
+});
+
+test('sair é imediato e uma renovação atrasada não reconecta a conta', async () => {
+  const { api, host, saved } = account();
+  const refresh = deferred();
+  const logout = deferred();
+  host.fetch = (url, options) => {
+    if (url.includes('/token?')) return refresh.promise;
+    assert.equal(options.headers.Authorization, 'Bearer a');
+    return logout.promise;
+  };
+  const pending = api.refreshSession();
+  const leaving = api.signOut();
+  assert.equal(api.cloud.session, null);
+  assert.equal(saved.has(Account.SESSION_KEY), false);
+  refresh.resolve(renewed());
+  assert.equal(await pending, false);
+  logout.resolve({ ok: true });
+  await leaving;
+  assert.equal(api.cloud.session, null);
+});
+
+test('trocar de sessão durante leitura remota impede fusão e envio pela outra conta', async () => {
+  let planned = 0;
+  const { api, host } = account({ cloudReady: () => true, planSync: () => { planned++; } }, require('../src/sync-queue.js'));
+  const response = deferred();
+  let reading;
+  const started = new Promise(resolve => { reading = resolve; });
+  let calls = 0;
+  host.fetch = () => { calls++; reading(); return response.promise; };
+  const pending = api.sync();
+  await started;
+  api.writeSession({ user_id: 'two', email: 'two@example.invalid', access_token: 'b', refresh_token: 's' });
+  response.resolve({ ok: true, json: async () => [] });
+  await pending;
+  assert.equal(planned, 0);
+  assert.equal(calls, 1);
+  assert.equal(api.cloud.lastSyncAt, null);
+});
+
+test('um 401 atrasado usa o token já renovado sem iniciar outra renovação', async () => {
+  const { api, host } = account();
+  const oldProfile = deferred();
+  let renewals = 0;
+  let reads = 0;
+  host.fetch = (url, options) => {
+    if (url.includes('/token?')) { renewals++; return Promise.resolve(renewed()); }
+    reads++;
+    if (reads === 1) return oldProfile.promise;
+    assert.equal(options.headers.Authorization, 'Bearer new');
+    return Promise.resolve({ ok: true, json: async () => ({ id: 'one' }) });
+  };
+  const loading = api.loadNickname();
+  await api.refreshSession();
+  oldProfile.resolve({ status: 401 });
+  await loading;
+  assert.equal(reads, 2);
+  assert.equal(renewals, 1);
+});
+
+test('um envelope remoto futuro ou inválido não é sobrescrito como se a conta estivesse vazia', async () => {
+  const Core = require('../src/core.js');
+  const Queue = require('../src/sync-queue.js');
+  for (const envelope of [{ schemaVersion: 99 }, { schemaVersion: 3 }]) {
+    const { api, host } = account(Core, Queue);
+    let uploads = 0;
+    host.fetch = async (url, options = {}) => {
+      if (options.method === 'POST') uploads += 1;
+      return { ok: true, json: async () => [{ envelope }] };
+    };
+    await api.sync();
+    assert.equal(uploads, 0);
+    assert.equal(api.cloud.status.kind, 'error');
+  }
+});
 
 test('apelido ausente ou inválido é um estado válido', () => {
   const { api } = account();

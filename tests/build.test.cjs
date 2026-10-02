@@ -108,7 +108,15 @@ test('o artefato contém exatamente os 195 países e IDs únicos', () => {
   const ids = built.DATA.map(country => country.id);
   assert.equal(new Set(ids).size, 195);
   ids.forEach((id) => assert.match(id, /^[A-Z]{2}$/, `ID inválido: ${id}`));
-  built.DATA.forEach(country => assert.match(country.f, /^data:image\/svg\+xml;base64,/, `${country.id}: bandeira SVG não integrada.`));
+  // A bandeira viaja como texto na data URI, não em base64 (ver packFlag no
+  // build): o SVG precisa sair inteiro dela e sem nada que feche o <script>.
+  built.DATA.forEach((country) => {
+    assert.match(country.f, /^data:image\/svg\+xml,%3Csvg /, `${country.id}: bandeira SVG não integrada.`);
+    assert.doesNotMatch(country.f, /[<>"#]/, `${country.id}: caractere sem escape na bandeira.`);
+    const svg = decodeURIComponent(country.f.slice('data:image/svg+xml,'.length));
+    assert.match(svg, /<\/svg>$/, `${country.id}: bandeira cortada.`);
+    assert.doesNotMatch(svg, /<\s*(?:script|foreignObject)\b/i);
+  });
   assert.match(html, /flag-icons 7\.5\.0 — MIT license/);
 });
 
@@ -176,10 +184,16 @@ test('o build anexa os vizinhos terrestres em ordem alfabética, sem tocar nas r
 });
 
 test('o build incorporou path, centro e bounds válidos para todo país', () => {
+  const geometry = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'map-geometry.json'), 'utf8'));
+  const original = new Map(geometry.countries.map((item) => [item.id, item.d]));
   for (const country of built.DATA) {
     assert.equal(typeof country.d, 'string', `${country.id}: path ausente.`);
-    assert.match(country.d, /^M[-\d.]/, `${country.id}: path não começa com um comando M.`);
-    assert.match(country.d, /Z$/, `${country.id}: path não termina fechado.`);
+    // O artefato leva o traçado compactado; aberto, ele é o path do gerador.
+    assert.doesNotMatch(country.d, /^M/, `${country.id}: traçado sem compactar.`);
+    const d = Core.decodePath(country.d);
+    assert.equal(d, original.get(country.id), `${country.id}: o traçado não volta igual ao do gerador.`);
+    assert.match(d, /^M[-\d.]/, `${country.id}: path não começa com um comando M.`);
+    assert.match(d, /Z$/, `${country.id}: path não termina fechado.`);
     assert.equal(Array.isArray(country.c), true, `${country.id}: centro ausente.`);
     assert.equal(country.c.length, 2, `${country.id}: centro precisa ter duas coordenadas.`);
     assert.equal(country.c.every(Number.isFinite), true, `${country.id}: centro não finito.`);
@@ -270,6 +284,27 @@ test('os hashes da CSP sobrevivem à normalização de quebras de linha do parse
     scripts.map(cspHash).sort(),
     'Os scripts inline seriam bloqueados pela CSP no navegador.'
   );
+});
+
+// O mesmo defeito nasce nos fontes antes de chegar ao artefato. E mesmo onde o
+// build não alcança, um NUL faz o grep tratar o arquivo inteiro como binário e
+// pulá-lo nas buscas (aconteceu num comentário de scripts/build.cjs), e um CR
+// solto escapou em scripts/check-editorial-coverage.cjs.
+test('nenhum fonte, script, teste ou documento contém CR ou NUL', () => {
+  const arquivos = [
+    ...['src', 'scripts', 'tests', 'supabase'].flatMap((pasta) => fs.readdirSync(path.join(ROOT, pasta), { recursive: true })
+      .map((nome) => path.join(pasta, nome))),
+    ...['qa', '.'].flatMap((pasta) => fs.readdirSync(path.join(ROOT, pasta)).map((nome) => path.join(pasta, nome)))
+      .filter((nome) => /\.(c?js|json|md|sql)$/.test(nome)),
+  ].filter((nome) => fs.statSync(path.join(ROOT, nome)).isFile());
+  assert.ok(arquivos.length > 80, 'A varredura não encontrou os arquivos do projeto.');
+  const defeitos = arquivos.flatMap((nome) => {
+    const bytes = fs.readFileSync(path.join(ROOT, nome));
+    return [[0x00, 'NUL'], [0x0d, 'CR']]
+      .filter(([byte]) => bytes.includes(byte))
+      .map(([byte, rotulo]) => `${nome}: ${rotulo} no byte ${bytes.indexOf(byte)}`);
+  });
+  assert.deepEqual(defeitos, [], 'Troque o caractere pelo escape em texto (\\u0000, \\r) ou converta para LF.');
 });
 
 test('não restam placeholders nem atributos inline bloqueados pela CSP', () => {

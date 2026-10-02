@@ -2,6 +2,7 @@
 node_modules/
 .natural-earth/
 *.log
+reports/
 
 # Arquivos de estágio do build (renomeados para o destino final)
 *.tmp-*

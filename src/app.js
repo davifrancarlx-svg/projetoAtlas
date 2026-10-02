@@ -3,10 +3,15 @@
 
   const Core = globalThis.AtlasCore;
   const Study = globalThis.AtlasStudy;
+  const Feedback = globalThis.AtlasFeedback;
   const sounds = globalThis.AtlasAudio.create();
   if (!Core) throw new Error('AtlasCore não foi carregado.');
   const SyncQueue = globalThis.AtlasSyncQueue;
   if (!SyncQueue) throw new Error('AtlasSyncQueue não foi carregado.');
+  // O traçado viaja compactado no artefato (ver Core.decodePath); daqui em
+  // diante todo mundo lê o path de sempre.
+  DATA.forEach((country) => { country.d = Core.decodePath(country.d); });
+  if (typeof CONTEXT_AREAS !== 'undefined') CONTEXT_AREAS.forEach((area) => { area.d = Core.decodePath(area.d); });
 
   const IDS = DATA.map((country) => country.id);
   const byId = Object.fromEntries(DATA.map((country) => [country.id, country]));
@@ -121,7 +126,7 @@
     question: null, answered: false,
     selectedAnswer: null, answerTerritory: null, hits: 0, misses: 0, streak: 0,
     questionNumber: 0, recentIds: [], forcedQuestion: null,
-    atlasSelected: 'BR', atlasQuery: '', atlasArea: '', atlasLimit: 60, resetArmed: false, resetPending: false,
+    atlasSelected: 'BR', atlasQuery: '', atlasArea: '', atlasFacet: null, atlasLimit: 60, resetArmed: false, resetPending: false,
     mapCursorId: 'BR',
     theme: 'auto',
     timeLimit: 0, askedAt: 0, expired: false,
@@ -152,6 +157,8 @@
   // Os três tipos de série fechada compartilham o mesmo mecanismo (N perguntas,
   // nota no fim) e diferem só no texto e em como se refaz.
   const SERIES_COPY = {
+    pair: { label: 'Treino do par', done: 'Treino do par concluído', again: 'Treinar este par novamente', start: 'Treino do par iniciado' },
+    fresh: { label: 'Novidades', done: 'Lote de novidades concluído', again: 'Continuar novidades', start: 'Treino de novidades iniciado' },
     due: { label: 'Revisões pendentes', done: 'Lote de revisões concluído', again: 'Continuar revisões pendentes', start: 'Revisão de pendências iniciada' },
     exam: { label: 'Prova', done: 'Prova concluída', again: 'Nova prova', start: 'Prova iniciada' },
     daily: { label: 'Treino de hoje', done: 'Treino de hoje concluído', again: 'Treino de hoje', start: 'Treino de hoje iniciado' },
@@ -333,7 +340,7 @@
       if (REGIONS.includes(parsed.region)) state.region = parsed.region;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
-      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, mais abaixo).
+      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, em src/navigation.js).
       // O campo antigo, `filtersCollapsed`, era gravado junto com qualquer outra
       // preferência enquanto o padrão era fechado, então não diz se a pessoa
       // escolheu recolher: só o novo vale.
@@ -547,7 +554,7 @@
       });
       mapState.root.append(contexto);
     }
-    mapState.land = svgElement('g', { 'aria-hidden': 'false' });
+    mapState.land = svgElement('g', { role: 'group', 'aria-label': 'Países' });
     mapState.markers = svgElement('g', { 'aria-hidden': 'true' });
     mapState.effects = svgElement('g', { 'aria-hidden': 'true' });
     DATA.forEach((country) => {
@@ -591,7 +598,7 @@
 
   function clearMapMarks() {
     mapState.nodesById.forEach((nodes) => nodes.forEach((node) => node.classList.remove(
-      'on', 'ok', 'bad', 'neighbor', 'dimmed', 'is-current', 'is-correct', 'is-wrong', 'is-dimmed',
+      'on', 'ok', 'bad', 'neighbor', 'filtered', 'dimmed', 'is-current', 'is-correct', 'is-wrong', 'is-dimmed',
     )));
     clear(mapState.effects);
     mapState.reticle = null;
@@ -642,112 +649,25 @@
     updateMapScaleSensitiveElements();
   }
 
-  function renderedScale() {
-    return mapMetrics().scale;
-  }
-
-  function mapMetrics(refreshPosition = false) {
-    if (mapState.metrics && !refreshPosition) return mapState.metrics;
-    const rect = dom.map.getBoundingClientRect();
-    const scale = rect.width && rect.height ? Math.min(rect.width / mapState.view.w, rect.height / mapState.view.h) : 1;
-    mapState.metrics = {
-      rect, scale,
-      offsetX: (rect.width - mapState.view.w * scale) / 2,
-      offsetY: (rect.height - mapState.view.h * scale) / 2,
-    };
-    return mapState.metrics;
-  }
-
-  function updateMapScaleSensitiveElements() {
-    const unitsPerPixel = 1 / Math.max(.0001, renderedScale());
-    if (mapState.reticle && mapState.reticlePoint) {
-      const [x, y] = mapState.reticlePoint;
-      mapState.reticle.setAttribute('transform', `translate(${x} ${y}) scale(${unitsPerPixel.toFixed(5)})`);
-    }
-    const zoom = WORLD.w / mapState.view.w;
-    if (mapState.markers) mapState.markers.classList.toggle('shows-micro', zoom >= MICRO_MARKER_ZOOM);
-    mapState.microMarkers.forEach(({ marker, point }) => {
-      marker.setAttribute('transform', `translate(${point[0]} ${point[1]}) scale(${unitsPerPixel.toFixed(5)})`);
-    });
-  }
-
   const clamp = Core.clampNumber;
-  const VIEW_OPTIONS = { minimumWidth: MIN_VIEW_WIDTH };
-
-  function applyMapView(view) {
-    mapState.view = view;
-    dom.map.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
-    mapState.metrics = null;
-    updateMapScaleSensitiveElements();
-    updateZoomControls();
-    updateReadout();
-  }
-
-  function setMapView(x, y, width) {
-    applyMapView(Core.clampView({ x, y, w: width, h: width * WORLD.h / WORLD.w }, WORLD, VIEW_OPTIONS));
-  }
-
-  function zoomAt(factor, center) {
-    const selected = state.view === 'atlas' && byId[state.atlasSelected]?.c;
-    if (!center && selected && pointInView(selected)) center = selected;
-    applyMapView(Core.zoomView(mapState.view, factor, center, WORLD, VIEW_OPTIONS));
-  }
-
-  function pointInView([x, y]) {
-    const v = mapState.view;
-    const margin = v.w * 0.015;
-    return x >= v.x + margin && x <= v.x + v.w - margin
-      && y >= v.y + margin && y <= v.y + v.h - margin;
-  }
-
-  function updateZoomControls() {
-    const atMaximum = mapState.view.w <= MIN_VIEW_WIDTH + 1e-6;
-    const atMinimum = mapState.view.w >= WORLD.w - 1e-6;
-    if (dom.zoomIn) dom.zoomIn.disabled = atMaximum;
-    if (dom.zoomOut) dom.zoomOut.disabled = atMinimum;
-    if (dom.zoomReset) dom.zoomReset.disabled = atMinimum
-      && mapState.view.x <= WORLD.x + 1e-6 && mapState.view.y <= WORLD.y + 1e-6;
-  }
-  function resetMapView() { setMapView(WORLD.x, WORLD.y, WORLD.w); }
-
-  // O enquadramento usa o aglomerado principal do país (`pb`), não o bounding
-  // box completo: senão Alasca, Guiana Francesa ou Svalbard forçam a visão do
-  // mundo inteiro e o país "enquadrado" some no meio do oceano.
-  function fitCountry(id) {
-    const country = byId[id];
-    if (!country) return;
-    const box = Array.isArray(country.pb) && country.pb.length === 4 ? country.pb : country.b;
-    // Microestado enquadrado a 14× continuava com menos de um pixel de largura.
-    // Com o teto em 60× o piso deles desce para 45×, o suficiente para a forma
-    // aparecer sem perder a referência regional em volta.
-    applyMapView(Core.fitBox(box, WORLD, {
-      ...VIEW_OPTIONS, floorWidth: country.a < 5 ? WORLD.w / 45 : WORLD.w / 22,
-    }));
-  }
-
-  // O box do território vem em graus; a projeção Robinson curva os paralelos,
-  // então os quatro cantos são projetados antes de virar um retângulo.
-  function territoryBounds(territory) {
-    const corners = [
-      robinson(territory.box[0], territory.box[1]), robinson(territory.box[2], territory.box[1]),
-      robinson(territory.box[0], territory.box[3]), robinson(territory.box[2], territory.box[3]),
-    ];
-    const xs = corners.map((corner) => corner[0]);
-    const ys = corners.map((corner) => corner[1]);
-    return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
-  }
-
-  function territoryPoint(territory) { return robinson(territory.p[0], territory.p[1]); }
-
-  function fitTerritory(territory) {
-    applyMapView(Core.fitBox(territoryBounds(territory), WORLD, { ...VIEW_OPTIONS, floorWidth: WORLD.w / 40 }));
-  }
-
-  function screenToWorld(clientX, clientY, providedMetrics) {
-    const metrics = providedMetrics || mapMetrics(true);
-    return [mapState.view.x + (clientX - metrics.rect.left - metrics.offsetX) / metrics.scale,
-      mapState.view.y + (clientY - metrics.rect.top - metrics.offsetY) / metrics.scale];
-  }
+  const mapViewport = globalThis.AtlasMapViewport.create({
+    Core, mapState, state, dom, byId, WORLD, MIN_VIEW_WIDTH, MICRO_MARKER_ZOOM, robinson,
+    actions: { updateReadout },
+  });
+  function renderedScale(...args) { return mapViewport.renderedScale(...args); }
+  function mapMetrics(...args) { return mapViewport.mapMetrics(...args); }
+  function updateMapScaleSensitiveElements(...args) { return mapViewport.updateMapScaleSensitiveElements(...args); }
+  function setMapView(...args) { return mapViewport.setMapView(...args); }
+  function zoomAt(...args) { return mapViewport.zoomAt(...args); }
+  function pointInView(...args) { return mapViewport.pointInView(...args); }
+  function resetMapView(...args) { return mapViewport.resetMapView(...args); }
+  function fitArea(...args) { return mapViewport.fitArea(...args); }
+  function fitCountry(...args) { return mapViewport.fitCountry(...args); }
+  function territoryBounds(...args) { return mapViewport.territoryBounds(...args); }
+  function territoryPoint(...args) { return mapViewport.territoryPoint(...args); }
+  function fitTerritory(...args) { return mapViewport.fitTerritory(...args); }
+  function screenToWorld(...args) { return mapViewport.screenToWorld(...args); }
+  function schedulePan(...args) { return mapViewport.schedulePan(...args); }
 
   function countryAt(clientX, clientY, originalTarget, providedPoint, providedScale) {
     const directId = originalTarget && originalTarget.dataset ? originalTarget.dataset.id : null;
@@ -870,17 +790,6 @@
       if (score < bestScore) { best = candidate; bestScore = score; }
     });
     return best ? best.id : current.id;
-  }
-
-  function schedulePan(x, y, width) {
-    mapState.pendingPan = { x, y, width };
-    if (mapState.panFrame) return;
-    mapState.panFrame = requestAnimationFrame(() => {
-      mapState.panFrame = 0;
-      const pending = mapState.pendingPan;
-      mapState.pendingPan = null;
-      if (pending) setMapView(pending.x, pending.y, pending.width);
-    });
   }
 
   function endPointer(pointerId, event) {
@@ -1062,6 +971,7 @@
       progress,
       recentIds: state.recentIds,
       forcedId: forced ? forced.id : undefined,
+      opponentId: forced?.opponent,
     });
     state.question = result.question;
     state.recentIds = result.recentIds;
@@ -1071,12 +981,15 @@
     state.expired = false;
     state.questionNumber += 1;
     state.askedAt = Date.now();
+    activeMilliseconds = 0; activeSince = document.hidden ? 0 : Date.now();
     renderQuiz();
     syncMapForQuestion();
     startTimer();
     saveDraft();
     if (options.focus) {
-      document.getElementById('questionTitle')?.focus();
+      const mobile = matchMedia('(max-width: 820px)').matches;
+      document.getElementById('questionTitle')?.focus({ preventScroll: mobile });
+      if (mobile) (isMapQuestion(state.question) ? dom.mapRegion : dom.panel).scrollIntoView({ block: 'start', behavior: 'instant' });
       announce(questionCopy(state.question)[0]);
     }
   }
@@ -1107,6 +1020,7 @@
   // Trocar de aba por um instante não pode virar "tempo esgotado": com a página
   // oculta o relógio congela e retoma de onde parou quando ela volta.
   function pauseTimerWhileHidden() {
+    checkpointStudy();
     if (document.hidden) {
       if (!timer.handle) return;
       timer.paused = Math.max(1, timer.deadline - Date.now());
@@ -1198,6 +1112,22 @@
     return direction === 'cap' ? country.cap : country.n;
   }
 
+  const historySession = crypto.randomUUID();
+  // Um contador por instalação; o envelope funde cada contador pelo máximo.
+  const historyDevice = (() => {
+    const key = 'atlas195:history-device';
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved && /^[a-z0-9-]{8,80}$/.test(saved)) return saved;
+      const id = crypto.randomUUID(); localStorage.setItem(key, id); return id;
+    } catch (_) { return crypto.randomUUID(); }
+  })();
+  let activeSince = 0, activeMilliseconds = 0;
+  function checkpointStudy() {
+    if (activeSince) activeMilliseconds += Math.max(0, Date.now() - activeSince);
+    activeSince = state.view === 'quiz' && state.question && !state.answered && !document.hidden ? Date.now() : 0;
+  }
+
   function answerQuestion(value, territory) {
     if (!state.question || state.answered) return;
     const target = byId[state.question.id];
@@ -1206,6 +1136,7 @@
     else if (state.question.direction === 'reg') correct = value === target.r;
     else correct = value === expectedId();
     stopTimer();
+    checkpointStudy(); activeSince = 0;
     state.answered = true;
     state.selectedAnswer = value === EXPIRED_ANSWER ? null : value;
     state.answerTerritory = territory || null;
@@ -1220,7 +1151,7 @@
       direction: state.question.direction,
       correct,
       expired: state.expired,
-      ms: state.askedAt ? Math.max(0, Date.now() - state.askedAt) : null,
+      ms: state.askedAt ? activeMilliseconds : null,
     };
     state.sessionAnswers.push(registro);
     // A carta revisada volta para a fila em vez de sair no primeiro acerto.
@@ -1244,6 +1175,10 @@
     });
     progress = Core.recordAnswer(progress, target.id, state.question.direction, correct, {
       countryIds: IDS, bestStreak: state.streak, grade,
+      learning: { device: historyDevice, session: historySession, event: crypto.randomUUID(), ms: registro.ms,
+        targetId: expectedId(), chosen: !correct && byId[state.selectedAnswer] ? state.selectedAnswer : null,
+        reason: !correct && byId[state.selectedAnswer]
+          ? Core.confusionReason(byId[expectedId()], byId[state.selectedAnswer], state.question.direction) : null },
     });
     if (!regionWasComplete && regionMastery(target.r).complete) state.regionCelebration = target.r;
     refreshMapMastery();
@@ -1258,7 +1193,9 @@
       ? `Correto. ${expected}.`
       : `${state.expired ? 'Tempo esgotado' : 'Resposta incorreta'}. A resposta é ${expected}.`;
     announce(verdict + marked);
-    document.getElementById('nextQuestion')?.focus();
+    const mobile = matchMedia('(max-width: 820px)').matches;
+    document.getElementById('nextQuestion')?.focus({ preventScroll: mobile });
+    if (mobile) document.querySelector('.verdict')?.scrollIntoView({ block: 'start', behavior: 'instant' });
   }
 
   function skipVisualQuestion() {
@@ -1358,39 +1295,7 @@
         + `${territory.cap} — por isso o ponto ${territory.of === country.id ? 'vale' : 'foi lido'} como `
         + `${sovereign.n}, cuja capital é ${sovereign.cap}.`);
     }
-    if (country.alternateCapitals && country.alternateCapitals.length) notes.push(`Também é capital oficial: ${country.alternateCapitals.join(', ')}.`);
-    if (country.otherSeats && country.otherSeats.length) notes.push(`Outra sede de governo: ${country.otherSeats.join(', ')}.`);
-    if (country.formerCapitalNames && country.formerCapitalNames.length) notes.push(`Nome antigo da capital: ${country.formerCapitalNames.join(', ')}.`);
-    if (country.capitalNote) notes.push(country.capitalNote);
-    return notes;
-  }
-
-  // O erro só ensina se disser por que a confusão era plausível. O núcleo diz
-  // qual é a relação entre o que foi respondido e a resposta certa; aqui ela
-  // vira frase, sempre terminando no traço que separa os dois.
-  function confusionCopy(country, chosen, direction) {
-    const reason = Core.confusionReason(country, chosen, direction);
-    if (!reason) return null;
-    const nome = chosen.n;
-    if (reason === 'flag-similar') {
-      return `${nome} tem bandeira parecida — compare as proporções e os símbolos, não só as cores.`;
-    }
-    if (reason === 'capital-similar') {
-      return `${chosen.cap} e ${country.cap} têm escrita muito parecida — repare no que muda entre as duas.`;
-    }
-    if (reason === 'capital-initial') {
-      return `${chosen.cap} começa com a mesma letra de ${country.cap}, o que facilita a troca.`;
-    }
-    if (reason === 'border') {
-      return `${nome} faz fronteira com ${country.n} — os dois se tocam no mapa.`;
-    }
-    if (reason === 'neighbour') {
-      return `${nome} fica perto de ${country.n} no mapa — o erro foi de poucos graus.`;
-    }
-    if (reason === 'same-subregion') {
-      return `${nome} fica na mesma subregião, ${chosen.sr}: os dois disputam o mesmo lugar na memória.`;
-    }
-    return `${nome} fica na mesma região, ${chosen.r}.`;
+    return notes.concat(Core.capitalNotes(country));
   }
 
   // Errar também precisa dizer de quem era a resposta escolhida: "Banjul e
@@ -1494,7 +1399,7 @@
           if (question.variant === 'shape') card.append(countryShape(item, `Silhueta de ${item.n}`));
           else if (['flag', 'flagOf'].includes(question.direction)) card.append(flagImage(item));
           card.append(create('span', { text: item.n }));
-          if (['cap', 'capOf'].includes(question.direction)) card.append(create('span', { className: 'factmeta', text: `Capital: ${item.cap}` }));
+          if (['cap', 'capOf'].includes(question.direction)) card.append(Feedback.capitalLabel(create, item.cap, item.id === chosen.id ? byId[expectedId(question)].cap : chosen.cap));
           else if (question.direction === 'locate' || question.direction === 'mapId') card.append(create('span', { className: 'factmeta', text: item.sr }));
           comparison.append(card);
         });
@@ -1502,7 +1407,7 @@
       }
       const owner = chosen ? chosenNote(chosen, question.direction) : null;
       if (owner) verdict.append(create('p', { className: 'note', text: owner }));
-      const copy = chosen ? confusionCopy(country, chosen, question.direction) : null;
+      const copy = chosen ? Feedback.copy(Core, byId[expectedId(question)], chosen, question.direction, typeof EDITORIAL_META === 'undefined' ? {} : EDITORIAL_META) : null;
       if (copy) verdict.append(create('p', { className: 'note note-confusion', text: copy }));
     }
 
@@ -1530,6 +1435,7 @@
     dom.shell.dataset.questionMap = String(isMapQuestion(question));
     const country = byId[question.id];
     const [headline, eyebrow] = questionCopy(question);
+    document.getElementById('mobileMapQuestion').textContent = isMapQuestion(question) ? headline : '';
     dom.panel.append(create('div', { className: 'plate' }, [
       create('span', { text: state.fromDeck
         ? `Revisão focada · ${reviewRemaining() > 1 ? `faltam ${reviewRemaining()}` : 'última habilidade'}`
@@ -1602,7 +1508,7 @@
     Core, state, getProgress: () => progress, onPractice: (id) => startCountryPractice(id),
     data: {
       countries: DATA, byId, territories: TERRITORY_LIST, territoriesByCountry,
-      indicatorMeta: INDICATOR_META, families: FAMILY_DIRECTIONS,
+      indicatorMeta: INDICATOR_META, editorialMeta: EDITORIAL_META, families: FAMILY_DIRECTIONS,
     },
     ui: {
       create, clear, flagImage, formatArea, formatList, announce, renderScorebar,
@@ -1612,16 +1518,10 @@
     },
     map: {
       setCursor: setMapCursor, clearMarks: clearMapMarks, mark: markCountry, reticle: showReticle,
-      fitCountry, fitTerritory, territoryPoint,
+      fitCountry, fitTerritory, territoryPoint, fitArea, reset: resetMapView,
+      reveal: () => { setMapCollapsed(false); dom.mapRegion.scrollIntoView({ block: 'start', behavior: 'instant' }); dom.map.focus({ preventScroll: true }); },
     },
   });
-
-  function familyPercent(directions) {
-    const maximum = DATA.length * directions.length * Core.MAX_LEVEL;
-    const score = DATA.reduce((total, country) => total
-      + directions.reduce((sum, direction) => sum + Core.levelOf(progress, country.id, direction), 0), 0);
-    return { score, maximum, percent: maximum ? score / maximum * 100 : 0 };
-  }
 
   function attemptedSkills() {
     const skills = [];
@@ -1630,24 +1530,6 @@
       if (skill.attempts > 0) skills.push({ country, direction, skill });
     }));
     return skills;
-  }
-
-  function dueAttemptedSkills() {
-    const now = Date.now();
-    return attemptedSkills().filter((item) => item.skill.nextReviewAt && Date.parse(item.skill.nextReviewAt) <= now);
-  }
-
-  function progressBar(label, directions) {
-    const value = familyPercent(directions);
-    const wrapper = create('div', { className: 'bar' });
-    wrapper.append(create('div', { className: 'bar-top' }, [
-      create('strong', { text: label }), create('span', { text: formatPercent(value.percent) }),
-    ]));
-    wrapper.append(create('progress', { className: 'progress-native', attrs: {
-      max: value.maximum, value: value.score,
-      'aria-label': `Domínio em ${label}: ${formatPercent(value.percent)}`,
-    } }));
-    return wrapper;
   }
 
   function countryFamilyLevel(country, directions) {
@@ -1671,41 +1553,6 @@
         (mapState.nodesById.get(country.id) || []).forEach((node) => node.classList.toggle('mastered-region', complete));
       });
     });
-  }
-
-  function masteryOverview() {
-    const section = create('section', { className: 'pgroup mastery-overview', attrs: { 'aria-labelledby': 'countryMasteryTitle' } });
-    section.append(create('h3', { id: 'countryMasteryTitle', text: 'Mapa de domínio' }));
-    const regions = create('div', { className: 'region-badges', attrs: { 'aria-label': 'Domínio por região' } });
-    Core.regionsOf(DATA).forEach((region) => {
-      const value = regionMastery(region);
-      const badge = create('div', { className: `region-badge${value.complete ? ' is-complete' : ''}` });
-      badge.append(create('span', { className: 'region-badge-mark', text: value.complete ? '◆' : '◇', attrs: { 'aria-hidden': 'true' } }));
-      badge.append(create('span', {}, [create('strong', { text: region }), create('small', { text: formatPercent(value.percent) })]));
-      regions.append(badge);
-    });
-    section.append(regions);
-    const details = create('details', { className: 'mastery-details' });
-    details.append(create('summary', { text: 'Ver os 195 países por habilidade' }));
-    const legend = create('p', { className: 'mastery-legend', text: 'Bandeira · Capital · Localização' });
-    const grid = create('div', { className: 'mastery-grid' });
-    DATA.slice().sort((a, b) => a.n.localeCompare(b.n, 'pt-BR')).forEach((country) => {
-      const values = [FAMILY_DIRECTIONS.Bandeiras, FAMILY_DIRECTIONS.Capitais, FAMILY_DIRECTIONS.Localização]
-        .map((directions) => Math.round(countryFamilyLevel(country, directions) * 5));
-      const tile = create('button', { className: 'mastery-tile', type: 'button', attrs: {
-        title: country.n,
-        'aria-label': `${country.n}: bandeira nível ${values[0]}, capital nível ${values[1]}, localização nível ${values[2]}`,
-      } });
-      tile.append(create('b', { text: country.id }));
-      const skills = create('span', { className: 'mastery-skills', attrs: { 'aria-hidden': 'true' } });
-      values.forEach((value) => skills.append(create('i', { attrs: { 'data-level': value } })));
-      tile.append(skills);
-      tile.addEventListener('click', () => { state.atlasSelected = country.id; setView('atlas'); atlas.select(country.id, true); });
-      grid.append(tile);
-    });
-    details.append(legend, grid);
-    section.append(details);
-    return section;
   }
 
   // Trocar de assunto encerra a fila anterior; uma carta forçada não pode
@@ -1860,6 +1707,13 @@
     startExam(cards.length, cards, 'country', id);
   }
 
+  function startPairPractice(id, chosen, direction) {
+    if (!byId[id] || !byId[chosen] || id === chosen) return;
+    const cards = Core.Learning.pairPlan(id, chosen, direction, state.includeVisual);
+    startExam(cards.length, cards, 'pair');
+    announce(`Treino de ${byId[id].n} e ${byId[chosen].n}: seis perguntas sobre os dois países.`);
+  }
+
   function endExam() {
     state.exam = null;
     clearExamDraft();
@@ -1935,6 +1789,14 @@
       if (!Array.isArray(draft.cards) || draft.cards.length !== draft.total || !draft.cards.every(validCard)) return null;
     }
     if (draft.kind === 'country' && !byId[draft.countryId]) return null;
+    if (draft.kind === 'pair') {
+      if (!Array.isArray(draft.cards) || draft.cards.length !== 6) return null;
+      const first = draft.cards[0];
+      if (!byId[first.opponent] || first.opponent === first.id) return null;
+      if (!draft.cards.every(card => ['cap', 'capOf', 'flag', 'flagOf', 'mapId', 'locate'].includes(card.direction)
+        && ((card.id === first.id && card.opponent === first.opponent)
+          || (card.id === first.opponent && card.opponent === first.id)))) return null;
+    } else if (draft.cards?.some(card => card.opponent !== undefined)) return null;
     return draft;
   }
 
@@ -2111,12 +1973,17 @@
     refazer.addEventListener('click', () => {
       if (kind === 'daily') startDaily();
       else if (kind === 'due') startDue();
+      else if (kind === 'fresh') startFresh();
       else if (kind === 'country') startCountryPractice(countryId);
+      else if (kind === 'pair') { const card = state.exam.cards[0]; startPairPractice(card.id, card.opponent, card.direction); }
       else startExam(total);
     });
     const voltar = create('button', { className: 'btn ghost', type: 'button', text: 'Voltar ao treino livre' });
     voltar.addEventListener('click', endExam);
     acoes.append(refazer, voltar);
+    if (kind === 'fresh' && !freshCards().length) {
+      refazer.disabled = true; refazer.textContent = 'Nenhuma novidade nestes filtros';
+    }
     if (kind === 'due' && !pendingCards().length) {
       refazer.disabled = true;
       refazer.textContent = 'Nenhuma revisão pendente nestes filtros';
@@ -2140,54 +2007,6 @@
     const mistakes = focusedMistakes();
     if (!mistakes.length) return;
     startDeck(mistakes, `Revisão focada iniciada com ${mistakes.length} ${mistakes.length === 1 ? 'habilidade' : 'habilidades'}. Cada uma sai do baralho após dois acertos.`);
-  }
-
-  function renderSessionSummary(container) {
-    const stats = sessionStats();
-    const section = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'sessionTitle' } });
-    section.append(create('h3', { id: 'sessionTitle', text: 'Esta sessão' }));
-    if (!stats.total) {
-      section.append(create('p', { className: 'empty', text: 'Nenhuma pergunta respondida nesta sessão ainda.' }));
-      container.append(section);
-      return;
-    }
-    const facts = [
-      `${stats.total} ${stats.total === 1 ? 'pergunta' : 'perguntas'}`,
-      `${formatPercent(stats.accuracy)} de precisão`,
-      stats.averageSeconds !== null ? `${stats.averageSeconds.toFixed(1).replace('.', ',')}s por resposta` : null,
-      stats.expired ? `${stats.expired} por tempo esgotado` : null,
-    ].filter(Boolean);
-    section.append(create('p', { className: 'section-copy', text: facts.join(' · ') }));
-    Study.note(section, Study.evolution(state.sessionAnswers));
-
-    // A mesma lista do fechamento da sessão, na mesma ordem de gravidade: dois
-    // lugares contando "os erros desta sessão" de jeitos diferentes confundiam.
-    const mistakes = focusedMistakes();
-    if (mistakes.length) {
-      const deck = create('button', {
-        className: 'btn wide', type: 'button',
-        text: mistakes.length === 1
-          ? 'Revisar o erro desta sessão'
-          : `Revisar os ${mistakes.length} pontos fracos desta sessão`,
-      });
-      deck.addEventListener('click', startMistakeDeck);
-      section.append(deck);
-      const list = create('div', { className: 'weak' });
-      mistakes.slice(0, 12).forEach((item) => {
-        const chip = create('button', {
-          className: `chip${item.recovered ? '' : ' chip-urgent'}`, type: 'button',
-          text: item.misses > 1
-            ? `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]} · ${item.misses}×`
-            : `${byId[item.id].n} · ${DIRECTION_LABEL[item.direction]}`,
-        });
-        chip.addEventListener('click', () => startReview(item.id, item.direction));
-        list.append(chip);
-      });
-      section.append(list);
-    } else {
-      section.append(create('p', { className: 'empty', text: 'Nenhum erro pendente nesta sessão.' }));
-    }
-    container.append(section);
   }
 
   function sessionOutcomeByCountry(answers = state.sessionAnswers) {
@@ -2224,6 +2043,13 @@
 
   function pendingCards() {
     return Study.duePlan(Core, DATA, progress, effectiveDirections(), state.region);
+  }
+
+  function freshCards() { return Study.freshPlan(Core, DATA, progress, effectiveDirections(), state.region); }
+  function startFresh() {
+    const cards = freshCards().slice(0, 30);
+    if (cards.length) startExam(cards.length, cards, 'fresh');
+    else { state.exam = null; setView('prog'); announce('Nenhuma novidade nestes filtros.'); }
   }
 
   function startDue() {
@@ -2319,86 +2145,14 @@
     announce('Sessão encerrada. O resumo do aprendizado está disponível.');
   }
 
-  function startNewSession() {
+  async function startNewSession() {
+    if (await reloadForUpdate()) return;
     abandonExercise();
     state.hits = 0; state.misses = 0; state.streak = 0; state.questionNumber = 0;
     state.sessionAnswers = []; state.reviewQueue = []; state.forcedQuestion = null;
     state.fromDeck = false; state.deckPending = false; state.sessionEnded = false;
     state.reviewCard = null; state.reviewStats = null; state.reviewDone = null;
     createNextQuestion({ focus: true });
-  }
-
-  function progressFileName() {
-    const now = new Date();
-    const stamp = [
-      now.getFullYear(),
-      String(now.getMonth() + 1).padStart(2, '0'),
-      String(now.getDate()).padStart(2, '0'),
-    ].join('-');
-    return `atlas-195-progresso-${stamp}.json`;
-  }
-
-  function exportProgress() {
-    const serialized = Core.serializeProgress(progress, { countryIds: IDS });
-    const blob = new Blob([serialized], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = create('a', { attrs: { href: url, download: progressFileName() } });
-    document.body.append(link);
-    link.click();
-    link.remove();
-    // O objeto fica vivo até o download começar; um tempo curto basta e evita
-    // vazar a URL na sessão.
-    setTimeout(() => URL.revokeObjectURL(url), 30_000);
-    const studied = Object.keys(progress.countries || {}).length;
-    state.importStatus = { kind: 'ok', text: `Arquivo gerado com ${studied} ${studied === 1 ? 'país' : 'países'} no histórico.` };
-    renderProgress();
-    announce('Progresso exportado para arquivo.');
-  }
-
-  // A importação funde, nunca sobrescreve: mergeProgress resolve por geração,
-  // época e revisão, então trazer um backup antigo não apaga o que já existe
-  // neste navegador, e um reset mais recente continua vencendo.
-  async function importProgressFile(file) {
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      state.importStatus = { kind: 'error', text: 'Arquivo grande demais para ser um progresso do Atlas.' };
-      renderProgress();
-      announce('Arquivo recusado: tamanho incompatível.');
-      return;
-    }
-    let raw;
-    try {
-      raw = await file.text();
-    } catch (_) {
-      state.importStatus = { kind: 'error', text: 'Não foi possível ler o arquivo escolhido.' };
-      renderProgress();
-      return;
-    }
-    const decoded = Core.deserializeProgress(raw, { countryIds: IDS });
-    if (decoded.recovered) {
-      state.importStatus = { kind: 'error', text: 'Este arquivo não é um progresso válido do Atlas 195. Nada foi alterado.' };
-      renderProgress();
-      announce('Importação recusada: arquivo inválido.');
-      return;
-    }
-    const before = Core.serializeProgress(progress, { countryIds: IDS });
-    const merged = Core.mergeProgress(progress, decoded.progress, { countryIds: IDS });
-    const after = Core.serializeProgress(merged, { countryIds: IDS });
-    progress = merged;
-    const incomingCountries = Object.keys(decoded.progress.countries || {}).length;
-    const totalCountries = Object.keys(merged.countries || {}).length;
-    if (after === before) {
-      state.importStatus = { kind: 'ok', text: 'Arquivo válido, mas ele não trazia nada novo além do que já estava aqui.' };
-    } else {
-      queueProgressSave(true);
-      state.importStatus = {
-        kind: 'ok',
-        text: `Progresso fundido: ${incomingCountries} ${incomingCountries === 1 ? 'país' : 'países'} no arquivo, `
-          + `${totalCountries} no histórico agora.`,
-      };
-    }
-    renderProgress();
-    announce(state.importStatus.text);
   }
 
   /* ------------------------------------------------------------------ *
@@ -2419,307 +2173,100 @@
     rerender: () => { if (state.view === 'prog') renderProgress(); },
   });
 
-  function renderBackup(container) {
-    const card = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'backupTitle' } });
-    card.append(create('h3', { id: 'backupTitle', text: 'Backup do progresso' }));
-    card.append(create('p', {
-      text: 'O progresso vive somente neste navegador. Exporte um arquivo para guardar ou levar '
-        + 'para outro aparelho; a importação funde com o que já existe aqui, sem apagar nada.',
-    }));
-    const actions = create('div', { className: 'button-row' });
-    const exportButton = create('button', { className: 'btn ghost', type: 'button', text: 'Exportar progresso' });
-    exportButton.addEventListener('click', exportProgress);
-    const input = create('input', {
-      id: 'importProgressInput', className: 'file-input',
-      attrs: { type: 'file', accept: 'application/json,.json' },
-    });
-    input.addEventListener('change', () => {
-      const file = input.files && input.files[0];
-      input.value = '';
-      importProgressFile(file);
-    });
-    const label = create('label', {
-      className: 'btn ghost', text: 'Importar progresso',
-      attrs: { for: 'importProgressInput' },
-    });
-    actions.append(exportButton, input, label);
-    card.append(actions);
-    if (state.importStatus) {
-      card.append(create('p', {
-        className: `note${state.importStatus.kind === 'error' ? ' note-error' : ''}`,
-        text: state.importStatus.text, attrs: { role: 'status' },
-      }));
-    }
-    container.append(card);
-  }
+  // A aba Progresso mora em src/progress.js, na mesma linha da conta e do
+  // Atlas: o módulo recebe o estado e as ações e devolve `render`.
+  const progressView = globalThis.AtlasProgress.create({
+    Core, Study, state, sounds, account,
+    getProgress: () => progress,
+    setProgress: (next) => { progress = next; },
+    data: {
+      countries: DATA, ids: IDS, byId, directions: DIRECTIONS,
+      families: FAMILY_DIRECTIONS, labels: DIRECTION_LABEL, mapMeta: MAP_META,
+    },
+    ui: {
+      create, announce, formatPercent, numero, panel: () => dom.panel,
+      prepare: () => { atlas.detach(); clear(dom.panel); renderScorebar(); },
+      familyLevel: countryFamilyLevel, regionMastery, storageStatus: setStorageStatus,
+      lockShell: (locked) => {
+        dom.shell.classList.toggle('is-resetting', locked);
+        dom.topbar.toggleAttribute('inert', locked);
+        dom.controls.toggleAttribute('inert', locked);
+      },
+    },
+    actions: {
+      attempted: attemptedSkills, pending: pendingCards, nextReview: nextReviewCopy,
+      sessionStats, mistakes: focusedMistakes, startMistakeDeck, startReview,
+      startDaily, startExam, startDue, startFresh, fresh: freshCards, practiceCountry: startCountryPractice, savePreferences, saveNow: () => queueProgressSave(true),
+      practicePair: startPairPractice,
+      comparePair: (id, chosen) => { state.atlasSelected = id; setView('atlas'); atlas.compare(id, chosen); },
+      openCountry: (id) => { state.atlasSelected = id; setView('atlas'); atlas.select(id, true); },
+      resetAll: resetAllProgress,
+    },
+  });
+  function renderProgress() { progressView.render(); }
 
-  // Números de toda a história, não só desta sessão. O recorde de sequência já
-  // era salvo e sincronizado, mas nunca aparecia em lugar nenhum.
-  function overallStats(attempted) {
-    const attempts = attempted.reduce((sum, item) => sum + item.skill.attempts, 0);
-    const correct = attempted.reduce((sum, item) => sum + item.skill.correct, 0);
-    const strip = create('div', { className: 'session-result-stats overall-stats', attrs: { 'aria-label': 'Totais de todo o histórico' } });
-    strip.append(
-      create('span', {}, [create('b', { text: numero(attempts) }), document.createTextNode(attempts === 1 ? ' resposta' : ' respostas')]),
-      create('span', {}, [create('b', { text: attempts ? formatPercent(correct / attempts * 100) : '—' }), document.createTextNode(' de acerto')]),
-      create('span', {}, [create('b', { text: numero(progress.bestStreak) }), document.createTextNode(' recorde de sequência')]),
-    );
-    return strip;
-  }
-
-  function renderProgress() {
-    const focused = document.activeElement;
-    const accountFocus = focused && ['contaEmail', 'pedirLink', 'retomarConta', 'contaApelido', 'salvarApelido'].includes(focused.id)
-      ? { id: focused.id, start: focused.selectionStart, end: focused.selectionEnd } : null;
-    atlas.detach();
-    clear(dom.panel);
-    renderScorebar();
-    const attempted = attemptedSkills();
-    const due = dueAttemptedSkills();
-    const attemptedCountries = new Set(attempted.map((item) => item.country.id));
-    const mastered = DATA.filter((country) => DIRECTIONS.every((direction) => Core.levelOf(progress, country.id, direction) === Core.MAX_LEVEL)).length;
-    dom.panel.append(create('div', { className: 'plate' }, [
-      create('span', { text: 'Progresso validado' }), create('span', { text: `esquema v${Core.SCHEMA_VERSION}` }),
-    ]));
-    dom.panel.append(create('h2', { id: 'progressTitle', className: 'panel-title', text: 'Seu aprendizado', attrs: { tabindex: '-1' } }));
-    dom.panel.append(create('p', { className: 'section-copy', text: `${attemptedCountries.size} países estudados · ${mastered} dominados · ${due.length} revisões vencidas` }));
-    dom.panel.append(overallStats(attempted));
-
-    renderSessionSummary(dom.panel);
-    Study.card(dom.panel, startDaily, state.dailySize || 10, size => { state.dailySize = size; savePreferences(); });
-    Study.note(dom.panel, nextReviewCopy());
-
-    // O treino livre é infinito, o que serve para revisar mas não para medir.
-    // A prova fecha uma série e dá uma nota, respeitando o modo e a área de
-    // estudo escolhidos na barra de controles.
-    const prova = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'examTitle' } });
-    prova.append(create('h3', { id: 'examTitle', text: 'Prova' }));
-    prova.append(create('p', {
-      className: 'section-copy',
-      text: 'Uma série fechada, com nota no fim. Usa o modo e a área de estudo selecionados.',
-    }));
-    const opcoes = create('div', { className: 'button-row' });
-    [10, 20, 30].forEach((total) => {
-      const botao = create('button', {
-        className: total === 20 ? 'btn' : 'btn ghost', type: 'button',
-        text: `${total} perguntas`,
-        attrs: { 'aria-label': `Iniciar prova de ${total} perguntas` },
+  // Apagar de verdade. A conversa do recomeço mora em src/progress.js, mas só
+  // o app sabe gravar: funde o que o armazenamento já tinha antes de apagar e
+  // lança se não conseguir gravar, para a aba Progresso avisar.
+  async function resetAllProgress() {
+    resetSyncDirty = false;
+    const performReset = async () => {
+      clearTimeout(saveTimer);
+      await saveChain.catch(() => undefined);
+      const hostRaw = await readHost(STORAGE_KEY);
+      let latest = progress;
+      [hostRaw, readLocal(STORAGE_KEY)].forEach((raw) => {
+        if (typeof raw !== 'string') return;
+        const decoded = Core.deserializeProgress(raw, { countryIds: IDS });
+        if (!decoded.recovered) latest = Core.mergeProgress(latest, decoded.progress, { countryIds: IDS });
       });
-      botao.addEventListener('click', () => startExam(total));
-      opcoes.append(botao);
-    });
-    prova.append(opcoes);
-    dom.panel.append(prova);
-
-    const mastery = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'masteryTitle' } });
-    mastery.append(create('h3', { id: 'masteryTitle', text: 'Domínio por habilidade' }));
-    Object.entries(FAMILY_DIRECTIONS).forEach(([label, directions]) => mastery.append(progressBar(label, directions)));
-    dom.panel.append(mastery);
-    dom.panel.append(masteryOverview());
-
-    const review = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'reviewTitle' } });
-    review.append(create('h3', { id: 'reviewTitle', text: 'Revisões recomendadas' }));
-    const pending = pendingCards();
-    const reviewAll = create('button', { id: 'dueTraining', className: 'btn', type: 'button', text: 'Revisar somente pendências', attrs: { disabled: pending.length ? null : '' } });
-    reviewAll.addEventListener('click', startDue);
-    review.append(reviewAll);
-    Study.note(review, `${pending.length} habilidades vencidas no modo e na área selecionados. Lotes de até 30 perguntas, das mais antigas às mais recentes; ao terminar, você pode continuar com as próximas.`);
-    const reviewList = create('div', { className: 'weak' });
-    due.slice(0, 12).forEach((item) => {
-      const button = create('button', { className: 'chip hot', type: 'button', text: `${item.country.n} · ${DIRECTION_LABEL[item.direction]}` });
-      button.addEventListener('click', () => startReview(item.country.id, item.direction));
-      reviewList.append(button);
-    });
-    if (!due.length) reviewList.append(create('p', { className: 'empty', text: attempted.length
-      ? 'Tudo revisado por enquanto. Novas revisões aparecerão na data adequada.'
-      : 'Responda algumas perguntas para criar seu primeiro ciclo de revisão.' }));
-    review.append(reviewList);
-    dom.panel.append(review);
-
-    const weakItems = attempted.filter((item) => item.skill.level <= 1)
-      .sort((a, b) => a.skill.level - b.skill.level || a.skill.correct / a.skill.attempts - b.skill.correct / b.skill.attempts)
-      .slice(0, 12);
-    const weakSection = create('section', { className: 'pgroup', attrs: { 'aria-labelledby': 'weakTitle' } });
-    weakSection.append(create('h3', { id: 'weakTitle', text: 'Pontos para reforçar' }));
-    const weakList = create('div', { className: 'weak' });
-    weakItems.forEach((item) => {
-      const button = create('button', { className: 'chip', type: 'button', text: `${item.country.n} · ${DIRECTION_LABEL[item.direction]}` });
-      button.addEventListener('click', () => startReview(item.country.id, item.direction));
-      weakList.append(button);
-    });
-    if (!weakItems.length) weakList.append(create('p', { className: 'empty', text: attempted.length
-      ? 'Nenhuma habilidade fraca registrada.' : 'Ainda não há histórico suficiente para apontar dificuldades.' }));
-    weakSection.append(weakList);
-    dom.panel.append(weakSection);
-
-    // O botão do topo liga e desliga; volume, estilo e quando tocar ficam aqui,
-    // junto das outras preferências. O módulo monta o próprio painel.
-    sounds.panel(dom.panel);
-    account.render(dom.panel);
-    renderBackup(dom.panel);
-
-    const source = MAP_META && MAP_META.source || {};
-    const sourceSection = create('section', { className: 'source-card', attrs: { 'aria-labelledby': 'sourceTitle' } });
-    sourceSection.append(create('h3', { id: 'sourceTitle', text: 'Dados cartográficos' }));
-    sourceSection.append(create('p', { text: `${source.name || 'Natural Earth'} · ${MAP_META.scale || '1:10m'} · versão ${MAP_META.version || '5.1.1'} · ${source.boundaryPolicy || 'visão de fronteiras padrão'}.` }));
-    sourceSection.append(create('p', { className: 'source-note', text: `${MAP_META.stats && MAP_META.stats.worldPolygons
-      ? new Intl.NumberFormat('pt-BR').format(MAP_META.stats.worldPolygons) : 'Milhares de'} componentes territoriais mundiais preservados. Dados em domínio público.` }));
-    sourceSection.append(create('p', { className: 'source-note', text: 'Bandeiras: flag-icons 7.5.0, coleção SVG sob licença MIT.' }));
-    dom.panel.append(sourceSection);
-
-    const reset = create('section', { className: 'reset-zone', attrs: { 'aria-labelledby': 'resetTitle' } });
-    reset.append(create('h3', { id: 'resetTitle', text: 'Recomeçar' }));
-    if (!state.resetArmed) {
-      const button = create('button', { id: 'resetProgress', className: 'btn ghost', text: 'Apagar todo o progresso', type: 'button' });
-      button.addEventListener('click', () => {
-        state.resetArmed = true;
-        renderProgress();
-        document.getElementById('confirmReset')?.focus();
-      });
-      reset.append(button);
-    } else {
-      reset.append(create('p', {
-        id: state.resetPending ? 'resetPendingStatus' : null,
-        className: 'note',
-        text: state.resetPending
-          ? 'Conferindo os dados mais recentes antes de apagar…'
-          : 'Esta ação apaga níveis, histórico de revisão e recorde. As preferências e o apelido serão mantidos.',
-        attrs: state.resetPending ? { role: 'status', 'aria-live': 'polite', tabindex: '-1' } : {},
-      }));
-      const actions = create('div', { className: 'button-row' });
-      const cancel = create('button', { className: 'btn ghost', text: 'Cancelar', type: 'button', attrs: {
-        disabled: state.resetPending ? '' : null,
-      } });
-      const confirm = create('button', { id: 'confirmReset', className: 'btn danger', text: 'Confirmar exclusão', type: 'button', attrs: {
-        disabled: state.resetPending ? '' : null,
-      } });
-      cancel.addEventListener('click', () => {
-        if (state.resetPending) return;
-        state.resetArmed = false;
-        renderProgress();
-        document.getElementById('resetProgress')?.focus();
-      });
-      confirm.addEventListener('click', async () => {
-        if (state.resetPending) return;
-        state.resetPending = true;
-        resetSyncDirty = false;
-        dom.shell.classList.add('is-resetting');
-        dom.topbar.setAttribute('inert', '');
-        dom.controls.setAttribute('inert', '');
-        renderProgress();
-        document.getElementById('resetPendingStatus')?.focus();
-        const performReset = async () => {
-          clearTimeout(saveTimer);
-          await saveChain.catch(() => undefined);
-          const hostRaw = await readHost(STORAGE_KEY);
-          let latest = progress;
-          [hostRaw, readLocal(STORAGE_KEY)].forEach((raw) => {
-            if (typeof raw !== 'string') return;
-            const decoded = Core.deserializeProgress(raw, { countryIds: IDS });
-            if (!decoded.recovered) latest = Core.mergeProgress(latest, decoded.progress, { countryIds: IDS });
-          });
-          const cleared = Core.resetProgress(latest, { now: new Date().toISOString(), countryIds: IDS });
-          progress = cleared;
-          setStorageStatus('Apagando progresso…');
-          let persisted = false;
-          try {
-            let result;
-            let attempts = 0;
-            do {
-              resetSyncDirty = false;
-              const canonical = Core.serializeProgress(progress, { countryIds: IDS });
-              result = await writeAll(canonical);
-              persisted = true;
-              const localMatches = !result.localOk || readLocal(STORAGE_KEY) === canonical;
-              attempts += 1;
-              if (!resetSyncDirty && localMatches) break;
-            } while (attempts < 4);
-            if (resetSyncDirty) flushLocalProgress();
-            const destinations = [result.localOk && 'neste navegador', result.hostOk && 'no armazenamento do app']
-              .filter(Boolean).join(' e ');
-            setStorageStatus(`Progresso apagado ${destinations}.`, 'ok');
-          } catch (error) {
-            if (!persisted) progress = latest;
-            throw error;
-          }
-        };
-        try {
-          if (navigator.locks && typeof navigator.locks.request === 'function') {
-            await navigator.locks.request(RESET_LOCK_KEY, performReset);
-          } else await performReset();
-          account.schedule();
-          state.resetPending = false;
-          state.resetArmed = false;
-          dom.shell.classList.remove('is-resetting');
-          dom.topbar.removeAttribute('inert');
-          dom.controls.removeAttribute('inert');
-          state.hits = 0;
-          state.misses = 0;
-          state.streak = 0;
-          state.sessionAnswers = []; state.questionNumber = 0;
-          state.question = null; state.answered = false; state.sessionEnded = false;
-          abandonExercise();
-          if (state.view === 'prog') renderProgress();
-          announce('Todo o progresso foi apagado.');
-          if (state.view === 'prog') document.getElementById('progressTitle')?.focus();
-        } catch (_) {
-          state.resetPending = false;
-          dom.shell.classList.remove('is-resetting');
-          dom.topbar.removeAttribute('inert');
-          dom.controls.removeAttribute('inert');
-          if (state.view === 'prog') renderProgress();
-          setStorageStatus('Não foi possível apagar o progresso com segurança.', 'error', true);
-          if (state.view === 'prog') document.getElementById('confirmReset')?.focus();
-        }
-      });
-      actions.append(cancel, confirm);
-      reset.append(actions);
-    }
-    dom.panel.append(reset);
-    if (accountFocus) {
-      const restored = document.getElementById(accountFocus.id)
-        || (accountFocus.id === 'retomarConta' && document.getElementById('contaApelido'));
-      restored?.focus({ preventScroll: true });
-      if (restored && accountFocus.start !== null && accountFocus.start !== undefined) {
-        restored.setSelectionRange(accountFocus.start, accountFocus.end);
+      const cleared = Core.resetProgress(latest, { now: new Date().toISOString(), countryIds: IDS });
+      progress = cleared;
+      setStorageStatus('Apagando progresso…');
+      let persisted = false;
+      try {
+        let result;
+        let attempts = 0;
+        do {
+          resetSyncDirty = false;
+          const canonical = Core.serializeProgress(progress, { countryIds: IDS });
+          result = await writeAll(canonical);
+          persisted = true;
+          const localMatches = !result.localOk || readLocal(STORAGE_KEY) === canonical;
+          attempts += 1;
+          if (!resetSyncDirty && localMatches) break;
+        } while (attempts < 4);
+        if (resetSyncDirty) flushLocalProgress();
+        const destinations = [result.localOk && 'neste navegador', result.hostOk && 'no armazenamento do app']
+          .filter(Boolean).join(' e ');
+        setStorageStatus(`Progresso apagado ${destinations}.`, 'ok');
+      } catch (error) {
+        if (!persisted) progress = latest;
+        throw error;
       }
-    }
+    };
+    if (navigator.locks && typeof navigator.locks.request === 'function') {
+      await navigator.locks.request(RESET_LOCK_KEY, performReset);
+    } else await performReset();
+    account.schedule();
+    state.hits = 0;
+    state.misses = 0;
+    state.streak = 0;
+    state.sessionAnswers = []; state.questionNumber = 0;
+    state.question = null; state.answered = false; state.sessionEnded = false;
+    abandonExercise();
   }
 
-  function setView(view) {
-    if (!['quiz', 'atlas', 'prog'].includes(view)) return;
-    state.view = view;
-    document.body.dataset.view = view;
-    dom.shell.dataset.view = view;
-    dom.shell.classList.toggle('is-focus-mode', state.focusMode && view === 'quiz');
-    dom.tabs.forEach((tab) => {
-      if (tab.dataset.view === view) tab.setAttribute('aria-current', 'page');
-      else tab.removeAttribute('aria-current');
-    });
-    dom.skipVisual.hidden = true;
-    dom.map.classList.remove('picking');
-    stopTimer();
-    if (view === 'quiz' && state.sessionEnded) renderSessionResult();
-    else if (view === 'quiz' && !state.question && state.examDraft) renderExamResume();
-    else if (view === 'quiz' && !state.question && !state.exam && !state.fromDeck && !state.forcedQuestion) createNextQuestion();
-    else if (view === 'quiz') { renderQuiz(); syncMapForQuestion(); startTimer(); }
-    else if (view === 'atlas') atlas.render();
-    else { clearMapMarks(); renderProgress(); }
-    announce(view === 'quiz' ? 'Treino aberto.' : view === 'atlas' ? 'Atlas aberto.' : 'Progresso aberto.');
-  }
-
-  function setMapCollapsed(collapsed, persist = true) {
-    state.mapCollapsed = Boolean(collapsed);
-    dom.mapRegion.classList.toggle('is-collapsed', state.mapCollapsed);
-    dom.mapRegion.dataset.collapsed = String(state.mapCollapsed);
-    dom.mapToggle.setAttribute('aria-expanded', String(!state.mapCollapsed));
-    const label = dom.mapToggle.querySelector('.map-toggle-label');
-    const icon = dom.mapToggle.querySelector('.map-toggle-icon');
-    if (label) label.textContent = state.mapCollapsed ? 'Mostrar mapa' : 'Recolher mapa';
-    if (icon) icon.textContent = state.mapCollapsed ? '+' : '−';
-    if (persist) savePreferences();
-    if (!state.mapCollapsed) requestAnimationFrame(updateMapScaleSensitiveElements);
-  }
+  const navigation = globalThis.AtlasNavigation.create({ state, dom, actions: {
+    checkpointStudy, isMapQuestion, stopTimer, renderSessionResult, renderExamResume,
+    createNextQuestion, renderQuiz, syncMapForQuestion, startTimer, clearMapMarks,
+    renderProgress, renderAtlas: () => atlas.render(), announce, savePreferences,
+    updateMapScaleSensitiveElements, setActiveSince: value => { activeSince = value; },
+  } });
+  function setView(view) { navigation.setView(view); }
+  function setMapCollapsed(collapsed, persist = true) { navigation.setMapCollapsed(collapsed, persist); }
+  function setFiltersCollapsed(collapsed) { navigation.setFiltersCollapsed(collapsed); }
+  function syncFilterLayout() { navigation.syncFilterLayout(); }
 
   function syncControls() {
     dom.modeSeg.querySelectorAll('[data-mode]').forEach((button) => {
@@ -2740,29 +2287,6 @@
     dom.region.value = state.region;
     setMapCollapsed(state.mapCollapsed, false);
     syncFilterLayout();
-  }
-
-  // Sem escolha guardada, a barra fica aberta no computador e no tablet e
-  // recolhida no celular, onde ocuparia a primeira tela inteira e empurraria as
-  // alternativas para baixo da dobra. Abrir ou recolher pelo botão vira escolha
-  // da pessoa e passa a valer em qualquer tamanho.
-  const PHONE_LAYOUT = matchMedia('(max-width: 560px), (max-height: 500px)');
-  function filtersHidden() {
-    return typeof state.filtersCollapsed === 'boolean' ? state.filtersCollapsed : PHONE_LAYOUT.matches;
-  }
-
-  function setFiltersCollapsed(collapsed) {
-    state.filtersCollapsed = Boolean(collapsed);
-    syncFilterLayout();
-    savePreferences();
-  }
-
-  function syncFilterLayout() {
-    const hidden = filtersHidden();
-    dom.controls.hidden = hidden;
-    dom.filterToggle.setAttribute('aria-expanded', String(!hidden));
-    const icon = dom.filterToggle.querySelector('.filter-toggle-icon');
-    if (icon) icon.textContent = hidden ? '+' : '−';
   }
 
   function bindControls() {
@@ -2829,9 +2353,7 @@
       const expanded = dom.filterToggle.getAttribute('aria-expanded') === 'true';
       setFiltersCollapsed(expanded);
     });
-    if (PHONE_LAYOUT.addEventListener) PHONE_LAYOUT.addEventListener('change', syncFilterLayout);
-    else PHONE_LAYOUT.addListener(syncFilterLayout);
-    syncFilterLayout();
+    navigation.observeFilters();
     dom.mapToggle.addEventListener('click', () => setMapCollapsed(!state.mapCollapsed));
     dom.skipVisual.addEventListener('click', skipVisualQuestion);
     dom.zoomIn.addEventListener('click', () => zoomAt(1.4));
@@ -2902,9 +2424,43 @@
     const recarregar = create('button', { className: 'btn', type: 'button', text: 'Recarregar' });
     recarregar.addEventListener('click', () => location.reload());
     aviso.append(recarregar);
-    const barra = document.querySelector('.app-status');
-    if (barra) barra.append(aviso);
+    const barra = dom.shell;
+    if (barra) barra.prepend(aviso);
+    aviso.append(create('p', { className: 'note', text: 'A atualização será aplicada automaticamente quando você começar uma nova sessão, com o progresso já salvo.' }));
+    updateReady = true;
     announce('Uma versão nova do Atlas está pronta. Recarregue para usá-la.');
+  }
+
+  // A versão nova entra na passagem de uma sessão para outra. Recarregar logo
+  // depois de "Encerrar" apagava o resumo e a revisão focada dos erros, que só
+  // existem na memória da aba; em "Nova sessão" eles já foram vistos e não há
+  // pergunta em andamento.
+  let updateReady = false;
+  let updating = false;
+  async function reloadForUpdate() {
+    if (!updateReady || updating || !state.ready || state.resetPending) return false;
+    updating = true;
+    abandonExercise();
+    const snapshot = Core.serializeProgress(progress, { countryIds: IDS });
+    try {
+      await saveChain;
+      await writeAll(snapshot);
+    } catch (_) {
+      updating = false;
+      const note = document.querySelector('#updateNotice .note');
+      if (note) note.textContent = 'Salve um backup antes de recarregar: não foi possível confirmar a gravação.';
+      return false;
+    }
+    if (snapshot !== Core.serializeProgress(progress, { countryIds: IDS })) { updating = false; return false; }
+    location.reload();
+    return true;
+  }
+
+  function openCountryLink() {
+    const id = globalThis.AtlasCountryTools.countryFromHash(location.hash, byId);
+    if (!id) return;
+    state.atlasQuery = ''; state.atlasArea = ''; state.atlasFacet = null;
+    state.atlasSelected = id; setView('atlas'); atlas.select(id, true);
   }
 
   async function initialize() {
@@ -2924,11 +2480,14 @@
       state.ready = true;
       bindMapEvents();
       bindControls();
+      document.getElementById('mapInstructions').textContent = Study.SHORTCUTS.slice(2).map(([key, action]) => key + ': ' + action).join(' ');
+      window.addEventListener('hashchange', openCountryLink);
       state.examDraft = readExamDraft();
       if (state.examDraft) renderExamResume(); else createNextQuestion();
       // A conta entra depois que o treino já está de pé: nada aqui pode atrasar
       // ou impedir a primeira pergunta aparecer.
       account.initialize();
+      openCountryLink();
     } catch (error) {
       setStorageStatus('O Atlas não pôde ser iniciado.', 'error', true);
       clear(dom.panel);

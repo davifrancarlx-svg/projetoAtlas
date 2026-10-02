@@ -15,12 +15,15 @@
 //   IDH        PNUD, Relatório de Desenvolvimento Humano. É a única fonte
 //              legítima: o índice é definido e calculado por eles, todo o resto
 //              apenas republica.
-//   Demais     Banco Mundial, que republica as projeções da ONU e as séries
-//              ambientais numa API estável. Cada série traz o próprio ano.
+//   Floresta   FAO, dados publicados da FRA 2025, indicador ODS 15.1.1.
+//   Demais     Banco Mundial, que republica as projeções da ONU numa API
+//              estável e já traz as revisões mais novas delas (a de urbanização
+//              bate, país a país, com a WUP 2025). Cada série traz o próprio ano.
 
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { urlFao, lerFao, TABLE, VARIABLE, YEAR } = require('./fra-data.cjs');
 
 const root = path.resolve(__dirname, '..');
 const OUTPUT = path.join(root, 'data', 'indicators.json');
@@ -43,8 +46,14 @@ const BANCO_MUNDIAL = {
     { campo: 'vida', codigo: 'SP.DYN.LE00.IN', rotulo: 'expectativa de vida ao nascer', decimais: 1 },
     { campo: 'dens', codigo: 'EN.POP.DNST', rotulo: 'densidade demográfica', decimais: 1 },
     { campo: 'urb', codigo: 'SP.URB.TOTL.IN.ZS', rotulo: 'população urbana', decimais: 1 },
-    { campo: 'flor', codigo: 'AG.LND.FRST.ZS', rotulo: 'área florestal', decimais: 1 },
   ],
+};
+// Dados publicados mais recentes dentro do ciclo FRA 2025.
+const FAO = {
+  fonte: 'FAO — Avaliação Global dos Recursos Florestais 2025',
+  termos: 'https://www.fao.org/contact-us/terms/db-terms-of-use/en',
+  licenca: 'CC BY 4.0',
+  indicadores: [{ campo: 'flor', tabela: TABLE, variavel: VARIABLE, rotulo: 'área florestal', decimais: 1 }],
 };
 const urlIndicador = (codigo) =>
   `https://api.worldbank.org/v2/country/all/indicator/${codigo}?format=json&per_page=400&mrv=1`;
@@ -57,17 +66,16 @@ const AUSENCIAS = {
     MC: 'Mônaco não integra o levantamento do PNUD.',
     VA: 'O Vaticano não integra o levantamento do PNUD.',
   },
-  // O Vaticano fica fora de todas as séries do Banco Mundial: com cerca de 800
-  // residentes, está abaixo do limite de cobertura.
+  // Ausência na série publicada, sem atribuir uma causa não documentada.
   bancoMundial: {
-    VA: 'O Vaticano tem cerca de 800 residentes e fica abaixo do limite de cobertura do Banco Mundial.',
+    VA: 'O Banco Mundial não publica estes indicadores para o Vaticano.',
   },
 };
 
 const sha256 = (dado) => crypto.createHash('sha256').update(dado).digest('hex');
 
 async function baixar(url, rotulo) {
-  const resposta = await fetch(url, { redirect: 'follow' });
+  const resposta = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(90000) });
   if (!resposta.ok) throw new Error(`${rotulo}: a fonte respondeu ${resposta.status}.`);
   return Buffer.from(await resposta.arrayBuffer());
 }
@@ -88,7 +96,7 @@ function mapaIso() {
     const tres = String(p.ISO_A3_EH || p.ISO_A3 || '').trim();
     if (dois && dois !== '-99' && tres && tres !== '-99') mapa[dois] = tres;
   }
-  return mapa;
+  return { mapa };
 }
 
 // O CSV do PNUD traz a série histórica inteira; interessa a coluna de IDH do ano
@@ -141,7 +149,7 @@ function lerSerie(json) {
 
 async function montar() {
   const paises = JSON.parse(fs.readFileSync(path.join(root, 'src', 'countries.base.json'), 'utf8'));
-  const iso = mapaIso();
+  const { mapa: iso } = mapaIso();
 
   const csvHdi = await baixar(HDI.url, 'IDH');
   const hdi = lerHdi(csvHdi);
@@ -151,6 +159,12 @@ async function montar() {
     const bruto = await baixar(urlIndicador(indicador.codigo), indicador.rotulo);
     series[indicador.campo] = { ...indicador, valores: lerSerie(bruto), sha256: sha256(bruto) };
   }
+
+  const codigosFao = paises.map((pais) => iso[pais.id]);
+  if (codigosFao.some((codigo) => !codigo)) throw new Error('País sem ISO3 para consultar a FAO.');
+  const fonteFao = urlFao(codigosFao);
+  const brutoFao = await baixar(fonteFao, 'FAO');
+  const seriesFao = FAO.indicadores.map((indicador) => ({ ...indicador, valores: lerFao(brutoFao, codigosFao) }));
 
   const paisesSaida = {};
   let comHdi = 0;
@@ -180,8 +194,20 @@ async function montar() {
         throw new Error(`${pais.id} (${pais.n}) ficou sem ${serie.rotulo} e sem explicação registrada em AUSENCIAS.`);
       }
     }
-    // Uma nota só, para não repetir a mesma frase em cinco indicadores.
+    // Uma nota só, para não repetir a mesma frase em quatro indicadores.
     if (AUSENCIAS.bancoMundial[pais.id]) registro.bmNota = AUSENCIAS.bancoMundial[pais.id];
+
+    for (const serie of seriesFao) {
+      const achado = serie.valores[codigo3];
+      if (achado) {
+        registro[serie.campo] = Number(achado.valor.toFixed(serie.decimais));
+        registro[`${serie.campo}Ano`] = achado.ano;
+        cobertura[serie.campo] = (cobertura[serie.campo] || 0) + 1;
+
+      } else {
+        throw new Error(`${pais.id} (${pais.n}) ficou sem ${serie.rotulo} da FAO e sem explicação registrada em AUSENCIAS.`);
+      }
+    }
 
     paisesSaida[pais.id] = registro;
   }
@@ -200,6 +226,23 @@ async function montar() {
     };
   }
 
+  // O ano predominante conta só os 195, não os agregados e ex-países do arquivo.
+  const indicadoresFao = {};
+  for (const serie of seriesFao) {
+    const anos = {};
+    Object.values(paisesSaida).forEach((registro) => {
+      const ano = registro[`${serie.campo}Ano`];
+      if (ano) anos[ano] = (anos[ano] || 0) + 1;
+    });
+    indicadoresFao[serie.campo] = {
+      tabela: serie.tabela,
+      variavel: serie.variavel,
+      rotulo: serie.rotulo,
+      cobertura: cobertura[serie.campo] || 0,
+      anoPredominante: Number(Object.entries(anos).sort((a, b) => b[1] - a[1])[0][0]),
+    };
+  }
+
   return {
     meta: {
       gerado: new Date().toISOString().slice(0, 10),
@@ -209,6 +252,17 @@ async function montar() {
         termos: BANCO_MUNDIAL.termos,
         licenca: BANCO_MUNDIAL.licenca,
         indicadores,
+      },
+      fao: {
+        fonte: FAO.fonte,
+        url: fonteFao,
+        documentacao: 'https://fra-data.fao.org/api-docs/',
+        ciclo: YEAR,
+        termos: FAO.termos,
+        licenca: FAO.licenca,
+        coletado: new Date().toISOString().slice(0, 10),
+        sha256: sha256(brutoFao),
+        indicadores: indicadoresFao,
       },
       total: paises.length,
     },
@@ -227,6 +281,9 @@ function comparavel(dados) {
       Object.entries(dados.meta.bancoMundial.indicadores).map(([k, v]) => [k, v.cobertura])
     ) : null,
     idhCobertura: dados.meta.idh.cobertura,
+    fao: dados.meta.fao ? Object.fromEntries(
+      Object.entries(dados.meta.fao.indicadores).map(([k, v]) => [k, v.cobertura])
+    ) : null,
   });
 }
 
@@ -237,6 +294,9 @@ async function principal() {
   console.log(`IDH ${dados.meta.idh.ano}: ${dados.meta.idh.cobertura}/${dados.meta.total} países`);
   for (const [campo, info] of Object.entries(dados.meta.bancoMundial.indicadores)) {
     console.log(`${info.rotulo} (${info.anoPredominante}): ${info.cobertura}/${dados.meta.total} — ${campo}`);
+  }
+  for (const [campo, info] of Object.entries(dados.meta.fao.indicadores)) {
+    console.log(`${info.rotulo}, FAO coletada em ${dados.meta.fao.coletado} (${info.anoPredominante}): ${info.cobertura}/${dados.meta.total} — ${campo}`);
   }
 
   if (conferir) {
@@ -253,7 +313,9 @@ async function principal() {
   console.log(`data/indicators.json gravado (${(fs.statSync(OUTPUT).size / 1024).toFixed(1)} KiB).`);
 }
 
-principal().catch((erro) => {
+if (require.main === module) principal().catch((erro) => {
   console.error(erro.message);
   process.exit(1);
 });
+
+module.exports = { montar, comparavel };
