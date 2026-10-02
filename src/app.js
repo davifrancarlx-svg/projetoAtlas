@@ -340,7 +340,7 @@
       if (REGIONS.includes(parsed.region)) state.region = parsed.region;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
-      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, mais abaixo).
+      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, em src/navigation.js).
       // O campo antigo, `filtersCollapsed`, era gravado junto com qualquer outra
       // preferência enquanto o padrão era fechado, então não diz se a pessoa
       // escolheu recolher: só o novo vale.
@@ -2145,7 +2145,8 @@
     announce('Sessão encerrada. O resumo do aprendizado está disponível.');
   }
 
-  function startNewSession() {
+  async function startNewSession() {
+    if (await reloadForUpdate()) return;
     abandonExercise();
     state.hits = 0; state.misses = 0; state.streak = 0; state.questionNumber = 0;
     state.sessionAnswers = []; state.reviewQueue = []; state.forcedQuestion = null;
@@ -2425,26 +2426,34 @@
     aviso.append(recarregar);
     const barra = dom.shell;
     if (barra) barra.prepend(aviso);
-    const automatic = create('p', { className: 'note', text: 'A atualização será aplicada automaticamente após encerrar o treino, quando o progresso estiver salvo.' });
-    aviso.append(automatic);
-    const tryUpdate = async () => {
-      const busy = !state.ready || document.hidden || state.resetPending || !state.sessionEnded
-        || (state.exam && !examFinished()) || state.fromDeck || state.examDraft
-        || document.activeElement?.closest('input, textarea, select, [contenteditable="true"]');
-      if (!busy) {
-        const snapshot = Core.serializeProgress(progress, { countryIds: IDS });
-        try {
-          await saveChain;
-          await writeAll(snapshot);
-          if (snapshot === Core.serializeProgress(progress, { countryIds: IDS }) && state.sessionEnded && !document.hidden) {
-            location.reload(); return;
-          }
-        } catch (_) { automatic.textContent = 'Salve um backup antes de recarregar: não foi possível confirmar a gravação.'; return; }
-      }
-      setTimeout(tryUpdate, 10000);
-    };
-    setTimeout(tryUpdate, 10000);
+    aviso.append(create('p', { className: 'note', text: 'A atualização será aplicada automaticamente quando você começar uma nova sessão, com o progresso já salvo.' }));
+    updateReady = true;
     announce('Uma versão nova do Atlas está pronta. Recarregue para usá-la.');
+  }
+
+  // A versão nova entra na passagem de uma sessão para outra. Recarregar logo
+  // depois de "Encerrar" apagava o resumo e a revisão focada dos erros, que só
+  // existem na memória da aba; em "Nova sessão" eles já foram vistos e não há
+  // pergunta em andamento.
+  let updateReady = false;
+  let updating = false;
+  async function reloadForUpdate() {
+    if (!updateReady || updating || !state.ready || state.resetPending) return false;
+    updating = true;
+    abandonExercise();
+    const snapshot = Core.serializeProgress(progress, { countryIds: IDS });
+    try {
+      await saveChain;
+      await writeAll(snapshot);
+    } catch (_) {
+      updating = false;
+      const note = document.querySelector('#updateNotice .note');
+      if (note) note.textContent = 'Salve um backup antes de recarregar: não foi possível confirmar a gravação.';
+      return false;
+    }
+    if (snapshot !== Core.serializeProgress(progress, { countryIds: IDS })) { updating = false; return false; }
+    location.reload();
+    return true;
   }
 
   function openCountryLink() {

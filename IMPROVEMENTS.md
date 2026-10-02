@@ -18,7 +18,7 @@ O usuário autorizou as melhorias restantes e adiou instalação e disponibilida
 | Duração das sessões | Implementada como tempo ativo de resposta; ver limites no README |
 | Histórico de confusões | Implementado e incluído no backup e na conta opcional |
 | Aviso de atualização no modo Foco | Corrigido |
-| Atualização automática em momento seguro | Implementada após encerrar o treino e confirmar a gravação |
+| Atualização automática em momento seguro | Implementada em "Nova sessão", depois do resumo e da gravação confirmada |
 
 ## Verificações externas
 

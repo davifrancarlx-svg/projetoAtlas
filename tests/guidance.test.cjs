@@ -30,6 +30,13 @@ test('explicação de bandeira usa características documentadas e não inventa 
   assert.match(Feedback.copy(Core, byId.NZ, byId.AU, 'flag', editorial), /Quatro estrelas vermelhas/);
   assert.doesNotMatch(Feedback.copy(Core, byId.FR, byId.IT, 'flag', editorial), /Cinco estrelas|Quatro estrelas/);
   assert.equal(Feedback.copy(Core, byId.AU, byId.AU, 'flag', editorial), null);
+  // Sem descrição conferida, nada sobre as bandeiras pode ser afirmado, nem
+  // mesmo que se parecem: a lista `fs` é uma estimativa automática.
+  for (const [id, chosen] of [['IE', 'MG'], ['FR', 'IT'], ['JP', 'BD']]) {
+    const texto = Feedback.copy(Core, { ...byId[id], fs: [chosen] }, byId[chosen], 'flag', editorial);
+    assert.doesNotMatch(texto, /estrela|faixa|símbolo|parecid/i, `${id} × ${chosen}`);
+    assert.match(texto, new RegExp(`separa ${byId[id].n} de ${byId[chosen].n}`));
+  }
 });
 
 test('fontes editoriais indicam escopo e cobrem os códigos dos 195 países, sem atribuir revisão a campos não conferidos', () => {

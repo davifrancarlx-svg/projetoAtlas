@@ -1,10 +1,15 @@
 'use strict';
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const assert = require('node:assert/strict');
 module.exports = async (client, evaluate, until) => {
   const ev = code => evaluate(client, code);
-  const folder = path.join(__dirname, '..', 'docs', 'mobile-review');
+  // As capturas versionadas em docs/ só mudam quando alguém pede; sem isso,
+  // cada `npm test` reescrevia os PNGs e sujava o git.
+  const folder = process.env.ATLAS_SAVE_EVIDENCE === '1'
+    ? path.join(__dirname, '..', 'docs', 'mobile-review')
+    : path.join(os.tmpdir(), 'atlas-mobile-review');
   fs.mkdirSync(folder, { recursive: true });
   const results = [];
   await ev("if(document.getElementById('focusToggle').getAttribute('aria-pressed')==='true')document.getElementById('focusToggle').click();if(!document.getElementById('visualToggle').checked)document.getElementById('visualToggle').click();document.querySelector('[data-time=\"0\"]').click()");

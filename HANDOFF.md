@@ -1,3 +1,38 @@
+# Revisão da rodada do Codex — 02/10/2026
+
+O Codex trabalhou em 01 e 02/10 direto na pasta do projeto, sem commit, sobre
+a branch `claude/epic-galileo-og69d5` (a rodada da tarde de 28/09, que nunca
+tinha entrado no `main`), enquanto o git da pasta ainda apontava para o commit
+de 17/09. A revisão guardou o trabalho dele como veio, num commit próprio da
+branch `claude/rodada-02-10`, e corrigiu no commit seguinte:
+
+- **A atualização automática apagava o resumo da sessão.** Com versão nova
+  pendente, o app recarregava cerca de 10 s depois de "Encerrar", e o resumo e
+  a revisão focada dos erros, que só existem na memória da aba, sumiam
+  (reproduzido no navegador). Agora a troca acontece em "Nova sessão"
+  (`reloadForUpdate` em `src/app.js`), depois de confirmar a gravação; o
+  cenário de `tests/features-browser.cjs` confere que o resumo fica e que a
+  troca preserva o progresso.
+- **A explicação de erro de bandeira inventava elementos.** Sem descrição
+  conferida (só Austrália e Nova Zelândia têm), a frase mandava comparar
+  "faixas, símbolos e estrelas" de qualquer par, inclusive Irlanda ×
+  Madagascar. Agora só pede para comparar as duas imagens. Também não diz
+  "parecidas": as alternativas saem dos oito vizinhos de `fs`, uma estimativa
+  automática que junta, por exemplo, Kiribati e Turcomenistão.
+- Os cenários de navegador do Codex regravavam os PNGs de `docs/` a cada
+  `npm test`; agora só com `ATLAS_SAVE_EVIDENCE=1`.
+- Teste novo em `tests/build.test.cjs`: nenhum arquivo de `src/`, `scripts/`,
+  `tests/`, `supabase/`, `qa/` ou da raiz pode ter CR ou NUL. Ele pegaria o CR
+  que veio no fim de `scripts/check-editorial-coverage.cjs`.
+
+Duas decisões continuam com o usuário: a pasta `qa/` traz dependências npm de
+desenvolvimento (contraria a regra 1 abaixo, embora nada entre no artefato), e
+o código passou a chamar os idiomas de "idioma listado na ficha" e a aceitar
+lista representativa ou de uso de facto, quando a política escolhida era
+mostrar os oficiais por lei.
+
+---
+
 # Documentação editorial dos 195 países — 02/10/2026
 
 Documentação consolidada em [docs/editorial-195.md](docs/editorial-195.md), com

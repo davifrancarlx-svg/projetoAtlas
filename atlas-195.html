@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0d222e" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="color-scheme" content="light dark">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-iMYVtHBzKmU1vQNX3okkJJAJ0earIfG16dVtuizWpgM='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-EwWOQx6+b+PnSSC8kxoH+WoiU7qIWkAx20kUi2sBWgY=' 'sha256-jaEshTx0vyKfcteaZXN3uXQfL9+q6dsDt1Wm5drjSpI=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-ZBYL4AvKzR+RZGE5f7Vyakfzjf5oJ3OPMIg3+tZwdEs='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-iMYVtHBzKmU1vQNX3okkJJAJ0earIfG16dVtuizWpgM='; script-src 'sha256-9zQoWfOU73dBsjJmuBzpIEkcHHGPV3bE+BlPkREECQA=' 'sha256-EwWOQx6+b+PnSSC8kxoH+WoiU7qIWkAx20kUi2sBWgY=' 'sha256-jaEshTx0vyKfcteaZXN3uXQfL9+q6dsDt1Wm5drjSpI=' 'sha256-elO8fhdvw5a7qFHRdluWKpUtP975ifojdziUNkGE2JU=' 'sha256-TbuQMoe2jjuRL4Uynsdm0PFu2lHabjgXgZy3JePDUY8='; img-src 'self' data:; font-src data:; connect-src https://wckbqklezfxfoaaiybab.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'">
   <title>Atlas 195 — bandeiras, capitais e localização</title>
   <meta name="description" content="Treino de geografia dos 195 países: bandeiras, capitais, localização no mapa e regiões, com revisão espaçada. Funciona sem internet e guarda o progresso só no seu aparelho.">
 
@@ -5742,7 +5742,11 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       const a = editorial.countries?.[country.id]?.flag?.description;
       const b = editorial.countries?.[chosen.id]?.flag?.description;
       if (a && b) return `${country.n}: ${a} ${chosen.n}: ${b}`;
-      return `${country.n} e ${chosen.n}: compare a ordem das faixas, a posição dos símbolos e o desenho das estrelas nas duas imagens.`;
+      // Sem descrição conferida, a frase não pode afirmar nada sobre as duas
+      // bandeiras: Irlanda × Madagascar recebia "o desenho das estrelas". Nem
+      // "parecidas": as alternativas saem dos oito vizinhos de `fs`, uma
+      // estimativa automática que junta Kiribati e Turcomenistão.
+      return `Compare as duas imagens acima e procure o detalhe que separa ${country.n} de ${chosen.n}.`;
     }
     const relation = Core.confusionReason(country, chosen, direction) === 'border'
       ? 'Os dois compartilham uma fronteira terrestre. ' : '';
@@ -7943,7 +7947,7 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
       if (REGIONS.includes(parsed.region)) state.region = parsed.region;
       if (typeof parsed.includeVisual === 'boolean') state.includeVisual = parsed.includeVisual;
       if (typeof parsed.mapCollapsed === 'boolean') state.mapCollapsed = parsed.mapCollapsed;
-      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, mais abaixo).
+      // Sem escolha, a barra segue o tamanho da tela (filtersHidden, em src/navigation.js).
       // O campo antigo, `filtersCollapsed`, era gravado junto com qualquer outra
       // preferência enquanto o padrão era fechado, então não diz se a pessoa
       // escolheu recolher: só o novo vale.
@@ -9748,7 +9752,8 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     announce('Sessão encerrada. O resumo do aprendizado está disponível.');
   }
 
-  function startNewSession() {
+  async function startNewSession() {
+    if (await reloadForUpdate()) return;
     abandonExercise();
     state.hits = 0; state.misses = 0; state.streak = 0; state.questionNumber = 0;
     state.sessionAnswers = []; state.reviewQueue = []; state.forcedQuestion = null;
@@ -10028,26 +10033,34 @@ const CLOUD = {"url":"https://wckbqklezfxfoaaiybab.supabase.co","anonKey":"sb_pu
     aviso.append(recarregar);
     const barra = dom.shell;
     if (barra) barra.prepend(aviso);
-    const automatic = create('p', { className: 'note', text: 'A atualização será aplicada automaticamente após encerrar o treino, quando o progresso estiver salvo.' });
-    aviso.append(automatic);
-    const tryUpdate = async () => {
-      const busy = !state.ready || document.hidden || state.resetPending || !state.sessionEnded
-        || (state.exam && !examFinished()) || state.fromDeck || state.examDraft
-        || document.activeElement?.closest('input, textarea, select, [contenteditable="true"]');
-      if (!busy) {
-        const snapshot = Core.serializeProgress(progress, { countryIds: IDS });
-        try {
-          await saveChain;
-          await writeAll(snapshot);
-          if (snapshot === Core.serializeProgress(progress, { countryIds: IDS }) && state.sessionEnded && !document.hidden) {
-            location.reload(); return;
-          }
-        } catch (_) { automatic.textContent = 'Salve um backup antes de recarregar: não foi possível confirmar a gravação.'; return; }
-      }
-      setTimeout(tryUpdate, 10000);
-    };
-    setTimeout(tryUpdate, 10000);
+    aviso.append(create('p', { className: 'note', text: 'A atualização será aplicada automaticamente quando você começar uma nova sessão, com o progresso já salvo.' }));
+    updateReady = true;
     announce('Uma versão nova do Atlas está pronta. Recarregue para usá-la.');
+  }
+
+  // A versão nova entra na passagem de uma sessão para outra. Recarregar logo
+  // depois de "Encerrar" apagava o resumo e a revisão focada dos erros, que só
+  // existem na memória da aba; em "Nova sessão" eles já foram vistos e não há
+  // pergunta em andamento.
+  let updateReady = false;
+  let updating = false;
+  async function reloadForUpdate() {
+    if (!updateReady || updating || !state.ready || state.resetPending) return false;
+    updating = true;
+    abandonExercise();
+    const snapshot = Core.serializeProgress(progress, { countryIds: IDS });
+    try {
+      await saveChain;
+      await writeAll(snapshot);
+    } catch (_) {
+      updating = false;
+      const note = document.querySelector('#updateNotice .note');
+      if (note) note.textContent = 'Salve um backup antes de recarregar: não foi possível confirmar a gravação.';
+      return false;
+    }
+    if (snapshot !== Core.serializeProgress(progress, { countryIds: IDS })) { updating = false; return false; }
+    location.reload();
+    return true;
   }
 
   function openCountryLink() {

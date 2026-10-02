@@ -69,7 +69,7 @@ Instalação e novas funcionalidades de disponibilidade offline estão fora dest
 - **Imprimir / PDF** usa um layout próprio para a ficha, incluindo bandeira e silhueta. **Exportar ficha (.txt)** baixa os dados, notas, territórios e fontes em texto; não inclui progresso pessoal.
 - Progresso mostra quantos países ainda não foram estudados. **Treinar somente novidades** usa exclusivamente habilidades sem tentativas, respeita os filtros e oferece lotes de até 30, retomada e continuação.
 - Revisões e dificuldades mostram os primeiros 12 itens e oferecem expansão para todos; a ordem está explicada. Os atalhos do teclado têm um painel recolhível e alimentam também as instruções acessíveis do mapa.
-- O aviso de versão nova permanece visível no modo Foco. Depois de encerrar o treino, sem série/revisão ativa ou edição de campo, a atualização pode recarregar automaticamente após confirmar a gravação local. Durante exercícios permanece o botão manual.
+- O aviso de versão nova permanece visível no modo Foco. A atualização recarrega sozinha quando a pessoa escolhe **Nova sessão** no resumo, depois de confirmar a gravação local; encerrar o treino não recarrega, porque o resumo e a revisão dos erros só existem na aba. Antes disso permanece o botão manual.
 
 ### Histórico e compatibilidade
 
@@ -177,7 +177,7 @@ As seções Treinar, Atlas e Progresso ficam numa barra inferior em telas de at�
 
 No Atlas móvel, os resultados aparecem antes da ficha, em uma lista recolhível. Selecionar um país recolhe a lista e leva à ficha. A ficha oferece retorno à busca e acesso ao mapa. Buscar um único resultado e pressionar Enter também abre a ficha. No treino, a próxima pergunta leva ao enunciado ou ao mapa necessário; o retorno após responder prioriza a explicação. Perguntas respondidas no mapa mostram o enunciado junto dele.
 
-O cenário `tests/mobile-checkup-browser.cjs` verifica telas de 320×568, 360×640, 390×844, 844×390 e 320×340, sem transbordamento horizontal, campos legíveis, alvos de toque, navegação, busca, ficha, mapa, resposta e avanço. Usa eventos de toque do Chrome, incluindo arraste e pinça sem resposta acidental. Capturas e medições estão em `docs/mobile-review/`. A janela de altura reduzida verifica falta de espaço, mas não substitui testes com teclado virtual, Safari/iOS ou aparelhos físicos.
+O cenário `tests/mobile-checkup-browser.cjs` verifica telas de 320×568, 360×640, 390×844, 844×390 e 320×340, sem transbordamento horizontal, campos legíveis, alvos de toque, navegação, busca, ficha, mapa, resposta e avanço. Usa eventos de toque do Chrome, incluindo arraste e pinça sem resposta acidental. Capturas e medições estão em `docs/mobile-review/`; o teste só as regrava com `ATLAS_SAVE_EVIDENCE=1` (sem isso, vão para a pasta temporária do sistema). A janela de altura reduzida verifica falta de espaço, mas não substitui testes com teclado virtual, Safari/iOS ou aparelhos físicos.
 
 ## Validação ampliada
 

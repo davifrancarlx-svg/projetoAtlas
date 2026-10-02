@@ -1,3 +1,22 @@
+# Revisão da rodada do Codex — 02/10/2026
+
+`npm run check` com `ATLAS_REQUIRE_BROWSER=1`: **204 testes aprovados, zero
+falhas e zero ignorados**, com Chrome real; build, orçamentos, atualidade dos
+indicadores e auditoria editorial estrita aprovados. Artefato: 3184,3 KiB de
+3328 KiB. `npm --prefix qa run test:database`: 19 verificações aprovadas. Os
+cenários Firefox/WebKit não foram repetidos nesta revisão (exigiriam baixar os
+navegadores do Playwright).
+
+Conferido num Chrome de verdade, com o service worker e o cache limpos antes:
+com versão nova pendente, o resumo da sessão continuou na tela 13 s depois de
+"Encerrar"; "Nova sessão" recarregou com a revisão do progresso intacta (3 →
+3), sem erro no console. Três erros de bandeira seguidos (França × Costa Rica,
+Reino Unido × Cuba, Índia × Nauru) receberam só o pedido de comparar as duas
+imagens. Antes da correção, a troca de versão apagava o resumo em cerca de
+10 s, e Irlanda × Madagascar recebia "o desenho das estrelas".
+
+---
+
 # Documentação editorial dos 195 países — 02/10/2026
 
 Documentação consolidada em [docs/editorial-195.md](docs/editorial-195.md), com

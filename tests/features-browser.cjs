@@ -1,6 +1,7 @@
 'use strict';
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 module.exports = async (client, evaluate, until) => {
   const ev = code => evaluate(client, code);
@@ -131,7 +132,9 @@ module.exports = async (client, evaluate, until) => {
   assert.equal(await ev("getComputedStyle(document.querySelector('.map-region')).display"), 'none');
   assert.ok(await ev("document.querySelector('.atlas-detail').getBoundingClientRect().height>100"));
   await client.send('Emulation.setEmulatedMedia', { media: '' });
-  const screenshots = path.join(__dirname, '..', 'docs', 'features-review'); fs.mkdirSync(screenshots, { recursive: true });
+  const screenshots = process.env.ATLAS_SAVE_EVIDENCE === '1'
+    ? path.join(__dirname, '..', 'docs', 'features-review') : path.join(os.tmpdir(), 'atlas-features-review');
+  fs.mkdirSync(screenshots, { recursive: true });
   for (const [width, theme] of [[1280, 'light'], [360, 'dark']]) {
     await client.send('Emulation.setDeviceMetricsOverride', { width, height:900, deviceScaleFactor:1, mobile:false });
     await ev(`document.documentElement.dataset.theme='${theme}'; new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => { document.querySelector('.atlas-comparison').scrollIntoView(); resolve(); })))`);
@@ -144,10 +147,15 @@ module.exports = async (client, evaluate, until) => {
   await client.send('Emulation.setDeviceMetricsOverride', { width:1280,height:900,deviceScaleFactor:1,mobile:false });
   await ev("document.querySelector('[data-view=quiz]').click();document.getElementById('focusToggle').click();navigator.serviceWorker.dispatchEvent(new MessageEvent('message',{data:{atlas:'versao-nova'}}))");
   assert.equal(await ev("getComputedStyle(document.getElementById('updateNotice')).display==='none'"), false);
-  // A atualização aguarda o encerramento e não perde a resposta gravada.
+  // Encerrar não pode recarregar: o resumo e a revisão dos erros só existem na
+  // aba. A atualização entra em "Nova sessão" e não perde a resposta gravada.
   await ev("window.beforeAutomaticUpdate=true;document.querySelector('[data-answer]').click();document.querySelector('.session-finish').click()");
+  await ev("new Promise(resolve=>setTimeout(resolve,1500))");
+  assert.equal(await ev("window.beforeAutomaticUpdate===true && Boolean(document.querySelector('.session-result-title'))"), true, 'O resumo da sessão continua na tela com a versão nova pendente.');
+  assert.match(await ev("document.querySelector('#updateNotice .note').textContent"), /nova sessão/);
   const beforeReload = await ev("AtlasCore.Learning.summary(JSON.parse(localStorage.getItem('atlas195:v2')).learning).ms");
-  await until('atualização automática depois do encerramento', () => ev("!window.beforeAutomaticUpdate && Boolean(document.querySelector('[data-answer]'))"), {timeout:20000});
+  await ev("[...document.querySelectorAll('.session-result-actions button')].find(button => button.textContent === 'Nova sessão').click()");
+  await until('atualização ao começar nova sessão', () => ev("!window.beforeAutomaticUpdate && Boolean(document.querySelector('[data-answer]'))"), {timeout:20000});
   assert.equal(await ev("AtlasCore.Learning.summary(JSON.parse(localStorage.getItem('atlas195:v2')).learning).ms"), beforeReload);
   await ev("document.documentElement.dataset.theme='light'");
 };

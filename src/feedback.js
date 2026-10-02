@@ -17,7 +17,11 @@
       const a = editorial.countries?.[country.id]?.flag?.description;
       const b = editorial.countries?.[chosen.id]?.flag?.description;
       if (a && b) return `${country.n}: ${a} ${chosen.n}: ${b}`;
-      return `${country.n} e ${chosen.n}: compare a ordem das faixas, a posição dos símbolos e o desenho das estrelas nas duas imagens.`;
+      // Sem descrição conferida, a frase não pode afirmar nada sobre as duas
+      // bandeiras: Irlanda × Madagascar recebia "o desenho das estrelas". Nem
+      // "parecidas": as alternativas saem dos oito vizinhos de `fs`, uma
+      // estimativa automática que junta Kiribati e Turcomenistão.
+      return `Compare as duas imagens acima e procure o detalhe que separa ${country.n} de ${chosen.n}.`;
     }
     const relation = Core.confusionReason(country, chosen, direction) === 'border'
       ? 'Os dois compartilham uma fronteira terrestre. ' : '';

@@ -286,6 +286,27 @@ test('os hashes da CSP sobrevivem à normalização de quebras de linha do parse
   );
 });
 
+// O mesmo defeito nasce nos fontes antes de chegar ao artefato. E mesmo onde o
+// build não alcança, um NUL faz o grep tratar o arquivo inteiro como binário e
+// pulá-lo nas buscas (aconteceu num comentário de scripts/build.cjs), e um CR
+// solto escapou em scripts/check-editorial-coverage.cjs.
+test('nenhum fonte, script, teste ou documento contém CR ou NUL', () => {
+  const arquivos = [
+    ...['src', 'scripts', 'tests', 'supabase'].flatMap((pasta) => fs.readdirSync(path.join(ROOT, pasta), { recursive: true })
+      .map((nome) => path.join(pasta, nome))),
+    ...['qa', '.'].flatMap((pasta) => fs.readdirSync(path.join(ROOT, pasta)).map((nome) => path.join(pasta, nome)))
+      .filter((nome) => /\.(c?js|json|md|sql)$/.test(nome)),
+  ].filter((nome) => fs.statSync(path.join(ROOT, nome)).isFile());
+  assert.ok(arquivos.length > 80, 'A varredura não encontrou os arquivos do projeto.');
+  const defeitos = arquivos.flatMap((nome) => {
+    const bytes = fs.readFileSync(path.join(ROOT, nome));
+    return [[0x00, 'NUL'], [0x0d, 'CR']]
+      .filter(([byte]) => bytes.includes(byte))
+      .map(([byte, rotulo]) => `${nome}: ${rotulo} no byte ${bytes.indexOf(byte)}`);
+  });
+  assert.deepEqual(defeitos, [], 'Troque o caractere pelo escape em texto (\\u0000, \\r) ou converta para LF.');
+});
+
 test('não restam placeholders nem atributos inline bloqueados pela CSP', () => {
   assert.doesNotMatch(html, /\{\{[A-Z_]+\}\}/, 'Há placeholder não resolvido.');
 
